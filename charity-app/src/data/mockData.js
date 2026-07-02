@@ -1,0 +1,97 @@
+export const nonprofits = [
+  {
+    id: 1,
+    name: 'Ocean Conservancy',
+    category: 'Environment',
+    verified: true,
+    color: '#0D7377',
+    initials: 'OC',
+    bg: 'linear-gradient(135deg, #0D7377, #14A085)',
+  },
+  {
+    id: 2,
+    name: 'Food Bank NYC',
+    category: 'Food & Hunger',
+    verified: true,
+    color: '#F57C00',
+    initials: 'FB',
+    bg: 'linear-gradient(135deg, #F57C00, #FFB300)',
+  },
+  {
+    id: 3,
+    name: 'Books for Communities',
+    category: 'Education',
+    verified: true,
+    color: '#7B1FA2',
+    initials: 'BC',
+    bg: 'linear-gradient(135deg, #7B1FA2, #AB47BC)',
+  },
+  {
+    id: 4,
+    name: 'Clean Air Alliance',
+    category: 'Environment',
+    verified: true,
+    color: '#388E3C',
+    initials: 'CA',
+    bg: 'linear-gradient(135deg, #388E3C, #66BB6A)',
+  },
+  {
+    id: 5,
+    name: 'Youth Health Fund',
+    category: 'Health',
+    verified: true,
+    color: '#D32F2F',
+    initials: 'YH',
+    bg: 'linear-gradient(135deg, #D32F2F, #EF5350)',
+  },
+];
+
+export const liveActivities = [
+  {
+    id: 1,
+    type: 'join',
+    user: 'Priya M.',
+    initials: 'PM',
+    color: '#7C3AED',
+    text: 'Priya M. just joined',
+    time: '2 min ago',
+    isSystem: false,
+  },
+  {
+    id: 2,
+    type: 'update',
+    user: 'Sarah Jenkins',
+    initials: 'SJ',
+    color: '#F5604A',
+    text: 'Setting up the main stage now! Looking forward to seeing everyone down at the plaza.',
+    time: '8 min ago',
+    isOrganizer: true,
+    hasImage: true,
+  },
+  {
+    id: 3,
+    type: 'org',
+    user: 'Ocean Conservancy',
+    initials: 'OC',
+    color: '#0D7377',
+    text: "Incredible progress today! Can't wait to share the final numbers.",
+    time: '15 min ago',
+    isVerified: true,
+  },
+];
+
+export const eventData = {
+  title: 'Ocean Coastal Restoration',
+  subtitle: 'Join us for a massive cleanup effort along...',
+  organizer: 'Sarah Jenkins',
+  nonprofit: 'Ocean Conservancy',
+  category: 'Environment',
+  date: 'Oct 14, 2025',
+  startTime: '9:00 AM',
+  endTime: '9:00 PM',
+  backed: 213,
+  joined: 87,
+  updates: 38,
+};
+
+export const causes = ['Environment', 'Education', 'Animals', 'Health', 'Arts', 'Housing'];
