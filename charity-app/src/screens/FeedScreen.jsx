@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Compass, Bell, Plus, Megaphone, Building2 } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
+import { events } from '../data/mockData';
+
+const FEED_EVENTS = [events[0], events[1]];
 
 export default function FeedScreen() {
   const navigate = useNavigate();
@@ -59,19 +62,36 @@ export default function FeedScreen() {
           </div>
         </div>
 
-        {/* Feed placeholder cards */}
+        {/* Feed event cards */}
         <div style={{ padding: '16px 18px 16px' }}>
-          {[1, 2].map((i) => (
-            <div key={i} className="card" style={{ marginBottom: 14 }}>
+          {FEED_EVENTS.map((ev) => (
+            <div key={ev.id} className="card" style={{ marginBottom: 14, padding: 0, overflow: 'hidden' }}>
               <div style={{
-                height: 120,
-                background: i === 1
-                  ? 'linear-gradient(135deg, #F5604A 0%, #FF8A65 100%)'
-                  : 'linear-gradient(135deg, #0D7377 0%, #14A085 100%)',
-                borderRadius: 8, marginBottom: 10,
-              }} />
-              <div style={{ height: 14, background: 'var(--border)', borderRadius: 4, width: '70%', marginBottom: 6 }} />
-              <div style={{ height: 12, background: 'var(--border)', borderRadius: 4, width: '45%' }} />
+                height: 130,
+                backgroundImage: `url(${ev.cover})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                position: 'relative',
+              }}>
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  background: 'linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 55%)',
+                }} />
+                <div style={{ position: 'absolute', top: 10, left: 10, display: 'flex', gap: 6 }}>
+                  {ev.isLive && (
+                    <span className="live-badge" style={{ fontSize: 10 }}>
+                      <span className="live-dot" />LIVE NOW
+                    </span>
+                  )}
+                  <span className="badge" style={{ background: ev.catBg, color: ev.catColor, fontSize: 10 }}>
+                    {ev.category}
+                  </span>
+                </div>
+              </div>
+              <div style={{ padding: '12px 14px' }}>
+                <p style={{ fontSize: 15, fontWeight: 800, color: 'var(--dark)', marginBottom: 3 }}>{ev.title}</p>
+                <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{ev.date} · {ev.location}</p>
+              </div>
             </div>
           ))}
         </div>

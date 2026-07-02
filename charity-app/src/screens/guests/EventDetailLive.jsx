@@ -15,14 +15,15 @@ export default function EventDetailLive() {
         <div className="detail-scroll">
           {/* Hero */}
           <div className="detail-hero" style={{ height: 260 }}>
-            <div style={{
-              position: 'absolute', inset: 0,
-              background: 'linear-gradient(160deg,#FF8C42 0%,#F5604A 30%,#2C4B6E 65%,#1A2F48 100%)',
-            }} />
+            <img
+              src="/events/neon-night/img2.jpg"
+              alt="Neon Night Run"
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+            />
             {/* dim overlay bottom */}
             <div style={{
               position: 'absolute', inset: 0,
-              background: 'linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 55%)',
+              background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 55%, transparent 100%)',
             }} />
 
             {/* Top nav */}
@@ -66,25 +67,25 @@ export default function EventDetailLive() {
           <div className="detail-card">
             {/* Title */}
             <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--dark)', marginBottom: 6, letterSpacing: -0.3 }}>
-              Ocean Coastal Restoration
+              Neon Night Run
             </h1>
 
             {/* Location */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 14 }}>
               <MapPin size={13} color="var(--text-secondary)" />
-              <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Half Moon Bay, CA</span>
+              <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Prospect Park, Brooklyn NY</span>
             </div>
 
             {/* Nonprofit row */}
             <div className="np-info-row">
               <div style={{
                 width: 36, height: 36, borderRadius: '50%',
-                background: 'linear-gradient(135deg,#0D7377,#14A085)',
+                background: 'linear-gradient(135deg,#D32F2F,#EF5350)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 11, fontWeight: 700, color: 'white', flexShrink: 0,
-              }}>OC</div>
+              }}>YH</div>
               <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)' }}>Ocean Conservancy</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)' }}>Youth Health Fund</p>
                 <p style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Verified Nonprofit</p>
               </div>
               <button className="btn-ghost" style={{ fontSize: 13 }}>Learn more</button>
@@ -110,13 +111,13 @@ export default function EventDetailLive() {
               The Mission
             </p>
             <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.65, marginBottom: 4 }}>
-              Join us for an urgent coastal restoration initiative. We're clearing debris, planting native dune grasses, and restoring vital nesting habitats for endangered sea turtles before the nesting season begins.
+              Join us for an electrifying night run through Prospect Park. Grab your glow gear and help us raise funds for youth fitness programs. Every finish line crossed supports a kid's access to sports.
             </p>
 
             {/* Photo grid */}
             <div className="photo-grid-2">
-              <div style={{ background: 'linear-gradient(135deg,#795548 0%,#BCAAA4 100%)' }} />
-              <div style={{ background: 'linear-gradient(160deg,#FF8C42 0%,#F5604A 50%,#2C4B6E 100%)' }} />
+              <div style={{ backgroundImage: 'url(/events/neon-night/img3.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+              <div style={{ backgroundImage: 'url(/events/neon-night/img4.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
             </div>
 
             {/* Live Activity */}
@@ -129,21 +130,21 @@ export default function EventDetailLive() {
             </div>
 
             <div className="live-activity-item">
-              <div className="la-avatar" style={{ background: 'linear-gradient(135deg,#F5604A,#FF8A65)' }}>SM</div>
+              <div className="la-avatar" style={{ background: 'linear-gradient(135deg,#F5604A,#FF8A65)' }}>PM</div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)' }}>Sarah M. joined the cleanup crew</p>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)' }}>Priya M. just crossed the start line</p>
                   <span style={{ fontSize: 11, color: 'var(--text-light)', flexShrink: 0, marginLeft: 6 }}>2 min ago</span>
                 </div>
               </div>
             </div>
 
             <div className="live-activity-item">
-              <div className="la-avatar" style={{ background: 'linear-gradient(135deg,#0D7377,#14A085)' }}>OC</div>
+              <div className="la-avatar" style={{ background: 'linear-gradient(135deg,#D32F2F,#EF5350)' }}>YH</div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
                   <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)' }}>
-                    Ocean Conservancy{' '}
+                    Youth Health Fund{' '}
                     <span style={{
                       display: 'inline-flex', width: 13, height: 13, borderRadius: '50%',
                       background: 'var(--blue)', color: 'white', fontSize: 8,
@@ -153,11 +154,12 @@ export default function EventDetailLive() {
                   <span style={{ fontSize: 11, color: 'var(--text-light)', flexShrink: 0, marginLeft: 6 }}>15 min ago</span>
                 </div>
                 <p style={{ fontSize: 13, color: 'var(--dark)', lineHeight: 1.5, marginBottom: 8 }}>
-                  Basecamp is set up! Grab your gloves and bags at the main tent.
+                  The glow station is open! Grab your wristbands at the main tent. Let's hit 100 backers tonight!
                 </p>
                 <div style={{
                   height: 90, borderRadius: 10,
-                  background: 'linear-gradient(160deg,#795548 0%,#BCAAA4 50%,#E8C4B8 100%)',
+                  backgroundImage: 'url(/events/neon-night/img5.jpg)',
+                  backgroundSize: 'cover', backgroundPosition: 'center',
                 }} />
               </div>
             </div>

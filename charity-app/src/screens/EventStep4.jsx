@@ -4,8 +4,8 @@ import { ChevronLeft, Check, Info } from 'lucide-react';
 
 const CHECKLIST = [
   { id: 1, text: 'Story media added', done: true },
-  { id: 2, text: 'Nonprofit selected: Ocean Conservancy', done: true },
-  { id: 3, text: 'Dates set: Oct 14, 2025', done: true },
+  { id: 2, text: 'Nonprofit selected: Youth Health Fund', done: true },
+  { id: 3, text: 'Dates set: Nov 8, 2025', done: true },
   { id: 4, text: 'Review Charity Hub content guidelines', done: false, isLink: true },
 ];
 
@@ -41,22 +41,28 @@ export default function EventStep4() {
             {/* Hero image */}
             <div style={{
               height: 160,
-              background: 'linear-gradient(160deg, #FF8C00 0%, #F5604A 40%, #E05C20 100%)',
+              backgroundImage: 'url(/events/neon-night/img1.jpg)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
               position: 'relative',
               display: 'flex',
               alignItems: 'flex-start',
               padding: 12,
             }}>
-              <span className="badge badge-env" style={{ background: 'rgba(255,255,255,0.9)', color: '#388E3C', fontWeight: 700 }}>
-                Environment
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 50%)',
+              }} />
+              <span className="badge badge-env" style={{ background: 'rgba(255,255,255,0.9)', color: '#C62828', fontWeight: 700, position: 'relative' }}>
+                Health
               </span>
             </div>
             <div style={{ padding: '14px 16px' }}>
               <p style={{ fontSize: 16, fontWeight: 800, color: 'var(--dark)', marginBottom: 4 }}>
-                Ocean Coastal Restoration
+                Neon Night Run
               </p>
               <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>
-                Join us for a massive cleanup effort along...
+                Light up the night for a great cause. A glowing 5K...
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div style={{
@@ -78,7 +84,7 @@ export default function EventStep4() {
                     Sarah Jenkins{' '}
                     <span style={{ color: 'var(--blue)' }}>✓</span>
                   </p>
-                  <p style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Ocean Conservancy</p>
+                  <p style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Youth Health Fund</p>
                 </div>
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: 14 }}>
                   <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>0 backed</span>
@@ -114,7 +120,7 @@ export default function EventStep4() {
           <div className="info-banner" style={{ marginTop: 14 }}>
             <Info size={16} color="var(--blue)" style={{ flexShrink: 0, marginTop: 1 }} />
             <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-              Ocean Conservancy will review and approve your event before it goes live. You'll be notified within 24-48 hours.
+              Youth Health Fund will review and approve your event before it goes live. You'll be notified within 24-48 hours.
             </p>
           </div>
 

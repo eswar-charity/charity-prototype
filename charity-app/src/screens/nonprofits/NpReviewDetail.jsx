@@ -32,19 +32,17 @@ export default function NpReviewDetail() {
               height: 180, borderRadius: 'var(--radius-md)', overflow: 'hidden',
               position: 'relative', marginBottom: 16,
             }}>
+              <img src="/events/breakneck-ridge-run/img2.jpg" alt="Breakneck Ridge Run"
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
               <div style={{
                 position: 'absolute', inset: 0,
-                background: 'linear-gradient(160deg,#FF8C42 0%,#F5604A 30%,#2C4B6E 65%,#1A2F48 100%)',
-              }} />
-              <div style={{
-                position: 'absolute', inset: 0,
-                background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 55%)',
+                background: 'linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 55%)',
               }} />
             </div>
 
             {/* Title & nonprofit */}
             <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--dark)', marginBottom: 4 }}>
-              Coastal Cleanup Wave 2
+              Breakneck Ridge Run
             </h2>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14 }}>
               <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>Ocean Conservancy</span>
@@ -62,23 +60,23 @@ export default function NpReviewDetail() {
                   <Calendar size={13} color="var(--primary)" />
                   <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)' }}>Date & time</span>
                 </div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)' }}>Oct 24, 2024</p>
-                <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>9:00 AM – 1:00 PM</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)' }}>Oct 28, 2025</p>
+                <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>8:00 AM – 2:00 PM</p>
               </div>
               <div className="review-info-box">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
                   <MapPin size={13} color="var(--primary)" />
                   <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)' }}>Location</span>
                 </div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)' }}>Santa Monica Pier</p>
-                <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>Los Angeles, CA</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)' }}>Breakneck Ridge</p>
+                <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>Hudson Valley, NY</p>
               </div>
             </div>
 
             {/* Mission */}
             <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)', marginBottom: 10 }}>The Mission</p>
             <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.65, marginBottom: 16 }}>
-              Join us for our second wave of coastal restoration this season. We are targeting critical nesting habitats that have been heavily impacted by recent storms and debris accumulation. Your participation helps ensure a safe environment for local wildlife and preserves the natural beauty of our coastline for future generations. All equipment provided.
+              A trail run through the Hudson Valley raising awareness for clean waterways. Runners of all skill levels are welcome. Every registration contributes directly to watershed restoration efforts in the region. All gear provided, no prior trail experience necessary.
             </p>
 
             {/* Organizer */}

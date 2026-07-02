@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Camera, Plus, X } from 'lucide-react';
 
 const SAMPLE_IMGS = [
-  { id: 1, bg: 'linear-gradient(135deg, #E57373, #FF8A65)', label: 'Photo 1' },
-  { id: 2, bg: 'linear-gradient(135deg, #81C784, #AED581)', label: 'Photo 2' },
-  { id: 3, bg: 'linear-gradient(135deg, #FFD54F, #FF8F00)', label: 'Photo 3' },
+  { id: 1, src: '/events/neon-night/img1.jpg' },
+  { id: 2, src: '/events/neon-night/img2.jpg' },
+  { id: 3, src: '/events/neon-night/img3.jpg' },
 ];
 
 export default function EventStep1() {
@@ -58,7 +58,7 @@ export default function EventStep1() {
               <div key={p.id} style={{ position: 'relative', flexShrink: 0 }}>
                 <div
                   className="photo-thumb"
-                  style={{ background: p.bg }}
+                  style={{ backgroundImage: `url(${p.src})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
                 />
                 <button
                   onClick={() => removePhoto(p.id)}

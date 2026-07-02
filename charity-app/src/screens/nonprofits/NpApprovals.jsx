@@ -8,15 +8,15 @@ const FILTERS = ['All (3)', 'Pending', 'Changes requested', 'Approved'];
 const EVENTS = [
   {
     id: 1,
-    title: 'Coastal Cleanup Wave 2',
+    title: 'Breakneck Ridge Run',
     organizer: 'Maya R.',
     date: 'Oct 28, 2025',
-    location: 'Santa Monica Pier',
-    desc: 'Join us for our largest beach cleanup of the year. We\'re aiming to clear 500lbs of plastic',
+    location: 'Hudson Valley, NY',
+    desc: 'A trail run through the Hudson Valley raising awareness for clean waterways. All skill levels welcome.',
     submitted: '2 hours ago',
     status: 'new',
     hasHero: true,
-    heroBg: 'linear-gradient(160deg,#FF8C42 0%,#F5604A 35%,#2C4B6E 70%,#1A2F48 100%)',
+    heroImg: '/events/breakneck-ridge-run/img1.jpg',
   },
   {
     id: 2,
@@ -67,8 +67,8 @@ export default function NpApprovals() {
             <div key={ev.id} className="ap-card">
               {/* Hero (if applicable) */}
               {ev.hasHero && (
-                <div style={{ position: 'relative', height: 140 }}>
-                  <div style={{ position: 'absolute', inset: 0, background: ev.heroBg }} />
+                <div style={{ position: 'relative', height: 140, overflow: 'hidden' }}>
+                  <img src={ev.heroImg} alt={ev.title} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                   <div style={{
                     position: 'absolute', inset: 0,
                     background: 'linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 55%)',

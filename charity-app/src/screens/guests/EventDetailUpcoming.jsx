@@ -16,13 +16,14 @@ export default function EventDetailUpcoming() {
         <div className="detail-scroll">
           {/* Hero */}
           <div className="detail-hero" style={{ height: 240 }}>
+            <img
+              src="/events/give-now/img1.jpg"
+              alt="Give Now Apré Later"
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+            />
             <div style={{
               position: 'absolute', inset: 0,
-              background: 'linear-gradient(160deg,#4A6741 0%,#5A7A52 35%,#8B9B6A 70%,#C0B280 100%)',
-            }} />
-            <div style={{
-              position: 'absolute', inset: 0,
-              background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 55%)',
+              background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.1) 55%, transparent 100%)',
             }} />
 
             {/* Top nav */}
@@ -56,11 +57,11 @@ export default function EventDetailUpcoming() {
             }}>
               <span className="hero-pill coral">
                 <Calendar size={10} />
-                Oct 14 · 9AM
+                Dec 14 · 4PM
               </span>
               <span className="hero-pill coral">
                 <MapPin size={10} />
-                New York
+                Stowe, VT
               </span>
             </div>
           </div>
@@ -68,23 +69,23 @@ export default function EventDetailUpcoming() {
           {/* White detail card */}
           <div className="detail-card">
             <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--dark)', marginBottom: 6, letterSpacing: -0.3 }}>
-              Urban Garden Harvest
+              Give Now, Apré Later
             </h1>
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 14 }}>
               <MapPin size={13} color="var(--text-secondary)" />
-              <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Brooklyn, NY</span>
+              <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Stowe, Vermont</span>
             </div>
 
             {/* Nonprofit row */}
             <div className="np-info-row">
               <div style={{
                 width: 36, height: 36, borderRadius: '50%',
-                background: 'linear-gradient(135deg,#388E3C,#66BB6A)',
+                background: 'linear-gradient(135deg,#7B1FA2,#AB47BC)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 11, fontWeight: 700, color: 'white', flexShrink: 0,
-              }}>GE</div>
+              }}>BC</div>
               <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)' }}>Green Earth Project</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)' }}>Books for Communities</p>
                 <p style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Verified Nonprofit</p>
               </div>
               <button className="btn-ghost" style={{ fontSize: 13 }}>Learn more</button>
@@ -113,13 +114,13 @@ export default function EventDetailUpcoming() {
             <div className="organiser-row">
               <div style={{
                 width: 38, height: 38, borderRadius: '50%',
-                background: 'linear-gradient(135deg,#F5604A,#FF8A65)',
+                background: 'linear-gradient(135deg,#7B1FA2,#AB47BC)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 12, fontWeight: 700, color: 'white', flexShrink: 0,
-              }}>SJ</div>
+              }}>AT</div>
               <div style={{ flex: 1 }}>
                 <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>
-                  Sarah Jenkins{' '}
+                  Alex T.{' '}
                   <span style={{
                     display: 'inline-flex', width: 14, height: 14, borderRadius: '50%',
                     background: 'var(--blue)', color: 'white', fontSize: 9,
@@ -142,13 +143,13 @@ export default function EventDetailUpcoming() {
               The Mission
             </p>
             <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.65 }}>
-              Join us for our community garden harvest. We're gathering seasonal produce to distribute to local food pantries. No experience needed — just bring your energy and a pair of gloves.
+              Give to cold-weather essentials for those in need, then celebrate the season with friends and community. A Stowe tradition — apré-style giving at its best.
             </p>
 
             {/* Photo grid */}
             <div className="photo-grid-2">
-              <div style={{ background: 'linear-gradient(135deg,#388E3C 0%,#66BB6A 100%)' }} />
-              <div style={{ background: 'linear-gradient(160deg,#8BC34A 0%,#F9A825 100%)' }} />
+              <div style={{ backgroundImage: 'url(/events/give-now/img3.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+              <div style={{ backgroundImage: 'url(/events/give-now/img4.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
             </div>
           </div>
         </div>

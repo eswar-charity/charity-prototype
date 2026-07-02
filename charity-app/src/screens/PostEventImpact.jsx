@@ -12,7 +12,7 @@ export default function PostEventImpact() {
           <div style={{ textAlign: 'center', marginBottom: 20 }}>
             <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4 }}>You made this happen</p>
             <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--dark)' }}>
-              Ocean Coastal Restoration · Oct 14, 2025
+              Neon Night Run · Nov 8, 2025
             </p>
           </div>
 
@@ -139,12 +139,12 @@ export default function PostEventImpact() {
               </div>
               <div>
                 <p style={{ fontSize: 14, fontWeight: 700, color: 'white' }}>Sarah Jenkins</p>
-                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>Ocean Coastal Restoration</p>
+                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>Neon Night Run</p>
               </div>
             </div>
 
             <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginBottom: 16, position: 'relative' }}>
-              213 participants · Ocean Conservancy · Oct 2025
+              213 participants · Youth Health Fund · Nov 2025
             </p>
 
             {/* Share + settings row */}

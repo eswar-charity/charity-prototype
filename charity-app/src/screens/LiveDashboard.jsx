@@ -32,11 +32,13 @@ export default function LiveDashboard() {
               width: 52,
               height: 52,
               borderRadius: 10,
-              background: 'linear-gradient(135deg, #81C784, #4CAF50)',
+              backgroundImage: 'url(/events/neon-night/img1.jpg)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
               flexShrink: 0,
             }} />
             <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>Charity Hub Event</p>
+              <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>Neon Night Run</p>
               <div className="live-badge" style={{ marginTop: 4 }}>
                 <div className="live-dot" />
                 LIVE NOW
@@ -98,7 +100,9 @@ export default function LiveDashboard() {
                     <div style={{
                       height: 100,
                       borderRadius: 10,
-                      background: 'linear-gradient(135deg, #4CAF50 0%, #81C784 100%)',
+                      backgroundImage: `url(${act.image})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
                       overflow: 'hidden',
                     }} />
                   </>

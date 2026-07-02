@@ -3,8 +3,8 @@ import { Bell, Clock, Flag, ChevronRight, MoreHorizontal } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
 
 const LIVE_EVENTS = [
-  { id: 1, title: 'Coastal Cleanup Drive', stat: '87 joined', isLive: true, bg: 'linear-gradient(135deg,#FF8C42,#F5604A)' },
-  { id: 2, title: 'Books for Bright Minds', stat: '150 backing', isLive: false, bg: 'linear-gradient(135deg,#8B6914,#C8960C)' },
+  { id: 1, title: 'Neon Night Run', stat: '87 joined', isLive: true, cover: '/events/neon-night/img1.jpg' },
+  { id: 2, title: 'Breakneck Ridge Run', stat: '145 backing', isLive: false, cover: '/events/breakneck-ridge-run/img1.jpg' },
 ];
 
 export default function NpLaunchpad() {
@@ -105,7 +105,7 @@ export default function NpLaunchpad() {
             <div style={{ flex: 1 }}>
               <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)', marginBottom: 2 }}>New event request</p>
               <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                Maya R. wants to run 'Coastal Cleanup Wave 2'
+                Maya R. wants to run 'Breakneck Ridge Run'
               </p>
             </div>
             <ChevronRight size={16} color="var(--text-light)" />
@@ -121,7 +121,7 @@ export default function NpLaunchpad() {
             <div style={{ flex: 1 }}>
               <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)', marginBottom: 2 }}>1 content item flagged</p>
               <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                Comment reported in 'Books for Bright Minds'
+                Comment reported in 'Neon Night Run'
               </p>
             </div>
             <ChevronRight size={16} color="var(--text-light)" />
@@ -145,7 +145,7 @@ export default function NpLaunchpad() {
                   </span>
                   <MoreHorizontal size={16} color="var(--text-light)" style={{ cursor: 'pointer' }} />
                 </div>
-                <div style={{ height: 70, borderRadius: 8, background: ev.bg, marginBottom: 10 }} />
+                <div style={{ height: 70, borderRadius: 8, backgroundImage: `url(${ev.cover})`, backgroundSize: 'cover', backgroundPosition: 'center', marginBottom: 10 }} />
                 <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)', marginBottom: 4 }}>{ev.title}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2">
