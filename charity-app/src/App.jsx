@@ -11,6 +11,7 @@ import EventStep4 from './screens/EventStep4';
 import ApprovalStatus from './screens/ApprovalStatus';
 import LiveDashboard from './screens/LiveDashboard';
 import PostEventImpact from './screens/PostEventImpact';
+import ProfileScreen from './screens/ProfileScreen';
 
 // Guest screens
 import GuestFeed from './screens/guests/GuestFeed';
@@ -26,7 +27,6 @@ import EmptyFeed from './screens/guests/EmptyFeed';
 import NpLaunchpad from './screens/nonprofits/NpLaunchpad';
 import NpProfile from './screens/nonprofits/NpProfile';
 import NpActivity from './screens/nonprofits/NpActivity';
-import NpFinancials from './screens/nonprofits/NpFinancials';
 import NpApprovals from './screens/nonprofits/NpApprovals';
 import NpReviewDetail from './screens/nonprofits/NpReviewDetail';
 import NpRequestChanges from './screens/nonprofits/NpRequestChanges';
@@ -48,6 +48,7 @@ export default function App() {
         <Route path="/approval" element={<ApprovalStatus />} />
         <Route path="/live-dashboard" element={<LiveDashboard />} />
         <Route path="/post-event" element={<PostEventImpact />} />
+        <Route path="/profile" element={<ProfileScreen />} />
 
         {/* Guest flow */}
         <Route path="/guest" element={<Navigate to="/guest/feed" replace />} />
@@ -65,7 +66,7 @@ export default function App() {
         <Route path="/np/home" element={<NpLaunchpad />} />
         <Route path="/np/profile" element={<NpProfile />} />
         <Route path="/np/activity" element={<NpActivity />} />
-        <Route path="/np/financials" element={<NpFinancials />} />
+        <Route path="/np/financials" element={<Navigate to="/np/activity" replace />} />
         <Route path="/np/approvals" element={<NpApprovals />} />
         <Route path="/np/approvals/review" element={<NpReviewDetail />} />
         <Route path="/np/approvals/request-changes" element={<NpRequestChanges />} />

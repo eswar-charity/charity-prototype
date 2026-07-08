@@ -1,10 +1,11 @@
-import { Home, Compass, Plus, Bell, User } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Home, Compass, Plus, Heart, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function BottomNav({ active = 'feed', onPlusClick }) {
   const navigate = useNavigate();
 
   return (
+    <div className="bottom-nav-wrap">
     <nav className="bottom-nav">
       <button
         className={`nav-item ${active === 'feed' ? 'active' : ''}`}
@@ -30,16 +31,17 @@ export default function BottomNav({ active = 'feed', onPlusClick }) {
         className={`nav-item ${active === 'activity' ? 'active' : ''}`}
         onClick={() => navigate('/post-event')}
       >
-        <Bell size={22} />
+        <Heart size={22} fill={active === 'activity' ? 'var(--primary)' : 'none'} />
         <span>Activity</span>
       </button>
       <button
         className={`nav-item ${active === 'profile' ? 'active' : ''}`}
-        onClick={() => navigate('/feed')}
+        onClick={() => navigate('/profile')}
       >
         <User size={22} />
         <span>Profile</span>
       </button>
     </nav>
+    </div>
   );
 }

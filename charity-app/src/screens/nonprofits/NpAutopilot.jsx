@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Check, Plus, Info } from 'lucide-react';
-import NpBottomNav from '../../components/NpBottomNav';
+import { ChevronLeft, Check, Settings, Info } from 'lucide-react';
 
 const CHECKS = [
   'SE must be verified and in good standing',
@@ -11,8 +10,8 @@ const CHECKS = [
 ];
 
 const TRUSTED_SES = [
-  { id: 1, name: 'Maya R.', events: 3, initials: 'MR', bg: 'linear-gradient(135deg,#F5604A,#FF8A65)' },
-  { id: 2, name: 'David K.', events: 2, initials: 'DK', bg: 'linear-gradient(135deg,#7B1FA2,#AB47BC)' },
+  { id: 1, name: 'Maya R.', events: 3, avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop' },
+  { id: 2, name: 'David K.', events: 2, avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop' },
 ];
 
 export default function NpAutopilot() {
@@ -24,146 +23,119 @@ export default function NpAutopilot() {
 
   return (
     <div className="phone-shell">
-      <div className="screen">
-        {/* Header */}
-        <div style={{ padding: '52px 18px 0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-            <button className="back-btn" onClick={() => navigate('/np/home')}>
+      <div className="screen screen--split">
+        <div className="screen-scroll">
+          <div className="np-page-header">
+            <button type="button" className="back-btn" onClick={() => navigate('/np/approvals')} aria-label="Back">
               <ChevronLeft size={18} />
             </button>
-            <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--dark)' }}>Autopilot</h1>
-          </div>
-        </div>
-
-        <div style={{ padding: '0 18px 24px' }}>
-          {/* Info card */}
-          <div className="card" style={{ marginBottom: 14 }}>
-            <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-              <div style={{
-                width: 38, height: 38, borderRadius: '50%', background: 'var(--blue-soft)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-              }}>
-                <span style={{ fontSize: 18 }}>⚙️</span>
-              </div>
-              <div>
-                <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)', marginBottom: 4 }}>
-                  Autopilot auto-approves events from trusted SEs
-                </p>
-                <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                  You stay in control. Turn it off anytime. We'll still alert you to anything suspicious.
-                </p>
-              </div>
-            </div>
+            <h1 className="np-page-title">Autopilot</h1>
           </div>
 
-          {/* Toggle */}
-          <div className="card" style={{ marginBottom: 14 }}>
-            <div className="toggle-wrap">
-              <div>
-                <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)', marginBottom: 3 }}>
-                  Enable Autopilot
-                </p>
-                <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                  {enabled
-                    ? 'Autopilot is active. Events from trusted SEs auto-publish.'
-                    : 'Autopilot is off. All events go to manual review.'}
-                </p>
-              </div>
-              <div className={`toggle ${enabled ? 'on' : ''}`} onClick={() => setEnabled(!enabled)}>
-                <div className="toggle-thumb" />
-              </div>
-            </div>
-          </div>
-
-          {/* Checks */}
-          <div className="card" style={{ marginBottom: 14 }}>
-            <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)', marginBottom: 12 }}>
-              Autopilot checks before auto-approving
-            </p>
-            {CHECKS.map((c, i) => (
-              <div key={i} className="auto-check">
-                <div className="blue-check-circle">
-                  <Check size={11} color="white" strokeWidth={3} />
+          <div style={{ padding: '0 18px 24px' }}>
+            <div className="card" style={{ marginBottom: 14 }}>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                <div className="np-autopilot-info-icon">
+                  <Settings size={18} color="var(--blue)" />
                 </div>
-                <p style={{ fontSize: 13, color: 'var(--dark)', lineHeight: 1.4 }}>{c}</p>
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)', marginBottom: 4 }}>
+                    Autopilot auto-approves events from trusted SEs.
+                  </p>
+                  <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                    You stay in control. Turn it off anytime. We&apos;ll still alert you to anything suspicious.
+                  </p>
+                </div>
               </div>
-            ))}
-
-            {/* Rule failure note */}
-            <div style={{
-              background: 'var(--bg)', borderRadius: 8, padding: '10px 12px',
-              display: 'flex', gap: 8, alignItems: 'center', marginTop: 12,
-            }}>
-              <Info size={14} color="var(--text-secondary)" style={{ flexShrink: 0 }} />
-              <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                Any rule failure → returns to manual review
-              </p>
             </div>
-          </div>
 
-          {/* Trusted SEs */}
-          <div className="card" style={{ marginBottom: 20 }}>
-            <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)', marginBottom: 4 }}>
-              Trusted social entrepreneurs ({trusted.length})
-            </p>
-
-            {trusted.map((se) => (
-              <div key={se.id} className="trusted-row">
-                <div style={{
-                  width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
-                  background: se.bg,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 12, fontWeight: 700, color: 'white',
-                }}>{se.initials}</div>
-                <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>{se.name}</p>
-                  <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-                    {se.events} events approved
+            <div className="card" style={{ marginBottom: 14, padding: '14px 16px' }}>
+              <div className="toggle-wrap" style={{ padding: 0 }}>
+                <div>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)', marginBottom: 3 }}>
+                    Enable Autopilot
+                  </p>
+                  <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                    {enabled
+                      ? 'Autopilot is active. Events from trusted SEs auto-publish.'
+                      : 'Autopilot is off. All events go to manual review.'}
                   </p>
                 </div>
                 <button
-                  style={{
-                    background: 'none', border: 'none', color: 'var(--primary)',
-                    fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-                  }}
-                  onClick={() => removeTrusted(se.id)}
+                  type="button"
+                  className={`toggle ${enabled ? 'on' : ''}`}
+                  onClick={() => setEnabled(!enabled)}
+                  aria-label="Toggle autopilot"
                 >
-                  Remove
+                  <div className="toggle-thumb" />
                 </button>
               </div>
-            ))}
+            </div>
 
-            <button
-              style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                background: 'none', border: 'none', color: 'var(--blue)',
-                fontSize: 14, fontWeight: 600, cursor: 'pointer',
-                fontFamily: 'inherit', marginTop: 12, padding: 0,
-              }}
-            >
-              <Plus size={16} color="var(--blue)" />
-              Add trusted SE
-            </button>
-          </div>
+            <div className="card" style={{ marginBottom: 14, padding: '14px 16px' }}>
+              <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)', marginBottom: 12 }}>
+                Autopilot checks before auto-approving
+              </p>
+              {CHECKS.map((c) => (
+                <div key={c} className="auto-check">
+                  <div className="blue-check-circle">
+                    <Check size={11} color="white" strokeWidth={3} />
+                  </div>
+                  <p style={{ fontSize: 13, color: 'var(--dark)', lineHeight: 1.4 }}>{c}</p>
+                </div>
+              ))}
+              <div className="np-autopilot-rule-note">
+                <Info size={14} color="var(--blue)" style={{ flexShrink: 0 }} />
+                <p>Any rule failure → returns to manual review.</p>
+              </div>
+            </div>
 
-          {/* Disable Autopilot (destructive) */}
-          <div style={{ textAlign: 'center' }}>
-            <button
-              style={{
-                background: 'none', border: 'none', color: 'var(--primary)',
-                fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
-              }}
-              onClick={() => setEnabled(false)}
-            >
-              Disable Autopilot
-            </button>
-            <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
-              This returns all SE events to manual review
-            </p>
+            <div className="card" style={{ marginBottom: 20, padding: '14px 16px' }}>
+              <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)', marginBottom: 4 }}>
+                Trusted social entrepreneurs ({trusted.length})
+              </p>
+              {trusted.map((se) => (
+                <div key={se.id} className="trusted-row">
+                  <img
+                    src={se.avatar}
+                    alt={se.name}
+                    style={{ width: 38, height: 38, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>{se.name}</p>
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{se.events} events approved</p>
+                  </div>
+                  <button
+                    type="button"
+                    style={{
+                      background: 'none', border: 'none', color: 'var(--primary)',
+                      fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                    }}
+                    onClick={() => removeTrusted(se.id)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ textAlign: 'center', paddingBottom: 8 }}>
+              <button
+                type="button"
+                style={{
+                  background: 'none', border: 'none', color: 'var(--primary)',
+                  fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+                }}
+                onClick={() => setEnabled(false)}
+              >
+                Disable Autopilot
+              </button>
+              <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
+                This returns all SE events to manual review
+              </p>
+            </div>
           </div>
         </div>
-
-        <NpBottomNav active="settings" />
       </div>
     </div>
   );

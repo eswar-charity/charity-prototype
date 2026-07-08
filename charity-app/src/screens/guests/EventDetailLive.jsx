@@ -1,192 +1,379 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Bookmark, MapPin, Share2, Heart, Clock } from 'lucide-react';
+import {
+  ChevronLeft, Info, Share2, Heart,
+  Plus, Camera, ArrowUp, MoreHorizontal,
+} from 'lucide-react';
+import { events, liveActivities } from '../../data/mockData';
 
-const BACKER_COLORS = ['#F5604A', '#0D7377', '#7B1FA2', '#1976D2', '#F57C00', '#D32F2F'];
+const ev = events[0]; // Neon Night Run
+
+/* ── Community Tab ──────────────────────────────────────── */
+function CommunityTab() {
+  const REEL = [
+    { src: ev.photos[1], user: 'Sarah J.',  initials: 'SJ', color: '#F5604A', time: '2m ago' },
+    { src: ev.photos[2], user: 'Emma T.',   initials: 'ET', color: '#0D7377', time: '8m ago' },
+    { src: ev.photos[3], user: 'Marcus L.', initials: 'ML', color: '#7B1FA2', time: '14m ago' },
+    { src: ev.photos[4], user: 'Priya M.',  initials: 'PM', color: '#1976D2', time: '22m ago' },
+  ];
+
+  return (
+    <>
+      <div className="ev-section-head">
+        <span className="ev-section-title">Happening now</span>
+        <span className="ev-live-pill">
+          <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--primary)', display: 'inline-block' }} />
+          LIVE
+        </span>
+      </div>
+
+      {/* Photo reel */}
+      <div className="photo-reel">
+        {REEL.map((item, i) => (
+          <div key={i} className="photo-reel-item">
+            <img src={item.src} alt={item.user} />
+            <div className="photo-reel-caption">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <div style={{
+                  width: 20, height: 20, borderRadius: '50%', background: item.color,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 8, fontWeight: 700, color: 'white', flexShrink: 0,
+                }}>{item.initials}</div>
+                <span className="photo-reel-name">{item.user}</span>
+              </div>
+              <span className="photo-reel-time">{item.time}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Dot pagination */}
+      <div className="reel-dots">
+        {REEL.map((_, i) => (
+          <div key={i} className={`reel-dot ${i === 0 ? 'active' : ''}`} />
+        ))}
+      </div>
+
+      {/* Donation activity */}
+      <div className="ev-activity-item">
+        <div className="ev-activity-avatar" style={{ background: 'linear-gradient(135deg,#1976D2,#42A5F5)' }}>MR</div>
+        <div style={{ flex: 1 }}>
+          <div className="ev-activity-header">
+            <span className="ev-activity-user">Michael R.</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span className="ev-activity-time">1h ago</span>
+              <MoreHorizontal size={14} color="var(--text-light)" />
+            </div>
+          </div>
+          <p className="ev-activity-text" style={{ color: 'var(--primary)', fontWeight: 600 }}>Just donated $50</p>
+          <p className="ev-activity-text" style={{ marginTop: 3 }}>
+            Such a beautiful event! So happy to support this amazing cause.
+          </p>
+        </div>
+      </div>
+
+      {liveActivities.map((item) => (
+        <div key={item.id} className="ev-activity-item">
+          <div
+            className="ev-activity-avatar"
+            style={{ background: `linear-gradient(135deg, ${item.color}, ${item.color}99)` }}
+          >{item.initials}</div>
+          <div style={{ flex: 1 }}>
+            <div className="ev-activity-header">
+              <span className="ev-activity-user">
+                {item.user}
+                {item.isOrganizer && (
+                  <span style={{
+                    display: 'inline-flex', width: 13, height: 13, borderRadius: '50%',
+                    background: 'var(--blue)', color: 'white', fontSize: 8,
+                    alignItems: 'center', justifyContent: 'center', verticalAlign: 'middle', marginLeft: 4,
+                  }}>✓</span>
+                )}
+              </span>
+              <span className="ev-activity-time">{item.time}</span>
+            </div>
+            <p className="ev-activity-text" style={{ marginTop: 3 }}>{item.text}</p>
+            {item.hasImage && (
+              <div style={{ marginTop: 8, height: 100, borderRadius: 10, overflow: 'hidden' }}>
+                <img src={item.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+            )}
+          </div>
+        </div>
+      ))}
+      <div style={{ height: 20 }} />
+    </>
+  );
+}
+
+/* ── Chat Tab ────────────────────────────────────────────── */
+function ChatTabHeader() {
+  return (
+    <div className="chat-room-header">
+      <div className="chat-room-title">
+        Chat
+        <span className="chat-count-chip">
+          {ev.chatCount} here
+          <span className="chat-live-indicator" />
+        </span>
+      </div>
+      <p className="chat-room-sub">One room. Real people, real cause. Say hi.</p>
+    </div>
+  );
+}
+
+function ChatTabMessages() {
+  return (
+    <div className="chat-messages">
+        {/* Host */}
+        <div className="chat-msg">
+          <div className="chat-msg-avatar" style={{ background: 'linear-gradient(135deg,#F5604A,#FF8A65)' }}>SJ</div>
+          <div className="chat-msg-body">
+            <div className="chat-msg-name">
+              {ev.organizer}
+              <span style={{
+                display: 'inline-flex', width: 14, height: 14, borderRadius: '50%',
+                background: 'var(--blue)', color: 'white', fontSize: 9,
+                alignItems: 'center', justifyContent: 'center',
+              }}>✓</span>
+              <span className="chat-host-badge">Host</span>
+            </div>
+            <div className="chat-bubble">
+              Welcome everyone! We're starting the main presentation in about 5 minutes.
+              Feel free to grab a virtual seat and say hi!
+            </div>
+          </div>
+        </div>
+
+        {/* Marcus */}
+        <div className="chat-msg">
+          <div className="chat-msg-avatar" style={{ background: 'linear-gradient(135deg,#0D7377,#14A085)' }}>ML</div>
+          <div className="chat-msg-body">
+            <div className="chat-msg-name">Marcus L.</div>
+            <div className="chat-bubble">So excited for this! Tuning in from Chicago. 👋</div>
+            <div className="chat-reaction">🎉 12</div>
+          </div>
+        </div>
+
+        {/* My message */}
+        <div className="chat-msg mine">
+          <div className="chat-msg-avatar" style={{ background: 'linear-gradient(135deg,#7B1FA2,#AB47BC)' }}>ME</div>
+          <div className="chat-msg-body">
+            <div className="chat-bubble">
+              Incredible turnout already. Can't wait for the auction segment!
+            </div>
+            <p className="chat-sent">Sent</p>
+          </div>
+        </div>
+
+        {/* Emma */}
+        <div className="chat-msg">
+          <div className="chat-msg-avatar" style={{ background: 'linear-gradient(135deg,#F57C00,#FFB300)' }}>EJ</div>
+          <div className="chat-msg-body">
+            <div className="chat-msg-name">Emma J.</div>
+            <div className="chat-bubble">
+              This is incredible! First time attending a Charity Hub event 🙌
+            </div>
+          </div>
+        </div>
+
+        <div style={{ height: 8 }} />
+    </div>
+  );
+}
+
+function ChatInputBar({ value, onChange }) {
+  return (
+    <div className="chat-input-bar">
+      <div className="chat-input-pill">
+        <button type="button" className="chat-input-action" aria-label="Add attachment">
+          <Plus size={20} />
+        </button>
+        <button type="button" className="chat-input-action" aria-label="Add photo">
+          <Camera size={20} />
+        </button>
+        <input
+          className="chat-input-field"
+          placeholder="Can't wait for this..."
+          value={value}
+          onChange={onChange}
+        />
+        <button type="button" className="chat-send-btn" aria-label="Send message">
+          <ArrowUp size={18} color="white" strokeWidth={2.5} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ── Support Tab ─────────────────────────────────────────── */
+function SupportTab({ selectedAmount, onSelectAmount }) {
+  return (
+    <div className="support-content">
+      {/* Charity hierarchy */}
+      <div className="support-hierarchy-row">
+        <span className="support-hierarchy-title">Charity Hierarchy</span>
+        <button style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+          <span className="support-hierarchy-link">View structure</span>
+        </button>
+      </div>
+
+      {/* NP row */}
+      <div className="support-np-row">
+        <span className="support-np-icon">∞</span>
+        <span className="support-np-name">{ev.nonprofit}</span>
+        <span className="w9-badge"><span>✓</span> W-9</span>
+      </div>
+
+      {/* Raised */}
+      <div className="support-raised-row">
+        <span className="support-raised-label">Raised so far</span>
+        <span className="support-raised-amount">${ev.raised.toLocaleString()}</span>
+      </div>
+      <div className="support-progress-track">
+        <div className="support-progress-fill" style={{ width: '57%' }} />
+      </div>
+
+      {/* Amount selector */}
+      <p className="support-amount-label">Select Amount</p>
+      <div className="support-amount-row">
+        {[10, 25, 50].map((amt) => (
+          <button
+            key={amt}
+            className={`support-amount-btn ${selectedAmount === amt ? 'active' : ''}`}
+            onClick={() => onSelectAmount(amt)}
+          >
+            ${amt}
+          </button>
+        ))}
+        <button
+          className={`support-amount-btn ${selectedAmount === 'other' ? 'active' : ''}`}
+          onClick={() => onSelectAmount('other')}
+        >
+          Other
+        </button>
+      </div>
+
+      {/* Card fields */}
+      <div className="support-card-fields">
+        <div style={{ position: 'relative' }}>
+          <input className="support-field" style={{ width: '100%' }} placeholder="Card number" />
+          <span style={{
+            position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
+            fontSize: 12, color: 'var(--blue)', fontWeight: 700, pointerEvents: 'none',
+          }}>VISA</span>
+        </div>
+        <div className="support-card-row">
+          <input className="support-field" placeholder="MM / YY" />
+          <input className="support-field" placeholder="CVV" />
+        </div>
+        <input className="support-field" style={{ width: '100%' }} placeholder="Name on card" />
+      </div>
+
+      <button className="btn-primary">
+        Donate {typeof selectedAmount === 'number' ? `$${selectedAmount}` : 'Amount'}
+      </button>
+    </div>
+  );
+}
+
+/* ── Main Component ──────────────────────────────────────── */
+const TABS = [
+  { id: 'community', icon: '🖼', label: 'Community', sub: 'Photos & moments' },
+  { id: 'chat',      icon: '💬', label: 'Chat',      sub: 'Live conversation' },
+  { id: 'support',   icon: '💝', label: 'Support',   sub: 'Back the cause'   },
+];
 
 export default function EventDetailLive() {
   const navigate = useNavigate();
-  const [saved, setSaved] = useState(false);
-  const [liked, setLiked] = useState(false);
+  const [activeTab, setActiveTab]         = useState('community');
+  const [liked, setLiked]                 = useState(false);
+  const [selectedAmount, setSelectedAmount] = useState(25);
+  const [chatInput, setChatInput]         = useState('');
 
   return (
     <div className="phone-shell">
       <div className="detail-screen">
-        <div className="detail-scroll">
-          {/* Hero */}
-          <div className="detail-hero" style={{ height: 260 }}>
-            <img
-              src="/events/neon-night/img2.jpg"
-              alt="Neon Night Run"
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-            {/* dim overlay bottom */}
-            <div style={{
-              position: 'absolute', inset: 0,
-              background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 55%, transparent 100%)',
-            }} />
 
-            {/* Top nav */}
-            <div style={{
-              position: 'absolute', top: 0, left: 0, right: 0,
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              padding: '48px 16px 0',
-            }}>
-              <button className="back-btn" style={{ background: 'rgba(255,255,255,0.2)', border: 'none' }}
-                onClick={() => navigate('/guest/feed')}>
-                <ChevronLeft size={18} color="white" />
+        {/* ── Hero ── */}
+        <div className="ev-hero">
+          <img className="ev-hero-img" src="/events/neon-night/img2.jpg" alt="Neon Night Run" />
+          <div className="ev-hero-gradient" />
+
+          {/* Top nav */}
+          <div className="ev-hero-nav">
+            <button className="ev-hero-btn" onClick={() => navigate(-1)}>
+              <ChevronLeft size={18} color="white" />
+            </button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="ev-hero-btn"><Info size={16} color="white" /></button>
+              <button className="ev-hero-btn"><Share2 size={16} color="white" /></button>
+            </div>
+          </div>
+
+          {/* Hero content overlay */}
+          <div className="ev-hero-content">
+            <div className="ev-hero-live">
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'white', display: 'inline-block' }} />
+              DOORS OPEN · LIVE NOW
+            </div>
+            <h1 className="ev-hero-title">#{ev.title.replace(/\s+/g, '')}</h1>
+            <p className="ev-hero-subtitle">{ev.subtitle.split('.')[0]}.</p>
+            <div className="ev-hero-meta">
+              <div>
+                <p className="ev-presented">PRESENTED BY</p>
+                <p className="ev-presented-name">{ev.organizer}</p>
+                <button className="ev-details-link">Event details ⓘ</button>
+              </div>
+              <button className="ev-heart-btn" onClick={() => setLiked(!liked)}>
+                <Heart
+                  size={18}
+                  color={liked ? '#FF6B6B' : 'white'}
+                  fill={liked ? '#FF6B6B' : 'none'}
+                />
               </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Bottom sheet ── */}
+        <div className="ev-sheet">
+          <div className="ev-sheet-handle" />
+
+          {/* Tab bar */}
+          <div className="ev-tabs">
+            {TABS.map((tab) => (
               <button
-                onClick={() => setSaved(!saved)}
-                style={{
-                  width: 38, height: 38, borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.2)', border: 'none',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-                }}>
-                <Bookmark size={18} color="white" fill={saved ? 'white' : 'none'} />
+                key={tab.id}
+                className={`ev-tab ${activeTab === tab.id ? 'active' : ''}`}
+                onClick={() => setActiveTab(tab.id)}
+              >
+                <span className="ev-tab-icon">{tab.icon}</span>
+                <span className="ev-tab-label">{tab.label}</span>
+                <span className="ev-tab-sub">{tab.sub}</span>
               </button>
-            </div>
-
-            {/* Bottom badges */}
-            <div style={{
-              position: 'absolute', bottom: 42, left: 14,
-              display: 'flex', gap: 8,
-            }}>
-              <span className="live-badge">
-                <span className="live-dot" />
-                LIVE NOW
-              </span>
-              <span className="hero-pill">
-                <Clock size={11} />
-                TODAY · 4PM–7PM
-              </span>
-            </div>
+            ))}
           </div>
 
-          {/* White detail card */}
-          <div className="detail-card">
-            {/* Title */}
-            <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--dark)', marginBottom: 6, letterSpacing: -0.3 }}>
-              Neon Night Run
-            </h1>
-
-            {/* Location */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 14 }}>
-              <MapPin size={13} color="var(--text-secondary)" />
-              <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Prospect Park, Brooklyn NY</span>
-            </div>
-
-            {/* Nonprofit row */}
-            <div className="np-info-row">
-              <div style={{
-                width: 36, height: 36, borderRadius: '50%',
-                background: 'linear-gradient(135deg,#D32F2F,#EF5350)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 11, fontWeight: 700, color: 'white', flexShrink: 0,
-              }}>YH</div>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)' }}>Youth Health Fund</p>
-                <p style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Verified Nonprofit</p>
+          {/* Scrollable tab content */}
+          {activeTab === 'chat' ? (
+            <>
+              <ChatTabHeader />
+              <div className="ev-tab-content">
+                <ChatTabMessages />
               </div>
-              <button className="btn-ghost" style={{ fontSize: 13 }}>Learn more</button>
+              <ChatInputBar value={chatInput} onChange={(e) => setChatInput(e.target.value)} />
+            </>
+          ) : (
+            <div className="ev-tab-content">
+              {activeTab === 'community' && <CommunityTab />}
+              {activeTab === 'support' && (
+                <SupportTab selectedAmount={selectedAmount} onSelectAmount={setSelectedAmount} />
+              )}
             </div>
-
-            {/* Backers */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 10,
-              padding: '12px 0', borderBottom: '1px solid var(--border)', marginBottom: 16,
-            }}>
-              <div className="av-stack">
-                {BACKER_COLORS.map((c, i) => (
-                  <div key={i} className="av" style={{ background: c }} />
-                ))}
-              </div>
-              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--dark)' }}>
-                213 people are backing this
-              </span>
-            </div>
-
-            {/* The Mission */}
-            <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)', marginBottom: 10 }}>
-              The Mission
-            </p>
-            <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.65, marginBottom: 4 }}>
-              Join us for an electrifying night run through Prospect Park. Grab your glow gear and help us raise funds for youth fitness programs. Every finish line crossed supports a kid's access to sports.
-            </p>
-
-            {/* Photo grid */}
-            <div className="photo-grid-2">
-              <div style={{ backgroundImage: 'url(/events/neon-night/img3.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
-              <div style={{ backgroundImage: 'url(/events/neon-night/img4.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
-            </div>
-
-            {/* Live Activity */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-              <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)' }}>Live Activity</p>
-              <span className="live-badge" style={{ fontSize: 10 }}>
-                <span className="live-dot" />
-                Live
-              </span>
-            </div>
-
-            <div className="live-activity-item">
-              <div className="la-avatar" style={{ background: 'linear-gradient(135deg,#F5604A,#FF8A65)' }}>PM</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)' }}>Priya M. just crossed the start line</p>
-                  <span style={{ fontSize: 11, color: 'var(--text-light)', flexShrink: 0, marginLeft: 6 }}>2 min ago</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="live-activity-item">
-              <div className="la-avatar" style={{ background: 'linear-gradient(135deg,#D32F2F,#EF5350)' }}>YH</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)' }}>
-                    Youth Health Fund{' '}
-                    <span style={{
-                      display: 'inline-flex', width: 13, height: 13, borderRadius: '50%',
-                      background: 'var(--blue)', color: 'white', fontSize: 8,
-                      alignItems: 'center', justifyContent: 'center', verticalAlign: 'middle',
-                    }}>✓</span>
-                  </p>
-                  <span style={{ fontSize: 11, color: 'var(--text-light)', flexShrink: 0, marginLeft: 6 }}>15 min ago</span>
-                </div>
-                <p style={{ fontSize: 13, color: 'var(--dark)', lineHeight: 1.5, marginBottom: 8 }}>
-                  The glow station is open! Grab your wristbands at the main tent. Let's hit 100 backers tonight!
-                </p>
-                <div style={{
-                  height: 90, borderRadius: 10,
-                  backgroundImage: 'url(/events/neon-night/img5.jpg)',
-                  backgroundSize: 'cover', backgroundPosition: 'center',
-                }} />
-              </div>
-            </div>
-          </div>
+          )}
         </div>
 
-        {/* Sticky bottom bar */}
-        <div className="event-bar">
-          <button
-            className="event-bar-icon"
-            onClick={() => navigate('/guest/share')}
-          >
-            <Share2 size={18} color="var(--dark)" />
-          </button>
-          <button
-            className="event-bar-btn"
-            onClick={() => navigate('/guest/donate')}
-          >
-            Back this event
-          </button>
-          <button
-            className="event-bar-icon"
-            onClick={() => setLiked(!liked)}
-          >
-            <Heart size={18} color={liked ? 'var(--primary)' : 'var(--dark)'} fill={liked ? 'var(--primary)' : 'none'} />
-          </button>
-        </div>
       </div>
     </div>
   );

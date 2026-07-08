@@ -1,13 +1,15 @@
 import { useNavigate } from 'react-router-dom';
-import { Home, Search, Plus, Heart, User, Settings, Share2, ChevronRight, Rocket, Users } from 'lucide-react';
+import { Settings, Share2, ChevronRight, Rocket, Users } from 'lucide-react';
+import BottomNav from '../components/BottomNav';
 
 export default function PostEventImpact() {
   const navigate = useNavigate();
 
   return (
     <div className="phone-shell">
-      <div className="screen">
-        <div style={{ padding: '52px 18px 24px' }}>
+      <div className="screen screen--split">
+        <div className="screen-scroll">
+        <div style={{ padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 18px 24px' }}>
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: 20 }}>
             <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4 }}>You made this happen</p>
@@ -211,29 +213,9 @@ export default function PostEventImpact() {
             <ChevronRight size={18} color="var(--text-light)" />
           </div>
         </div>
+        </div>
 
-        {/* Bottom nav */}
-        <nav className="bottom-nav">
-          <button className="nav-item" onClick={() => navigate('/feed')}>
-            <Home size={22} />
-            <span>Home</span>
-          </button>
-          <button className="nav-item" onClick={() => navigate('/feed')}>
-            <Search size={22} />
-            <span>Search</span>
-          </button>
-          <button className="nav-center-btn" onClick={() => navigate('/create-event')}>
-            <Plus size={24} />
-          </button>
-          <button className="nav-item active" onClick={() => navigate('/post-event')}>
-            <Heart size={22} fill="var(--primary)" color="var(--primary)" />
-            <span>Activity</span>
-          </button>
-          <button className="nav-item" onClick={() => navigate('/feed')}>
-            <User size={22} />
-            <span>Profile</span>
-          </button>
-        </nav>
+        <BottomNav active="activity" onPlusClick={() => navigate('/create-event')} />
       </div>
     </div>
   );

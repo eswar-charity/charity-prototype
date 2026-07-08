@@ -19,6 +19,8 @@ export const events = [
     backed: 213,
     joined: 87,
     updates: 38,
+    chatCount: 212,
+    raised: 14280,
     isLive: true,
     cover: '/events/neon-night/img1.jpg',
     photos: [
@@ -49,6 +51,8 @@ export const events = [
     backed: 145,
     joined: 62,
     updates: 24,
+    chatCount: 89,
+    raised: 8920,
     isLive: false,
     cover: '/events/breakneck-ridge-run/img1.jpg',
     photos: [
@@ -80,6 +84,8 @@ export const events = [
     backed: 89,
     joined: 44,
     updates: 12,
+    chatCount: 56,
+    raised: 5400,
     isLive: false,
     cover: '/events/give-now/img1.jpg',
     photos: [
@@ -110,6 +116,8 @@ export const events = [
     backed: 56,
     joined: 28,
     updates: 8,
+    chatCount: 34,
+    raised: 3200,
     isLive: false,
     cover: '/events/dog-dad/img1.jpg',
     photos: [
@@ -139,6 +147,8 @@ export const events = [
     backed: 72,
     joined: 36,
     updates: 15,
+    chatCount: 48,
+    raised: 6800,
     isLive: false,
     cover: '/events/golf-outing/img1.jpg',
     photos: ['/events/golf-outing/img1.jpg'],

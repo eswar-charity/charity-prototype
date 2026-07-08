@@ -1,138 +1,71 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, MoreHorizontal } from 'lucide-react';
+import { ChevronLeft, Check } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
 
-const ACTIVITY_ITEMS = [
-  {
-    id: 1,
-    tab: 'activity',
-    avatar: 'PM',
-    avatarBg: 'linear-gradient(135deg,#7B1FA2,#AB47BC)',
-    text: 'Priya M. just joined',
-    link: 'Weekend Park Cleanup',
-    time: '2 mins ago',
-    flagged: false,
-  },
-  {
-    id: 2,
-    tab: 'activity',
-    avatar: 'ME',
-    avatarBg: 'linear-gradient(135deg,#F57C00,#FFB300)',
-    text: 'Maya E. posted a photo',
-    time: '15 mins ago',
-    flagged: true,
-    reports: '1 REPORT',
-  },
-];
-
-const FLAGGED_ITEMS = [
-  {
-    id: 3,
-    tab: 'flagged',
-    avatar: 'ME',
-    avatarBg: 'linear-gradient(135deg,#F57C00,#FFB300)',
-    text: 'Maya E. posted a photo',
-    time: '15 mins ago',
-    flagged: true,
-    reports: '1 REPORT',
-  },
+const BACKING_BY_EVENT = [
+  { id: 1, title: 'Coastal Cleanup Drive', count: 87, thumb: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=100&h=100&fit=crop' },
+  { id: 2, title: 'Books for Bright Minds', count: 42, thumb: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=100&h=100&fit=crop' },
+  { id: 3, title: 'Plant a Tree', count: 28, thumb: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=100&h=100&fit=crop' },
 ];
 
 export default function NpActivity() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('activity');
-
-  const items = activeTab === 'activity' ? ACTIVITY_ITEMS : FLAGGED_ITEMS;
 
   return (
     <div className="phone-shell">
-      <div className="screen">
-        {/* Header */}
-        <div style={{ padding: '52px 18px 0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-            <button className="back-btn" onClick={() => navigate('/np/home')}>
+      <div className="screen screen--split">
+        <div className="screen-scroll">
+          <div className="np-page-header">
+            <button type="button" className="back-btn" onClick={() => navigate('/np/home')} aria-label="Back">
               <ChevronLeft size={18} />
             </button>
-            <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--dark)' }}>Content & Activity</h1>
+            <h1 className="np-page-title">Activity</h1>
           </div>
 
-          {/* Tabs */}
-          <div className="tab-row">
-            <button
-              className={`tab-item ${activeTab === 'activity' ? 'active' : ''}`}
-              onClick={() => setActiveTab('activity')}
-            >
-              Activity
-            </button>
-            <button
-              className={`tab-item ${activeTab === 'flagged' ? 'active' : ''}`}
-              onClick={() => setActiveTab('flagged')}
-              style={{ display: 'flex', alignItems: 'center', gap: 6 }}
-            >
-              Flagged
-              <span style={{
-                width: 18, height: 18, borderRadius: '50%', background: 'var(--primary)',
-                color: 'white', fontSize: 10, fontWeight: 700,
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              }}>1</span>
-            </button>
-          </div>
-        </div>
-
-        <div style={{ padding: '0 18px 20px' }}>
-          {items.map((item) => (
-            <div key={item.id} className={`activity-row ${item.flagged ? 'flagged' : ''}`}>
+          <div style={{ padding: '0 18px 8px' }}>
+            <div className="card" style={{ marginBottom: 14 }}>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>This month&apos;s activity</p>
+              <div className="np-activity-stat-num">47</div>
+              <p className="np-activity-stat-lbl">Supporters</p>
               <div style={{
-                width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-                background: item.avatarBg,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 12, fontWeight: 700, color: 'white',
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                borderTop: '1px solid var(--border)', paddingTop: 14, marginTop: 14,
               }}>
-                {item.avatar}
+                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Events with backing this month</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>4</span>
               </div>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 14, color: 'var(--dark)', lineHeight: 1.4 }}>
-                  <span style={{ fontWeight: 700 }}>{item.text}</span>
-                  {item.link && (
-                    <>
-                      {' '}
-                      <span style={{ color: 'var(--blue)', fontWeight: 600, textDecoration: 'underline', cursor: 'pointer' }}>
-                        {item.link}
-                      </span>
-                    </>
-                  )}
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{item.time}</span>
-                  {item.reports && (
-                    <span style={{
-                      background: 'var(--primary)', color: 'white',
-                      fontSize: 10, fontWeight: 700, padding: '2px 7px',
-                      borderRadius: 'var(--radius-pill)',
-                    }}>
-                      {item.reports}
-                    </span>
-                  )}
-                </div>
-              </div>
-              {item.flagged && (
-                <button style={{
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  color: 'var(--text-light)', padding: '4px',
-                }}>
-                  <MoreHorizontal size={18} />
-                </button>
-              )}
             </div>
-          ))}
 
-          {items.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '48px 0' }}>
-              <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)', marginBottom: 6 }}>All clear</p>
-              <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>No flagged content right now.</p>
+            <div className="card" style={{ marginBottom: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{
+                  width: 36, height: 36, borderRadius: '50%', background: 'var(--blue-soft)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                }}>
+                  <Check size={18} color="var(--blue)" strokeWidth={2.5} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>Settlement ready</p>
+                  <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Stripe Connected Account active</p>
+                </div>
+                <button type="button" className="np-link-btn">Manage →</button>
+              </div>
             </div>
-          )}
+
+            <div className="card">
+              <div className="np-section-header" style={{ marginBottom: 8 }}>
+                <p className="np-section-title">Backing by event</p>
+                <button type="button" className="np-see-all">See all</button>
+              </div>
+              {BACKING_BY_EVENT.map((ev) => (
+                <div key={ev.id} className="backing-row">
+                  <img className="backing-thumb" src={ev.thumb} alt={ev.title} />
+                  <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: 'var(--dark)' }}>{ev.title}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{ev.count} supporters</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         <NpBottomNav active="activity" />

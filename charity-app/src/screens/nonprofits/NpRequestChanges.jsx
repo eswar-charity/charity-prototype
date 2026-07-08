@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import NpBottomNav from '../../components/NpBottomNav';
 
 const SUGGESTIONS = ['Clarify description', 'Update event photo', 'Check location', 'Add volunteer info'];
+const HERO_IMG = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=300&fit=crop';
 
 export default function NpRequestChanges() {
   const navigate = useNavigate();
@@ -14,50 +14,29 @@ export default function NpRequestChanges() {
 
   return (
     <div className="phone-shell">
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        {/* Blurred launchpad background */}
-        <div style={{
-          flex: 1,
-          background: 'var(--bg)',
-          display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-          position: 'relative',
-          overflow: 'hidden',
-          minHeight: 120,
-        }}>
-          {/* Fake launchpad preview behind */}
-          <div style={{ position: 'absolute', top: 20, left: 18, right: 18 }}>
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16,
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <ChevronIcon />
-                <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--dark)', opacity: 0.4 }}>Launchpad</span>
-              </div>
+      <div className="screen screen--split">
+        <div className="np-request-backdrop">
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 18px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+              <ChevronIcon />
+              <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--dark)', opacity: 0.45 }}>Review event</span>
             </div>
-            {/* Mock blurred content */}
-            {[1, 2].map((i) => (
-              <div key={i} style={{
-                height: 48, background: 'var(--white)', borderRadius: 12,
-                marginBottom: 8, opacity: 0.35,
-              }} />
-            ))}
+            <div className="review-banner" style={{ marginBottom: 12, opacity: 0.7 }}>
+              <p className="review-banner-title">You&apos;re reviewing this event</p>
+              <p className="review-banner-sub">It won&apos;t go live until you approve it.</p>
+            </div>
+            <div style={{ height: 120, borderRadius: 12, overflow: 'hidden', opacity: 0.5 }}>
+              <img src={HERO_IMG} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
           </div>
-          {/* Frosted overlay */}
           <div style={{
             position: 'absolute', inset: 0,
-            background: 'rgba(255,245,242,0.6)',
-            backdropFilter: 'blur(3px)',
+            background: 'rgba(254,242,238,0.72)',
+            backdropFilter: 'blur(4px)',
           }} />
         </div>
 
-        {/* Bottom sheet */}
-        <div style={{
-          background: 'var(--white)',
-          borderRadius: '24px 24px 0 0',
-          padding: '20px 20px 0',
-          marginTop: -24,
-          position: 'relative', zIndex: 2,
-        }}>
+        <div className="np-request-sheet">
           <div className="sheet-handle" />
 
           <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--dark)', marginBottom: 6 }}>
@@ -72,7 +51,7 @@ export default function NpRequestChanges() {
             placeholder="Describe what needs to be changed. Be specific and constructive. Example: Please update the event description to clarify volunteer requirements."
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
-            style={{ minHeight: 120, marginBottom: 16 }}
+            style={{ minHeight: 120, marginBottom: 16, borderRadius: 16 }}
           />
 
           <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 10 }}>
@@ -80,13 +59,14 @@ export default function NpRequestChanges() {
           </p>
           <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', marginBottom: 20, paddingBottom: 2 }}>
             {SUGGESTIONS.map((s) => (
-              <button key={s} className="quick-chip" onClick={() => appendSuggestion(s)}>
+              <button key={s} type="button" className="quick-chip" onClick={() => appendSuggestion(s)}>
                 {s}
               </button>
             ))}
           </div>
 
           <button
+            type="button"
             className="btn-primary"
             style={{ marginBottom: 8, opacity: feedback.trim() ? 1 : 0.5 }}
             disabled={!feedback.trim()}
@@ -94,9 +74,19 @@ export default function NpRequestChanges() {
           >
             Send request
           </button>
-        </div>
 
-        <NpBottomNav active="events" />
+          <button
+            type="button"
+            onClick={() => navigate('/np/approvals/review')}
+            style={{
+              width: '100%', background: 'none', border: 'none',
+              color: 'var(--text-secondary)', fontSize: 14, fontWeight: 600,
+              cursor: 'pointer', fontFamily: 'inherit', padding: '10px 0',
+            }}
+          >
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   );
