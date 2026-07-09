@@ -97,10 +97,18 @@ export default function IdentityGateDonate() {
 
           <button
             className="btn-outline"
-            style={{ marginBottom: 18 }}
+            style={{ marginBottom: 14 }}
             onClick={() => navigate('/about-you')}
           >
             Use email instead
+          </button>
+
+          <button
+            className="btn-ghost"
+            style={{ display: 'block', margin: '0 auto 18px', fontSize: 14 }}
+            onClick={() => navigate(-1)}
+          >
+            Maybe later — keep browsing
           </button>
 
           {/* Privacy note */}

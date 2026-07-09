@@ -1,6 +1,14 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Check } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
+
+const TOAST_STYLE = {
+  position: 'fixed', bottom: 96, left: '50%', transform: 'translateX(-50%)',
+  background: 'var(--dark)', color: '#fff', padding: '11px 20px',
+  borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 600,
+  zIndex: 100, boxShadow: '0 6px 24px rgba(0,0,0,0.28)', maxWidth: '80%', textAlign: 'center',
+};
 
 const BACKING_BY_EVENT = [
   { id: 1, title: 'Coastal Cleanup Drive', count: 87, thumb: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=100&h=100&fit=crop' },
@@ -10,6 +18,8 @@ const BACKING_BY_EVENT = [
 
 export default function NpActivity() {
   const navigate = useNavigate();
+  const [toast, setToast] = useState('');
+  const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
 
   return (
     <div className="phone-shell">
@@ -48,14 +58,14 @@ export default function NpActivity() {
                   <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>Settlement ready</p>
                   <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Stripe Connected Account active</p>
                 </div>
-                <button type="button" className="np-link-btn">Manage →</button>
+                <button type="button" className="np-link-btn" onClick={() => notify('Opening Stripe settlement dashboard…')}>Manage →</button>
               </div>
             </div>
 
             <div className="card">
               <div className="np-section-header" style={{ marginBottom: 8 }}>
                 <p className="np-section-title">Backing by event</p>
-                <button type="button" className="np-see-all">See all</button>
+                <button type="button" className="np-see-all" onClick={() => notify('Showing all backed events')}>See all</button>
               </div>
               {BACKING_BY_EVENT.map((ev) => (
                 <div key={ev.id} className="backing-row">
@@ -69,6 +79,7 @@ export default function NpActivity() {
         </div>
 
         <NpBottomNav active="activity" />
+        {toast && <div style={TOAST_STYLE}>{toast}</div>}
       </div>
     </div>
   );

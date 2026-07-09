@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Home, Compass, Plus, Bell, User } from 'lucide-react';
+import { Home, Compass, Plus, Bell, User } from 'lucide-react';
 
 export default function IdentityGateJoin() {
   const navigate = useNavigate();
@@ -12,7 +12,7 @@ export default function IdentityGateJoin() {
         {/* Hero behind */}
         <div style={{
           flex: 1,
-          background: 'linear-gradient(160deg,#FF8C42 0%,#F5604A 30%,#2C4B6E 65%,#1A2F48 100%)',
+          background: 'linear-gradient(160deg,#FF8C42 0%,var(--primary) 30%,#2C4B6E 65%,#1A2F48 100%)',
           position: 'relative',
           minHeight: 180,
         }}>
@@ -35,7 +35,7 @@ export default function IdentityGateJoin() {
           <div className="gate-event-row">
             <div style={{
               width: 36, height: 36, borderRadius: 8, flexShrink: 0,
-              background: 'linear-gradient(160deg,#FF8C42,#F5604A)',
+              background: 'linear-gradient(160deg,#FF8C42,var(--primary))',
             }} />
             <div>
               <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)' }}>Ocean Coastal Restoration</p>
@@ -91,10 +91,18 @@ export default function IdentityGateJoin() {
 
           <button
             className="btn-outline"
-            style={{ marginBottom: 28 }}
+            style={{ marginBottom: 14 }}
             onClick={() => navigate('/about-you')}
           >
             Use email instead
+          </button>
+
+          <button
+            className="btn-ghost"
+            style={{ display: 'block', margin: '0 auto 24px', fontSize: 14 }}
+            onClick={() => navigate('/guest/feed')}
+          >
+            Not now — keep browsing
           </button>
         </div>
 
@@ -109,7 +117,7 @@ export default function IdentityGateJoin() {
           <button className="nav-center-btn" onClick={() => navigate('/feed')}>
             <Plus size={24} />
           </button>
-          <button className="nav-item" onClick={() => {}}>
+          <button className="nav-item" onClick={() => navigate('/guest/feed')}>
             <Bell size={22} /><span>Activity</span>
           </button>
           <button className="nav-item" onClick={() => navigate('/')}>

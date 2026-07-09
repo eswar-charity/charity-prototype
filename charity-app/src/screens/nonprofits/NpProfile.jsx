@@ -1,6 +1,14 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Pencil } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
+
+const TOAST_STYLE = {
+  position: 'fixed', bottom: 96, left: '50%', transform: 'translateX(-50%)',
+  background: 'var(--dark)', color: '#fff', padding: '11px 20px',
+  borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 600,
+  zIndex: 100, boxShadow: '0 6px 24px rgba(0,0,0,0.28)', maxWidth: '80%', textAlign: 'center',
+};
 
 const HERO_IMG = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=400&fit=crop';
 const ORG_LOGO = 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=120&h=120&fit=crop';
@@ -14,6 +22,8 @@ const IMPACT = [
 
 export default function NpProfile() {
   const navigate = useNavigate();
+  const [toast, setToast] = useState('');
+  const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
 
   return (
     <div className="phone-shell">
@@ -25,7 +35,12 @@ export default function NpProfile() {
               <button type="button" className="np-profile-hero-btn" onClick={() => navigate('/np/home')} aria-label="Back">
                 <ChevronLeft size={18} color="white" />
               </button>
-              <button type="button" className="np-profile-hero-btn" aria-label="Edit cover">
+              <button
+                type="button"
+                className="np-profile-hero-btn"
+                aria-label="Edit cover"
+                onClick={() => notify('Edit cover photo — coming soon')}
+              >
                 <Pencil size={16} color="white" />
               </button>
             </div>
@@ -36,7 +51,12 @@ export default function NpProfile() {
               <div className="np-profile-avatar-wrap">
                 <div className="np-profile-avatar">
                   <img src={ORG_LOGO} alt="Ocean Conservancy" />
-                  <button type="button" className="np-profile-avatar-edit" aria-label="Edit logo">
+                  <button
+                    type="button"
+                    className="np-profile-avatar-edit"
+                    aria-label="Edit logo"
+                    onClick={() => notify('Edit organization logo — coming soon')}
+                  >
                     <Pencil size={11} color="white" />
                   </button>
                 </div>
@@ -75,6 +95,7 @@ export default function NpProfile() {
         </div>
 
         <NpBottomNav active="profile" />
+        {toast && <div style={TOAST_STYLE}>{toast}</div>}
       </div>
     </div>
   );

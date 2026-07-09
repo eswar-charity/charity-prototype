@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Pencil, MapPin, ChevronRight, Share2 } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
@@ -7,6 +8,16 @@ const RECENT_EVENTS = events.slice(0, 3);
 
 export default function ProfileScreen() {
   const navigate = useNavigate();
+  const [toast, setToast] = useState('');
+
+  const handleShare = () => {
+    const link = `${window.location.origin}/profile`;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(link).catch(() => {});
+    }
+    setToast('Profile link copied');
+    setTimeout(() => setToast(''), 2200);
+  };
 
   return (
     <div className="phone-shell">
@@ -22,6 +33,7 @@ export default function ProfileScreen() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
                 }}
                 aria-label="Share profile"
+                onClick={handleShare}
               >
                 <Share2 size={18} color="var(--dark)" />
               </button>
@@ -30,7 +42,7 @@ export default function ProfileScreen() {
             <div className="card" style={{ textAlign: 'center', padding: '24px 18px 20px', marginBottom: 16 }}>
               <div style={{
                 width: 72, height: 72, borderRadius: '50%',
-                background: 'linear-gradient(135deg,#F5604A,#FF8A65)',
+                background: 'linear-gradient(135deg,var(--primary),#FF8A65)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 22, fontWeight: 800, color: 'white',
                 margin: '0 auto 12px',
@@ -93,6 +105,30 @@ export default function ProfileScreen() {
 
         <BottomNav active="profile" onPlusClick={() => navigate('/create-event')} />
       </div>
+
+      {/* ── Lightweight toast ── */}
+      {toast && (
+        <div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            bottom: 92,
+            transform: 'translateX(-50%)',
+            background: 'var(--dark)',
+            color: 'white',
+            padding: '12px 18px',
+            borderRadius: 'var(--radius-pill)',
+            fontSize: 13,
+            fontWeight: 600,
+            boxShadow: 'var(--card-shadow)',
+            zIndex: 50,
+            whiteSpace: 'nowrap',
+            maxWidth: '90%',
+          }}
+        >
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

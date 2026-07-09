@@ -8,12 +8,24 @@ const SAMPLE_IMGS = [
   { id: 3, src: '/events/neon-night/img3.jpg' },
 ];
 
+const POOL = [
+  '/events/neon-night/img1.jpg',
+  '/events/neon-night/img2.jpg',
+  '/events/neon-night/img3.jpg',
+];
+
 export default function EventStep1() {
   const navigate = useNavigate();
   const [story, setStory] = useState('');
   const [photos, setPhotos] = useState(SAMPLE_IMGS);
 
   const removePhoto = (id) => setPhotos((prev) => prev.filter((p) => p.id !== id));
+  const addPhoto = () =>
+    setPhotos((prev) =>
+      prev.length >= 10
+        ? prev
+        : [...prev, { id: Date.now(), src: POOL[prev.length % POOL.length] }]
+    );
 
   return (
     <div className="phone-shell">
@@ -45,6 +57,7 @@ export default function EventStep1() {
               </p>
               <button
                 className="btn-outline"
+                onClick={addPhoto}
                 style={{ width: 'auto', marginTop: 14, padding: '9px 24px', fontSize: 14 }}
               >
                 Choose from library
@@ -83,6 +96,7 @@ export default function EventStep1() {
               </div>
             ))}
             <div
+              onClick={addPhoto}
               style={{
                 width: 70,
                 height: 70,

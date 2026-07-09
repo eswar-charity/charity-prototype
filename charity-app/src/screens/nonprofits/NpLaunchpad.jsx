@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, Clock, Flag, MoreHorizontal } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
@@ -10,8 +11,17 @@ const LIVE_EVENTS = [
   { id: 2, title: 'Breakneck Ridge Run', stat: '145 backing', isLive: false, cover: '/events/breakneck-ridge-run/img1.jpg' },
 ];
 
+const TOAST_STYLE = {
+  position: 'fixed', bottom: 96, left: '50%', transform: 'translateX(-50%)',
+  background: 'var(--dark)', color: '#fff', padding: '11px 20px',
+  borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 600,
+  zIndex: 100, boxShadow: '0 6px 24px rgba(0,0,0,0.28)', maxWidth: '80%', textAlign: 'center',
+};
+
 export default function NpLaunchpad() {
   const navigate = useNavigate();
+  const [toast, setToast] = useState('');
+  const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
 
   return (
     <div className="phone-shell">
@@ -21,7 +31,12 @@ export default function NpLaunchpad() {
           <div className="np-header">
             <h1 className="np-header-title">Launchpad</h1>
             <div className="np-header-actions">
-              <button type="button" className="np-notify-btn" aria-label="Notifications">
+              <button
+                type="button"
+                className="np-notify-btn"
+                aria-label="Notifications"
+                onClick={() => notify('You’re all caught up — no new alerts')}
+              >
                 <Bell size={22} color="var(--dark)" />
                 <span className="np-notify-dot" />
               </button>
@@ -58,7 +73,7 @@ export default function NpLaunchpad() {
 
             {/* Stats row */}
             <div className="np-stats-row">
-              <div className="np-stat">
+              <div className="np-stat" style={{ cursor: 'pointer' }} onClick={() => navigate('/np/approvals')}>
                 <div className="np-stat-num blue">4</div>
                 <div className="np-stat-lbl">Live Events</div>
               </div>
@@ -66,7 +81,7 @@ export default function NpLaunchpad() {
                 <div className="np-stat-num coral">3</div>
                 <div className="np-stat-lbl">Pending Approvals</div>
               </div>
-              <div className="np-stat">
+              <div className="np-stat" style={{ cursor: 'pointer' }} onClick={() => navigate('/np/activity')}>
                 <div className="np-stat-num dark">87</div>
                 <div className="np-stat-lbl">Backers This Week</div>
               </div>
@@ -120,9 +135,16 @@ export default function NpLaunchpad() {
                     <span className={`badge ${ev.isLive ? 'badge-live' : 'badge-upcoming'}`} style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 'var(--radius-pill)' }}>
                       {ev.isLive ? '● LIVE' : 'UPCOMING'}
                     </span>
-                    <MoreHorizontal size={16} color="var(--text-light)" style={{ cursor: 'pointer' }} />
+                    <button
+                      type="button"
+                      aria-label={`Options for ${ev.title}`}
+                      style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex' }}
+                      onClick={() => notify(`Manage “${ev.title}” — coming soon`)}
+                    >
+                      <MoreHorizontal size={16} color="var(--text-light)" />
+                    </button>
                   </div>
-                  <div style={{ height: 70, borderRadius: 8, backgroundImage: `url(${ev.cover})`, backgroundSize: 'cover', backgroundPosition: 'center', marginBottom: 10, backgroundColor: '#E8DDD8' }} />
+                  <div style={{ height: 70, borderRadius: 8, backgroundImage: `url(${ev.cover})`, backgroundSize: 'cover', backgroundPosition: 'center', marginBottom: 10, backgroundColor: 'var(--border)' }} />
                   <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)', marginBottom: 4 }}>{ev.title}</p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2">
@@ -138,6 +160,7 @@ export default function NpLaunchpad() {
         </div>
 
         <NpBottomNav active="home" />
+        {toast && <div style={TOAST_STYLE}>{toast}</div>}
       </div>
     </div>
   );

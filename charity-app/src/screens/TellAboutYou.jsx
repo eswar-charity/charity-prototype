@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Camera, MapPin } from 'lucide-react';
 import { causes } from '../data/mockData';
@@ -9,11 +9,18 @@ export default function TellAboutYou() {
   const navigate = useNavigate();
   const [selected, setSelected] = useState(['Environment', 'Education']);
   const [form, setForm] = useState({ name: 'Jane Doe', bio: '', city: '' });
+  const [photo, setPhoto] = useState(null);
+  const fileInputRef = useRef(null);
 
   const toggleCause = (c) =>
     setSelected((prev) =>
       prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]
     );
+
+  const handlePhoto = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) setPhoto(URL.createObjectURL(file));
+  };
 
   return (
     <div className="phone-shell">
@@ -38,9 +45,26 @@ export default function TellAboutYou() {
 
           {/* Photo upload */}
           <div style={{ display: 'flex', justifyContent: 'center', margin: '24px 0 20px' }}>
-            <div className="photo-circle">
-              <Camera size={22} color="var(--primary)" />
-              <span style={{ fontSize: 11, color: 'var(--primary)', fontWeight: 600 }}>Add photo</span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handlePhoto}
+              style={{ display: 'none' }}
+            />
+            <div
+              className="photo-circle"
+              onClick={() => fileInputRef.current && fileInputRef.current.click()}
+              style={{ cursor: 'pointer', overflow: 'hidden' }}
+            >
+              {photo ? (
+                <img src={photo} alt="Your profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <>
+                  <Camera size={22} color="var(--primary)" />
+                  <span style={{ fontSize: 11, color: 'var(--primary)', fontWeight: 600 }}>Add photo</span>
+                </>
+              )}
             </div>
           </div>
 

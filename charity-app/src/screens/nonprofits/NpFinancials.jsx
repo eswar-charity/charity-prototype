@@ -1,15 +1,25 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Check, Info, ExternalLink } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
 
+const TOAST_STYLE = {
+  position: 'fixed', bottom: 96, left: '50%', transform: 'translateX(-50%)',
+  background: 'var(--dark)', color: '#fff', padding: '11px 20px',
+  borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 600,
+  zIndex: 100, boxShadow: '0 6px 24px rgba(0,0,0,0.28)', maxWidth: '80%', textAlign: 'center',
+};
+
 const BACKING_BY_EVENT = [
-  { id: 1, title: 'Coastal Cleanup Drive', count: 87, bg: 'linear-gradient(135deg,#FF8C42,#F5604A)' },
+  { id: 1, title: 'Coastal Cleanup Drive', count: 87, bg: 'linear-gradient(135deg,#FF8C42,var(--primary))' },
   { id: 2, title: 'Books for Bright Minds', count: 42, bg: 'linear-gradient(135deg,#8B6914,#C8960C)' },
   { id: 3, title: 'Plant a Tree', count: 28, bg: 'linear-gradient(135deg,#388E3C,#66BB6A)' },
 ];
 
 export default function NpFinancials() {
   const navigate = useNavigate();
+  const [toast, setToast] = useState('');
+  const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
 
   return (
     <div className="phone-shell">
@@ -56,7 +66,12 @@ export default function NpFinancials() {
                 <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>Settlement ready</p>
                 <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Stripe Connected Account active</p>
               </div>
-              <button className="btn-ghost" style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 3 }}>
+              <button
+                type="button"
+                className="btn-ghost"
+                style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 3 }}
+                onClick={() => notify('Opening Stripe settlement dashboard…')}
+              >
                 Manage <ChevronLeft size={12} style={{ transform: 'rotate(180deg)' }} />
               </button>
             </div>
@@ -83,8 +98,10 @@ export default function NpFinancials() {
               </p>
             </div>
             <button
+              type="button"
               className="btn-ghost"
               style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 5, marginLeft: 26 }}
+              onClick={() => notify('Opening Stripe dashboard…')}
             >
               Open Stripe <ExternalLink size={12} />
             </button>
@@ -92,6 +109,7 @@ export default function NpFinancials() {
         </div>
 
         <NpBottomNav active="activity" />
+        {toast && <div style={TOAST_STYLE}>{toast}</div>}
       </div>
     </div>
   );

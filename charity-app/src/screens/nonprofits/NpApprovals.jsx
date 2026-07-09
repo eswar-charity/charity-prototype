@@ -31,9 +31,28 @@ const EVENTS = [
   },
 ];
 
+const TOAST_STYLE = {
+  position: 'fixed', bottom: 96, left: '50%', transform: 'translateX(-50%)',
+  background: 'var(--dark)', color: '#fff', padding: '11px 20px',
+  borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 600,
+  zIndex: 100, boxShadow: '0 6px 24px rgba(0,0,0,0.28)', maxWidth: '80%', textAlign: 'center',
+};
+
 export default function NpApprovals() {
   const navigate = useNavigate();
   const [autopilot, setAutopilot] = useState(false);
+  const [events, setEvents] = useState(EVENTS);
+  const [toast, setToast] = useState('');
+  const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
+
+  const approve = (ev) => {
+    setEvents((prev) => prev.filter((e) => e.id !== ev.id));
+    notify(`“${ev.title}” approved & published`);
+  };
+  const reject = (ev) => {
+    setEvents((prev) => prev.filter((e) => e.id !== ev.id));
+    notify(`“${ev.title}” request rejected`);
+  };
 
   return (
     <div className="phone-shell">
@@ -47,7 +66,12 @@ export default function NpApprovals() {
           </div>
 
           <div style={{ padding: '0 18px 16px' }}>
-            {EVENTS.map((ev) => (
+            {events.length === 0 && (
+              <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: 14, padding: '48px 0' }}>
+                All caught up — no pending requests.
+              </div>
+            )}
+            {events.map((ev) => (
               <div
                 key={ev.id}
                 className="ap-card"
@@ -116,11 +140,11 @@ export default function NpApprovals() {
                   )}
 
                   <div className="ap-actions" onClick={(e) => e.stopPropagation()}>
-                    <button type="button" className="ap-btn ap-btn-reject">Reject</button>
+                    <button type="button" className="ap-btn ap-btn-reject" onClick={() => reject(ev)}>Reject</button>
                     <button
                       type="button"
                       className="ap-btn ap-btn-approve"
-                      onClick={() => navigate('/np/approvals/review')}
+                      onClick={() => approve(ev)}
                     >
                       Approve
                     </button>
@@ -160,6 +184,7 @@ export default function NpApprovals() {
         </div>
 
         <NpBottomNav active="events" />
+        {toast && <div style={TOAST_STYLE}>{toast}</div>}
       </div>
     </div>
   );

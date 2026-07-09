@@ -53,10 +53,23 @@ const CHANNELS = [
 export default function ShareSheet() {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
+  const [toast, setToast] = useState('');
+
+  function showToast(msg) {
+    setToast(msg);
+    setTimeout(() => setToast(''), 1800);
+  }
 
   function handleCopy() {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText('https://charity.hub/event/coastal-cleanup').catch(() => {});
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 1800);
+  }
+
+  function handleChannel(label) {
+    showToast(`Link ready to share on ${label}`);
   }
 
   return (
@@ -64,7 +77,7 @@ export default function ShareSheet() {
       {/* Blurred background approximation */}
       <div style={{
         flex: 1,
-        background: 'linear-gradient(160deg,#FF8C42 0%,#F5604A 30%,#2C4B6E 65%,#1A2F48 100%)',
+        background: 'linear-gradient(160deg,#FF8C42 0%,var(--primary) 30%,#2C4B6E 65%,#1A2F48 100%)',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-end',
@@ -107,7 +120,7 @@ export default function ShareSheet() {
           }}>
             <div style={{
               width: 44, height: 44, borderRadius: 8, flexShrink: 0,
-              background: 'linear-gradient(160deg,#FF8C42,#F5604A)',
+              background: 'linear-gradient(160deg,#FF8C42,var(--primary))',
             }} />
             <div>
               <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>Ocean Coastal Restoration</p>
@@ -125,7 +138,7 @@ export default function ShareSheet() {
           {/* Share channels */}
           <div className="share-icons" style={{ marginBottom: 20 }}>
             {CHANNELS.map((ch) => (
-              <div key={ch.label} className="share-icon-item">
+              <div key={ch.label} className="share-icon-item" onClick={() => handleChannel(ch.label)}>
                 <div className="share-icon-circle">
                   {ch.icon}
                 </div>
@@ -154,7 +167,7 @@ export default function ShareSheet() {
             </button>
           </div>
 
-          <div className="more-row">
+          <div className="more-row" onClick={() => handleChannel('more apps')}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{
                 width: 36, height: 36, borderRadius: '50%',
@@ -168,6 +181,15 @@ export default function ShareSheet() {
             <ChevronRight size={18} color="var(--text-light)" />
           </div>
         </div>
+
+        {toast && (
+          <div style={{
+            position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)',
+            background: 'var(--dark)', color: 'white', padding: '10px 18px',
+            borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 600,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.2)', zIndex: 10, whiteSpace: 'nowrap',
+          }}>{toast}</div>
+        )}
       </div>
     </div>
   );

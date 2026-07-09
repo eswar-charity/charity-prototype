@@ -11,7 +11,7 @@ const ev = events[0]; // Neon Night Run
 /* ── Community Tab ──────────────────────────────────────── */
 function CommunityTab() {
   const REEL = [
-    { src: ev.photos[1], user: 'Sarah J.',  initials: 'SJ', color: '#F5604A', time: '2m ago' },
+    { src: ev.photos[1], user: 'Sarah J.',  initials: 'SJ', color: 'var(--primary)', time: '2m ago' },
     { src: ev.photos[2], user: 'Emma T.',   initials: 'ET', color: '#0D7377', time: '8m ago' },
     { src: ev.photos[3], user: 'Marcus L.', initials: 'ML', color: '#7B1FA2', time: '14m ago' },
     { src: ev.photos[4], user: 'Priya M.',  initials: 'PM', color: '#1976D2', time: '22m ago' },
@@ -127,7 +127,7 @@ function ChatTabMessages() {
     <div className="chat-messages">
         {/* Host */}
         <div className="chat-msg">
-          <div className="chat-msg-avatar" style={{ background: 'linear-gradient(135deg,#F5604A,#FF8A65)' }}>SJ</div>
+          <div className="chat-msg-avatar" style={{ background: 'linear-gradient(135deg,var(--primary),#FF8A65)' }}>SJ</div>
           <div className="chat-msg-body">
             <div className="chat-msg-name">
               {ev.organizer}
@@ -182,14 +182,14 @@ function ChatTabMessages() {
   );
 }
 
-function ChatInputBar({ value, onChange }) {
+function ChatInputBar({ value, onChange, onGate }) {
   return (
     <div className="chat-input-bar">
       <div className="chat-input-pill">
-        <button type="button" className="chat-input-action" aria-label="Add attachment">
+        <button type="button" className="chat-input-action" aria-label="Add attachment" onClick={onGate}>
           <Plus size={20} />
         </button>
-        <button type="button" className="chat-input-action" aria-label="Add photo">
+        <button type="button" className="chat-input-action" aria-label="Add photo" onClick={onGate}>
           <Camera size={20} />
         </button>
         <input
@@ -197,8 +197,9 @@ function ChatInputBar({ value, onChange }) {
           placeholder="Can't wait for this..."
           value={value}
           onChange={onChange}
+          onFocus={onGate}
         />
-        <button type="button" className="chat-send-btn" aria-label="Send message">
+        <button type="button" className="chat-send-btn" aria-label="Send message" onClick={onGate}>
           <ArrowUp size={18} color="white" strokeWidth={2.5} />
         </button>
       </div>
@@ -207,13 +208,16 @@ function ChatInputBar({ value, onChange }) {
 }
 
 /* ── Support Tab ─────────────────────────────────────────── */
-function SupportTab({ selectedAmount, onSelectAmount }) {
+function SupportTab({ selectedAmount, onSelectAmount, onDonate, onViewStructure }) {
   return (
     <div className="support-content">
       {/* Charity hierarchy */}
       <div className="support-hierarchy-row">
         <span className="support-hierarchy-title">Charity Hierarchy</span>
-        <button style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+        <button
+          onClick={onViewStructure}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+        >
           <span className="support-hierarchy-link">View structure</span>
         </button>
       </div>
@@ -270,7 +274,7 @@ function SupportTab({ selectedAmount, onSelectAmount }) {
         <input className="support-field" style={{ width: '100%' }} placeholder="Name on card" />
       </div>
 
-      <button className="btn-primary">
+      <button className="btn-primary" onClick={onDonate}>
         Donate {typeof selectedAmount === 'number' ? `$${selectedAmount}` : 'Amount'}
       </button>
     </div>
@@ -290,6 +294,13 @@ export default function EventDetailLive() {
   const [liked, setLiked]                 = useState(false);
   const [selectedAmount, setSelectedAmount] = useState(25);
   const [chatInput, setChatInput]         = useState('');
+  const [showAbout, setShowAbout]         = useState(false);
+  const [toast, setToast]                 = useState('');
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 1800);
+  };
 
   return (
     <div className="phone-shell">
@@ -306,8 +317,12 @@ export default function EventDetailLive() {
               <ChevronLeft size={18} color="white" />
             </button>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button className="ev-hero-btn"><Info size={16} color="white" /></button>
-              <button className="ev-hero-btn"><Share2 size={16} color="white" /></button>
+              <button className="ev-hero-btn" onClick={() => setShowAbout(true)} aria-label="Event details">
+                <Info size={16} color="white" />
+              </button>
+              <button className="ev-hero-btn" onClick={() => navigate('/guest/share')} aria-label="Share">
+                <Share2 size={16} color="white" />
+              </button>
             </div>
           </div>
 
@@ -323,7 +338,7 @@ export default function EventDetailLive() {
               <div>
                 <p className="ev-presented">PRESENTED BY</p>
                 <p className="ev-presented-name">{ev.organizer}</p>
-                <button className="ev-details-link">Event details ⓘ</button>
+                <button className="ev-details-link" onClick={() => setShowAbout(true)}>Event details ⓘ</button>
               </div>
               <button className="ev-heart-btn" onClick={() => setLiked(!liked)}>
                 <Heart
@@ -362,17 +377,63 @@ export default function EventDetailLive() {
               <div className="ev-tab-content">
                 <ChatTabMessages />
               </div>
-              <ChatInputBar value={chatInput} onChange={(e) => setChatInput(e.target.value)} />
+              <ChatInputBar
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onGate={() => navigate('/guest/join')}
+              />
             </>
           ) : (
             <div className="ev-tab-content">
               {activeTab === 'community' && <CommunityTab />}
               {activeTab === 'support' && (
-                <SupportTab selectedAmount={selectedAmount} onSelectAmount={setSelectedAmount} />
+                <SupportTab
+                  selectedAmount={selectedAmount}
+                  onSelectAmount={setSelectedAmount}
+                  onDonate={() => navigate('/guest/donate')}
+                  onViewStructure={() => showToast('Funds go to Youth Health Fund (verified 501c3)')}
+                />
               )}
             </div>
           )}
         </div>
+
+        {/* About / event details sheet */}
+        {showAbout && (
+          <div className="overlay-bg" onClick={() => setShowAbout(false)}>
+            <div className="bottom-sheet" onClick={(e) => e.stopPropagation()}>
+              <div className="sheet-handle" />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--dark)' }}>{ev.title}</h2>
+                <button
+                  onClick={() => setShowAbout(false)}
+                  aria-label="Close"
+                  style={{
+                    width: 30, height: 30, borderRadius: '50%',
+                    background: 'var(--border)', border: 'none',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                  }}
+                >✕</button>
+              </div>
+              <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary)', letterSpacing: 0.5, marginBottom: 6 }}>MISSION</p>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 14 }}>{ev.mission}</p>
+              <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary)', letterSpacing: 0.5, marginBottom: 6 }}>THE STORY</p>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 18 }}>{ev.story}</p>
+              <button className="btn-primary" onClick={() => { setShowAbout(false); navigate('/guest/donate'); }}>
+                Back this cause
+              </button>
+            </div>
+          </div>
+        )}
+
+        {toast && (
+          <div style={{
+            position: 'absolute', bottom: 100, left: '50%', transform: 'translateX(-50%)',
+            background: 'var(--dark)', color: 'white', padding: '10px 18px',
+            borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 600,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.2)', zIndex: 100, maxWidth: '80%', textAlign: 'center',
+          }}>{toast}</div>
+        )}
 
       </div>
     </div>

@@ -12,6 +12,12 @@ const CHECKLIST = [
 export default function EventStep4() {
   const navigate = useNavigate();
   const [checklist, setChecklist] = useState(CHECKLIST);
+  const [toast, setToast] = useState('');
+
+  const saveDraft = () => {
+    setToast('Draft saved');
+    setTimeout(() => navigate('/feed'), 900);
+  };
 
   const toggle = (id) =>
     setChecklist((prev) =>
@@ -69,7 +75,7 @@ export default function EventStep4() {
                   width: 28,
                   height: 28,
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #F5604A, #FF8A65)',
+                  background: 'linear-gradient(135deg, var(--primary), #FF8A65)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -129,12 +135,35 @@ export default function EventStep4() {
             <button className="btn-primary" onClick={() => navigate('/approval')}>
               Submit for approval
             </button>
-            <button className="btn-outline" onClick={() => navigate('/approval')}>
+            <button className="btn-outline" onClick={saveDraft}>
               Save as draft
             </button>
           </div>
         </div>
       </div>
+
+      {toast && (
+        <div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            bottom: 90,
+            transform: 'translateX(-50%)',
+            background: 'var(--dark)',
+            color: '#fff',
+            padding: '10px 18px',
+            borderRadius: 'var(--radius-pill)',
+            fontSize: 13,
+            fontWeight: 600,
+            zIndex: 100,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+            maxWidth: '80%',
+            textAlign: 'center',
+          }}
+        >
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

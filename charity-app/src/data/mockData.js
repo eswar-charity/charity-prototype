@@ -30,6 +30,9 @@ export const events = [
       '/events/neon-night/img4.jpg',
       '/events/neon-night/img5.jpg',
     ],
+    mission: 'Light up the night for a great cause. A glowing 5K to fund youth fitness programs.',
+    story: "What started as a small neighborhood 5K has grown into Brooklyn's biggest after-dark run. Tonight we're not just racing — we're raising funds to keep youth fitness programs free and open for every kid in the borough.",
+    tags: ['5K Run', 'Community'],
   },
   {
     id: 2,
@@ -253,3 +256,36 @@ export const eventData = {
 };
 
 export const causes = ['Environment', 'Education', 'Animals', 'Health', 'Arts', 'Housing'];
+
+export const accountRoles = [
+  { id: 'se', label: 'Social Entrepreneur', route: '/about-you', title: 'Create your account', subtitle: "You're one step from starting your first event." },
+  { id: 'guest', label: 'Guest', route: '/guest/feed', title: 'Continue as a guest', subtitle: 'Discover and support events happening near you.' },
+  { id: 'np', label: 'Non-profit', route: '/np/home', title: 'Continue as a nonprofit', subtitle: "Manage your organization's events and approvals." },
+  { id: 'admin', label: 'Charity Hub Admin', route: '/admin', title: 'Continue as an admin', subtitle: 'Governance, approvals, and platform operations.' },
+];
+
+export function slugify(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
+export function getOrganizerProfile(slug) {
+  const hosted = events.filter((e) => slugify(e.organizer) === slug);
+  const primary = hosted[0];
+  if (!primary) return null;
+
+  return {
+    slug,
+    name: primary.organizer,
+    initials: primary.initials,
+    role: 'Event Presenter · Charity Hub',
+    location: 'San Francisco, CA',
+    bio: 'Creating events that bring communities together for causes that matter. Dedicated to building community through shared experiences and impactful giving.',
+    causes: [...new Set(hosted.map((e) => e.category))],
+    stats: {
+      eventsHosted: 5,
+      peopleReached: 847,
+      raised: 12000,
+    },
+    events: hosted,
+  };
+}

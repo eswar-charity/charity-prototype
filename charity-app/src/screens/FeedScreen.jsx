@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, Plus, Megaphone, Building2, Compass } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 import { events } from '../data/mockData';
+import useInfiniteScroll from '../hooks/useInfiniteScroll';
 
 const FILTERS = ['All', 'You', 'Live now', 'Environment', 'Education'];
 
@@ -10,6 +11,16 @@ export default function FeedScreen() {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState('All');
   const [showSheet, setShowSheet] = useState(false);
+  const [toast, setToast] = useState('');
+  const scrollRef = useRef(null);
+  const { items, sentinelRef, loading, hasMore } = useInfiniteScroll(events, {
+    rootRef: scrollRef, pageSize: 3, max: 30,
+  });
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 2200);
+  };
 
   return (
     <div className="phone-shell">
@@ -23,8 +34,17 @@ export default function FeedScreen() {
               <p className="scene-subtitle">Events happening now</p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <Bell size={22} color="var(--dark)" style={{ cursor: 'pointer' }} />
-              <div className="scene-avatar">SJ</div>
+              <Bell
+                size={22}
+                color="var(--dark)"
+                style={{ cursor: 'pointer' }}
+                onClick={() => showToast("You're all caught up — no new notifications")}
+              />
+              <div
+                className="scene-avatar"
+                style={{ cursor: 'pointer' }}
+                onClick={() => navigate('/profile')}
+              >SJ</div>
             </div>
           </div>
 
@@ -68,37 +88,14 @@ export default function FeedScreen() {
             ))}
           </div>
 
-          {/* Proto flow switcher */}
-          <div style={{ display: 'flex', gap: 8, padding: '0 18px 14px' }}>
-            <button
-              onClick={() => navigate('/guest/feed')}
-              style={{
-                flex: 1, padding: '7px 0', background: 'var(--blue)',
-                color: 'white', border: 'none', borderRadius: 10,
-                fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-              }}
-            >
-              Guest Flow →
-            </button>
-            <button
-              onClick={() => navigate('/np/home')}
-              style={{
-                flex: 1, padding: '7px 0', background: '#0D9488',
-                color: 'white', border: 'none', borderRadius: 10,
-                fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-              }}
-            >
-              NP Flow →
-            </button>
-          </div>
         </div>
 
         {/* ── Scrollable feed cards ONLY ── */}
-        <div className="screen-scroll">
+        <div className="screen-scroll" ref={scrollRef}>
           <div style={{ padding: '0 16px 16px' }}>
-          {events.map((ev) => (
+          {items.map((ev) => (
             <div
-              key={ev.id}
+              key={ev._key}
               className="scene-card"
               onClick={() => navigate('/guest/event/live')}
             >
@@ -139,7 +136,7 @@ export default function FeedScreen() {
                 </div>
                 <div className="scene-card-stats">
                   <div className="av-stack" style={{ marginRight: 4 }}>
-                    {['#F5604A', '#0D7377', '#7B1FA2'].map((c, i) => (
+                    {['var(--primary)', '#0D7377', '#7B1FA2'].map((c, i) => (
                       <div key={i} className="av" style={{ background: c, width: 18, height: 18, fontSize: 8 }} />
                     ))}
                   </div>
@@ -152,6 +149,11 @@ export default function FeedScreen() {
               </div>
             </div>
           ))}
+          {hasMore && <div ref={sentinelRef} style={{ height: 1 }} aria-hidden="true" />}
+          {loading && (
+            <div className="feed-loader"><span className="feed-spinner" /> Loading more events…</div>
+          )}
+          {!hasMore && <p className="feed-end">You’re all caught up 🎉</p>}
           </div>
         </div>{/* end scrollable area */}
 
@@ -186,7 +188,7 @@ export default function FeedScreen() {
               <Compass size={16} color="var(--text-light)" />
             </div>
 
-            <div className="opt-row" onClick={() => setShowSheet(false)}>
+            <div className="opt-row" onClick={() => { setShowSheet(false); navigate('/np/home'); }}>
               <div className="opt-icon" style={{ background: 'var(--blue)' }}>
                 <Building2 size={20} color="white" />
               </div>
@@ -199,6 +201,30 @@ export default function FeedScreen() {
               <Compass size={16} color="var(--text-light)" />
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── Lightweight toast ── */}
+      {toast && (
+        <div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            bottom: 92,
+            transform: 'translateX(-50%)',
+            background: 'var(--dark)',
+            color: 'white',
+            padding: '12px 18px',
+            borderRadius: 'var(--radius-pill)',
+            fontSize: 13,
+            fontWeight: 600,
+            boxShadow: 'var(--card-shadow)',
+            zIndex: 50,
+            whiteSpace: 'nowrap',
+            maxWidth: '90%',
+          }}
+        >
+          {toast}
         </div>
       )}
     </div>

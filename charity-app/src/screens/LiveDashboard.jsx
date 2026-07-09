@@ -1,9 +1,37 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, Compass, Plus, Bell, User, Settings, TriangleAlert, Pencil } from 'lucide-react';
+import { Home, Compass, Plus, Bell, User, Settings, TriangleAlert, Pencil, X } from 'lucide-react';
 import { liveActivities } from '../data/mockData';
 
 export default function LiveDashboard() {
   const navigate = useNavigate();
+  const [toast, setToast] = useState('');
+  const [showAlert, setShowAlert] = useState(true);
+  const [postSheet, setPostSheet] = useState(false);
+  const [update, setUpdate] = useState('');
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 2200);
+  };
+
+  const shareEvent = () => {
+    const link = 'https://charityhub.app/e/neon-night-run';
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(link).then(
+        () => showToast('Event link copied'),
+        () => showToast('Event link ready to share')
+      );
+    } else {
+      showToast('Event link ready to share');
+    }
+  };
+
+  const postUpdate = () => {
+    setPostSheet(false);
+    setUpdate('');
+    showToast('Update posted to your event');
+  };
 
   return (
     <div className="phone-shell">
@@ -12,19 +40,36 @@ export default function LiveDashboard() {
           {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
             <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--dark)' }}>My Event</p>
-            <Settings size={20} color="var(--text-secondary)" style={{ cursor: 'pointer' }} />
+            <button
+              onClick={() => navigate('/profile')}
+              aria-label="Settings"
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex' }}
+            >
+              <Settings size={20} color="var(--text-secondary)" />
+            </button>
           </div>
 
           {/* Alert banner */}
-          <div className="alert-banner">
-            <TriangleAlert size={16} color="var(--primary)" style={{ flexShrink: 0, marginTop: 1 }} />
-            <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 13, color: 'var(--dark)', lineHeight: 1.4 }}>
-                1 comment flagged for review. Tap to moderate.
-              </p>
-              <button className="btn-ghost" style={{ marginTop: 4, fontSize: 12 }}>Review</button>
+          {showAlert && (
+            <div className="alert-banner">
+              <TriangleAlert size={16} color="var(--primary)" style={{ flexShrink: 0, marginTop: 1 }} />
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: 13, color: 'var(--dark)', lineHeight: 1.4 }}>
+                  1 comment flagged for review. Tap to moderate.
+                </p>
+                <button
+                  className="btn-ghost"
+                  style={{ marginTop: 4, fontSize: 12 }}
+                  onClick={() => {
+                    setShowAlert(false);
+                    showToast('Comment reviewed');
+                  }}
+                >
+                  Review
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Event card row */}
           <div className="event-card-row" style={{ marginBottom: 16 }}>
@@ -64,9 +109,9 @@ export default function LiveDashboard() {
 
           {/* Action chips */}
           <div className="action-chips" style={{ marginBottom: 20 }}>
-            <button className="action-chip">Post update</button>
-            <button className="action-chip">Add photo</button>
-            <button className="action-chip">Share event</button>
+            <button className="action-chip" onClick={() => setPostSheet(true)}>Post update</button>
+            <button className="action-chip" onClick={() => showToast('Photo added to your event')}>Add photo</button>
+            <button className="action-chip" onClick={shareEvent}>Share event</button>
           </div>
 
           {/* Live activity section */}
@@ -158,6 +203,63 @@ export default function LiveDashboard() {
           </button>
         </nav>
       </div>
+
+      {/* Post update bottom sheet */}
+      {postSheet && (
+        <div className="overlay-bg" onClick={() => setPostSheet(false)}>
+          <div className="bottom-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="sheet-handle" />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <p style={{ fontSize: 18, fontWeight: 800, color: 'var(--dark)' }}>Post an update</p>
+              <button
+                onClick={() => setPostSheet(false)}
+                aria-label="Close"
+                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex' }}
+              >
+                <X size={20} color="var(--text-secondary)" />
+              </button>
+            </div>
+            <textarea
+              className="input-field"
+              placeholder="Share what's happening with your supporters…"
+              value={update}
+              onChange={(e) => setUpdate(e.target.value)}
+              style={{ minHeight: 110, marginBottom: 14 }}
+            />
+            <button
+              className="btn-primary"
+              onClick={postUpdate}
+              disabled={!update.trim()}
+              style={update.trim() ? undefined : { opacity: 0.5 }}
+            >
+              Post update
+            </button>
+          </div>
+        </div>
+      )}
+
+      {toast && (
+        <div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            bottom: 100,
+            transform: 'translateX(-50%)',
+            background: 'var(--dark)',
+            color: '#fff',
+            padding: '10px 18px',
+            borderRadius: 'var(--radius-pill)',
+            fontSize: 13,
+            fontWeight: 600,
+            zIndex: 100,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+            maxWidth: '80%',
+            textAlign: 'center',
+          }}
+        >
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

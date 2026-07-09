@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Search, Check, ChevronRight } from 'lucide-react';
+import { ChevronLeft, Search, Check } from 'lucide-react';
 import { nonprofits } from '../data/mockData';
 
 const FILTERS = ['All', 'Environment', 'Education', 'Health'];
@@ -10,6 +10,12 @@ export default function EventStep2() {
   const [activeFilter, setActiveFilter] = useState('All');
   const [selected, setSelected] = useState(1);
   const [query, setQuery] = useState('');
+  const [toast, setToast] = useState('');
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 2200);
+  };
 
   const filtered = nonprofits.filter((np) => {
     const matchFilter = activeFilter === 'All' || np.category === activeFilter || np.category.includes(activeFilter);
@@ -100,7 +106,11 @@ export default function EventStep2() {
 
           {/* Invite link */}
           <div style={{ marginTop: 16, textAlign: 'center' }}>
-            <button className="btn-ghost" style={{ fontSize: 14 }}>
+            <button
+              className="btn-ghost"
+              style={{ fontSize: 14 }}
+              onClick={() => showToast('Invite sent — we’ll let you know when they join')}
+            >
               Don't see your nonprofit? Invite them →
             </button>
           </div>
@@ -113,6 +123,29 @@ export default function EventStep2() {
           </div>
         </div>
       </div>
+
+      {toast && (
+        <div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            bottom: 90,
+            transform: 'translateX(-50%)',
+            background: 'var(--dark)',
+            color: '#fff',
+            padding: '10px 18px',
+            borderRadius: 'var(--radius-pill)',
+            fontSize: 13,
+            fontWeight: 600,
+            zIndex: 100,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+            maxWidth: '80%',
+            textAlign: 'center',
+          }}
+        >
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

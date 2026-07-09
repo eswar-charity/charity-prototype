@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, Plus, Heart } from 'lucide-react';
 
@@ -26,7 +27,7 @@ function EmptyIllustration() {
       <ellipse cx="162" cy="96" rx="22" ry="20" fill="#C3B8E2" opacity="0.7" />
 
       {/* Red sun / ball */}
-      <circle cx="200" cy="55" r="22" fill="#F5604A" opacity="0.88" />
+      <circle cx="200" cy="55" r="22" fill="var(--primary)" opacity="0.88" />
 
       {/* Two people silhouettes */}
       {/* Person 1 */}
@@ -44,6 +45,12 @@ function EmptyIllustration() {
 
 export default function EmptyFeed() {
   const navigate = useNavigate();
+  const [toast, setToast] = useState('');
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 1800);
+  };
 
   return (
     <div className="phone-shell">
@@ -54,23 +61,35 @@ export default function EmptyFeed() {
           padding: '52px 18px 16px',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{
-              width: 34, height: 34, borderRadius: '50%',
-              background: 'linear-gradient(135deg,#F5604A,#FF8A65)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 12, fontWeight: 700, color: 'white',
-            }}>SJ</div>
+            <div
+              onClick={() => navigate('/')}
+              style={{
+                width: 34, height: 34, borderRadius: '50%',
+                background: 'linear-gradient(135deg,var(--primary),#FF8A65)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 12, fontWeight: 700, color: 'white', cursor: 'pointer',
+              }}
+            >SJ</div>
           </div>
           <h1 style={{ fontSize: 18, fontWeight: 800, color: 'var(--dark)', position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
             Charity Hub
           </h1>
-          <Bell size={22} color="var(--dark)" style={{ cursor: 'pointer' }} />
+          <Bell
+            size={22}
+            color="var(--dark)"
+            style={{ cursor: 'pointer' }}
+            onClick={() => showToast("We'll notify you when events go live")}
+          />
         </div>
 
         {/* Causes row */}
         <div className="story-row" style={{ padding: '0 18px 16px' }}>
           {CAUSES.map((c, i) => (
-            <div key={i} className="story-bubble">
+            <div
+              key={i}
+              className="story-bubble"
+              onClick={() => navigate(c.isAdd ? '/guest/join' : '/guest/feed')}
+            >
               {c.isAdd ? (
                 <div style={{
                   width: 56, height: 56, borderRadius: '50%',
@@ -107,13 +126,20 @@ export default function EmptyFeed() {
           </div>
 
           {/* CTA */}
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, marginBottom: 32 }}>
             <button
               className="btn-primary"
               style={{ width: 'auto', padding: '14px 32px', fontSize: 15 }}
               onClick={() => navigate('/guest/feed')}
             >
               Explore all causes
+            </button>
+            <button
+              className="btn-ghost"
+              style={{ fontSize: 14 }}
+              onClick={() => showToast('No new events yet — check back soon')}
+            >
+              Refresh
             </button>
           </div>
 
@@ -167,7 +193,7 @@ export default function EmptyFeed() {
             </svg>
             <span>Home</span>
           </button>
-          <button className="nav-item" onClick={() => {}}>
+          <button className="nav-item" onClick={() => navigate('/guest/feed')}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <rect x="2" y="3" width="20" height="14" rx="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" />
             </svg>
@@ -179,7 +205,7 @@ export default function EmptyFeed() {
             </svg>
             <span>Search</span>
           </button>
-          <button className="nav-item" onClick={() => {}}>
+          <button className="nav-item" onClick={() => navigate('/guest/join')}>
             <Heart size={22} />
             <span>Saved</span>
           </button>
@@ -190,6 +216,15 @@ export default function EmptyFeed() {
             <span>Profile</span>
           </button>
         </nav>
+
+        {toast && (
+          <div style={{
+            position: 'absolute', bottom: 90, left: '50%', transform: 'translateX(-50%)',
+            background: 'var(--dark)', color: 'white', padding: '10px 18px',
+            borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 600,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.2)', zIndex: 100, maxWidth: '80%', textAlign: 'center',
+          }}>{toast}</div>
+        )}
       </div>
     </div>
   );

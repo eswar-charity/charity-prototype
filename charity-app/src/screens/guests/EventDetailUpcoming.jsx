@@ -1,14 +1,21 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Bookmark, MapPin, Share2, Heart, Calendar, ChevronRight } from 'lucide-react';
+import { slugify } from '../../data/mockData';
 
-const BACKER_COLORS = ['#F5604A', '#0D7377', '#7B1FA2', '#1976D2', '#F57C00'];
+const BACKER_COLORS = ['var(--primary)', '#0D7377', '#7B1FA2', '#1976D2', '#F57C00'];
 
 export default function EventDetailUpcoming() {
   const navigate = useNavigate();
   const [saved, setSaved] = useState(false);
   const [liked, setLiked] = useState(false);
   const [following, setFollowing] = useState(false);
+  const [toast, setToast] = useState('');
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 1800);
+  };
 
   return (
     <div className="phone-shell">
@@ -88,15 +95,22 @@ export default function EventDetailUpcoming() {
                 <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)' }}>Books for Communities</p>
                 <p style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Verified Nonprofit</p>
               </div>
-              <button className="btn-ghost" style={{ fontSize: 13 }}>Learn more</button>
+              <button
+                className="btn-ghost"
+                style={{ fontSize: 13 }}
+                onClick={() => showToast('Books for Communities · Verified 501(c)(3)')}
+              >Learn more</button>
             </div>
 
             {/* Backers */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'space-between',
-              padding: '12px 0', borderBottom: '1px solid var(--border)', marginBottom: 0,
-              cursor: 'pointer',
-            }}>
+            <div
+              onClick={() => showToast('145 people are backing this event')}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'space-between',
+                padding: '12px 0', borderBottom: '1px solid var(--border)', marginBottom: 0,
+                cursor: 'pointer',
+              }}
+            >
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <div className="av-stack">
                   {BACKER_COLORS.map((c, i) => (
@@ -112,13 +126,19 @@ export default function EventDetailUpcoming() {
 
             {/* Organiser */}
             <div className="organiser-row">
-              <div style={{
-                width: 38, height: 38, borderRadius: '50%',
-                background: 'linear-gradient(135deg,#7B1FA2,#AB47BC)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 12, fontWeight: 700, color: 'white', flexShrink: 0,
-              }}>AT</div>
-              <div style={{ flex: 1 }}>
+              <div
+                onClick={() => navigate(`/guest/organizer/${slugify('Alex T.')}`)}
+                style={{
+                  width: 38, height: 38, borderRadius: '50%',
+                  background: 'linear-gradient(135deg,#7B1FA2,#AB47BC)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 12, fontWeight: 700, color: 'white', flexShrink: 0, cursor: 'pointer',
+                }}
+              >AT</div>
+              <div
+                style={{ flex: 1, cursor: 'pointer' }}
+                onClick={() => navigate(`/guest/organizer/${slugify('Alex T.')}`)}
+              >
                 <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>
                   Alex T.{' '}
                   <span style={{
@@ -166,6 +186,15 @@ export default function EventDetailUpcoming() {
             <Heart size={18} color={liked ? 'var(--primary)' : 'var(--dark)'} fill={liked ? 'var(--primary)' : 'none'} />
           </button>
         </div>
+
+        {toast && (
+          <div style={{
+            position: 'absolute', bottom: 100, left: '50%', transform: 'translateX(-50%)',
+            background: 'var(--dark)', color: 'white', padding: '10px 18px',
+            borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 600,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.2)', zIndex: 100, maxWidth: '80%', textAlign: 'center',
+          }}>{toast}</div>
+        )}
       </div>
     </div>
   );

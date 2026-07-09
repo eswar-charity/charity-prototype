@@ -1,17 +1,23 @@
 :root {
-  --bg: #FEF2EE;
-  --primary: #F5604A;
-  --primary-hover: #E54E38;
-  --primary-soft: #FAE8E4;
-  --dark: #1A1A1A;
-  --text-secondary: #888888;
-  --text-light: #BBBBBB;
-  --border: #E8DDD8;
+  /* Charity Hub brand palette (CharityHub_Branding_Guidelines).
+     Primary Blue = trust/structure/accents; Brand Orange (below) is
+     reserved for primary CTAs. Fonts are intentionally left unchanged. */
+  --bg: #F4F8FC;            /* Surface BG */
+  --primary: #1A6EB5;       /* Primary Blue */
+  --primary-hover: #0D4A8A; /* Deep Blue */
+  --primary-soft: #E3F0FB;  /* soft blue tint */
+  --dark: #1A2E4A;          /* Navy / Dark Text */
+  --text-secondary: #51617A;
+  --text-light: #93A7BC;
+  --border: #D0E4F5;        /* Border / Divider */
   --white: #FFFFFF;
-  --blue: #5A5FF2;
-  --blue-soft: #EEEFFE;
-  --green: #34C759;
-  --card-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  --blue: #0D4A8A;          /* Deep Blue secondary accent */
+  --blue-soft: #E3F0FB;
+  --green: #1E9E57;
+  --orange: #F5A623;        /* Brand Orange — primary CTAs only */
+  --orange-dark: #E8951F;   /* Orange Dark — donate / hover */
+  --orange-soft: #FDF1DD;
+  --card-shadow: 0 2px 16px rgba(26,110,181,0.10);
   --radius-sm: 10px;
   --radius-md: 16px;
   --radius-lg: 24px;
@@ -531,7 +537,7 @@ textarea.input-field {
 /* Post event credential */
 .credential-card {
   border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, #F5604A 0%, #7C3AED 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, #7C3AED 100%);
   padding: 20px;
   color: white;
   position: relative;
@@ -1484,7 +1490,7 @@ textarea.input-field {
 .scene-subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
 .scene-avatar {
   width: 36px; height: 36px; border-radius: 50%;
-  background: linear-gradient(135deg, #F5604A, #FF8A65);
+  background: linear-gradient(135deg, var(--primary), #FF8A65);
   display: flex; align-items: center; justify-content: center;
   font-size: 12px; font-weight: 700; color: white; cursor: pointer; flex-shrink: 0;
 }
@@ -1675,7 +1681,7 @@ textarea.input-field {
   align-items: center;
   gap: 2px;
   background: #FDF5F2;
-  border: 1px solid #E8DDD8;
+  border: 1px solid var(--border);
   border-radius: 50px;
   padding: 5px 6px 5px 10px;
   min-height: 48px;
@@ -1762,3 +1768,22 @@ textarea.input-field {
   -webkit-appearance: none; appearance: none;
 }
 .support-field:focus { border-color: var(--primary); }
+
+/* ── Infinite-scroll loader (event feeds) ─────────────────── */
+.feed-loader { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 18px 0 28px; color: var(--text-secondary); font-size: 13px; font-weight: 600; }
+.feed-spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--orange); animation: feed-spin 0.7s linear infinite; }
+@keyframes feed-spin { to { transform: rotate(360deg); } }
+.feed-end { text-align: center; padding: 10px 0 28px; color: var(--text-light); font-size: 12px; font-weight: 600; }
+@media (prefers-reduced-motion: reduce) { .feed-spinner { animation: none; } }
+
+/* ── Charity Hub brand logo (components/Logo.jsx) ─────────── */
+.ch-logo { display: inline-flex; align-items: center; gap: 4px; line-height: 1; white-space: nowrap; user-select: none; }
+.ch-logo-word { font-weight: 800; font-size: calc(var(--ch-h, 26px) * 0.9); letter-spacing: -0.5px; }
+.ch-logo-hub {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: var(--ch-h, 26px); min-width: calc(var(--ch-h, 26px) * 1.55);
+  padding: 0 calc(var(--ch-h, 26px) * 0.13);
+  background: #1A6EB5; border-radius: 50%; margin-left: -1px;
+}
+.ch-logo-hub-text { color: #fff; font-weight: 800; font-size: calc(var(--ch-h, 26px) * 0.5); letter-spacing: -0.2px; }
+.ch-logo-reg { align-self: flex-start; font-size: calc(var(--ch-h, 26px) * 0.26); font-weight: 700; margin-top: calc(var(--ch-h, 26px) * 0.04); }

@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, CheckCircle, Home, Search, Plus, Heart, User } from 'lucide-react';
 
-const BACKER_COLORS = ['#F5604A', '#0D7377', '#7B1FA2'];
+const BACKER_COLORS = ['var(--primary)', '#0D7377', '#7B1FA2'];
 
 const REC_EVENTS = [
   {
@@ -148,7 +148,7 @@ export default function ExpiredEvent() {
           <button className="nav-center-btn" onClick={() => navigate('/feed')}>
             <Plus size={24} />
           </button>
-          <button className="nav-item" onClick={() => {}}>
+          <button className="nav-item" onClick={() => navigate('/guest/join')}>
             <Heart size={22} /><span>Saved</span>
           </button>
           <button className="nav-item" onClick={() => navigate('/')}>

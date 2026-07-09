@@ -1,5 +1,7 @@
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, Bookmark, Share2, Users, Plus } from 'lucide-react';
+import useInfiniteScroll from '../../hooks/useInfiniteScroll';
 
 const STORIES = [
   { id: 0, label: 'Add', isAdd: true },
@@ -70,40 +72,42 @@ const EVENTS = [
   },
 ];
 
-const BACKER_COLORS = ['#F5604A', '#0D7377', '#7B1FA2', '#1976D2', '#F57C00'];
-
-function AvatarStack({ count }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-      <div className="av-stack">
-        {BACKER_COLORS.slice(0, 3).map((c, i) => (
-          <div key={i} className="av" style={{ background: c }} />
-        ))}
-      </div>
-      <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>
-        {count} joined · {count - 1} backing
-      </span>
-    </div>
-  );
-}
-
 export default function GuestFeed() {
   const navigate = useNavigate();
+  const [toast, setToast] = useState('');
+  const [savedIds, setSavedIds] = useState({});
+  const scrollRef = useRef(null);
+  const { items, sentinelRef, loading, hasMore } = useInfiniteScroll(EVENTS, {
+    rootRef: scrollRef, pageSize: 3, max: 24,
+  });
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 1800);
+  };
 
   return (
     <div className="phone-shell">
-      <div className="screen">
+      <div className="screen" ref={scrollRef}>
         {/* Header */}
         <div className="discover-header">
           <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--dark)' }}>Discover</h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Bell size={22} color="var(--dark)" style={{ cursor: 'pointer' }} />
-            <div style={{
-              width: 34, height: 34, borderRadius: '50%',
-              background: 'linear-gradient(135deg,#F5604A,#FF8A65)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 12, fontWeight: 700, color: 'white',
-            }}>SJ</div>
+            <Bell
+              size={22}
+              color="var(--dark)"
+              style={{ cursor: 'pointer' }}
+              onClick={() => showToast("You're all caught up")}
+            />
+            <div
+              onClick={() => navigate('/')}
+              style={{
+                width: 34, height: 34, borderRadius: '50%',
+                background: 'linear-gradient(135deg,var(--primary),#FF8A65)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 12, fontWeight: 700, color: 'white', cursor: 'pointer',
+              }}
+            >SJ</div>
           </div>
         </div>
 
@@ -131,7 +135,11 @@ export default function GuestFeed() {
         {/* Stories row */}
         <div className="story-row" style={{ padding: '0 18px 12px' }}>
           {STORIES.map((s) => (
-            <div key={s.id} className="story-bubble">
+            <div
+              key={s.id}
+              className="story-bubble"
+              onClick={() => navigate(s.isAdd ? '/guest/join' : '/guest/event/live')}
+            >
               {s.isAdd ? (
                 <div className="story-add-circle">
                   <Plus size={22} color="var(--primary)" />
@@ -148,8 +156,8 @@ export default function GuestFeed() {
 
         {/* Event cards */}
         <div style={{ padding: '0 18px 20px' }}>
-          {EVENTS.map((ev) => (
-            <div key={ev.id} className="feed-card" onClick={() => navigate(ev.route)}>
+          {items.map((ev) => (
+            <div key={ev._key} className="feed-card" onClick={() => navigate(ev.route)}>
               {/* Hero */}
               <div className="feed-card-hero" style={{ backgroundImage: `url(${ev.cover})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
                 {/* Gradient overlay for readability */}
@@ -197,7 +205,7 @@ export default function GuestFeed() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                       <div style={{
                         width: 24, height: 24, borderRadius: '50%',
-                        background: 'linear-gradient(135deg,#F5604A,#FF8A65)',
+                        background: 'linear-gradient(135deg,var(--primary),#FF8A65)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: 9, fontWeight: 700, color: 'white',
                       }}>
@@ -214,7 +222,17 @@ export default function GuestFeed() {
                       }}>✓</span>
                     </div>
                     <div style={{ display: 'flex', gap: 10 }}>
-                      <Bookmark size={16} color="var(--text-light)" style={{ cursor: 'pointer' }} />
+                      <Bookmark
+                        size={16}
+                        color={savedIds[ev._key] ? 'var(--primary)' : 'var(--text-light)'}
+                        fill={savedIds[ev._key] ? 'var(--primary)' : 'none'}
+                        style={{ cursor: 'pointer' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSavedIds((prev) => ({ ...prev, [ev._key]: !prev[ev._key] }));
+                          showToast(savedIds[ev._key] ? 'Removed from saved' : 'Saved to your list');
+                        }}
+                      />
                       <Share2 size={16} color="var(--text-light)" style={{ cursor: 'pointer' }}
                         onClick={(e) => { e.stopPropagation(); navigate('/guest/share'); }} />
                     </div>
@@ -232,6 +250,13 @@ export default function GuestFeed() {
               </div>
             </div>
           ))}
+
+          {/* Infinite scroll sentinel + loader */}
+          {hasMore && <div ref={sentinelRef} style={{ height: 1 }} aria-hidden="true" />}
+          {loading && (
+            <div className="feed-loader"><span className="feed-spinner" /> Loading more events…</div>
+          )}
+          {!hasMore && <p className="feed-end">You’re all caught up 🎉</p>}
         </div>
 
         {/* Bottom nav */}
@@ -251,7 +276,7 @@ export default function GuestFeed() {
           <button className="nav-center-btn" onClick={() => navigate('/create-event')}>
             <Plus size={24} />
           </button>
-          <button className="nav-item" onClick={() => {}}>
+          <button className="nav-item" onClick={() => navigate('/guest/join')}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
             </svg>
@@ -264,6 +289,15 @@ export default function GuestFeed() {
             <span>Profile</span>
           </button>
         </nav>
+
+        {toast && (
+          <div style={{
+            position: 'absolute', bottom: 90, left: '50%', transform: 'translateX(-50%)',
+            background: 'var(--dark)', color: 'white', padding: '10px 18px',
+            borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 600,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.2)', zIndex: 100, whiteSpace: 'nowrap',
+          }}>{toast}</div>
+        )}
       </div>
     </div>
   );

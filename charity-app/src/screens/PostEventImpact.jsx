@@ -1,9 +1,28 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Settings, Share2, ChevronRight, Rocket, Users } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 
 export default function PostEventImpact() {
   const navigate = useNavigate();
+  const [toast, setToast] = useState('');
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 2200);
+  };
+
+  const shareToLinkedIn = () => {
+    const link = 'https://charityhub.app/e/neon-night-run';
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(link).then(
+        () => showToast('Impact link copied — ready to share'),
+        () => showToast('Impact link ready to share')
+      );
+    } else {
+      showToast('Impact link ready to share');
+    }
+  };
 
   return (
     <div className="phone-shell">
@@ -152,6 +171,7 @@ export default function PostEventImpact() {
             {/* Share + settings row */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
               <button
+                onClick={shareToLinkedIn}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -171,18 +191,22 @@ export default function PostEventImpact() {
               >
                 Share to LinkedIn <Share2 size={15} />
               </button>
-              <button style={{
-                width: 36,
-                height: 36,
-                borderRadius: '50%',
-                background: 'rgba(255,255,255,0.15)',
-                border: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                marginLeft: 10,
-              }}>
+              <button
+                onClick={() => navigate('/profile')}
+                aria-label="Credential settings"
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.15)',
+                  border: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  marginLeft: 10,
+                }}
+              >
                 <Settings size={16} color="white" />
               </button>
             </div>
@@ -217,6 +241,29 @@ export default function PostEventImpact() {
 
         <BottomNav active="activity" onPlusClick={() => navigate('/create-event')} />
       </div>
+
+      {toast && (
+        <div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            bottom: 100,
+            transform: 'translateX(-50%)',
+            background: 'var(--dark)',
+            color: '#fff',
+            padding: '10px 18px',
+            borderRadius: 'var(--radius-pill)',
+            fontSize: 13,
+            fontWeight: 600,
+            zIndex: 100,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+            maxWidth: '80%',
+            textAlign: 'center',
+          }}
+        >
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

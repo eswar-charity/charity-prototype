@@ -2,9 +2,26 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, X, Calendar, Clock, MapPin, Globe, Lock, Check } from 'lucide-react';
 
+const START_DATES = ['Oct 14, 2025', 'Oct 21, 2025', 'Nov 8, 2025'];
+const END_DATES = ['Oct 14, 2025', 'Oct 22, 2025', 'Nov 9, 2025'];
+const START_TIMES = ['9:00 AM', '10:00 AM', '6:00 PM'];
+const END_TIMES = ['9:00 PM', '12:00 PM', '10:00 PM'];
+
 export default function EventStep3() {
   const navigate = useNavigate();
   const [visibility, setVisibility] = useState('public');
+  const [startDate, setStartDate] = useState(0);
+  const [endDate, setEndDate] = useState(0);
+  const [startTime, setStartTime] = useState(0);
+  const [endTime, setEndTime] = useState(0);
+  const [location, setLocation] = useState('');
+  const [toast, setToast] = useState('');
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 2200);
+  };
+  const cycle = (setter, len) => setter((i) => (i + 1) % len);
 
   return (
     <div className="phone-shell">
@@ -28,35 +45,35 @@ export default function EventStep3() {
 
           {/* Date/time grid */}
           <div className="dt-grid" style={{ marginBottom: 10 }}>
-            <div className="dt-box">
+            <div className="dt-box" onClick={() => cycle(setStartDate, START_DATES.length)}>
               <div className="dt-label">
                 <Calendar size={11} color="var(--primary)" />
                 Start date
               </div>
-              <div className="dt-value">Oct 14, 2025</div>
+              <div className="dt-value">{START_DATES[startDate]}</div>
             </div>
-            <div className="dt-box">
+            <div className="dt-box" onClick={() => cycle(setEndDate, END_DATES.length)}>
               <div className="dt-label">
                 <Calendar size={11} color="var(--primary)" />
                 End date
               </div>
-              <div className="dt-value">Oct 14, 2025</div>
+              <div className="dt-value">{END_DATES[endDate]}</div>
             </div>
           </div>
           <div className="dt-grid" style={{ marginBottom: 24 }}>
-            <div className="dt-box">
+            <div className="dt-box" onClick={() => cycle(setStartTime, START_TIMES.length)}>
               <div className="dt-label">
                 <Clock size={11} color="var(--text-secondary)" />
                 Start
               </div>
-              <div className="dt-value">9:00 AM</div>
+              <div className="dt-value">{START_TIMES[startTime]}</div>
             </div>
-            <div className="dt-box">
+            <div className="dt-box" onClick={() => cycle(setEndTime, END_TIMES.length)}>
               <div className="dt-label">
                 <Clock size={11} color="var(--text-secondary)" />
                 End
               </div>
-              <div className="dt-value">9:00 PM</div>
+              <div className="dt-value">{END_TIMES[endTime]}</div>
             </div>
           </div>
 
@@ -68,10 +85,16 @@ export default function EventStep3() {
               className="input-field"
               type="text"
               placeholder="Event location or virtual link"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
             />
           </div>
           <button
             className="btn-ghost"
+            onClick={() => {
+              setLocation('Waterfront Park, San Diego');
+              showToast('Using your current location');
+            }}
             style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, marginBottom: 24 }}
           >
             <MapPin size={13} color="var(--blue)" />
@@ -137,6 +160,29 @@ export default function EventStep3() {
           </div>
         </div>
       </div>
+
+      {toast && (
+        <div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            bottom: 90,
+            transform: 'translateX(-50%)',
+            background: 'var(--dark)',
+            color: '#fff',
+            padding: '10px 18px',
+            borderRadius: 'var(--radius-pill)',
+            fontSize: 13,
+            fontWeight: 600,
+            zIndex: 100,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+            maxWidth: '80%',
+            textAlign: 'center',
+          }}
+        >
+          {toast}
+        </div>
+      )}
     </div>
   );
 }
