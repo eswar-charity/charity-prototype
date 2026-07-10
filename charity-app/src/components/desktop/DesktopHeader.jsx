@@ -4,7 +4,7 @@ import Logo from '../Logo';
 
 const NAV_LINKS = ['Discover', 'How it works', 'Causes', 'For nonprofits'];
 
-export default function DesktopHeader({ active = 'Discover', loggedIn = false, avatarInitials = 'SJ' }) {
+export default function DesktopHeader({ active = 'Discover', loggedIn = false, avatarInitials = 'SJ', homePath = '/guest/feed' }) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -16,7 +16,7 @@ export default function DesktopHeader({ active = 'Discover', loggedIn = false, a
 
   const handleNav = (link) => {
     if (link === 'Discover') {
-      navigate('/guest/feed');
+      navigate(homePath);
       return;
     }
     if (link === 'Causes') {
@@ -35,7 +35,7 @@ export default function DesktopHeader({ active = 'Discover', loggedIn = false, a
   return (
     <header className="dsk-header">
       <div className="dsk-header-inner">
-        <Logo height={26} tone="dark" onClick={() => navigate('/guest/feed')} style={{ cursor: 'pointer' }} />
+        <Logo height={26} tone="dark" onClick={() => navigate(homePath)} style={{ cursor: 'pointer' }} />
 
         <nav className="dsk-nav">
           {NAV_LINKS.map((link) => (
@@ -59,9 +59,18 @@ export default function DesktopHeader({ active = 'Discover', loggedIn = false, a
           </div>
 
           {loggedIn ? (
-            <div className="dsk-header-avatar">{avatarInitials}</div>
+            <div
+              className="dsk-header-avatar"
+              onClick={() => navigate('/profile')}
+              style={{ cursor: 'pointer' }}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter') navigate('/profile'); }}
+            >
+              {avatarInitials}
+            </div>
           ) : (
-            <span className="dsk-loglink" onClick={() => navigate('/')}>Log in</span>
+            <span className="dsk-loglink" onClick={() => navigate('/')}>Sign up</span>
           )}
 
           <button className="dsk-cta-btn" onClick={() => navigate('/event/step-1')}>

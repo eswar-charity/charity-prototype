@@ -1,23 +1,18 @@
 :root {
-  /* Charity Hub brand palette (CharityHub_Branding_Guidelines).
-     Primary Blue = trust/structure/accents; Brand Orange (below) is
-     reserved for primary CTAs. Fonts are intentionally left unchanged. */
-  --bg: #F4F8FC;            /* Surface BG */
-  --primary: #1A6EB5;       /* Primary Blue */
-  --primary-hover: #0D4A8A; /* Deep Blue */
-  --primary-soft: #E3F0FB;  /* soft blue tint */
-  --dark: #1A2E4A;          /* Navy / Dark Text */
+  /* Charity Hub brand palette — matches charityhub.com */
+  --bg: #FFFFFF;
+  --primary: #1A6EB5;
+  --primary-hover: #0D4A8A;
+  --primary-soft: #E3F0FB;
+  --dark: #1A2E4A;
   --text-secondary: #51617A;
   --text-light: #93A7BC;
-  --border: #D0E4F5;        /* Border / Divider */
+  --border: #E8EEF4;
   --white: #FFFFFF;
-  --blue: #0D4A8A;          /* Deep Blue secondary accent */
+  --blue: #0D4A8A;
   --blue-soft: #E3F0FB;
   --green: #1E9E57;
-  --orange: #F5A623;        /* Brand Orange — primary CTAs only */
-  --orange-dark: #E8951F;   /* Orange Dark — donate / hover */
-  --orange-soft: #FDF1DD;
-  --card-shadow: 0 2px 16px rgba(26,110,181,0.10);
+  --card-shadow: 0 2px 16px rgba(26, 110, 181, 0.08);
   --radius-sm: 10px;
   --radius-md: 16px;
   --radius-lg: 24px;
@@ -71,7 +66,7 @@ body {
 /* ── Tablet / Desktop: show 390 px phone frame ─────────────── */
 @media (min-width: 540px) {
   body {
-    background: #DDD5CE;
+    background: #FFFFFF;
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -198,6 +193,237 @@ textarea.input-field {
   resize: none;
   min-height: 110px;
   line-height: 1.6;
+}
+
+/* Custom role select (replaces native <select> dropdown) */
+.role-select {
+  position: relative;
+  width: 100%;
+}
+
+.role-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.role-select-chevron {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.role-select.open .role-select-chevron {
+  transform: rotate(180deg);
+}
+
+.role-select.open .role-select-trigger {
+  border-color: var(--primary);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.role-select-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--white);
+  border: 1.5px solid var(--primary);
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  box-shadow: 0 10px 28px rgba(13, 42, 74, 0.1);
+  z-index: 30;
+}
+
+.role-select-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--dark);
+  border-radius: calc(var(--radius-md) - 4px);
+  cursor: pointer;
+  text-align: left;
+}
+
+.role-select-option:hover,
+.role-select-option.selected {
+  background: var(--primary-soft);
+  color: var(--dark);
+}
+
+.role-select-option svg {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+/* Mobile auth header with logo */
+.mobile-auth-header {
+  margin-bottom: 28px;
+}
+
+.mobile-auth-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  min-height: 38px;
+}
+
+.mobile-auth-top-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  min-height: 38px;
+}
+
+.mobile-auth-top-spacer {
+  width: 38px;
+  flex-shrink: 0;
+}
+
+.mobile-auth-steps {
+  justify-content: center;
+}
+
+/* Mobile app header — logo on SE / guest / nonprofit screens */
+.mobile-app-header {
+  padding: calc(env(safe-area-inset-top, 20px) + 12px) 18px 12px;
+  flex-shrink: 0;
+}
+
+.mobile-app-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 38px;
+}
+
+.mobile-app-header-brand {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 38px;
+}
+
+.mobile-app-header-logo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 0;
+  min-height: 38px;
+}
+
+.mobile-app-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.mobile-app-header-copy {
+  margin-top: 14px;
+}
+
+.mobile-app-header-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--dark);
+  letter-spacing: -0.4px;
+  line-height: 1.15;
+}
+
+.mobile-app-header-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  line-height: 1.45;
+}
+
+.mobile-app-header-meta {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+.mobile-app-header--bar,
+.mobile-app-header--center {
+  padding-bottom: 0;
+}
+
+.mobile-app-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 38px;
+}
+
+.mobile-app-header-bar-side {
+  width: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  min-height: 38px;
+}
+
+.mobile-app-header-bar-side--end {
+  justify-content: flex-end;
+}
+
+.mobile-app-header-bar-logo {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 38px;
+  line-height: 0;
+}
+
+.mobile-app-header--center .mobile-app-header-bar-side {
+  width: auto;
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-app-header--center .mobile-app-header-bar-side--end {
+  justify-content: flex-end;
+}
+
+.mobile-app-header--bar + .np-page-title,
+.mobile-app-header--bar ~ .np-page-title-wrap .np-page-title {
+  padding-top: 4px;
+}
+
+.np-page-title-wrap {
+  padding: 0 18px 16px;
+  flex-shrink: 0;
 }
 
 /* Buttons */
@@ -995,7 +1221,7 @@ textarea.input-field {
   border-radius: var(--radius-pill);
   font-size: 12px; font-weight: 600;
 }
-.hero-pill.coral { background: rgba(245, 96, 74, 0.9); }
+.hero-pill.coral { background: rgba(26, 110, 181, 0.92); }
 
 /* Nonprofit / organiser row inside detail card */
 .np-info-row {
@@ -1080,7 +1306,7 @@ textarea.input-field {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), #FF8A65);
+  background: linear-gradient(135deg, var(--primary), var(--blue));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1089,6 +1315,22 @@ textarea.input-field {
   color: white;
   cursor: pointer;
   flex-shrink: 0;
+}
+.guest-signup-btn {
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--primary);
+  background: var(--white);
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.guest-signup-btn:active {
+  background: var(--primary-soft);
 }
 .guest-story-row {
   padding: 0 18px 14px;
@@ -1365,8 +1607,18 @@ textarea.input-field {
 .np-profile-hero-img { width: 100%; height: 100%; object-fit: cover; }
 .np-profile-hero-nav {
   position: absolute; top: 0; left: 0; right: 0;
-  display: flex; justify-content: space-between;
+  display: flex; justify-content: space-between; align-items: center;
   padding: calc(env(safe-area-inset-top, 20px) + 8px) 16px 0;
+}
+.np-profile-hero-logo {
+  border: none;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-family: inherit;
 }
 .np-profile-hero-btn {
   width: 38px; height: 38px; border-radius: 50%;
@@ -1618,7 +1870,7 @@ textarea.input-field {
 .scene-subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
 .scene-avatar {
   width: 36px; height: 36px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), #FF8A65);
+  background: linear-gradient(135deg, var(--primary), var(--blue));
   display: flex; align-items: center; justify-content: center;
   font-size: 12px; font-weight: 700; color: white; cursor: pointer; flex-shrink: 0;
 }
@@ -1938,19 +2190,13 @@ textarea.input-field {
 
 /* ── Infinite-scroll loader (event feeds) ─────────────────── */
 .feed-loader { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 18px 0 28px; color: var(--text-secondary); font-size: 13px; font-weight: 600; }
-.feed-spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--orange); animation: feed-spin 0.7s linear infinite; }
+.feed-spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--primary); animation: feed-spin 0.7s linear infinite; }
 @keyframes feed-spin { to { transform: rotate(360deg); } }
 .feed-end { text-align: center; padding: 10px 0 28px; color: var(--text-light); font-size: 12px; font-weight: 600; }
 @media (prefers-reduced-motion: reduce) { .feed-spinner { animation: none; } }
 
-/* ── Charity Hub brand logo (components/Logo.jsx) ─────────── */
-.ch-logo { display: inline-flex; align-items: center; gap: 4px; line-height: 1; white-space: nowrap; user-select: none; }
-.ch-logo-word { font-weight: 800; font-size: calc(var(--ch-h, 26px) * 0.9); letter-spacing: -0.5px; }
-.ch-logo-hub {
-  display: inline-flex; align-items: center; justify-content: center;
-  height: var(--ch-h, 26px); min-width: calc(var(--ch-h, 26px) * 1.55);
-  padding: 0 calc(var(--ch-h, 26px) * 0.13);
-  background: #1A6EB5; border-radius: 50%; margin-left: -1px;
+.ch-logo-img {
+  object-fit: contain;
+  display: block;
+  max-width: 100%;
 }
-.ch-logo-hub-text { color: #fff; font-weight: 800; font-size: calc(var(--ch-h, 26px) * 0.5); letter-spacing: -0.2px; }
-.ch-logo-reg { align-self: flex-start; font-size: calc(var(--ch-h, 26px) * 0.26); font-weight: 700; margin-top: calc(var(--ch-h, 26px) * 0.04); }

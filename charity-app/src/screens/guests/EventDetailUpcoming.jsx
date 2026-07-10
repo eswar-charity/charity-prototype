@@ -5,7 +5,7 @@ import { NonprofitLearnMoreModal, EventBackersModal } from '../../components/eve
 import { events, slugify } from '../../data/mockData';
 
 const ev = events[2];
-const BACKER_COLORS = ['var(--primary)', '#0D7377', '#7B1FA2', '#1976D2', '#F57C00'];
+const BACKER_COLORS = ['var(--primary)', '#0D7377', '#7B1FA2', '#1976D2', '#1A6EB5'];
 
 const NP_DESCRIPTION = 'Books for Communities expands access to reading materials and literacy programs for underserved schools across New England. Every event on Charity Hub helps them reach more students.';
 

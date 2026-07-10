@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Check, Info, ExternalLink } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
+import MobileAppHeader from '../../components/MobileAppHeader';
 
 const BACKING_BY_EVENT = [
   { id: 1, title: 'Coastal Cleanup Drive', count: 87, bg: 'linear-gradient(135deg,#FF8C42,var(--primary))' },
@@ -16,14 +17,17 @@ export default function NpFinancials() {
   return (
     <div className="phone-shell">
       <div className="screen">
-        {/* Header */}
-        <div style={{ padding: '52px 18px 0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-            <button className="back-btn" onClick={() => navigate('/np/home')}>
+        <MobileAppHeader
+          layout="bar"
+          homePath="/np/home"
+          left={(
+            <button type="button" className="back-btn" onClick={() => navigate('/np/home')} aria-label="Back">
               <ChevronLeft size={18} />
             </button>
-            <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--dark)' }}>Financials</h1>
-          </div>
+          )}
+        />
+        <div className="np-page-title-wrap">
+          <h1 className="np-page-title" style={{ fontSize: 24 }}>Financials</h1>
         </div>
 
         <div style={{ padding: '0 18px 24px' }}>

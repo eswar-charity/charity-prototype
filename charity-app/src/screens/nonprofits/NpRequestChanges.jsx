@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const SUGGESTIONS = ['Clarify description', 'Update event photo', 'Check location', 'Add volunteer info'];
-const HERO_IMG = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=300&fit=crop';
+const HERO_IMG = '/events/breakneck-ridge-run/img1.jpg';
 
 export default function NpRequestChanges() {
   const navigate = useNavigate();

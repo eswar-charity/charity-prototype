@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Lock } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { accountRoles } from '../data/mockData';
+import RoleSelect from '../components/RoleSelect';
+import MobileAuthHeader from '../components/MobileAuthHeader';
 
 export default function CreateAccount() {
   const navigate = useNavigate();
@@ -15,41 +17,18 @@ export default function CreateAccount() {
     <div className="phone-shell">
       <div className="screen">
         <div style={{ padding: '52px 18px 0' }}>
-          {/* Top bar */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32 }}>
-            <button className="back-btn" onClick={() => navigate('/')}>
-              <ChevronLeft size={18} />
-            </button>
-            <div className="step-dots">
-              <div className="step-dot active" />
-              <div className="step-dot" />
-              <div className="step-dot" />
-            </div>
-            <div style={{ width: 38 }} />
-          </div>
+          <MobileAuthHeader onBack={() => navigate('/')} activeStep={0} />
 
-          {/* Heading */}
           <h1 className="screen-title">{role.title}</h1>
           <p className="screen-subtitle">{role.subtitle}</p>
 
-          {/* Role selector */}
           <div style={{ marginTop: 24 }}>
             <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--dark)', marginBottom: 8 }}>
               I am a…
             </label>
-            <select
-              className="input-field"
-              value={roleId}
-              onChange={(e) => setRoleId(e.target.value)}
-              style={{ cursor: 'pointer' }}
-            >
-              {accountRoles.map((r) => (
-                <option key={r.id} value={r.id}>{r.label}</option>
-              ))}
-            </select>
+            <RoleSelect options={accountRoles} value={roleId} onChange={setRoleId} />
           </div>
 
-          {/* Form fields — only social entrepreneurs create an account here */}
           {roleId === 'se' && (
             <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
               <input
@@ -97,24 +76,21 @@ export default function CreateAccount() {
             </div>
           )}
 
-          {/* CTA */}
           <div style={{ marginTop: 28 }}>
-            <button className="btn-primary" onClick={() => navigate(role.route)}>
+            <button type="button" className="btn-primary" onClick={() => navigate(role.route)}>
               Continue
             </button>
           </div>
 
-          {/* Sign in link */}
           {roleId === 'se' && (
-          <p style={{ textAlign: 'center', marginTop: 40, fontSize: 14, color: 'var(--text-secondary)' }}>
-            Already have an account?{' '}
-            <button className="btn-ghost" style={{ fontSize: 14 }} onClick={() => navigate('/feed')}>
-              Sign in
-            </button>
-          </p>
+            <p style={{ textAlign: 'center', marginTop: 40, fontSize: 14, color: 'var(--text-secondary)' }}>
+              Already have an account?{' '}
+              <button type="button" className="btn-ghost" style={{ fontSize: 14 }} onClick={() => navigate('/feed')}>
+                Sign in
+              </button>
+            </p>
           )}
 
-          {/* Privacy note */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 16 }}>
             <Lock size={12} color="var(--text-light)" />
             <p style={{ fontSize: 12, color: 'var(--text-light)', textAlign: 'center' }}>

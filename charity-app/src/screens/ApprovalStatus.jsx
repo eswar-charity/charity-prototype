@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Check, Clock, Rocket, PartyPopper, Radio } from 'lucide-react';
+import MobileAppHeader from '../components/MobileAppHeader';
 
 /* Event lifecycle after submit (Blueprint §8):
    Submitted -> Approved -> Live -> Completed.
@@ -56,10 +57,17 @@ export default function ApprovalStatus() {
   return (
     <div className="phone-shell">
       <div className="screen">
-        <div style={{ padding: '52px 18px 0' }}>
-          <button className="back-btn" onClick={() => navigate('/event/step-4')} style={{ marginBottom: 20 }}>
-            <ChevronLeft size={18} />
-          </button>
+        <div style={{ padding: '0 18px 0' }}>
+          <MobileAppHeader
+            layout="bar"
+            homePath="/feed"
+            left={(
+              <button type="button" className="back-btn" onClick={() => navigate('/event/step-4')} aria-label="Back">
+                <ChevronLeft size={18} />
+              </button>
+            )}
+          />
+          <div style={{ paddingBottom: 20 }}>
 
           {/* Event hero — real background image */}
           <div
@@ -96,12 +104,12 @@ export default function ApprovalStatus() {
           <div className="card" style={{ textAlign: 'center', padding: '24px 20px', marginBottom: 18 }}>
             <div style={{
               width: 52, height: 52, borderRadius: '50%',
-              background: state === 'live' ? 'var(--orange-soft)' : 'var(--primary-soft)',
+              background: state === 'live' ? 'var(--primary-soft)' : 'var(--primary-soft)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px',
             }}>
               {state === 'review' && <Clock size={24} color="var(--primary)" />}
               {state === 'approved' && <Check size={24} color="var(--primary)" strokeWidth={3} />}
-              {state === 'live' && <Radio size={24} color="var(--orange-dark)" />}
+              {state === 'live' && <Radio size={24} color="var(--primary)" />}
               {state === 'completed' && <PartyPopper size={24} color="var(--primary)" />}
             </div>
             <h2 style={{ fontSize: 24, fontWeight: 800, color: 'var(--dark)', marginBottom: 8 }}>{copy.title}</h2>
@@ -117,13 +125,13 @@ export default function ApprovalStatus() {
                 <div key={node.key}>
                   <div className="timeline-step">
                     <div className={`timeline-dot ${st === 'done' ? 'td-done' : st === 'pending' ? 'td-pending' : 'td-active'}`}
-                      style={st === 'livenow' ? { background: 'var(--orange)', borderColor: 'var(--orange)' } : undefined}>
+                      style={st === 'livenow' ? { background: 'var(--primary)', borderColor: 'var(--primary)' } : undefined}>
                       {st === 'done' && <Check size={12} strokeWidth={3} />}
                       {(st === 'active') && <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)' }} />}
                       {st === 'livenow' && <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'white' }} />}
                     </div>
                     <div>
-                      <p style={{ fontSize: 14, fontWeight: st === 'pending' ? 600 : 700, color: st === 'pending' ? 'var(--text-secondary)' : (st === 'livenow' ? 'var(--orange-dark)' : 'var(--dark)') }}>
+                      <p style={{ fontSize: 14, fontWeight: st === 'pending' ? 600 : 700, color: st === 'pending' ? 'var(--text-secondary)' : (st === 'livenow' ? 'var(--primary)' : 'var(--dark)') }}>
                         {node.label}
                       </p>
                       <p style={{ fontSize: 12, color: 'var(--text-light)', marginTop: 2 }}>
@@ -174,6 +182,7 @@ export default function ApprovalStatus() {
                 </button>
               </>
             )}
+          </div>
           </div>
         </div>
       </div>

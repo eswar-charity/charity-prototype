@@ -77,21 +77,45 @@ export default function AdminLayout({ active, title, eyebrow = 'Charity Hub Admi
           </div>
 
           <div className="adm-topbar">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+            <div className="adm-topbar-brand-row">
               <button className="adm-icon-btn adm-menu-btn" aria-label="Open menu" onClick={() => setNavOpen(true)}>
                 <Menu size={18} />
               </button>
-              <div className="adm-topbar-titles">
-                <span className="adm-eyebrow">{eyebrow}</span>
-                <h1 className="adm-page-title">{title}</h1>
-              </div>
+              <button
+                type="button"
+                className="adm-topbar-logo"
+                onClick={() => navigate('/admin/dashboard')}
+                aria-label="Charity Hub Admin home"
+              >
+                <Logo height={22} tone="light" />
+              </button>
+              <button
+                type="button"
+                className="adm-icon-btn adm-topbar-bell-mobile"
+                aria-label="Notifications"
+                onClick={() => navigate('/admin/review')}
+              >
+                <Bell size={17} />
+                <span className="adm-dot" />
+              </button>
             </div>
+
+            <div className="adm-topbar-titles">
+              <span className="adm-eyebrow">{eyebrow}</span>
+              <h1 className="adm-page-title">{title}</h1>
+            </div>
+
             <div className="adm-topbar-actions">
               <div className="adm-search">
                 <Search size={15} />
                 <input placeholder="Search nonprofits, events, IDs…" aria-label="Search" />
               </div>
-              <button className="adm-icon-btn" aria-label="Notifications" onClick={() => navigate('/admin/review')}>
+              <button
+                type="button"
+                className="adm-icon-btn adm-topbar-bell-desktop"
+                aria-label="Notifications"
+                onClick={() => navigate('/admin/review')}
+              >
                 <Bell size={17} />
                 <span className="adm-dot" />
               </button>

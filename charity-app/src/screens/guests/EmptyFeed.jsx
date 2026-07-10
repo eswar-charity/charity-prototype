@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, Plus, Heart } from 'lucide-react';
+import MobileAppHeader from '../../components/MobileAppHeader';
 
 const CAUSES = [
   { label: 'Add', isAdd: true },
@@ -50,35 +51,26 @@ export default function EmptyFeed() {
   return (
     <div className="phone-shell">
       <div className="screen">
-        {/* Header */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '52px 18px 16px',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div
-              onClick={() => navigate('/')}
-              style={{
-                width: 34, height: 34, borderRadius: '50%',
-                background: 'linear-gradient(135deg,var(--primary),#FF8A65)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 12, fontWeight: 700, color: 'white', cursor: 'pointer',
-              }}
-            >SJ</div>
-          </div>
-          <h1 style={{ fontSize: 18, fontWeight: 800, color: 'var(--dark)', position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
-            Charity Hub
-          </h1>
-          <button
-            type="button"
-            aria-label="Notifications"
-            style={{ position: 'relative', background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex' }}
-            onClick={() => setNotifyOn((on) => !on)}
-          >
-            <Bell size={22} color={notifyOn ? 'var(--blue)' : 'var(--dark)'} />
-            {notifyOn && <span className="np-notify-dot" />}
-          </button>
-        </div>
+        <MobileAppHeader
+          layout="center"
+          homePath="/guest/feed"
+          left={(
+            <button type="button" className="guest-signup-btn" onClick={() => navigate('/')}>
+              Sign up
+            </button>
+          )}
+          actions={(
+            <button
+              type="button"
+              aria-label="Notifications"
+              style={{ position: 'relative', background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex' }}
+              onClick={() => setNotifyOn((on) => !on)}
+            >
+              <Bell size={22} color={notifyOn ? 'var(--blue)' : 'var(--dark)'} />
+              {notifyOn && <span className="np-notify-dot" />}
+            </button>
+          )}
+        />
 
         {/* Causes row */}
         <div className="story-row" style={{ padding: '0 18px 16px' }}>
@@ -209,9 +201,9 @@ export default function EmptyFeed() {
           </button>
           <button className="nav-item" onClick={() => navigate('/')}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" />
             </svg>
-            <span>Profile</span>
+            <span>Sign up</span>
           </button>
         </nav>
       </div>

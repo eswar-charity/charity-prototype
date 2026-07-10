@@ -15,7 +15,7 @@ const EVENTS = [
     desc: "Join us for our second wave of coastal cleanup efforts. We will be providing all necessary equipment and a light breakfast for volunteers.",
     submitted: 'Submitted 2 hours ago',
     status: 'New request',
-    heroImg: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=300&fit=crop',
+    heroImg: '/events/breakneck-ridge-run/img1.jpg',
   },
   {
     id: 2,
@@ -26,7 +26,7 @@ const EVENTS = [
     desc: 'An inclusive community art session focusing on collaborative murals. We updated the budget per previous feedback and...',
     submitted: 'Updated 1 day ago',
     status: 'Changes requested',
-    heroImg: 'https://images.unsplash.com/photo-1499892477393-f675706cbe6e?w=600&h=300&fit=crop',
+    heroImg: '/events/dog-dad/img1.jpg',
   },
 ];
 

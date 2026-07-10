@@ -4,6 +4,7 @@ import { ChevronLeft, Check, Info, Heart } from 'lucide-react';
 import { useCreateEventDraft, resetDraft, updateDraft } from '../hooks/useCreateEventDraft';
 import { nonprofits } from '../data/mockData';
 import { previewHashtag } from '../utils/eventWizard';
+import MobileAppHeader from '../components/MobileAppHeader';
 
 export default function EventStep4() {
   const navigate = useNavigate();
@@ -39,13 +40,16 @@ export default function EventStep4() {
   return (
     <div className="phone-shell">
       <div className="screen">
-        <div className="step-bar">
-          <button type="button" className="back-btn" onClick={() => navigate('/event/step-3')}>
-            <ChevronLeft size={18} />
-          </button>
-          <span className="step-text">STEP 4 OF 4</span>
-          <div style={{ width: 38 }} />
-        </div>
+        <MobileAppHeader
+          layout="bar"
+          homePath="/feed"
+          left={(
+            <button type="button" className="back-btn" onClick={() => navigate('/event/step-3')}>
+              <ChevronLeft size={18} />
+            </button>
+          )}
+          meta="Step 4 of 4"
+        />
 
         <div className="screen-inner">
           <h1 className="screen-title" style={{ marginBottom: 6 }}>Preview & submit</h1>
@@ -82,7 +86,7 @@ export default function EventStep4() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div style={{
                   width: 28, height: 28, borderRadius: '50%',
-                  background: nonprofit?.bg || 'linear-gradient(135deg, var(--primary), #FF8A65)',
+                  background: nonprofit?.bg || 'linear-gradient(135deg, var(--primary), var(--blue))',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 11, fontWeight: 700, color: 'white',
                 }}>

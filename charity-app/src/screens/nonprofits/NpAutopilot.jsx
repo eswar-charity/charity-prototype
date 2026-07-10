@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Check, Settings, Info } from 'lucide-react';
+import MobileAppHeader from '../../components/MobileAppHeader';
 
 const CHECKS = [
   'SE must be verified and in good standing',
@@ -10,8 +11,8 @@ const CHECKS = [
 ];
 
 const TRUSTED_SES = [
-  { id: 1, name: 'Maya R.', events: 3, avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop' },
-  { id: 2, name: 'David K.', events: 2, avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop' },
+  { id: 1, name: 'Maya R.', events: 3, avatar: '/events/breakneck-ridge-run/img4.jpg' },
+  { id: 2, name: 'David K.', events: 2, avatar: '/events/dog-dad/img2.jpg' },
 ];
 
 export default function NpAutopilot() {
@@ -25,10 +26,16 @@ export default function NpAutopilot() {
     <div className="phone-shell">
       <div className="screen screen--split">
         <div className="screen-scroll">
-          <div className="np-page-header">
-            <button type="button" className="back-btn" onClick={() => navigate('/np/approvals')} aria-label="Back">
-              <ChevronLeft size={18} />
-            </button>
+          <MobileAppHeader
+            layout="bar"
+            homePath="/np/home"
+            left={(
+              <button type="button" className="back-btn" onClick={() => navigate('/np/approvals')} aria-label="Back">
+                <ChevronLeft size={18} />
+              </button>
+            )}
+          />
+          <div className="np-page-title-wrap">
             <h1 className="np-page-title">Autopilot</h1>
           </div>
 

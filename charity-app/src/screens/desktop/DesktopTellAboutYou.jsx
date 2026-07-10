@@ -65,7 +65,7 @@ export default function DesktopTellAboutYou() {
         ))}
       </div>
 
-      <button className="dsk-auth-submit" onClick={() => navigate('/guest/feed')}>Build my profile</button>
+      <button className="dsk-auth-submit" onClick={() => navigate('/feed')}>Build my profile</button>
       <button
         className="dsk-wizard-back-link"
         style={{ marginTop: 12, display: 'block' }}

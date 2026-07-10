@@ -128,6 +128,7 @@ export const events = [
       '/events/dog-dad/img2.jpg',
       '/events/dog-dad/img3.jpg',
       '/events/dog-dad/img4.jpg',
+      '/events/dog-dad/img5.png',
     ],
   },
   {
@@ -139,7 +140,7 @@ export const events = [
     initials: 'DK',
     nonprofit: 'Food Bank NYC',
     npInitials: 'FB',
-    npBg: 'linear-gradient(135deg,#F57C00,#FFB300)',
+    npBg: 'linear-gradient(135deg,#1976D2,#42A5F5)',
     category: 'Food & Hunger',
     catColor: '#E65100',
     catBg: '#FFF3E0',
@@ -173,9 +174,9 @@ export const nonprofits = [
     name: 'Food Bank NYC',
     category: 'Food & Hunger',
     verified: true,
-    color: '#F57C00',
+    color: '#1976D2',
     initials: 'FB',
-    bg: 'linear-gradient(135deg, #F57C00, #FFB300)',
+    bg: 'linear-gradient(135deg, #1976D2, #42A5F5)',
   },
   {
     id: 3,

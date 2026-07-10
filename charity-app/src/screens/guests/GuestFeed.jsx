@@ -1,14 +1,15 @@
 import { useState, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, Bookmark, Share2, Users, Plus } from 'lucide-react';
-import BottomNav from '../../components/BottomNav';
+import GuestBottomNav from '../../components/GuestBottomNav';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
+import MobileAppHeader from '../../components/MobileAppHeader';
 
 const STORIES = [
   { id: 0, label: 'Add', isAdd: true },
   { id: 1, label: 'Tree Drive', category: 'Environment', bg: 'linear-gradient(135deg,#388E3C,#66BB6A)', emoji: '🌳' },
   { id: 2, label: 'Art Class', category: 'Education', bg: 'linear-gradient(135deg,#7B1FA2,#AB47BC)', emoji: '🎨' },
-  { id: 3, label: 'Food Store', category: 'Health', bg: 'linear-gradient(135deg,#F57C00,#FFB300)', emoji: '🍎' },
+  { id: 3, label: 'Food Store', category: 'Health', bg: 'linear-gradient(135deg,#1976D2,#42A5F5)', emoji: '🍎' },
   { id: 4, label: 'Ocean', category: 'Environment', bg: 'linear-gradient(135deg,#0288D1,#26C6DA)', emoji: '🌊' },
   { id: 5, label: 'Animals', category: 'Animals', bg: 'linear-gradient(135deg,#D32F2F,#EF5350)', emoji: '🐾' },
 ];
@@ -111,24 +112,30 @@ export default function GuestFeed() {
       <div className="screen screen--split">
         {/* Fixed top — header + stories */}
         <div className="screen-top">
-          <div className="discover-header">
-            <h1 className="discover-title">Discover</h1>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <button
-                type="button"
-                aria-label="Notifications"
-                style={{ position: 'relative', background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex' }}
-                onClick={() => setHasAlerts(false)}
-              >
-                <Bell size={22} color="var(--dark)" />
-                {hasAlerts && <span className="np-notify-dot" />}
-              </button>
-              <div
-                onClick={() => navigate('/')}
-                className="discover-avatar"
-              >SJ</div>
-            </div>
-          </div>
+          <MobileAppHeader
+            homePath="/guest/feed"
+            title="Discover"
+            actions={(
+              <>
+                <button
+                  type="button"
+                  aria-label="Notifications"
+                  style={{ position: 'relative', background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex' }}
+                  onClick={() => setHasAlerts(false)}
+                >
+                  <Bell size={22} color="var(--dark)" />
+                  {hasAlerts && <span className="np-notify-dot" />}
+                </button>
+                <button
+                  type="button"
+                  className="guest-signup-btn"
+                  onClick={() => navigate('/')}
+                >
+                  Sign up
+                </button>
+              </>
+            )}
+          />
 
           <div className="story-row guest-story-row">
             {STORIES.map((s) => (
@@ -206,7 +213,7 @@ export default function GuestFeed() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                         <div style={{
                           width: 24, height: 24, borderRadius: '50%',
-                          background: 'linear-gradient(135deg,var(--primary),#FF8A65)',
+                          background: 'linear-gradient(135deg,var(--primary),var(--blue))',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           fontSize: 9, fontWeight: 700, color: 'white',
                         }}>
@@ -260,7 +267,7 @@ export default function GuestFeed() {
           </div>
         </div>
 
-        <BottomNav active="explore" onPlusClick={() => navigate('/create-event')} />
+        <GuestBottomNav active="discover" />
 
         {toast && (
           <div className="guest-toast">{toast}</div>

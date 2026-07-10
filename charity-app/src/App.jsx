@@ -30,6 +30,8 @@ import DesktopGuestFeed from './screens/guests/desktop/DesktopGuestFeed';
 import DesktopEventDetail from './screens/guests/desktop/DesktopEventDetail';
 import DesktopEventDetailUpcoming from './screens/guests/desktop/DesktopEventDetailUpcoming';
 import DesktopOrganizerProfile from './screens/guests/desktop/DesktopOrganizerProfile';
+import DesktopIdentityGateJoin from './screens/guests/desktop/DesktopIdentityGateJoin';
+import DesktopIdentityGateDonate from './screens/guests/desktop/DesktopIdentityGateDonate';
 
 // SE (organiser) screens — desktop onboarding + "create an event" wizard
 import DesktopCreateAccount from './screens/desktop/DesktopCreateAccount';
@@ -39,6 +41,10 @@ import DesktopEventStep2 from './screens/desktop/DesktopEventStep2';
 import DesktopEventStep3 from './screens/desktop/DesktopEventStep3';
 import DesktopEventStep4 from './screens/desktop/DesktopEventStep4';
 import DesktopApprovalStatus from './screens/desktop/DesktopApprovalStatus';
+import DesktopFeedScreen from './screens/desktop/DesktopFeedScreen';
+import DesktopPostEventImpact from './screens/desktop/DesktopPostEventImpact';
+import DesktopProfileScreen from './screens/desktop/DesktopProfileScreen';
+import DesktopLiveDashboard from './screens/desktop/DesktopLiveDashboard';
 
 // Nonprofit screens
 import NpLaunchpad from './screens/nonprofits/NpLaunchpad';
@@ -99,6 +105,18 @@ function EventStep4Route() {
 function ApprovalStatusRoute() {
   return useIsDesktop() ? <DesktopApprovalStatus /> : <ApprovalStatus />;
 }
+function FeedScreenRoute() {
+  return useIsDesktop() ? <DesktopFeedScreen /> : <FeedScreen />;
+}
+function PostEventImpactRoute() {
+  return useIsDesktop() ? <DesktopPostEventImpact /> : <PostEventImpact />;
+}
+function ProfileScreenRoute() {
+  return useIsDesktop() ? <DesktopProfileScreen /> : <ProfileScreen />;
+}
+function LiveDashboardRoute() {
+  return useIsDesktop() ? <DesktopLiveDashboard /> : <LiveDashboard />;
+}
 function NpHomeRoute() {
   return useIsDesktop() ? <DesktopNpLaunchpad /> : <NpLaunchpad />;
 }
@@ -114,6 +132,12 @@ function NpActivityRoute() {
 function NpAutopilotRoute() {
   return useIsDesktop() ? <DesktopNpAutopilot /> : <NpAutopilot />;
 }
+function IdentityGateJoinRoute() {
+  return useIsDesktop() ? <DesktopIdentityGateJoin /> : <IdentityGateJoin />;
+}
+function IdentityGateDonateRoute() {
+  return useIsDesktop() ? <DesktopIdentityGateDonate /> : <IdentityGateDonate />;
+}
 
 export default function App() {
   return (
@@ -122,16 +146,16 @@ export default function App() {
         {/* Organiser flow */}
         <Route path="/" element={<CreateAccountRoute />} />
         <Route path="/about-you" element={<AboutYouRoute />} />
-        <Route path="/feed" element={<FeedScreen />} />
-        <Route path="/create-event" element={<FeedScreen />} />
+        <Route path="/feed" element={<FeedScreenRoute />} />
+        <Route path="/create-event" element={<FeedScreenRoute />} />
         <Route path="/event/step-1" element={<EventStep1Route />} />
         <Route path="/event/step-2" element={<EventStep2Route />} />
         <Route path="/event/step-3" element={<EventStep3Route />} />
         <Route path="/event/step-4" element={<EventStep4Route />} />
         <Route path="/approval" element={<ApprovalStatusRoute />} />
-        <Route path="/live-dashboard" element={<LiveDashboard />} />
-        <Route path="/post-event" element={<PostEventImpact />} />
-        <Route path="/profile" element={<ProfileScreen />} />
+        <Route path="/live-dashboard" element={<LiveDashboardRoute />} />
+        <Route path="/post-event" element={<PostEventImpactRoute />} />
+        <Route path="/profile" element={<ProfileScreenRoute />} />
 
         {/* Guest flow */}
         <Route path="/guest" element={<Navigate to="/guest/feed" replace />} />
@@ -141,8 +165,8 @@ export default function App() {
         <Route path="/guest/event/upcoming" element={<EventDetailUpcomingRoute />} />
         <Route path="/guest/event/expired" element={<ExpiredEvent />} />
         <Route path="/guest/share" element={<ShareSheet />} />
-        <Route path="/guest/join" element={<IdentityGateJoin />} />
-        <Route path="/guest/donate" element={<IdentityGateDonate />} />
+        <Route path="/guest/join" element={<IdentityGateJoinRoute />} />
+        <Route path="/guest/donate" element={<IdentityGateDonateRoute />} />
         <Route path="/guest/organizer/:slug" element={<DesktopOrganizerProfile />} />
 
         {/* Nonprofit flow */}

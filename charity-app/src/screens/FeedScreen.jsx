@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Megaphone, Building2, Compass } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 import NotificationBell, { SE_FEED_NOTIFICATIONS } from '../components/NotificationBell';
+import MobileAppHeader from '../components/MobileAppHeader';
 import { events } from '../data/mockData';
 import useInfiniteScroll from '../hooks/useInfiniteScroll';
 
@@ -23,20 +24,21 @@ export default function FeedScreen() {
 
         {/* ── Fixed top section (does NOT scroll) ── */}
         <div className="screen-top">
-          <div className="scene-header">
-            <div>
-              <h1 className="scene-title">The Scene</h1>
-              <p className="scene-subtitle">Events happening now</p>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <NotificationBell items={SE_FEED_NOTIFICATIONS} />
-              <div
-                className="scene-avatar"
-                style={{ cursor: 'pointer' }}
-                onClick={() => navigate('/profile')}
-              >SJ</div>
-            </div>
-          </div>
+          <MobileAppHeader
+            homePath="/feed"
+            title="The Scene"
+            subtitle="Events happening now"
+            actions={(
+              <>
+                <NotificationBell items={SE_FEED_NOTIFICATIONS} />
+                <div
+                  className="scene-avatar"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => navigate('/profile')}
+                >SJ</div>
+              </>
+            )}
+          />
 
           {/* Story circles */}
           <div className="story-row">

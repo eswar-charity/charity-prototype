@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Camera, Plus, X } from 'lucide-react';
 import { useCreateEventDraft, updateDraft } from '../hooks/useCreateEventDraft';
+import MobileAppHeader from '../components/MobileAppHeader';
 
 const POOL = [
   '/events/neon-night/img1.jpg',
@@ -22,13 +23,16 @@ export default function EventStep1() {
   return (
     <div className="phone-shell">
       <div className="screen">
-        <div className="step-bar">
-          <button type="button" className="back-btn" onClick={() => navigate('/feed')}>
-            <ChevronLeft size={18} />
-          </button>
-          <span className="step-text">1 of 4 — Add your story media</span>
-          <div style={{ width: 38 }} />
-        </div>
+        <MobileAppHeader
+          layout="bar"
+          homePath="/feed"
+          left={(
+            <button type="button" className="back-btn" onClick={() => navigate('/feed')}>
+              <ChevronLeft size={18} />
+            </button>
+          )}
+          meta="1 of 4 — Add your story media"
+        />
 
         <div className="screen-inner">
           <h1 className="screen-title" style={{ marginBottom: 20 }}>Create your event</h1>

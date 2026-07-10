@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Pencil } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
+import Logo from '../../components/Logo';
 
 const TOAST_STYLE = {
   position: 'fixed', bottom: 96, left: '50%', transform: 'translateX(-50%)',
@@ -11,14 +12,14 @@ const TOAST_STYLE = {
 };
 
 const HERO_OPTIONS = [
-  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=400&fit=crop',
-  'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&h=400&fit=crop',
-  'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&h=400&fit=crop',
+  '/events/breakneck-ridge-run/img1.jpg',
+  '/events/give-now/img1.jpg',
+  '/events/neon-night/img1.jpg',
 ];
 const LOGO_OPTIONS = [
-  'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=120&h=120&fit=crop',
-  'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=120&h=120&fit=crop',
-  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=120&h=120&fit=crop',
+  '/events/breakneck-ridge-run/img1.jpg',
+  '/events/dog-dad/img1.jpg',
+  '/events/golf-outing/img1.jpg',
 ];
 
 const IMPACT = [
@@ -54,6 +55,14 @@ export default function NpProfile() {
             <div className="np-profile-hero-nav">
               <button type="button" className="np-profile-hero-btn" onClick={() => navigate('/np/home')} aria-label="Back">
                 <ChevronLeft size={18} color="white" />
+              </button>
+              <button
+                type="button"
+                className="np-profile-hero-logo"
+                onClick={() => navigate('/np/home')}
+                aria-label="Charity Hub home"
+              >
+                <Logo height={20} />
               </button>
               <button
                 type="button"

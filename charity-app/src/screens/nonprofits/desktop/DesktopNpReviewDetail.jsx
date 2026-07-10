@@ -2,8 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Tag, Check } from 'lucide-react';
 import { DesktopNpLayout } from '../../../components/desktop/DesktopNpLayout';
 
-const HERO_IMG = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900&h=500&fit=crop';
-const SUBMITTER_AVATAR = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop';
+const HERO_IMG = '/events/breakneck-ridge-run/img1.jpg';
+const SUBMITTER_AVATAR = '/events/breakneck-ridge-run/img4.jpg';
 
 const CONTENT_CHECKS = [
   { id: 1, label: 'Media present', done: true },

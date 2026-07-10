@@ -16,7 +16,7 @@ export default function BottomNav({ active = 'feed', onPlusClick }) {
       </button>
       <button
         className={`nav-item ${active === 'explore' ? 'active' : ''}`}
-        onClick={() => navigate('/guest/feed')}
+        onClick={() => navigate('/feed')}
       >
         <Compass size={22} />
         <span>Explore</span>

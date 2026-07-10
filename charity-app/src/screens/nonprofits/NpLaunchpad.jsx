@@ -2,9 +2,10 @@ import { useNavigate } from 'react-router-dom';
 import { Clock, Flag, MoreHorizontal } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
 import NotificationBell, { NP_NOTIFICATIONS } from '../../components/NotificationBell';
+import MobileAppHeader from '../../components/MobileAppHeader';
 
-const ORG_LOGO = 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=120&h=120&fit=crop';
-const HEADER_AVATAR = 'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=100&h=100&fit=crop';
+const ORG_LOGO = '/events/breakneck-ridge-run/img1.jpg';
+const HEADER_AVATAR = '/events/give-now/img2.jpg';
 
 const LIVE_EVENTS = [
   { id: 1, title: 'Neon Night Run', stat: '87 joined', isLive: true, cover: '/events/neon-night/img1.jpg' },
@@ -18,21 +19,23 @@ export default function NpLaunchpad() {
     <div className="phone-shell">
       <div className="screen screen--split">
         <div className="screen-scroll">
-          {/* Header */}
-          <div className="np-header">
-            <h1 className="np-header-title">Launchpad</h1>
-            <div className="np-header-actions">
-              <NotificationBell items={NP_NOTIFICATIONS} />
-              <button
-                type="button"
-                className="np-header-avatar"
-                onClick={() => navigate('/np/profile')}
-                aria-label="View profile"
-              >
-                <img src={HEADER_AVATAR} alt="Ocean Conservancy" />
-              </button>
-            </div>
-          </div>
+          <MobileAppHeader
+            homePath="/np/home"
+            title="Launchpad"
+            actions={(
+              <>
+                <NotificationBell items={NP_NOTIFICATIONS} />
+                <button
+                  type="button"
+                  className="np-header-avatar"
+                  onClick={() => navigate('/np/profile')}
+                  aria-label="View profile"
+                >
+                  <img src={HEADER_AVATAR} alt="Ocean Conservancy" />
+                </button>
+              </>
+            )}
+          />
 
           <div style={{ padding: '0 18px 8px' }}>
             {/* Org card */}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Settings, Share2, ChevronRight, Rocket, Users } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
+import MobileAppHeader from '../components/MobileAppHeader';
 
 export default function PostEventImpact() {
   const navigate = useNavigate();
@@ -28,8 +29,9 @@ export default function PostEventImpact() {
     <div className="phone-shell">
       <div className="screen screen--split">
         <div className="screen-scroll">
-        <div style={{ padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 18px 24px' }}>
-          {/* Header */}
+          <MobileAppHeader homePath="/feed" />
+          <div style={{ padding: '0 18px 24px' }}>
+          {/* Header copy */}
           <div style={{ textAlign: 'center', marginBottom: 20 }}>
             <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4 }}>You made this happen</p>
             <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--dark)' }}>

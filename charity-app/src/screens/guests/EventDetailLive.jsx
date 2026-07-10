@@ -127,7 +127,7 @@ function ChatTabMessages() {
     <div className="chat-messages">
         {/* Host */}
         <div className="chat-msg">
-          <div className="chat-msg-avatar" style={{ background: 'linear-gradient(135deg,var(--primary),#FF8A65)' }}>SJ</div>
+          <div className="chat-msg-avatar" style={{ background: 'linear-gradient(135deg,var(--primary),var(--blue))' }}>SJ</div>
           <div className="chat-msg-body">
             <div className="chat-msg-name">
               {ev.organizer}
@@ -168,7 +168,7 @@ function ChatTabMessages() {
 
         {/* Emma */}
         <div className="chat-msg">
-          <div className="chat-msg-avatar" style={{ background: 'linear-gradient(135deg,#F57C00,#FFB300)' }}>EJ</div>
+          <div className="chat-msg-avatar" style={{ background: 'linear-gradient(135deg,#1976D2,#42A5F5)' }}>EJ</div>
           <div className="chat-msg-body">
             <div className="chat-msg-name">Emma J.</div>
             <div className="chat-bubble">

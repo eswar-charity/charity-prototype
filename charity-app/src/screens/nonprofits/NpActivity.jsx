@@ -2,16 +2,17 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Check } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
+import MobileAppHeader from '../../components/MobileAppHeader';
 
 const BACKING_BY_EVENT = [
-  { id: 1, title: 'Coastal Cleanup Drive', count: 87, thumb: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=100&h=100&fit=crop' },
-  { id: 2, title: 'Books for Bright Minds', count: 42, thumb: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=100&h=100&fit=crop' },
-  { id: 3, title: 'Plant a Tree', count: 28, thumb: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=100&h=100&fit=crop' },
+  { id: 1, title: 'Coastal Cleanup Drive', count: 87, thumb: '/events/breakneck-ridge-run/img1.jpg' },
+  { id: 2, title: 'Books for Bright Minds', count: 42, thumb: '/events/give-now/img1.jpg' },
+  { id: 3, title: 'Plant a Tree', count: 28, thumb: '/events/dog-dad/img1.jpg' },
 ];
 
 const EXTRA_EVENTS = [
-  { id: 4, title: 'Urban Oasis Seed Drive', count: 19, thumb: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=100&h=100&fit=crop' },
-  { id: 5, title: 'Neon Night Run', count: 15, thumb: 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=100&h=100&fit=crop' },
+  { id: 4, title: 'Urban Oasis Seed Drive', count: 19, thumb: '/events/golf-outing/img1.jpg' },
+  { id: 5, title: 'Neon Night Run', count: 15, thumb: '/events/neon-night/img1.jpg' },
 ];
 
 export default function NpActivity() {
@@ -25,10 +26,16 @@ export default function NpActivity() {
     <div className="phone-shell">
       <div className="screen screen--split">
         <div className="screen-scroll">
-          <div className="np-page-header">
-            <button type="button" className="back-btn" onClick={() => navigate('/np/home')} aria-label="Back">
-              <ChevronLeft size={18} />
-            </button>
+          <MobileAppHeader
+            layout="bar"
+            homePath="/np/home"
+            left={(
+              <button type="button" className="back-btn" onClick={() => navigate('/np/home')} aria-label="Back">
+                <ChevronLeft size={18} />
+              </button>
+            )}
+          />
+          <div className="np-page-title-wrap">
             <h1 className="np-page-title">Activity</h1>
           </div>
 

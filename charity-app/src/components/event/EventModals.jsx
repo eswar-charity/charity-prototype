@@ -6,7 +6,7 @@ const BACKER_POOL = [
   { name: 'James L.', initials: 'JL', color: '#0D7377', amount: 25 },
   { name: 'Sofia R.', initials: 'SR', color: '#7B1FA2', amount: 100 },
   { name: 'Marcus T.', initials: 'MT', color: '#1976D2', amount: 40 },
-  { name: 'Elena K.', initials: 'EK', color: '#F57C00', amount: 75 },
+  { name: 'Elena K.', initials: 'EK', color: '#1A6EB5', amount: 75 },
   { name: 'David W.', initials: 'DW', color: '#388E3C', amount: 30 },
 ];
 

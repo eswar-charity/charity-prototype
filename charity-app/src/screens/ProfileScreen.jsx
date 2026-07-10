@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Pencil, MapPin, ChevronRight, Share2 } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
+import MobileAppHeader from '../components/MobileAppHeader';
 import { events } from '../data/mockData';
 
 const RECENT_EVENTS = events.slice(0, 3);
@@ -23,9 +24,10 @@ export default function ProfileScreen() {
     <div className="phone-shell">
       <div className="screen screen--split">
         <div className="screen-scroll">
-          <div style={{ padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 18px 24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-              <h1 className="screen-title" style={{ fontSize: 24 }}>Profile</h1>
+          <MobileAppHeader
+            homePath="/feed"
+            title="Profile"
+            actions={(
               <button
                 style={{
                   width: 38, height: 38, borderRadius: '50%',
@@ -37,12 +39,14 @@ export default function ProfileScreen() {
               >
                 <Share2 size={18} color="var(--dark)" />
               </button>
-            </div>
+            )}
+          />
+          <div style={{ padding: '0 18px 24px' }}>
 
             <div className="card" style={{ textAlign: 'center', padding: '24px 18px 20px', marginBottom: 16 }}>
               <div style={{
                 width: 72, height: 72, borderRadius: '50%',
-                background: 'linear-gradient(135deg,var(--primary),#FF8A65)',
+                background: 'linear-gradient(135deg,var(--primary),var(--blue))',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 22, fontWeight: 800, color: 'white',
                 margin: '0 auto 12px',

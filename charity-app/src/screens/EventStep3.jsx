@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, X, Calendar, Clock, MapPin, Globe, Lock, Check } from 'lucide-react';
 import { useCreateEventDraft, updateDraft } from '../hooks/useCreateEventDraft';
 import { START_DATES, END_DATES, START_TIMES, END_TIMES, cycleValue } from '../utils/eventWizard';
+import MobileAppHeader from '../components/MobileAppHeader';
 
 export default function EventStep3() {
   const navigate = useNavigate();
@@ -10,15 +11,21 @@ export default function EventStep3() {
   return (
     <div className="phone-shell">
       <div className="screen">
-        <div className="step-bar">
-          <button type="button" className="back-btn" onClick={() => navigate('/event/step-2')}>
-            <ChevronLeft size={18} />
-          </button>
-          <span className="step-text">STEP 3 OF 4</span>
-          <button type="button" className="close-btn" onClick={() => navigate('/feed')} style={{ background: 'var(--white)', border: '1.5px solid var(--border)' }}>
-            <X size={16} color="var(--dark)" />
-          </button>
-        </div>
+        <MobileAppHeader
+          layout="bar"
+          homePath="/feed"
+          left={(
+            <button type="button" className="back-btn" onClick={() => navigate('/event/step-2')}>
+              <ChevronLeft size={18} />
+            </button>
+          )}
+          actions={(
+            <button type="button" className="close-btn" onClick={() => navigate('/feed')} style={{ background: 'var(--white)', border: '1.5px solid var(--border)' }}>
+              <X size={16} color="var(--dark)" />
+            </button>
+          )}
+          meta="Step 3 of 4"
+        />
 
         <div className="screen-inner">
           <h1 className="screen-title" style={{ marginBottom: 6 }}>When and where?</h1>

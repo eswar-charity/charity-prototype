@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, Compass, Plus, Bell, User, Settings, TriangleAlert, Pencil, X } from 'lucide-react';
 import { liveActivities } from '../data/mockData';
+import MobileAppHeader from '../components/MobileAppHeader';
 
 export default function LiveDashboard() {
   const navigate = useNavigate();
@@ -36,18 +37,22 @@ export default function LiveDashboard() {
   return (
     <div className="phone-shell">
       <div className="screen">
-        <div style={{ padding: '52px 18px 0' }}>
-          {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--dark)' }}>My Event</p>
-            <button
-              onClick={() => navigate('/profile')}
-              aria-label="Settings"
-              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex' }}
-            >
-              <Settings size={20} color="var(--text-secondary)" />
-            </button>
-          </div>
+        <div style={{ padding: '0 18px 0' }}>
+          <MobileAppHeader
+            homePath="/feed"
+            title="My Event"
+            actions={(
+              <button
+                type="button"
+                onClick={() => navigate('/profile')}
+                aria-label="Settings"
+                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex' }}
+              >
+                <Settings size={20} color="var(--text-secondary)" />
+              </button>
+            )}
+          />
+          <div style={{ paddingTop: 4 }}>
 
           {/* Alert banner */}
           {showAlert && (
@@ -178,6 +183,7 @@ export default function LiveDashboard() {
               </div>
             </div>
           ))}
+          </div>
         </div>
 
         {/* Bottom nav */}

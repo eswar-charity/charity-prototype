@@ -49,94 +49,98 @@ export default function DesktopApprovalStatus() {
 
       <main className="dsk-main">
         <div className="dsk-container dsk-approval-wrap">
-          <div className="dsk-approval-card">
-            <div className="dsk-approval-icon" style={state === 'live' ? { background: 'var(--orange-soft)' } : undefined}>
-              {state === 'review' && <Clock size={26} color="var(--primary)" />}
-              {state === 'approved' && <Check size={26} color="var(--primary)" strokeWidth={3} />}
-              {state === 'live' && <Radio size={26} color="var(--orange-dark)" />}
-              {state === 'completed' && <PartyPopper size={26} color="var(--primary)" />}
+          <div className="dsk-approval-card dsk-approval-card--horizontal">
+            <div className="dsk-approval-icon" style={state === 'live' ? { background: 'var(--primary-soft)' } : undefined}>
+              {state === 'review' && <Clock size={28} color="var(--primary)" />}
+              {state === 'approved' && <Check size={28} color="var(--primary)" strokeWidth={3} />}
+              {state === 'live' && <Radio size={28} color="var(--primary)" />}
+              {state === 'completed' && <PartyPopper size={28} color="var(--primary)" />}
             </div>
-            <h1 className="dsk-approval-title">{copy.title}</h1>
-            <p className="dsk-approval-sub">{copy.sub}</p>
+            <div className="dsk-approval-card-copy">
+              <h1 className="dsk-approval-title">{copy.title}</h1>
+              <p className="dsk-approval-sub">{copy.sub}</p>
+            </div>
           </div>
 
-          {/* Lifecycle timeline */}
-          <div className="dsk-approval-timeline">
-            {NODES.map((node, i) => {
-              const st = statuses[i];
-              return (
-                <div key={node.key} style={{ display: 'contents' }}>
-                  <div className="dsk-approval-step">
-                    <div
-                      className={`timeline-dot ${st === 'done' ? 'td-done' : st === 'pending' ? 'td-pending' : 'td-active'}`}
-                      style={st === 'livenow' ? { background: 'var(--orange)', borderColor: 'var(--orange)' } : undefined}
-                    >
-                      {st === 'done' && <Check size={12} strokeWidth={3} />}
-                      {st === 'active' && <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)' }} />}
-                      {st === 'livenow' && <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'white' }} />}
+          <div className="dsk-approval-timeline-wrap">
+            <div className="dsk-approval-timeline">
+              {NODES.map((node, i) => {
+                const st = statuses[i];
+                return (
+                  <div key={node.key} style={{ display: 'contents' }}>
+                    <div className="dsk-approval-step">
+                      <div
+                        className={`timeline-dot ${st === 'done' ? 'td-done' : st === 'pending' ? 'td-pending' : 'td-active'}`}
+                        style={st === 'livenow' ? { background: 'var(--primary)', borderColor: 'var(--primary)' } : undefined}
+                      >
+                        {st === 'done' && <Check size={12} strokeWidth={3} />}
+                        {st === 'active' && <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)' }} />}
+                        {st === 'livenow' && <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'white' }} />}
+                      </div>
+                      <p className="dsk-approval-step-title" style={{ color: st === 'pending' ? 'var(--text-secondary)' : st === 'livenow' ? 'var(--primary)' : undefined }}>{node.label}</p>
+                      <p className="dsk-approval-step-sub">{node.sub}</p>
                     </div>
-                    <p className="dsk-approval-step-title" style={{ color: st === 'pending' ? 'var(--text-secondary)' : st === 'livenow' ? 'var(--orange-dark)' : undefined }}>{node.label}</p>
-                    <p className="dsk-approval-step-sub">{node.sub}</p>
+                    {i < NODES.length - 1 && <div className="dsk-approval-connector" />}
                   </div>
-                  {i < NODES.length - 1 && <div className="dsk-approval-connector" />}
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
 
-          {/* Event hero with real background image */}
-          <div
-            className="dsk-approval-hero"
-            style={{
-              backgroundImage: 'linear-gradient(to top, rgba(13,42,74,0.78), rgba(13,42,74,0.15)), url(/events/breakneck-ridge-run/img1.jpg)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-          >
-            <p className="dsk-approval-hero-title">Coastal Cleanup Gala</p>
-            <p className="dsk-approval-hero-sub">📍 Santa Monica Pier{state === 'live' ? ' · LIVE NOW' : ''}</p>
-          </div>
+          <div className="dsk-approval-grid">
+            <div
+              className="dsk-approval-hero"
+              style={{
+                backgroundImage: 'linear-gradient(to top, rgba(13,42,74,0.78), rgba(13,42,74,0.15)), url(/events/breakneck-ridge-run/img1.jpg)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }}
+            >
+              <p className="dsk-approval-hero-title">Coastal Cleanup Gala</p>
+              <p className="dsk-approval-hero-sub">📍 Santa Monica Pier{state === 'live' ? ' · LIVE NOW' : ''}</p>
+            </div>
 
-          {/* Context-aware CTAs */}
-          <div className="dsk-approval-actions">
-            <button type="button" className="dsk-cta-btn" onClick={primary.onClick}>
-              <PrimaryIcon size={16} />
-              {primary.label}
-            </button>
-            {state === 'review' && (
-              <button type="button" className="dsk-approval-btn-secondary" onClick={() => navigate('/event/step-4')}>Edit event</button>
-            )}
-            {state === 'approved' && (
-              <button type="button" className="dsk-approval-btn-secondary" onClick={() => navigate('/event/step-4')}>Edit before publishing</button>
-            )}
-            {state === 'live' && (
-              <button type="button" className="dsk-approval-btn-secondary" onClick={() => navigate('/live-dashboard')}>Open live dashboard</button>
-            )}
-            {state === 'completed' && (
-              <button type="button" className="dsk-approval-btn-secondary" onClick={() => navigate('/feed')}>Back to feed</button>
-            )}
-          </div>
-
-          {/* Nonprofit feedback — only while under review */}
-          {state === 'review' && (
-            <>
-              <button
-                type="button"
-                className={`dsk-approval-notify-btn${notify ? ' on' : ''}`}
-                onClick={() => { setNotify(!notify); showToast(notify ? 'Notifications off' : 'We’ll notify you when it’s approved'); }}
-              >
-                {notify ? 'Notifications on ✓' : 'Notify me when approved'}
-              </button>
-              <div className="dsk-approval-comment">
-                <div className="dsk-approval-comment-icon"><MessageSquare size={16} color="var(--blue)" /></div>
-                <div style={{ flex: 1 }}>
-                  <p className="dsk-approval-comment-text">"Please clarify volunteer requirements."</p>
-                  <p className="dsk-approval-comment-from">— Ocean Conservancy Team</p>
-                  <button className="dsk-approval-comment-btn" onClick={() => navigate('/event/step-4')}>Update event</button>
-                </div>
+            <div className="dsk-approval-side">
+              <div className="dsk-approval-actions">
+                <button type="button" className="dsk-cta-btn" onClick={primary.onClick}>
+                  <PrimaryIcon size={16} />
+                  {primary.label}
+                </button>
+                {state === 'review' && (
+                  <button type="button" className="dsk-approval-btn-secondary" onClick={() => navigate('/event/step-4')}>Edit event</button>
+                )}
+                {state === 'approved' && (
+                  <button type="button" className="dsk-approval-btn-secondary" onClick={() => navigate('/event/step-4')}>Edit before publishing</button>
+                )}
+                {state === 'live' && (
+                  <button type="button" className="dsk-approval-btn-secondary" onClick={() => navigate('/live-dashboard')}>Open live dashboard</button>
+                )}
+                {state === 'completed' && (
+                  <button type="button" className="dsk-approval-btn-secondary" onClick={() => navigate('/feed')}>Back to feed</button>
+                )}
               </div>
-            </>
-          )}
+
+              {state === 'review' && (
+                <>
+                  <button
+                    type="button"
+                    className={`dsk-approval-notify-btn${notify ? ' on' : ''}`}
+                    onClick={() => { setNotify(!notify); showToast(notify ? 'Notifications off' : 'We’ll notify you when it’s approved'); }}
+                  >
+                    {notify ? 'Notifications on ✓' : 'Notify me when approved'}
+                  </button>
+                  <div className="dsk-approval-comment">
+                    <div className="dsk-approval-comment-icon"><MessageSquare size={16} color="var(--blue)" /></div>
+                    <div style={{ flex: 1 }}>
+                      <p className="dsk-approval-comment-text">&quot;Please clarify volunteer requirements.&quot;</p>
+                      <p className="dsk-approval-comment-from">— Ocean Conservancy Team</p>
+                      <button type="button" className="dsk-approval-comment-btn" onClick={() => navigate('/event/step-4')}>Update event</button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       </main>
 

@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
+import DesktopJoinGateModal from '../../../components/desktop/DesktopJoinGateModal';
+import DesktopDonateGateModal from '../../../components/desktop/DesktopDonateGateModal';
 import { events, liveActivities, slugify } from '../../../data/mockData';
 
 const ev = events[0]; // Neon Night Run — the app's featured live event
@@ -82,7 +84,7 @@ function CommunityTab() {
       <div className="dsk-community-hero" style={{ backgroundImage: `url(${ev.photos[1]})` }}>
         <div className="dsk-community-hero-play"><Play size={22} fill="white" color="white" /></div>
         <div className="dsk-community-hero-caption">
-          <div className="dsk-mini-avatar" style={{ background: 'linear-gradient(135deg,var(--primary),#FF8A65)' }}>{ev.initials}</div>
+          <div className="dsk-mini-avatar" style={{ background: 'linear-gradient(135deg,var(--primary),var(--blue))' }}>{ev.initials}</div>
           <span>{ev.organizer} · Just now</span>
         </div>
       </div>
@@ -121,62 +123,96 @@ function CommunityTab() {
   );
 }
 
-function ChatTab() {
-  const navigate = useNavigate();
+const CHAT_SEED = [
+  { id: 1, initials: ev.initials, color: 'linear-gradient(135deg,var(--primary),var(--blue))', name: ev.organizer, host: true, text: "Welcome everyone! We're starting the main presentation in about 5 minutes. Feel free to grab a virtual seat and say hi!" },
+  { id: 2, initials: 'ML', color: 'linear-gradient(135deg,#0D7377,#14A085)', name: 'Marcus L.', text: 'So excited for this! Tuning in from Chicago. 👋', reaction: '🎉 12' },
+  { id: 3, initials: 'ME', color: 'linear-gradient(135deg,#7B1FA2,#AB47BC)', mine: true, text: "Incredible turnout already. Can't wait for the auction segment!", sent: true },
+  { id: 4, initials: 'EJ', color: 'linear-gradient(135deg,#1976D2,#42A5F5)', name: 'Emma J.', text: 'This is incredible! First time attending a Charity Hub event 🙌' },
+];
+
+function ChatTab({ onNeedJoin }) {
   const [value, setValue] = useState('');
-  const gate = () => navigate('/guest/join');
+  const [messages, setMessages] = useState(CHAT_SEED);
+
+  const send = () => {
+    const text = value.trim();
+    if (!text) return;
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        initials: 'ME',
+        color: 'linear-gradient(135deg,#7B1FA2,#AB47BC)',
+        mine: true,
+        text,
+        sent: true,
+      },
+    ]);
+    setValue('');
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      send();
+    }
+  };
+
   return (
     <div className="dsk-tab-panel dsk-chat-panel">
+      <div className="dsk-chat-room-header">
+        <div className="chat-room-title">
+          Chat
+          <span className="chat-count-chip">
+            {ev.chatCount} here
+            <span className="chat-live-indicator" />
+          </span>
+        </div>
+        <p className="chat-room-sub">One room. Real people, real cause. Say hi.</p>
+      </div>
+
       <div className="dsk-chat-messages">
-        <div className="chat-msg">
-          <div className="chat-msg-avatar" style={{ background: 'linear-gradient(135deg,var(--primary),#FF8A65)' }}>{ev.initials}</div>
-          <div className="chat-msg-body">
-            <div className="chat-msg-name">{ev.organizer} <span className="chat-host-badge">Host</span></div>
-            <div className="chat-bubble">Welcome everyone! We're starting the main presentation in about 5 minutes. Feel free to grab a virtual seat and say hi!</div>
+        {messages.map((msg) => (
+          <div key={msg.id} className={`chat-msg${msg.mine ? ' mine' : ''}`}>
+            <div className="chat-msg-avatar" style={{ background: msg.color }}>{msg.initials}</div>
+            <div className="chat-msg-body">
+              {!msg.mine && (
+                <div className="chat-msg-name">
+                  {msg.name}
+                  {msg.host && <span className="chat-host-badge">Host</span>}
+                </div>
+              )}
+              <div className="chat-bubble">{msg.text}</div>
+              {msg.reaction && <div className="chat-reaction">{msg.reaction}</div>}
+              {msg.sent && <p className="chat-sent">Sent</p>}
+            </div>
           </div>
-        </div>
-        <div className="chat-msg">
-          <div className="chat-msg-avatar" style={{ background: 'linear-gradient(135deg,#0D7377,#14A085)' }}>ML</div>
-          <div className="chat-msg-body">
-            <div className="chat-msg-name">Marcus L.</div>
-            <div className="chat-bubble">So excited for this! Tuning in from Chicago. 👋</div>
-            <div className="chat-reaction">🎉 12</div>
-          </div>
-        </div>
-        <div className="chat-msg mine">
-          <div className="chat-msg-avatar" style={{ background: 'linear-gradient(135deg,#7B1FA2,#AB47BC)' }}>ME</div>
-          <div className="chat-msg-body">
-            <div className="chat-bubble">Incredible turnout already. Can't wait for the auction segment!</div>
-            <p className="chat-sent">Sent</p>
-          </div>
-        </div>
-        <div className="chat-msg">
-          <div className="chat-msg-avatar" style={{ background: 'linear-gradient(135deg,#F57C00,#FFB300)' }}>EJ</div>
-          <div className="chat-msg-body">
-            <div className="chat-msg-name">Emma J.</div>
-            <div className="chat-bubble">This is incredible! First time attending a Charity Hub event 🙌</div>
-          </div>
-        </div>
+        ))}
       </div>
 
       <div className="dsk-chat-input-bar">
-        <button className="chat-input-action" aria-label="Add attachment" onClick={gate}><Plus size={18} /></button>
-        <button className="chat-input-action" aria-label="Add photo" onClick={gate}><Camera size={18} /></button>
+        <button type="button" className="chat-input-action" aria-label="Add attachment" onClick={onNeedJoin}>
+          <Plus size={18} />
+        </button>
+        <button type="button" className="chat-input-action" aria-label="Add photo" onClick={onNeedJoin}>
+          <Camera size={18} />
+        </button>
         <input
           className="dsk-chat-input-field"
           placeholder="Say something..."
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          onFocus={gate}
+          onKeyDown={handleKeyDown}
         />
-        <button className="chat-send-btn" aria-label="Send message" onClick={gate}><ArrowUp size={16} color="white" strokeWidth={2.5} /></button>
+        <button type="button" className="chat-send-btn" aria-label="Send message" onClick={send} disabled={!value.trim()}>
+          <ArrowUp size={16} color="white" strokeWidth={2.5} />
+        </button>
       </div>
     </div>
   );
 }
 
-function SupportTab() {
-  const navigate = useNavigate();
+function SupportTab({ onDonate }) {
   const [amount, setAmount] = useState(25);
   return (
     <div className="dsk-tab-panel">
@@ -208,7 +244,7 @@ function SupportTab() {
         <input className="support-field" style={{ width: '100%' }} placeholder="Name on card" />
       </div>
 
-      <button className="dsk-support-btn" onClick={() => navigate('/guest/donate')}>
+      <button type="button" className="dsk-support-btn" onClick={() => onDonate(amount)}>
         Support with {typeof amount === 'number' ? `$${amount}` : 'custom amount'}
       </button>
     </div>
@@ -222,6 +258,9 @@ export default function DesktopEventDetail() {
   const [showAbout, setShowAbout] = useState(false);
   const [following, setFollowing] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [showJoinGate, setShowJoinGate] = useState(false);
+  const [showDonateGate, setShowDonateGate] = useState(false);
+  const [donateAmount, setDonateAmount] = useState(25);
 
   const shareUrl = `https://charity.hub/event/${ev.key}`;
 
@@ -262,8 +301,10 @@ export default function DesktopEventDetail() {
             </div>
 
             {activeTab === 'community' && <CommunityTab />}
-            {activeTab === 'chat' && <ChatTab />}
-            {activeTab === 'support' && <SupportTab />}
+            {activeTab === 'chat' && <ChatTab onNeedJoin={() => setShowJoinGate(true)} />}
+            {activeTab === 'support' && (
+              <SupportTab onDonate={(amt) => { setDonateAmount(amt); setShowDonateGate(true); }} />
+            )}
           </div>
 
           <aside className="dsk-ev-sidebar">
@@ -279,7 +320,9 @@ export default function DesktopEventDetail() {
               <button className="dsk-sidebar-share-btn" onClick={() => setShowShare(true)}>Share</button>
               <div className="dsk-sidebar-stats">
                 <span><Users size={13} /> {ev.backed} backing</span>
-                <span><MessageCircle size={13} /> {ev.chatCount} in chat</span>
+                <button type="button" className="dsk-sidebar-stat-btn" onClick={() => setActiveTab('chat')}>
+                  <MessageCircle size={13} /> {ev.chatCount} in chat
+                </button>
               </div>
               <button className="dsk-sidebar-details-link" onClick={() => setShowAbout(true)}>Event details ⓘ</button>
             </div>
@@ -292,6 +335,29 @@ export default function DesktopEventDetail() {
           onClose={() => setShowAbout(false)}
           following={following}
           onToggleFollow={() => setFollowing((f) => !f)}
+        />
+      )}
+
+      {showDonateGate && (
+        <DesktopDonateGateModal
+          open={showDonateGate}
+          onClose={() => setShowDonateGate(false)}
+          amount={donateAmount}
+          eventTitle={ev.title}
+          nonprofit={ev.nonprofit}
+          npInitials={ev.npInitials}
+          npBg={ev.npBg}
+        />
+      )}
+
+      {showJoinGate && (
+        <DesktopJoinGateModal
+          open={showJoinGate}
+          onClose={() => setShowJoinGate(false)}
+          eventTitle={ev.title}
+          nonprofit={ev.nonprofit}
+          npInitials={ev.npInitials}
+          npBg={ev.npBg}
         />
       )}
 

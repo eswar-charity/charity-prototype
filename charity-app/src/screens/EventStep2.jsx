@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Search, Check } from 'lucide-react';
 import { useCreateEventDraft, updateDraft } from '../hooks/useCreateEventDraft';
 import { nonprofits } from '../data/mockData';
+import MobileAppHeader from '../components/MobileAppHeader';
 
 const FILTERS = ['All', 'Environment', 'Education', 'Health'];
 
@@ -21,13 +22,16 @@ export default function EventStep2() {
   return (
     <div className="phone-shell">
       <div className="screen">
-        <div className="step-bar">
-          <button type="button" className="back-btn" onClick={() => navigate('/event/step-1')}>
-            <ChevronLeft size={18} />
-          </button>
-          <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--dark)' }}>Lumen</span>
-          <div style={{ width: 38 }} />
-        </div>
+        <MobileAppHeader
+          layout="bar"
+          homePath="/feed"
+          left={(
+            <button type="button" className="back-btn" onClick={() => navigate('/event/step-1')}>
+              <ChevronLeft size={18} />
+            </button>
+          )}
+          meta="2 of 4 — Choose your nonprofit"
+        />
 
         <div className="screen-inner">
           <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4 }}>2 of 4</p>

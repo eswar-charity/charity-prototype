@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Camera, MapPin } from 'lucide-react';
+import { Camera, MapPin } from 'lucide-react';
 import { causes } from '../data/mockData';
+import MobileAuthHeader from '../components/MobileAuthHeader';
 
 const CAUSES = causes;
 
@@ -26,18 +27,7 @@ export default function TellAboutYou() {
     <div className="phone-shell">
       <div className="screen">
         <div style={{ padding: '52px 18px 0' }}>
-          {/* Top bar */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
-            <button className="back-btn" onClick={() => navigate('/')}>
-              <ChevronLeft size={18} />
-            </button>
-            <div className="step-dots">
-              <div className="step-dot" />
-              <div className="step-dot active" />
-              <div className="step-dot" />
-            </div>
-            <div style={{ width: 38 }} />
-          </div>
+          <MobileAuthHeader onBack={() => navigate('/')} activeStep={1} />
 
           {/* Heading */}
           <h1 className="screen-title">Tell us about you</h1>

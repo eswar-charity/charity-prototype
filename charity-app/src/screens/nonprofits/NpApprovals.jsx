@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, MapPin, Calendar } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
+import MobileAppHeader from '../../components/MobileAppHeader';
 
 const EVENTS = [
   {
@@ -15,7 +16,7 @@ const EVENTS = [
     status: 'new',
     hasHero: true,
     hasAvatar: true,
-    heroImg: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=300&fit=crop',
+    heroImg: '/events/breakneck-ridge-run/img1.jpg',
   },
   {
     id: 2,
@@ -58,10 +59,16 @@ export default function NpApprovals() {
     <div className="phone-shell">
       <div className="screen screen--split">
         <div className="screen-scroll">
-          <div className="np-page-header">
-            <button type="button" className="back-btn" onClick={() => navigate('/np/home')} aria-label="Back">
-              <ChevronLeft size={18} />
-            </button>
+          <MobileAppHeader
+            layout="bar"
+            homePath="/np/home"
+            left={(
+              <button type="button" className="back-btn" onClick={() => navigate('/np/home')} aria-label="Back">
+                <ChevronLeft size={18} />
+              </button>
+            )}
+          />
+          <div className="np-page-title-wrap">
             <h1 className="np-page-title">Requests</h1>
           </div>
 

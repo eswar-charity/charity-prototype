@@ -74,13 +74,13 @@ export default function DesktopCreateEventLayout({ step, children, hidePreview =
   return (
     <div className="dsk-page dsk-wizard-page">
       <div className="dsk-wizard-topbar">
-        <Logo height={24} tone="dark" onClick={() => navigate('/guest/feed')} style={{ cursor: 'pointer' }} />
+        <Logo height={24} tone="dark" onClick={() => navigate('/feed')} style={{ cursor: 'pointer' }} />
         <h2 className="dsk-wizard-topbar-title">Create an event</h2>
         <div className="dsk-wizard-topbar-actions">
           <button type="button" className="dsk-wizard-save-btn" onClick={saveDraft}>
             {draftSaved ? 'Draft saved ✓' : 'Save draft'}
           </button>
-          <button className="dsk-wizard-close-btn" onClick={() => navigate('/guest/feed')} aria-label="Close"><X size={18} /></button>
+          <button className="dsk-wizard-close-btn" onClick={() => navigate('/feed')} aria-label="Close"><X size={18} /></button>
         </div>
       </div>
 

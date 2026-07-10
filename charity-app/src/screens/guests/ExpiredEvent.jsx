@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, CheckCircle, Home, Search, Plus, Heart, User } from 'lucide-react';
+import { ChevronLeft, CheckCircle, Home, Search, Plus, Heart } from 'lucide-react';
 
 const BACKER_COLORS = ['var(--primary)', '#0D7377', '#7B1FA2'];
 
@@ -145,14 +145,17 @@ export default function ExpiredEvent() {
           <button className="nav-item" onClick={() => navigate('/guest/empty')}>
             <Search size={22} /><span>Search</span>
           </button>
-          <button className="nav-center-btn" onClick={() => navigate('/feed')}>
+          <button className="nav-center-btn" onClick={() => navigate('/guest/join')}>
             <Plus size={24} />
           </button>
           <button className="nav-item" onClick={() => navigate('/guest/join')}>
             <Heart size={22} /><span>Saved</span>
           </button>
           <button className="nav-item" onClick={() => navigate('/')}>
-            <User size={22} /><span>Profile</span>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" />
+            </svg>
+            <span>Sign up</span>
           </button>
         </nav>
       </div>

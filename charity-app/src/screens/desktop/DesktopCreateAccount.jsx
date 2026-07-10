@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DesktopAuthLayout from '../../components/desktop/DesktopAuthLayout';
 import { accountRoles } from '../../data/mockData';
+import RoleSelect from '../../components/RoleSelect';
 
 export default function DesktopCreateAccount() {
   const navigate = useNavigate();
@@ -21,11 +22,7 @@ export default function DesktopCreateAccount() {
       <p className="dsk-auth-subtitle">{role.subtitle}</p>
 
       <label className="dsk-auth-label">I am a…</label>
-      <select className="input-field" value={roleId} onChange={(e) => setRoleId(e.target.value)}>
-        {accountRoles.map((r) => (
-          <option key={r.id} value={r.id}>{r.label}</option>
-        ))}
-      </select>
+      <RoleSelect options={accountRoles} value={roleId} onChange={setRoleId} />
 
       {roleId === 'se' && (
         <div className="dsk-auth-fields">

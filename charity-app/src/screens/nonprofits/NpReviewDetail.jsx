@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Calendar, MapPin } from 'lucide-react';
+import MobileAppHeader from '../../components/MobileAppHeader';
 
-const HERO_IMG = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=360&fit=crop';
+const HERO_IMG = '/events/breakneck-ridge-run/img1.jpg';
 
 export default function NpReviewDetail() {
   const navigate = useNavigate();
@@ -10,10 +11,16 @@ export default function NpReviewDetail() {
     <div className="phone-shell">
       <div className="detail-screen">
         <div className="detail-scroll">
-          <div className="np-page-header" style={{ paddingBottom: 8 }}>
-            <button type="button" className="back-btn" onClick={() => navigate('/np/approvals')} aria-label="Back">
-              <ChevronLeft size={18} />
-            </button>
+          <MobileAppHeader
+            layout="bar"
+            homePath="/np/home"
+            left={(
+              <button type="button" className="back-btn" onClick={() => navigate('/np/approvals')} aria-label="Back">
+                <ChevronLeft size={18} />
+              </button>
+            )}
+          />
+          <div className="np-page-title-wrap" style={{ paddingBottom: 8 }}>
             <h1 className="np-page-title" style={{ fontSize: 22 }}>Review event</h1>
           </div>
 

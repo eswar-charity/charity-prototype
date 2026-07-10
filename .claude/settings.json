@@ -71,7 +71,12 @@
       "Bash(sleep 2; grep -ioE \"localhost:[0-9]+\" /tmp/vite4.log | head -1)",
       "Bash(tail -4 /tmp/vite4.log | grep -ioE \"localhost:[0-9]+\")",
       "Bash(cat /tmp/vite4.log 2>/dev/null | tr -d '\\\\000' | grep -aoE \"localhost:[0-9]+\" | head -1; echo \"---\"; cat /tmp/vite4.log 2>/dev/null | tail -5)",
-      "Bash('/c/Program Files/Google/Chrome/Application/chrome.exe' --headless=new --disable-gpu --hide-scrollbars --virtual-time-budget=4000 --window-size=390,844 --screenshot=C:/Users/bala/AppData/Local/Temp/claude/c--charity-prototype/2dc19ce8-c6f7-4430-860a-cc61852fd8cc/scratchpad/nf-guestfeed.png http://localhost:5174/guest/feed)"
+      "Bash('/c/Program Files/Google/Chrome/Application/chrome.exe' --headless=new --disable-gpu --hide-scrollbars --virtual-time-budget=4000 --window-size=390,844 --screenshot=C:/Users/bala/AppData/Local/Temp/claude/c--charity-prototype/2dc19ce8-c6f7-4430-860a-cc61852fd8cc/scratchpad/nf-guestfeed.png http://localhost:5174/guest/feed)",
+      "Bash(sleep 2; tail -5 /tmp/vite5.log | grep -ioE \"localhost:[0-9]+\" | head -1)",
+      "Bash(cat /tmp/vite5.log | tr -d '\\\\r' | grep -aoE \"localhost:[0-9]+\" | head -1; echo \"===\"; cat /tmp/vite5.log | tail -6)",
+      "Bash('/c/Program Files/Google/Chrome/Application/chrome.exe' --headless=new --disable-gpu --hide-scrollbars --virtual-time-budget=4500 --window-size=1440,900 --screenshot=C:/Users/bala/AppData/Local/Temp/claude/c--charity-prototype/2dc19ce8-c6f7-4430-860a-cc61852fd8cc/scratchpad/v-npactivity.png http://localhost:5174/np/activity)",
+      "Bash('/c/Program Files/Google/Chrome/Application/chrome.exe' --headless=new --disable-gpu --hide-scrollbars --virtual-time-budget=4500 --window-size=1440,900 --screenshot=C:/Users/bala/AppData/Local/Temp/claude/c--charity-prototype/2dc19ce8-c6f7-4430-860a-cc61852fd8cc/scratchpad/v-npapprovals.png http://localhost:5174/np/approvals)",
+      "Bash('/c/Program Files/Google/Chrome/Application/chrome.exe' --headless=new --disable-gpu --hide-scrollbars --virtual-time-budget=4000 --window-size=430,880 --screenshot=C:/Users/bala/AppData/Local/Temp/claude/c--charity-prototype/2dc19ce8-c6f7-4430-860a-cc61852fd8cc/scratchpad/v-guestfeed.png http://localhost:5174/guest/feed)"
     ]
   }
 }

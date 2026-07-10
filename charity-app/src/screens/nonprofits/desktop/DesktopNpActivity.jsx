@@ -3,9 +3,9 @@ import { Check } from 'lucide-react';
 import { DesktopNpLayout } from '../../../components/desktop/DesktopNpLayout';
 
 const BACKING_BY_EVENT = [
-  { id: 1, title: 'Coastal Cleanup Drive', count: 87, thumb: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=100&h=100&fit=crop' },
-  { id: 2, title: 'Books for Bright Minds', count: 42, thumb: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=100&h=100&fit=crop' },
-  { id: 3, title: 'Plant a Tree', count: 28, thumb: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=100&h=100&fit=crop' },
+  { id: 1, title: 'Coastal Cleanup Drive', count: 87, thumb: '/events/breakneck-ridge-run/img1.jpg' },
+  { id: 2, title: 'Books for Bright Minds', count: 42, thumb: '/events/give-now/img1.jpg' },
+  { id: 3, title: 'Plant a Tree', count: 28, thumb: '/events/dog-dad/img1.jpg' },
 ];
 
 export default function DesktopNpActivity() {
