@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import Logo from '../Logo';
 
@@ -6,10 +6,29 @@ const NAV_LINKS = ['Discover', 'How it works', 'Causes', 'For nonprofits'];
 
 export default function DesktopHeader({ active = 'Discover', loggedIn = false, avatarInitials = 'SJ' }) {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const scrollToCauses = () => {
+    window.setTimeout(() => {
+      document.getElementById('dsk-feed-filters')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
+  };
 
   const handleNav = (link) => {
-    if (link === 'Discover' || link === 'Causes') navigate('/guest/feed');
-    else if (link === 'For nonprofits') navigate('/np/home');
+    if (link === 'Discover') {
+      navigate('/guest/feed');
+      return;
+    }
+    if (link === 'Causes') {
+      if (location.pathname === '/guest/feed') {
+        navigate('/guest/feed?view=causes');
+        scrollToCauses();
+      } else {
+        navigate('/guest/feed?view=causes');
+      }
+      return;
+    }
+    if (link === 'For nonprofits') navigate('/np/home');
     else navigate('/event/step-1');
   };
 

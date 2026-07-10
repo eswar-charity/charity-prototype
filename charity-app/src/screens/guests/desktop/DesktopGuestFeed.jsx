@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useMemo, useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Users, MessageCircle } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../../components/desktop/DesktopFooter';
@@ -72,10 +72,45 @@ function EventCard({ ev, onRemind, reminded }) {
 }
 
 export default function DesktopGuestFeed() {
-  const [filter, setFilter] = useState('All');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isCausesView = searchParams.get('view') === 'causes';
+  const [filter, setFilter] = useState(() => {
+    const cause = searchParams.get('cause');
+    return cause && FILTERS.includes(cause) ? cause : 'All';
+  });
   const [sort, setSort] = useState('trending');
   const [query, setQuery] = useState('');
   const [reminders, setReminders] = useState({});
+
+  useEffect(() => {
+    if (isCausesView) {
+      document.getElementById('dsk-feed-filters')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [isCausesView]);
+
+  useEffect(() => {
+    const cause = searchParams.get('cause');
+    if (cause && FILTERS.includes(cause)) {
+      setFilter(cause);
+      return;
+    }
+    if (!searchParams.get('view')) {
+      setFilter('All');
+    }
+  }, [searchParams]);
+
+  const setCauseFilter = (next) => {
+    setFilter(next);
+    const params = new URLSearchParams(searchParams);
+    if (next === 'All') {
+      params.delete('cause');
+      if (!isCausesView) params.delete('view');
+    } else {
+      params.set('view', 'causes');
+      params.set('cause', next);
+    }
+    setSearchParams(params, { replace: true });
+  };
 
   const filtered = useMemo(() => {
     let list = events.filter((e) => {
@@ -99,22 +134,26 @@ export default function DesktopGuestFeed() {
 
   return (
     <div className="dsk-page">
-      <DesktopHeader active="Discover" />
+      <DesktopHeader active={isCausesView || filter !== 'All' ? 'Causes' : 'Discover'} />
 
       <main className="dsk-main">
         <div className="dsk-container">
           <div className="dsk-feed-head">
-            <h1 className="dsk-page-title">The Scene</h1>
-            <p className="dsk-page-subtitle">Live and upcoming events for verified nonprofits, curated for you.</p>
+            <h1 className="dsk-page-title">{isCausesView || filter !== 'All' ? 'Causes' : 'The Scene'}</h1>
+            <p className="dsk-page-subtitle">
+              {isCausesView || filter !== 'All'
+                ? 'Browse live and upcoming events by the causes you care about.'
+                : 'Live and upcoming events for verified nonprofits, curated for you.'}
+            </p>
           </div>
 
-          <div className="dsk-feed-controls">
+          <div id="dsk-feed-filters" className="dsk-feed-controls">
             <div className="dsk-filter-row">
               {FILTERS.map((f) => (
                 <button
                   key={f}
                   className={`dsk-filter-chip ${filter === f ? 'active' : ''}`}
-                  onClick={() => setFilter(f)}
+                  onClick={() => setCauseFilter(f)}
                 >
                   {f === 'Live now' && <span className="live-dot" style={{ background: filter === f ? 'white' : 'var(--primary)' }} />}
                   {f}

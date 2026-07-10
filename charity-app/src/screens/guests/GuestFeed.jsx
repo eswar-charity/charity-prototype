@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, Bookmark, Share2, Users, Plus } from 'lucide-react';
 import BottomNav from '../../components/BottomNav';
@@ -6,11 +6,11 @@ import useInfiniteScroll from '../../hooks/useInfiniteScroll';
 
 const STORIES = [
   { id: 0, label: 'Add', isAdd: true },
-  { id: 1, label: 'Tree Drive', bg: 'linear-gradient(135deg,#388E3C,#66BB6A)', emoji: '🌳' },
-  { id: 2, label: 'Art Class', bg: 'linear-gradient(135deg,#7B1FA2,#AB47BC)', emoji: '🎨' },
-  { id: 3, label: 'Food Store', bg: 'linear-gradient(135deg,#F57C00,#FFB300)', emoji: '🍎' },
-  { id: 4, label: 'Ocean', bg: 'linear-gradient(135deg,#0288D1,#26C6DA)', emoji: '🌊' },
-  { id: 5, label: 'Animals', bg: 'linear-gradient(135deg,#D32F2F,#EF5350)', emoji: '🐾' },
+  { id: 1, label: 'Tree Drive', category: 'Environment', bg: 'linear-gradient(135deg,#388E3C,#66BB6A)', emoji: '🌳' },
+  { id: 2, label: 'Art Class', category: 'Education', bg: 'linear-gradient(135deg,#7B1FA2,#AB47BC)', emoji: '🎨' },
+  { id: 3, label: 'Food Store', category: 'Health', bg: 'linear-gradient(135deg,#F57C00,#FFB300)', emoji: '🍎' },
+  { id: 4, label: 'Ocean', category: 'Environment', bg: 'linear-gradient(135deg,#0288D1,#26C6DA)', emoji: '🌊' },
+  { id: 5, label: 'Animals', category: 'Animals', bg: 'linear-gradient(135deg,#D32F2F,#EF5350)', emoji: '🐾' },
 ];
 
 const EVENTS = [
@@ -78,14 +78,32 @@ export default function GuestFeed() {
   const [toast, setToast] = useState('');
   const [savedIds, setSavedIds] = useState({});
   const [hasAlerts, setHasAlerts] = useState(true);
+  const [activeCause, setActiveCause] = useState(null);
   const scrollRef = useRef(null);
-  const { items, sentinelRef, loading, hasMore } = useInfiniteScroll(EVENTS, {
+
+  const visibleEvents = useMemo(
+    () => (activeCause ? EVENTS.filter((ev) => ev.category === activeCause) : EVENTS),
+    [activeCause]
+  );
+
+  const { items, sentinelRef, loading, hasMore } = useInfiniteScroll(visibleEvents, {
     rootRef: scrollRef, pageSize: 3, max: 24,
   });
 
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(''), 1800);
+  };
+
+  const handleStoryClick = (story) => {
+    if (story.isAdd) {
+      navigate('/guest/join');
+      return;
+    }
+    const next = activeCause === story.category ? null : story.category;
+    setActiveCause(next);
+    scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast(next ? `Showing ${next} events` : 'Showing all events');
   };
 
   return (
@@ -114,10 +132,11 @@ export default function GuestFeed() {
 
           <div className="story-row guest-story-row">
             {STORIES.map((s) => (
-              <div
+              <button
                 key={s.id}
-                className="story-bubble"
-                onClick={() => navigate(s.isAdd ? '/guest/join' : '/guest/event/live')}
+                type="button"
+                className={`story-bubble${!s.isAdd && activeCause === s.category ? ' story-bubble-active' : ''}`}
+                onClick={() => handleStoryClick(s)}
               >
                 {s.isAdd ? (
                   <div className="story-add-circle">
@@ -129,7 +148,7 @@ export default function GuestFeed() {
                   </div>
                 )}
                 <span className="story-label">{s.label}</span>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -137,6 +156,11 @@ export default function GuestFeed() {
         {/* Scrollable event cards */}
         <div className="screen-scroll" ref={scrollRef}>
           <div className="guest-feed-list">
+            {items.length === 0 && activeCause && (
+              <p className="feed-end" style={{ paddingTop: 24 }}>
+                No {activeCause.toLowerCase()} events right now. Try another cause.
+              </p>
+            )}
             {items.map((ev) => (
               <div key={ev._key} className="feed-card" onClick={() => navigate(ev.route)}>
                 <div className="feed-card-hero" style={{ backgroundImage: `url(${ev.cover})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>

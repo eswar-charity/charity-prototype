@@ -16,6 +16,12 @@ export default function useInfiniteScroll(source, { pageSize = 3, max = 24, root
   const [count, setCount] = useState(initial);
   const [loading, setLoading] = useState(false);
   const sentinelRef = useRef(null);
+  const sourceSig = source.map((s) => s.id ?? s.key ?? '').join(',');
+
+  useEffect(() => {
+    setCount(Math.min(source.length, max));
+    setLoading(false);
+  }, [sourceSig, source.length, max]);
 
   useEffect(() => {
     const el = sentinelRef.current;
