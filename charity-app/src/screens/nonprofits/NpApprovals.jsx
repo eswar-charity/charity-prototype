@@ -56,7 +56,7 @@ export default function NpApprovals() {
 
   return (
     <div className="phone-shell">
-      <div className="screen screen--split ap-screen">
+      <div className="screen screen--split">
         <div className="screen-scroll">
           <div className="np-page-header">
             <button type="button" className="back-btn" onClick={() => navigate('/np/home')} aria-label="Back">
@@ -89,55 +89,36 @@ export default function NpApprovals() {
 
                 <div className="ap-card-body">
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 6 }}>
-                    <h3 style={{ fontSize: 18, fontWeight: 800, color: '#2B2422' }}>{ev.title}</h3>
+                    <h3 className="ap-card-title">{ev.title}</h3>
                     {ev.status === 'changes' && (
                       <span className="badge-changes" style={{ flexShrink: 0 }}>Changes requested</span>
                     )}
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: ev.date ? 8 : 0 }}>
+                  <div className={`ap-organizer-row${ev.date ? ' spaced' : ''}`}>
                     {ev.hasAvatar && (
-                      <div style={{
-                        width: 20, height: 20, borderRadius: '50%',
-                        background: 'linear-gradient(135deg,#5C4A42,#8A6F63)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 8, fontWeight: 700, color: 'white',
-                      }}>
+                      <div className="ap-organizer-avatar">
                         {ev.organizer.split(' ').map((w) => w[0]).join('')}
                       </div>
                     )}
-                    <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>By {ev.organizer}</span>
-                    {ev.hasAvatar && (
-                      <span style={{
-                        width: 13, height: 13, borderRadius: '50%', background: '#6C8CFF',
-                        color: 'white', fontSize: 8, fontWeight: 700,
-                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      }}>✓</span>
-                    )}
+                    <span className="ap-meta-text">By {ev.organizer}</span>
+                    {ev.hasAvatar && <span className="ap-verify-dot">✓</span>}
                   </div>
 
                   {ev.date && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
+                    <div className="ap-meta-row">
                       <Calendar size={13} color="var(--text-secondary)" />
-                      <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{ev.date}</span>
+                      <span className="ap-meta-text">{ev.date}</span>
                     </div>
                   )}
                   {ev.location && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 8 }}>
+                    <div className="ap-meta-row spaced">
                       <MapPin size={13} color="var(--text-secondary)" />
-                      <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{ev.location}</span>
+                      <span className="ap-meta-text">{ev.location}</span>
                     </div>
                   )}
-                  {ev.desc && (
-                    <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 8 }}>
-                      {ev.desc}
-                    </p>
-                  )}
-                  {ev.submitted && (
-                    <p style={{ fontSize: 12, color: 'var(--text-light)', marginBottom: 12 }}>
-                      Submitted {ev.submitted}
-                    </p>
-                  )}
+                  {ev.desc && <p className="ap-desc">{ev.desc}</p>}
+                  {ev.submitted && <p className="ap-submitted">Submitted {ev.submitted}</p>}
 
                   <div className="ap-actions" onClick={(e) => e.stopPropagation()}>
                     <button type="button" className="ap-btn ap-btn-reject" onClick={() => reject(ev)}>Reject</button>

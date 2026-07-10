@@ -4,12 +4,7 @@ import Logo from '../Logo';
 
 export default function DesktopFooter() {
   const navigate = useNavigate();
-  const [toast, setToast] = useState('');
-
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(''), 2200);
-  };
+  const [showLegal, setShowLegal] = useState(false);
 
   return (
     <footer className="dsk-footer">
@@ -30,21 +25,22 @@ export default function DesktopFooter() {
 
         <div className="dsk-footer-col">
           <p className="dsk-footer-heading">About</p>
-          <span className="dsk-footer-link" onClick={() => showToast('Company page — coming soon')}>Company</span>
-          <span className="dsk-footer-link" onClick={() => showToast('Legal & policies — coming soon')}>Legal</span>
+          <span className="dsk-footer-link" onClick={() => navigate('/np/profile')}>Company</span>
+          <span className="dsk-footer-link" onClick={() => setShowLegal((v) => !v)}>Legal</span>
         </div>
       </div>
 
-      {toast && (
-        <div
-          style={{
-            position: 'fixed', left: '50%', bottom: 32, transform: 'translateX(-50%)',
-            background: 'var(--dark)', color: 'white', padding: '12px 18px',
-            borderRadius: 999, fontSize: 13, fontWeight: 600,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.18)', zIndex: 200, whiteSpace: 'nowrap',
-          }}
-        >
-          {toast}
+      {showLegal && (
+        <div className="dsk-footer-legal" style={{
+          maxWidth: 960, margin: '0 auto', padding: '16px 24px 0',
+          fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6,
+        }}>
+          <p style={{ fontWeight: 700, color: 'var(--dark)', marginBottom: 6 }}>Privacy &amp; Terms</p>
+          <p>
+            Charity Hub processes donations through verified 501(c)(3) partners. Event content is moderated
+            before publication. By using the platform you agree to our community guidelines and nonprofit
+            partnership terms.
+          </p>
         </div>
       )}
     </footer>

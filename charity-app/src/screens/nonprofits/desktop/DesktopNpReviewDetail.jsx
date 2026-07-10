@@ -1,14 +1,6 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Tag, Check } from 'lucide-react';
 import { DesktopNpLayout } from '../../../components/desktop/DesktopNpLayout';
-
-const TOAST_STYLE = {
-  position: 'fixed', bottom: 28, left: '50%', transform: 'translateX(-50%)',
-  background: 'var(--dark)', color: '#fff', padding: '12px 22px',
-  borderRadius: 'var(--radius-pill)', fontSize: 14, fontWeight: 600,
-  zIndex: 100, boxShadow: '0 6px 24px rgba(0,0,0,0.28)',
-};
 
 const HERO_IMG = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900&h=500&fit=crop';
 const SUBMITTER_AVATAR = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop';
@@ -21,8 +13,6 @@ const CONTENT_CHECKS = [
 
 export default function DesktopNpReviewDetail() {
   const navigate = useNavigate();
-  const [toast, setToast] = useState('');
-  const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
 
   return (
     <DesktopNpLayout active="approvals" title="Launchpad">
@@ -51,7 +41,7 @@ export default function DesktopNpReviewDetail() {
               type="button"
               className="dsk-cta-btn"
               style={{ marginTop: 4 }}
-              onClick={() => notify('Preview only — this is the button supporters will tap')}
+              onClick={() => navigate('/guest/event/upcoming')}
             >
               Join the Crew
             </button>
@@ -116,7 +106,6 @@ export default function DesktopNpReviewDetail() {
           </button>
         </div>
       </div>
-      {toast && <div style={TOAST_STYLE}>{toast}</div>}
     </DesktopNpLayout>
   );
 }

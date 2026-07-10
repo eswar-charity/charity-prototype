@@ -5,6 +5,7 @@ import {
   MessageCircle, Users, Play,
 } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
+import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
 import { events, liveActivities, slugify } from '../../../data/mockData';
 
 const ev = events[0]; // Neon Night Run — the app's featured live event
@@ -220,15 +221,9 @@ export default function DesktopEventDetail() {
   const [liked, setLiked] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [following, setFollowing] = useState(false);
-  const [toast, setToast] = useState('');
+  const [showShare, setShowShare] = useState(false);
 
-  const handleShare = () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(`https://charity.hub/event/${ev.key}`).catch(() => {});
-    }
-    setToast('Event link copied');
-    setTimeout(() => setToast(''), 1800);
-  };
+  const shareUrl = `https://charity.hub/event/${ev.key}`;
 
   return (
     <div className="dsk-page">
@@ -242,7 +237,7 @@ export default function DesktopEventDetail() {
           )}
           <div className="dsk-ev-hero-actions">
             <button className="ev-hero-btn" onClick={() => setShowAbout(true)} aria-label="Event info">ⓘ</button>
-            <button className="ev-hero-btn" onClick={handleShare} aria-label="Share"><Share2 size={16} color="white" /></button>
+            <button className="ev-hero-btn" onClick={() => setShowShare(true)} aria-label="Share"><Share2 size={16} color="white" /></button>
             <button className="ev-hero-btn" onClick={() => setLiked(!liked)} aria-label="Like">
               <Heart size={16} color={liked ? '#FF6B6B' : 'white'} fill={liked ? '#FF6B6B' : 'none'} />
             </button>
@@ -281,7 +276,7 @@ export default function DesktopEventDetail() {
                 </div>
               </div>
               <button className="dsk-sidebar-back-btn" onClick={() => setActiveTab('support')}>Back this event</button>
-              <button className="dsk-sidebar-share-btn" onClick={handleShare}>Share</button>
+              <button className="dsk-sidebar-share-btn" onClick={() => setShowShare(true)}>Share</button>
               <div className="dsk-sidebar-stats">
                 <span><Users size={13} /> {ev.backed} backing</span>
                 <span><MessageCircle size={13} /> {ev.chatCount} in chat</span>
@@ -300,13 +295,15 @@ export default function DesktopEventDetail() {
         />
       )}
 
-      {toast && (
-        <div style={{
-          position: 'fixed', bottom: 32, left: '50%', transform: 'translateX(-50%)',
-          background: 'var(--dark)', color: 'white', padding: '12px 22px',
-          borderRadius: 'var(--radius-pill)', fontSize: 14, fontWeight: 600,
-          boxShadow: '0 6px 24px rgba(0,0,0,0.22)', zIndex: 80,
-        }}>{toast}</div>
+      {showShare && (
+        <DesktopShareModal
+          open={showShare}
+          onClose={() => setShowShare(false)}
+          url={shareUrl}
+          title={`#${ev.title.replace(/\s+/g, '')}`}
+          subtitle={`${ev.nonprofit} · verified`}
+          previewStyle={{ backgroundImage: `url(${ev.photos[1]})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+        />
       )}
     </div>
   );

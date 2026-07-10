@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Plus, Megaphone, Building2, Compass } from 'lucide-react';
+import { Plus, Megaphone, Building2, Compass } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
+import NotificationBell, { SE_FEED_NOTIFICATIONS } from '../components/NotificationBell';
 import { events } from '../data/mockData';
 import useInfiniteScroll from '../hooks/useInfiniteScroll';
 
@@ -11,16 +12,10 @@ export default function FeedScreen() {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState('All');
   const [showSheet, setShowSheet] = useState(false);
-  const [toast, setToast] = useState('');
   const scrollRef = useRef(null);
   const { items, sentinelRef, loading, hasMore } = useInfiniteScroll(events, {
     rootRef: scrollRef, pageSize: 3, max: 30,
   });
-
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(''), 2200);
-  };
 
   return (
     <div className="phone-shell">
@@ -34,12 +29,7 @@ export default function FeedScreen() {
               <p className="scene-subtitle">Events happening now</p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <Bell
-                size={22}
-                color="var(--dark)"
-                style={{ cursor: 'pointer' }}
-                onClick={() => showToast("You're all caught up — no new notifications")}
-              />
+              <NotificationBell items={SE_FEED_NOTIFICATIONS} />
               <div
                 className="scene-avatar"
                 style={{ cursor: 'pointer' }}
@@ -204,29 +194,6 @@ export default function FeedScreen() {
         </div>
       )}
 
-      {/* ── Lightweight toast ── */}
-      {toast && (
-        <div
-          style={{
-            position: 'absolute',
-            left: '50%',
-            bottom: 92,
-            transform: 'translateX(-50%)',
-            background: 'var(--dark)',
-            color: 'white',
-            padding: '12px 18px',
-            borderRadius: 'var(--radius-pill)',
-            fontSize: 13,
-            fontWeight: 600,
-            boxShadow: 'var(--card-shadow)',
-            zIndex: 50,
-            whiteSpace: 'nowrap',
-            maxWidth: '90%',
-          }}
-        >
-          {toast}
-        </div>
-      )}
     </div>
   );
 }

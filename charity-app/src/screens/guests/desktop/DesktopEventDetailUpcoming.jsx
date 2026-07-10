@@ -2,29 +2,25 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Share2, Bookmark, Calendar, MapPin, Users, ChevronRight } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
+import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
+import { NonprofitLearnMoreModal, EventBackersModal } from '../../../components/event/EventModals';
 import { events, slugify } from '../../../data/mockData';
 
 const ev = events[2]; // Give Now, Apré Later — the app's featured upcoming event
 const BACKER_COLORS = ['var(--primary)', '#0D7377', '#7B1FA2', '#1976D2', '#F57C00'];
+
+const NP_DESCRIPTION = 'Books for Communities expands access to reading materials and literacy programs for underserved schools across New England. Every event on Charity Hub helps them reach more students.';
 
 export default function DesktopEventDetailUpcoming() {
   const navigate = useNavigate();
   const [saved, setSaved] = useState(false);
   const [following, setFollowing] = useState(false);
   const [backed, setBacked] = useState(false);
-  const [toast, setToast] = useState('');
+  const [showShare, setShowShare] = useState(false);
+  const [showNpModal, setShowNpModal] = useState(false);
+  const [showBackersModal, setShowBackersModal] = useState(false);
 
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(''), 1800);
-  };
-
-  const handleShare = () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(`https://charity.hub/event/${ev.key}`).catch(() => {});
-    }
-    showToast('Event link copied');
-  };
+  const shareUrl = `https://charity.hub/event/${ev.key}`;
 
   return (
     <div className="dsk-page">
@@ -38,7 +34,7 @@ export default function DesktopEventDetailUpcoming() {
             <button className="ev-hero-btn" onClick={() => setSaved(!saved)} aria-label="Save event">
               <Bookmark size={16} color="white" fill={saved ? 'white' : 'none'} />
             </button>
-            <button className="ev-hero-btn" onClick={handleShare} aria-label="Share"><Share2 size={16} color="white" /></button>
+            <button className="ev-hero-btn" onClick={() => setShowShare(true)} aria-label="Share"><Share2 size={16} color="white" /></button>
           </div>
         </div>
         <div className="dsk-ev-hero-bottom">
@@ -63,14 +59,14 @@ export default function DesktopEventDetailUpcoming() {
                 <button
                   className="btn-ghost"
                   style={{ fontSize: 13 }}
-                  onClick={() => showToast(`${ev.nonprofit} · Verified nonprofit`)}
+                  onClick={() => setShowNpModal(true)}
                 >Learn more</button>
               </div>
 
               <div
                 className="dsk-upcoming-backers-row"
                 style={{ cursor: 'pointer' }}
-                onClick={() => showToast(`${ev.backed} people are backing this`)}
+                onClick={() => setShowBackersModal(true)}
               >
                 <div className="av-stack">
                   {BACKER_COLORS.map((c, i) => <div key={i} className="av" style={{ background: c }} />)}
@@ -121,7 +117,7 @@ export default function DesktopEventDetailUpcoming() {
               >
                 {backed ? 'Backed ✓' : 'Back this event'}
               </button>
-              <button className="dsk-sidebar-share-btn" onClick={handleShare}>Share</button>
+              <button className="dsk-sidebar-share-btn" onClick={() => setShowShare(true)}>Share</button>
               <div className="dsk-sidebar-stats">
                 <span><Users size={13} /> {ev.backed} backing</span>
                 <span>{ev.joined} joined</span>
@@ -131,14 +127,35 @@ export default function DesktopEventDetailUpcoming() {
         </div>
       </main>
 
-      {toast && (
-        <div style={{
-          position: 'fixed', bottom: 32, left: '50%', transform: 'translateX(-50%)',
-          background: 'var(--dark)', color: 'white', padding: '12px 22px',
-          borderRadius: 'var(--radius-pill)', fontSize: 14, fontWeight: 600,
-          boxShadow: '0 6px 24px rgba(0,0,0,0.22)', zIndex: 80,
-        }}>{toast}</div>
+      {showShare && (
+        <DesktopShareModal
+          open={showShare}
+          onClose={() => setShowShare(false)}
+          url={shareUrl}
+          title={`#${ev.title.replace(/[\s,''']+/g, '')}`}
+          subtitle={`${ev.nonprofit} · verified`}
+          previewStyle={{ backgroundImage: `url(${ev.cover})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+        />
       )}
+
+      <NonprofitLearnMoreModal
+        open={showNpModal}
+        onClose={() => setShowNpModal(false)}
+        name={ev.nonprofit}
+        initials={ev.npInitials}
+        avatarStyle={{ background: ev.npBg }}
+        category={ev.category}
+        description={NP_DESCRIPTION}
+        onViewProfile={() => { setShowNpModal(false); navigate('/np/profile'); }}
+      />
+
+      <EventBackersModal
+        open={showBackersModal}
+        onClose={() => setShowBackersModal(false)}
+        count={ev.backed}
+        eventTitle={ev.title}
+        raised={ev.raised}
+      />
     </div>
   );
 }

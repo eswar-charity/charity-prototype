@@ -1,14 +1,6 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, Flag, MoreHorizontal } from 'lucide-react';
 import { DesktopNpLayout } from '../../../components/desktop/DesktopNpLayout';
-
-const TOAST_STYLE = {
-  position: 'fixed', bottom: 28, left: '50%', transform: 'translateX(-50%)',
-  background: 'var(--dark)', color: '#fff', padding: '12px 22px',
-  borderRadius: 'var(--radius-pill)', fontSize: 14, fontWeight: 600,
-  zIndex: 100, boxShadow: '0 6px 24px rgba(0,0,0,0.28)',
-};
 
 const LIVE_EVENTS = [
   { id: 1, title: 'Coastal Cleanup Wave 1', category: 'Community', joined: 87, backing: 150, isLive: true, cover: '/events/breakneck-ridge-run/img1.jpg' },
@@ -18,8 +10,6 @@ const LIVE_EVENTS = [
 
 export default function DesktopNpLaunchpad() {
   const navigate = useNavigate();
-  const [toast, setToast] = useState('');
-  const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
 
   return (
     <DesktopNpLayout active="home" title="Launchpad">
@@ -68,14 +58,19 @@ export default function DesktopNpLaunchpad() {
       </div>
       <div className="dsk-np-event-grid">
         {LIVE_EVENTS.map((ev) => (
-          <div key={ev.id} className="dsk-np-event-card" onClick={() => notify(`Manage “${ev.title}” — coming soon`)}>
+          <div
+            key={ev.id}
+            className="dsk-np-event-card"
+            style={{ cursor: 'pointer' }}
+            onClick={() => navigate(ev.isLive ? '/guest/event/live' : '/guest/event/upcoming')}
+          >
             <div className="dsk-np-event-hero" style={{ backgroundImage: `url(${ev.cover})` }}>
               <span className={`badge ${ev.isLive ? 'badge-live' : 'badge-upcoming'}`}>{ev.isLive ? '● LIVE' : 'UPCOMING'}</span>
               <button
                 type="button"
                 aria-label={`Options for ${ev.title}`}
                 style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex' }}
-                onClick={(e) => { e.stopPropagation(); notify(`Options for “${ev.title}”`); }}
+                onClick={(e) => { e.stopPropagation(); navigate('/live-dashboard'); }}
               >
                 <MoreHorizontal size={16} color="white" />
               </button>
@@ -88,7 +83,6 @@ export default function DesktopNpLaunchpad() {
           </div>
         ))}
       </div>
-      {toast && <div style={TOAST_STYLE}>{toast}</div>}
     </DesktopNpLayout>
   );
 }

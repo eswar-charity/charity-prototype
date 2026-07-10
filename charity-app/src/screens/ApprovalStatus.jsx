@@ -141,34 +141,38 @@ export default function ApprovalStatus() {
           </div>
 
           {/* Context-aware CTAs */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingBottom: 28 }}>
-            <button className="btn-primary" onClick={primary.onClick}>
-              <PrimaryIcon size={18} /> {primary.label}
-            </button>
+          <div className="approval-actions">
+            <div className="approval-actions-pair">
+              <button type="button" className="btn-primary" onClick={primary.onClick}>
+                <PrimaryIcon size={18} />
+                {primary.label}
+              </button>
+
+              {state === 'review' && (
+                <button type="button" className="btn-outline" onClick={() => navigate('/event/step-4')}>Edit event</button>
+              )}
+              {state === 'approved' && (
+                <button type="button" className="btn-outline" onClick={() => navigate('/event/step-4')}>Edit before publishing</button>
+              )}
+              {state === 'live' && (
+                <button type="button" className="btn-outline" onClick={() => navigate('/live-dashboard')}>Open live dashboard</button>
+              )}
+              {state === 'completed' && (
+                <button type="button" className="btn-outline" onClick={() => navigate('/feed')}>Back to feed</button>
+              )}
+            </div>
 
             {state === 'review' && (
               <>
-                <p style={{ fontSize: 11, color: 'var(--text-light)', textAlign: 'center', marginTop: -2 }}>
-                  Prototype: this stands in for the nonprofit approver.
-                </p>
-                <button className="btn-outline" onClick={() => navigate('/event/step-4')}>Edit event</button>
+                <p className="approval-actions-hint">Walk your event through each stage.</p>
                 <button
-                  className="btn-ghost"
-                  style={{ textAlign: 'center', marginTop: 2 }}
+                  type="button"
+                  className="btn-ghost approval-notify-btn"
                   onClick={() => { setNotified(true); showToast('We’ll notify you the moment it’s approved'); }}
                 >
                   {notified ? 'Notifications on ✓' : 'Notify me when approved'}
                 </button>
               </>
-            )}
-            {state === 'approved' && (
-              <button className="btn-outline" onClick={() => navigate('/event/step-4')}>Edit before publishing</button>
-            )}
-            {state === 'live' && (
-              <button className="btn-outline" onClick={() => navigate('/live-dashboard')}>Open live dashboard</button>
-            )}
-            {state === 'completed' && (
-              <button className="btn-outline" onClick={() => navigate('/feed')}>Back to feed</button>
             )}
           </div>
         </div>

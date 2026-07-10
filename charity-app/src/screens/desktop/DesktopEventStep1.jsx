@@ -25,12 +25,12 @@ export default function DesktopEventStep1() {
       <div style={{ textAlign: 'right', fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
         Up to 10 items
       </div>
-      <div className="upload-area">
+      <div className="upload-area" onClick={addPhoto} style={{ cursor: 'pointer' }}>
         <Camera size={26} color="var(--primary)" />
         <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)', marginTop: 8 }}>
           Drag photos or video here, or browse
         </p>
-        <button className="btn-outline" style={{ width: 'auto', marginTop: 14, padding: '9px 24px', fontSize: 14 }} onClick={addPhoto}>
+        <button className="btn-outline" style={{ width: 'auto', marginTop: 14, padding: '9px 24px', fontSize: 14 }} onClick={(e) => { e.stopPropagation(); addPhoto(); }}>
           Choose files
         </button>
       </div>

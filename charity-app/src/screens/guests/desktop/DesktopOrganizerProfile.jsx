@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { MapPin, Share2 } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../../components/desktop/DesktopFooter';
+import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
 import { getOrganizerProfile } from '../../../data/mockData';
 
 const EVENT_TABS = ['Live', 'Upcoming', 'Past'];
@@ -12,12 +13,7 @@ export default function DesktopOrganizerProfile() {
   const navigate = useNavigate();
   const [following, setFollowing] = useState(false);
   const [eventTab, setEventTab] = useState('Live');
-  const [toast, setToast] = useState('');
-
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(''), 1800);
-  };
+  const [showShare, setShowShare] = useState(false);
 
   const profile = getOrganizerProfile(slug);
 
@@ -81,12 +77,7 @@ export default function DesktopOrganizerProfile() {
             </div>
             <button
               className="dsk-linkedin-btn"
-              onClick={() => {
-                if (navigator.clipboard) {
-                  navigator.clipboard.writeText(`https://charity.hub/organizer/${slug}`).catch(() => {});
-                }
-                showToast('Profile link copied');
-              }}
+              onClick={() => setShowShare(true)}
             >
               <Share2 size={14} /> Share to LinkedIn
             </button>
@@ -121,13 +112,20 @@ export default function DesktopOrganizerProfile() {
         </div>
       </main>
 
-      {toast && (
-        <div style={{
-          position: 'fixed', bottom: 32, left: '50%', transform: 'translateX(-50%)',
-          background: 'var(--dark)', color: 'white', padding: '12px 22px',
-          borderRadius: 'var(--radius-pill)', fontSize: 14, fontWeight: 600,
-          boxShadow: '0 6px 24px rgba(0,0,0,0.22)', zIndex: 80,
-        }}>{toast}</div>
+      {showShare && profile && (
+        <DesktopShareModal
+          open={showShare}
+          onClose={() => setShowShare(false)}
+          url={`https://charity.hub/organizer/${slug}`}
+          title={profile.name}
+          subtitle="Event Presenter · Charity Hub"
+          heading="Share profile"
+          previewStyle={{
+            backgroundImage: `url(${profile.events[0]?.photos?.[4] || profile.events[0]?.cover})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
       )}
 
       <DesktopFooter />

@@ -41,6 +41,7 @@ export default function DesktopApprovalStatus() {
     live:      { label: 'Complete event', Icon: PartyPopper, onClick: () => advance('completed', 'Event marked complete') },
     completed: { label: 'See impact recap', Icon: PartyPopper, onClick: () => navigate('/post-event') },
   }[state];
+  const PrimaryIcon = primary.Icon;
 
   return (
     <div className="dsk-page">
@@ -98,20 +99,21 @@ export default function DesktopApprovalStatus() {
 
           {/* Context-aware CTAs */}
           <div className="dsk-approval-actions">
-            <button className="dsk-cta-btn" onClick={primary.onClick}>
-              <primary.Icon size={16} style={{ verticalAlign: 'middle', marginRight: 6 }} />{primary.label}
+            <button type="button" className="dsk-cta-btn" onClick={primary.onClick}>
+              <PrimaryIcon size={16} />
+              {primary.label}
             </button>
             {state === 'review' && (
-              <button className="dsk-sidebar-share-btn" style={{ width: 'auto', padding: '10px 24px' }} onClick={() => navigate('/event/step-4')}>Edit event</button>
+              <button type="button" className="dsk-approval-btn-secondary" onClick={() => navigate('/event/step-4')}>Edit event</button>
             )}
             {state === 'approved' && (
-              <button className="dsk-sidebar-share-btn" style={{ width: 'auto', padding: '10px 24px' }} onClick={() => navigate('/event/step-4')}>Edit before publishing</button>
+              <button type="button" className="dsk-approval-btn-secondary" onClick={() => navigate('/event/step-4')}>Edit before publishing</button>
             )}
             {state === 'live' && (
-              <button className="dsk-sidebar-share-btn" style={{ width: 'auto', padding: '10px 24px' }} onClick={() => navigate('/live-dashboard')}>Open live dashboard</button>
+              <button type="button" className="dsk-approval-btn-secondary" onClick={() => navigate('/live-dashboard')}>Open live dashboard</button>
             )}
             {state === 'completed' && (
-              <button className="dsk-sidebar-share-btn" style={{ width: 'auto', padding: '10px 24px' }} onClick={() => navigate('/feed')}>Back to feed</button>
+              <button type="button" className="dsk-approval-btn-secondary" onClick={() => navigate('/feed')}>Back to feed</button>
             )}
           </div>
 
@@ -119,11 +121,11 @@ export default function DesktopApprovalStatus() {
           {state === 'review' && (
             <>
               <button
-                className="dsk-approval-comment-btn"
-                style={{ display: 'block', margin: '0 auto 18px', background: notify ? 'var(--green)' : 'var(--primary)' }}
+                type="button"
+                className={`dsk-approval-notify-btn${notify ? ' on' : ''}`}
                 onClick={() => { setNotify(!notify); showToast(notify ? 'Notifications off' : 'We’ll notify you when it’s approved'); }}
               >
-                {notify ? "Notifications on ✓" : 'Notify me when approved'}
+                {notify ? 'Notifications on ✓' : 'Notify me when approved'}
               </button>
               <div className="dsk-approval-comment">
                 <div className="dsk-approval-comment-icon"><MessageSquare size={16} color="var(--blue)" /></div>

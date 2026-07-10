@@ -10,8 +10,16 @@ const TOAST_STYLE = {
   zIndex: 100, boxShadow: '0 6px 24px rgba(0,0,0,0.28)', maxWidth: '80%', textAlign: 'center',
 };
 
-const HERO_IMG = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=400&fit=crop';
-const ORG_LOGO = 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=120&h=120&fit=crop';
+const HERO_OPTIONS = [
+  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=400&fit=crop',
+  'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&h=400&fit=crop',
+  'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&h=400&fit=crop',
+];
+const LOGO_OPTIONS = [
+  'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=120&h=120&fit=crop',
+  'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=120&h=120&fit=crop',
+  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=120&h=120&fit=crop',
+];
 
 const IMPACT = [
   { num: '12k+', label: 'Supporters', icon: '👥' },
@@ -23,14 +31,26 @@ const IMPACT = [
 export default function NpProfile() {
   const navigate = useNavigate();
   const [toast, setToast] = useState('');
+  const [coverIdx, setCoverIdx] = useState(0);
+  const [logoIdx, setLogoIdx] = useState(0);
   const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
+
+  const cycleCover = () => {
+    setCoverIdx((i) => (i + 1) % HERO_OPTIONS.length);
+    notify('Cover photo updated');
+  };
+
+  const cycleLogo = () => {
+    setLogoIdx((i) => (i + 1) % LOGO_OPTIONS.length);
+    notify('Organization logo updated');
+  };
 
   return (
     <div className="phone-shell">
       <div className="screen screen--split">
         <div className="screen-scroll">
           <div className="np-profile-hero">
-            <img className="np-profile-hero-img" src={HERO_IMG} alt="" />
+            <img className="np-profile-hero-img" src={HERO_OPTIONS[coverIdx]} alt="" />
             <div className="np-profile-hero-nav">
               <button type="button" className="np-profile-hero-btn" onClick={() => navigate('/np/home')} aria-label="Back">
                 <ChevronLeft size={18} color="white" />
@@ -39,7 +59,7 @@ export default function NpProfile() {
                 type="button"
                 className="np-profile-hero-btn"
                 aria-label="Edit cover"
-                onClick={() => notify('Edit cover photo — coming soon')}
+                onClick={cycleCover}
               >
                 <Pencil size={16} color="white" />
               </button>
@@ -50,12 +70,12 @@ export default function NpProfile() {
             <div className="card np-profile-card">
               <div className="np-profile-avatar-wrap">
                 <div className="np-profile-avatar">
-                  <img src={ORG_LOGO} alt="Ocean Conservancy" />
+                  <img src={LOGO_OPTIONS[logoIdx]} alt="Ocean Conservancy" />
                   <button
                     type="button"
                     className="np-profile-avatar-edit"
                     aria-label="Edit logo"
-                    onClick={() => notify('Edit organization logo — coming soon')}
+                    onClick={cycleLogo}
                   >
                     <Pencil size={11} color="white" />
                   </button>

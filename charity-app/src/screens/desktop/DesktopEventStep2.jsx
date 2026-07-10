@@ -12,12 +12,6 @@ export default function DesktopEventStep2() {
   const draft = useCreateEventDraft();
   const [activeFilter, setActiveFilter] = useState('All');
   const [query, setQuery] = useState('');
-  const [toast, setToast] = useState('');
-
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(''), 2200);
-  };
 
   const filtered = nonprofits.filter((np) => {
     const matchFilter = activeFilter === 'All' || np.category === activeFilter || np.category.includes(activeFilter);
@@ -42,7 +36,7 @@ export default function DesktopEventStep2() {
 
       <div className="filter-tabs" style={{ marginBottom: 18 }}>
         {FILTERS.map((f) => (
-          <button key={f} className={`filter-tab ${activeFilter === f ? 'active' : ''}`} onClick={() => setActiveFilter(f)}>
+          <button key={f} type="button" className={`filter-tab ${activeFilter === f ? 'active' : ''}`} onClick={() => setActiveFilter(f)}>
             {f}
           </button>
         ))}
@@ -70,25 +64,20 @@ export default function DesktopEventStep2() {
       </div>
 
       <div style={{ marginTop: 16 }}>
-        <button className="btn-ghost" style={{ fontSize: 14 }} onClick={() => showToast('Invite a nonprofit — coming soon')}>Don't see your nonprofit? Invite them →</button>
+        <button
+          type="button"
+          className="btn-ghost"
+          style={{ fontSize: 14, color: draft.inviteSent ? 'var(--green)' : undefined }}
+          onClick={() => updateDraft({ inviteSent: true })}
+          disabled={draft.inviteSent}
+        >
+          {draft.inviteSent ? 'Invite sent — we’ll let you know when they join ✓' : "Don't see your nonprofit? Invite them →"}
+        </button>
       </div>
 
-      {toast && (
-        <div
-          style={{
-            position: 'fixed', left: '50%', bottom: 32, transform: 'translateX(-50%)',
-            background: 'var(--dark)', color: 'white', padding: '12px 18px',
-            borderRadius: 999, fontSize: 13, fontWeight: 600,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.18)', zIndex: 200, whiteSpace: 'nowrap',
-          }}
-        >
-          {toast}
-        </div>
-      )}
-
       <div className="dsk-wizard-footer">
-        <button className="dsk-wizard-back-link" onClick={() => navigate('/event/step-1')}>← Back</button>
-        <button className="dsk-cta-btn" onClick={() => navigate('/event/step-3')}>Next: date & location →</button>
+        <button type="button" className="dsk-wizard-back-link" onClick={() => navigate('/event/step-1')}>← Back</button>
+        <button type="button" className="dsk-cta-btn" onClick={() => navigate('/event/step-3')}>Next: date & location →</button>
       </div>
     </DesktopCreateEventLayout>
   );

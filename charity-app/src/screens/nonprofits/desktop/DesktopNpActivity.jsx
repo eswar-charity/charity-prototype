@@ -2,13 +2,6 @@ import { useState } from 'react';
 import { Check } from 'lucide-react';
 import { DesktopNpLayout } from '../../../components/desktop/DesktopNpLayout';
 
-const TOAST_STYLE = {
-  position: 'fixed', bottom: 28, left: '50%', transform: 'translateX(-50%)',
-  background: 'var(--dark)', color: '#fff', padding: '12px 22px',
-  borderRadius: 'var(--radius-pill)', fontSize: 14, fontWeight: 600,
-  zIndex: 100, boxShadow: '0 6px 24px rgba(0,0,0,0.28)',
-};
-
 const BACKING_BY_EVENT = [
   { id: 1, title: 'Coastal Cleanup Drive', count: 87, thumb: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=100&h=100&fit=crop' },
   { id: 2, title: 'Books for Bright Minds', count: 42, thumb: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=100&h=100&fit=crop' },
@@ -16,8 +9,7 @@ const BACKING_BY_EVENT = [
 ];
 
 export default function DesktopNpActivity() {
-  const [toast, setToast] = useState('');
-  const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
+  const [stripeOpen, setStripeOpen] = useState(false);
 
   return (
     <DesktopNpLayout active="activity" title="Activity">
@@ -39,8 +31,17 @@ export default function DesktopNpActivity() {
         <div style={{ flex: 1 }}>
           <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>Settlement ready — Stripe Connected Account active</p>
         </div>
-        <button type="button" className="np-link-btn" onClick={() => notify('Opening Stripe settlement dashboard…')}>Manage →</button>
+        <button type="button" className="np-link-btn" onClick={() => setStripeOpen((o) => !o)}>
+          {stripeOpen ? 'Hide' : 'Manage →'}
+        </button>
       </div>
+      {stripeOpen && (
+        <div className="dsk-np-panel" style={{ marginTop: -8, marginBottom: 16 }}>
+          <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>Stripe Connected Account · acct_1OceanConserv</p>
+          <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--dark)' }}>$12,480.00 available</p>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>Next payout · Friday, Oct 31</p>
+        </div>
+      )}
 
       <div className="dsk-np-panel">
         <div className="dsk-np-panel-head"><span className="dsk-np-panel-title">Backing by event</span></div>
@@ -59,12 +60,11 @@ export default function DesktopNpActivity() {
           type="button"
           className="np-link-btn"
           style={{ display: 'inline' }}
-          onClick={() => notify('Opening Stripe dashboard…')}
+          onClick={() => setStripeOpen(true)}
         >
           Open Stripe →
         </button>
       </p>
-      {toast && <div style={TOAST_STYLE}>{toast}</div>}
     </DesktopNpLayout>
   );
 }

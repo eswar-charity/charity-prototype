@@ -1,14 +1,7 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, Calendar, ClipboardList, BarChart3, Wallet, Settings, Search, Bell } from 'lucide-react';
+import { Home, Calendar, ClipboardList, BarChart3, Wallet, Settings, Search } from 'lucide-react';
 import Logo from '../Logo';
-
-const TOAST_STYLE = {
-  position: 'fixed', bottom: 28, left: '50%', transform: 'translateX(-50%)',
-  background: 'var(--dark)', color: '#fff', padding: '12px 22px',
-  borderRadius: 'var(--radius-pill)', fontSize: 14, fontWeight: 600,
-  zIndex: 100, boxShadow: '0 6px 24px rgba(0,0,0,0.28)',
-};
+import NotificationBell, { NP_NOTIFICATIONS } from '../NotificationBell';
 
 const NAV = [
   { id: 'home', label: 'Home', icon: Home, path: '/np/home' },
@@ -74,9 +67,6 @@ export default function DesktopNpSidebar({ active }) {
 }
 
 export function DesktopNpLayout({ active, title, children }) {
-  const [toast, setToast] = useState('');
-  const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
-
   return (
     <div className="dsk-page dsk-np-page">
       <div className="dsk-np-shell">
@@ -86,20 +76,17 @@ export function DesktopNpLayout({ active, title, children }) {
             <h1 className="dsk-np-title">{title}</h1>
             <div className="dsk-np-topbar-actions">
               <div className="dsk-search dsk-np-search"><Search size={15} /><input placeholder="Search events..." /></div>
-              <button
-                type="button"
-                className="dsk-np-bell"
-                aria-label="Notifications"
-                onClick={() => notify('You’re all caught up — no new alerts')}
-              >
-                <Bell size={18} />
-              </button>
+              <NotificationBell
+                items={NP_NOTIFICATIONS}
+                bellSize={18}
+                buttonClassName="dsk-np-bell"
+                panelClassName="notify-panel--desktop"
+              />
             </div>
           </div>
           {children}
         </main>
       </div>
-      {toast && <div style={TOAST_STYLE}>{toast}</div>}
     </div>
   );
 }

@@ -45,12 +45,7 @@ function EmptyIllustration() {
 
 export default function EmptyFeed() {
   const navigate = useNavigate();
-  const [toast, setToast] = useState('');
-
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(''), 1800);
-  };
+  const [notifyOn, setNotifyOn] = useState(false);
 
   return (
     <div className="phone-shell">
@@ -74,12 +69,15 @@ export default function EmptyFeed() {
           <h1 style={{ fontSize: 18, fontWeight: 800, color: 'var(--dark)', position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
             Charity Hub
           </h1>
-          <Bell
-            size={22}
-            color="var(--dark)"
-            style={{ cursor: 'pointer' }}
-            onClick={() => showToast("We'll notify you when events go live")}
-          />
+          <button
+            type="button"
+            aria-label="Notifications"
+            style={{ position: 'relative', background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex' }}
+            onClick={() => setNotifyOn((on) => !on)}
+          >
+            <Bell size={22} color={notifyOn ? 'var(--blue)' : 'var(--dark)'} />
+            {notifyOn && <span className="np-notify-dot" />}
+          </button>
         </div>
 
         {/* Causes row */}
@@ -137,7 +135,7 @@ export default function EmptyFeed() {
             <button
               className="btn-ghost"
               style={{ fontSize: 14 }}
-              onClick={() => showToast('No new events yet — check back soon')}
+              onClick={() => navigate('/guest/feed')}
             >
               Refresh
             </button>
@@ -216,15 +214,6 @@ export default function EmptyFeed() {
             <span>Profile</span>
           </button>
         </nav>
-
-        {toast && (
-          <div style={{
-            position: 'absolute', bottom: 90, left: '50%', transform: 'translateX(-50%)',
-            background: 'var(--dark)', color: 'white', padding: '10px 18px',
-            borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 600,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.2)', zIndex: 100, maxWidth: '80%', textAlign: 'center',
-          }}>{toast}</div>
-        )}
       </div>
     </div>
   );

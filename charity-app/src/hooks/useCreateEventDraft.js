@@ -20,6 +20,8 @@ const DEFAULT_DRAFT = {
   endTime: '9:00 PM',
   location: '',
   visibility: 'public',
+  previewLiked: false,
+  inviteSent: false,
 };
 
 let state = { ...DEFAULT_DRAFT };

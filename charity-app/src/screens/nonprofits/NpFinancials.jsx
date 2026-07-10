@@ -3,13 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Check, Info, ExternalLink } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
 
-const TOAST_STYLE = {
-  position: 'fixed', bottom: 96, left: '50%', transform: 'translateX(-50%)',
-  background: 'var(--dark)', color: '#fff', padding: '11px 20px',
-  borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 600,
-  zIndex: 100, boxShadow: '0 6px 24px rgba(0,0,0,0.28)', maxWidth: '80%', textAlign: 'center',
-};
-
 const BACKING_BY_EVENT = [
   { id: 1, title: 'Coastal Cleanup Drive', count: 87, bg: 'linear-gradient(135deg,#FF8C42,var(--primary))' },
   { id: 2, title: 'Books for Bright Minds', count: 42, bg: 'linear-gradient(135deg,#8B6914,#C8960C)' },
@@ -18,8 +11,7 @@ const BACKING_BY_EVENT = [
 
 export default function NpFinancials() {
   const navigate = useNavigate();
-  const [toast, setToast] = useState('');
-  const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
+  const [stripeOpen, setStripeOpen] = useState(false);
 
   return (
     <div className="phone-shell">
@@ -70,11 +62,18 @@ export default function NpFinancials() {
                 type="button"
                 className="btn-ghost"
                 style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 3 }}
-                onClick={() => notify('Opening Stripe settlement dashboard…')}
+                onClick={() => setStripeOpen((o) => !o)}
               >
-                Manage <ChevronLeft size={12} style={{ transform: 'rotate(180deg)' }} />
+                {stripeOpen ? 'Hide' : 'Manage'} <ChevronLeft size={12} style={{ transform: 'rotate(180deg)' }} />
               </button>
             </div>
+            {stripeOpen && (
+              <div style={{ borderTop: '1px solid var(--border)', marginTop: 14, paddingTop: 14 }}>
+                <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>Stripe Connected Account · acct_1OceanConserv</p>
+                <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--dark)' }}>$12,480.00 available for payout</p>
+                <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>Last transfer · Oct 18, 2025</p>
+              </div>
+            )}
           </div>
 
           {/* Backing by event */}
@@ -101,7 +100,7 @@ export default function NpFinancials() {
               type="button"
               className="btn-ghost"
               style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 5, marginLeft: 26 }}
-              onClick={() => notify('Opening Stripe dashboard…')}
+              onClick={() => setStripeOpen(true)}
             >
               Open Stripe <ExternalLink size={12} />
             </button>
@@ -109,7 +108,6 @@ export default function NpFinancials() {
         </div>
 
         <NpBottomNav active="activity" />
-        {toast && <div style={TOAST_STYLE}>{toast}</div>}
       </div>
     </div>
   );

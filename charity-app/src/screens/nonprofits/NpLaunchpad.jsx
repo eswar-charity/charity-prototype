@@ -1,7 +1,7 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Clock, Flag, MoreHorizontal } from 'lucide-react';
+import { Clock, Flag, MoreHorizontal } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
+import NotificationBell, { NP_NOTIFICATIONS } from '../../components/NotificationBell';
 
 const ORG_LOGO = 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=120&h=120&fit=crop';
 const HEADER_AVATAR = 'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=100&h=100&fit=crop';
@@ -11,17 +11,8 @@ const LIVE_EVENTS = [
   { id: 2, title: 'Breakneck Ridge Run', stat: '145 backing', isLive: false, cover: '/events/breakneck-ridge-run/img1.jpg' },
 ];
 
-const TOAST_STYLE = {
-  position: 'fixed', bottom: 96, left: '50%', transform: 'translateX(-50%)',
-  background: 'var(--dark)', color: '#fff', padding: '11px 20px',
-  borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 600,
-  zIndex: 100, boxShadow: '0 6px 24px rgba(0,0,0,0.28)', maxWidth: '80%', textAlign: 'center',
-};
-
 export default function NpLaunchpad() {
   const navigate = useNavigate();
-  const [toast, setToast] = useState('');
-  const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
 
   return (
     <div className="phone-shell">
@@ -31,15 +22,7 @@ export default function NpLaunchpad() {
           <div className="np-header">
             <h1 className="np-header-title">Launchpad</h1>
             <div className="np-header-actions">
-              <button
-                type="button"
-                className="np-notify-btn"
-                aria-label="Notifications"
-                onClick={() => notify('You’re all caught up — no new alerts')}
-              >
-                <Bell size={22} color="var(--dark)" />
-                <span className="np-notify-dot" />
-              </button>
+              <NotificationBell items={NP_NOTIFICATIONS} />
               <button
                 type="button"
                 className="np-header-avatar"
@@ -130,7 +113,12 @@ export default function NpLaunchpad() {
 
             <div className="lp-event-scroll">
               {LIVE_EVENTS.map((ev) => (
-                <div key={ev.id} className="lp-event-card">
+                <div
+                  key={ev.id}
+                  className="lp-event-card"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => navigate(ev.isLive ? '/guest/event/live' : '/guest/event/upcoming')}
+                >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                     <span className={`badge ${ev.isLive ? 'badge-live' : 'badge-upcoming'}`} style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 'var(--radius-pill)' }}>
                       {ev.isLive ? '● LIVE' : 'UPCOMING'}
@@ -139,7 +127,7 @@ export default function NpLaunchpad() {
                       type="button"
                       aria-label={`Options for ${ev.title}`}
                       style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex' }}
-                      onClick={() => notify(`Manage “${ev.title}” — coming soon`)}
+                      onClick={(e) => { e.stopPropagation(); navigate('/live-dashboard'); }}
                     >
                       <MoreHorizontal size={16} color="var(--text-light)" />
                     </button>
@@ -160,7 +148,6 @@ export default function NpLaunchpad() {
         </div>
 
         <NpBottomNav active="home" />
-        {toast && <div style={TOAST_STYLE}>{toast}</div>}
       </div>
     </div>
   );

@@ -1,21 +1,21 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Bookmark, MapPin, Share2, Heart, Calendar, ChevronRight } from 'lucide-react';
-import { slugify } from '../../data/mockData';
+import { NonprofitLearnMoreModal, EventBackersModal } from '../../components/event/EventModals';
+import { events, slugify } from '../../data/mockData';
 
+const ev = events[2];
 const BACKER_COLORS = ['var(--primary)', '#0D7377', '#7B1FA2', '#1976D2', '#F57C00'];
+
+const NP_DESCRIPTION = 'Books for Communities expands access to reading materials and literacy programs for underserved schools across New England. Every event on Charity Hub helps them reach more students.';
 
 export default function EventDetailUpcoming() {
   const navigate = useNavigate();
   const [saved, setSaved] = useState(false);
   const [liked, setLiked] = useState(false);
   const [following, setFollowing] = useState(false);
-  const [toast, setToast] = useState('');
-
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(''), 1800);
-  };
+  const [showNpModal, setShowNpModal] = useState(false);
+  const [showBackersModal, setShowBackersModal] = useState(false);
 
   return (
     <div className="phone-shell">
@@ -24,8 +24,8 @@ export default function EventDetailUpcoming() {
           {/* Hero */}
           <div className="detail-hero" style={{ height: 240 }}>
             <img
-              src="/events/give-now/img1.jpg"
-              alt="Give Now Apré Later"
+              src={ev.cover}
+              alt={ev.title}
               style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
             />
             <div style={{
@@ -64,11 +64,11 @@ export default function EventDetailUpcoming() {
             }}>
               <span className="hero-pill coral">
                 <Calendar size={10} />
-                Dec 14 · 4PM
+                {ev.date.split(',')[0]} · {ev.startTime.replace(':00', '')}
               </span>
               <span className="hero-pill coral">
                 <MapPin size={10} />
-                Stowe, VT
+                {ev.location.split(',')[0]}
               </span>
             </div>
           </div>
@@ -76,35 +76,35 @@ export default function EventDetailUpcoming() {
           {/* White detail card */}
           <div className="detail-card">
             <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--dark)', marginBottom: 6, letterSpacing: -0.3 }}>
-              Give Now, Apré Later
+              {ev.title}
             </h1>
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 14 }}>
               <MapPin size={13} color="var(--text-secondary)" />
-              <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Stowe, Vermont</span>
+              <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{ev.location}</span>
             </div>
 
             {/* Nonprofit row */}
             <div className="np-info-row">
               <div style={{
                 width: 36, height: 36, borderRadius: '50%',
-                background: 'linear-gradient(135deg,#7B1FA2,#AB47BC)',
+                background: ev.npBg,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 11, fontWeight: 700, color: 'white', flexShrink: 0,
-              }}>BC</div>
+              }}>{ev.npInitials}</div>
               <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)' }}>Books for Communities</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)' }}>{ev.nonprofit}</p>
                 <p style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Verified Nonprofit</p>
               </div>
               <button
                 className="btn-ghost"
                 style={{ fontSize: 13 }}
-                onClick={() => showToast('Books for Communities · Verified 501(c)(3)')}
+                onClick={() => setShowNpModal(true)}
               >Learn more</button>
             </div>
 
             {/* Backers */}
             <div
-              onClick={() => showToast('145 people are backing this event')}
+              onClick={() => setShowBackersModal(true)}
               style={{
                 display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'space-between',
                 padding: '12px 0', borderBottom: '1px solid var(--border)', marginBottom: 0,
@@ -118,7 +118,7 @@ export default function EventDetailUpcoming() {
                   ))}
                 </div>
                 <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--dark)' }}>
-                  145 people are backing this
+                  {ev.backed} people are backing this
                 </span>
               </div>
               <ChevronRight size={16} color="var(--text-light)" />
@@ -127,20 +127,20 @@ export default function EventDetailUpcoming() {
             {/* Organiser */}
             <div className="organiser-row">
               <div
-                onClick={() => navigate(`/guest/organizer/${slugify('Alex T.')}`)}
+                onClick={() => navigate(`/guest/organizer/${slugify(ev.organizer)}`)}
                 style={{
                   width: 38, height: 38, borderRadius: '50%',
-                  background: 'linear-gradient(135deg,#7B1FA2,#AB47BC)',
+                  background: ev.npBg,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 12, fontWeight: 700, color: 'white', flexShrink: 0, cursor: 'pointer',
                 }}
-              >AT</div>
+              >{ev.initials}</div>
               <div
                 style={{ flex: 1, cursor: 'pointer' }}
-                onClick={() => navigate(`/guest/organizer/${slugify('Alex T.')}`)}
+                onClick={() => navigate(`/guest/organizer/${slugify(ev.organizer)}`)}
               >
                 <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>
-                  Alex T.{' '}
+                  {ev.organizer}{' '}
                   <span style={{
                     display: 'inline-flex', width: 14, height: 14, borderRadius: '50%',
                     background: 'var(--blue)', color: 'white', fontSize: 9,
@@ -163,13 +163,13 @@ export default function EventDetailUpcoming() {
               The Mission
             </p>
             <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.65 }}>
-              Give to cold-weather essentials for those in need, then celebrate the season with friends and community. A Stowe tradition — apré-style giving at its best.
+              {ev.subtitle}
             </p>
 
             {/* Photo grid */}
             <div className="photo-grid-2">
-              <div style={{ backgroundImage: 'url(/events/give-now/img3.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
-              <div style={{ backgroundImage: 'url(/events/give-now/img4.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+              <div style={{ backgroundImage: `url(${ev.photos[2]})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+              <div style={{ backgroundImage: `url(${ev.photos[3]})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
             </div>
           </div>
         </div>
@@ -187,14 +187,24 @@ export default function EventDetailUpcoming() {
           </button>
         </div>
 
-        {toast && (
-          <div style={{
-            position: 'absolute', bottom: 100, left: '50%', transform: 'translateX(-50%)',
-            background: 'var(--dark)', color: 'white', padding: '10px 18px',
-            borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 600,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.2)', zIndex: 100, maxWidth: '80%', textAlign: 'center',
-          }}>{toast}</div>
-        )}
+        <NonprofitLearnMoreModal
+          open={showNpModal}
+          onClose={() => setShowNpModal(false)}
+          name={ev.nonprofit}
+          initials={ev.npInitials}
+          avatarStyle={{ background: ev.npBg }}
+          category={ev.category}
+          description={NP_DESCRIPTION}
+          onViewProfile={() => { setShowNpModal(false); navigate('/np/profile'); }}
+        />
+
+        <EventBackersModal
+          open={showBackersModal}
+          onClose={() => setShowBackersModal(false)}
+          count={ev.backed}
+          eventTitle={ev.title}
+          raised={ev.raised}
+        />
       </div>
     </div>
   );

@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Info, Users, MessageCircle } from 'lucide-react';
+import { Check, Info, Users, MessageCircle, Heart } from 'lucide-react';
 import DesktopCreateEventLayout from '../../components/desktop/DesktopCreateEventLayout';
-import { useCreateEventDraft, resetDraft } from '../../hooks/useCreateEventDraft';
+import { useCreateEventDraft, resetDraft, updateDraft } from '../../hooks/useCreateEventDraft';
 import { nonprofits } from '../../data/mockData';
+import { previewHashtag } from '../../utils/eventWizard';
 
 export default function DesktopEventStep4() {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ export default function DesktopEventStep4() {
     { id: 3, text: `Dates set: ${draft.startDate}`, done: true },
     { id: 4, text: 'Review Charity Hub content guidelines', done: false, isLink: true },
   ]);
+  const [saved, setSaved] = useState(false);
 
   const toggle = (id) => setChecklist((prev) => prev.map((c) => (c.id === id ? { ...c, done: !c.done } : c)));
 
@@ -23,6 +25,13 @@ export default function DesktopEventStep4() {
     resetDraft();
     navigate('/approval');
   };
+
+  const saveDraft = () => {
+    setSaved(true);
+    setTimeout(() => navigate('/feed'), 900);
+  };
+
+  const backingCount = draft.previewLiked ? 1 : 0;
 
   return (
     <DesktopCreateEventLayout step={4} hidePreview>
@@ -36,15 +45,28 @@ export default function DesktopEventStep4() {
           </span>
         </div>
         <div className="dsk-wizard-final-body">
-          <p className="dsk-wizard-final-title">#CharityBaby</p>
+          <p className="dsk-wizard-final-title">{previewHashtag(draft.story)}</p>
           <p className="dsk-wizard-final-desc">
             {draft.story || 'Join us in our mission to make a tangible impact on our local community.'}
           </p>
           <div className="dsk-wizard-final-meta">
             <span>for {nonprofit ? nonprofit.name : '[Nonprofit]'} · by You</span>
             <div className="dsk-wizard-final-stats">
-              <span><Users size={13} /> 0 backing</span>
+              <span><Users size={13} /> {backingCount} backing</span>
               <span><MessageCircle size={13} /> 0 in chat</span>
+              <button
+                type="button"
+                className="dsk-wizard-preview-like"
+                aria-label={draft.previewLiked ? 'Unlike preview' : 'Like preview'}
+                aria-pressed={draft.previewLiked}
+                onClick={() => updateDraft({ previewLiked: !draft.previewLiked })}
+              >
+                <Heart
+                  size={15}
+                  color={draft.previewLiked ? 'var(--primary)' : 'var(--text-light)'}
+                  fill={draft.previewLiked ? 'var(--primary)' : 'none'}
+                />
+              </button>
             </div>
           </div>
         </div>
@@ -72,8 +94,13 @@ export default function DesktopEventStep4() {
       </div>
 
       <div className="dsk-wizard-footer">
-        <button className="dsk-wizard-back-link" onClick={() => navigate('/event/step-3')}>← Back</button>
-        <button className="dsk-cta-btn" onClick={submit}>Submit for approval →</button>
+        <button type="button" className="dsk-wizard-back-link" onClick={() => navigate('/event/step-3')}>← Back</button>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button type="button" className="btn-outline" style={{ width: 'auto', padding: '12px 20px' }} onClick={saveDraft}>
+            {saved ? 'Draft saved ✓' : 'Save as draft'}
+          </button>
+          <button type="button" className="dsk-cta-btn" onClick={submit}>Submit for approval →</button>
+        </div>
       </div>
     </DesktopCreateEventLayout>
   );

@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Heart, Calendar, MapPin } from 'lucide-react';
-import { useCreateEventDraft } from '../../hooks/useCreateEventDraft';
+import { useCreateEventDraft, updateDraft } from '../../hooks/useCreateEventDraft';
 import { nonprofits } from '../../data/mockData';
+import { previewHashtag } from '../../utils/eventWizard';
 import Logo from '../Logo';
 
 const STEPS = [
@@ -15,6 +17,7 @@ function LivePreviewCard() {
   const draft = useCreateEventDraft();
   const nonprofit = nonprofits.find((n) => n.id === draft.nonprofitId);
   const hasLocation = Boolean(draft.location);
+  const backingLabel = draft.previewLiked ? '1 backing' : '0 backing';
 
   return (
     <div className="dsk-wizard-preview-card">
@@ -22,8 +25,11 @@ function LivePreviewCard() {
         <span className="dsk-wizard-draft-badge">DRAFT</span>
       </div>
       <div className="dsk-wizard-preview-body">
-        <p className="dsk-wizard-preview-title">#CharityBaby</p>
+        <p className="dsk-wizard-preview-title">{previewHashtag(draft.story)}</p>
         <p className="dsk-wizard-preview-sub">for {nonprofit ? nonprofit.name : '[Nonprofit]'} · by You</p>
+        {draft.story && (
+          <p className="dsk-wizard-preview-desc">{draft.story.slice(0, 72)}{draft.story.length > 72 ? '…' : ''}</p>
+        )}
 
         {hasLocation ? (
           <div className="dsk-wizard-preview-meta">
@@ -34,9 +40,21 @@ function LivePreviewCard() {
           <div className="dsk-wizard-preview-status">
             <div>
               <p className="dsk-wizard-preview-status-lbl">Status</p>
-              <p className="dsk-wizard-preview-status-val">0 backing</p>
+              <p className="dsk-wizard-preview-status-val">{backingLabel}</p>
             </div>
-            <Heart size={16} color="var(--primary)" />
+            <button
+              type="button"
+              className="dsk-wizard-preview-like"
+              aria-label={draft.previewLiked ? 'Unlike preview' : 'Like preview'}
+              aria-pressed={draft.previewLiked}
+              onClick={() => updateDraft({ previewLiked: !draft.previewLiked })}
+            >
+              <Heart
+                size={16}
+                color={draft.previewLiked ? 'var(--primary)' : 'var(--text-light)'}
+                fill={draft.previewLiked ? 'var(--primary)' : 'none'}
+              />
+            </button>
           </div>
         )}
       </div>
@@ -46,6 +64,12 @@ function LivePreviewCard() {
 
 export default function DesktopCreateEventLayout({ step, children, hidePreview = false }) {
   const navigate = useNavigate();
+  const [draftSaved, setDraftSaved] = useState(false);
+
+  const saveDraft = () => {
+    setDraftSaved(true);
+    setTimeout(() => setDraftSaved(false), 2200);
+  };
 
   return (
     <div className="dsk-page dsk-wizard-page">
@@ -53,7 +77,9 @@ export default function DesktopCreateEventLayout({ step, children, hidePreview =
         <Logo height={24} tone="dark" onClick={() => navigate('/guest/feed')} style={{ cursor: 'pointer' }} />
         <h2 className="dsk-wizard-topbar-title">Create an event</h2>
         <div className="dsk-wizard-topbar-actions">
-          <button className="dsk-wizard-save-btn" onClick={() => navigate('/approval')}>Save draft</button>
+          <button type="button" className="dsk-wizard-save-btn" onClick={saveDraft}>
+            {draftSaved ? 'Draft saved ✓' : 'Save draft'}
+          </button>
           <button className="dsk-wizard-close-btn" onClick={() => navigate('/guest/feed')} aria-label="Close"><X size={18} /></button>
         </div>
       </div>

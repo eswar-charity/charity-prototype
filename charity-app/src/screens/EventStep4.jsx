@@ -1,35 +1,46 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Check, Info } from 'lucide-react';
-
-const CHECKLIST = [
-  { id: 1, text: 'Story media added', done: true },
-  { id: 2, text: 'Nonprofit selected: Youth Health Fund', done: true },
-  { id: 3, text: 'Dates set: Nov 8, 2025', done: true },
-  { id: 4, text: 'Review Charity Hub content guidelines', done: false, isLink: true },
-];
+import { ChevronLeft, Check, Info, Heart } from 'lucide-react';
+import { useCreateEventDraft, resetDraft, updateDraft } from '../hooks/useCreateEventDraft';
+import { nonprofits } from '../data/mockData';
+import { previewHashtag } from '../utils/eventWizard';
 
 export default function EventStep4() {
   const navigate = useNavigate();
-  const [checklist, setChecklist] = useState(CHECKLIST);
-  const [toast, setToast] = useState('');
+  const draft = useCreateEventDraft();
+  const nonprofit = nonprofits.find((n) => n.id === draft.nonprofitId);
+  const [saved, setSaved] = useState(false);
 
-  const saveDraft = () => {
-    setToast('Draft saved');
-    setTimeout(() => navigate('/feed'), 900);
-  };
+  const [checklist, setChecklist] = useState([
+    { id: 1, text: `Story media added (${draft.photos.length} items)`, done: draft.photos.length > 0 },
+    { id: 2, text: `Nonprofit selected: ${nonprofit?.name || '—'}`, done: !!nonprofit },
+    { id: 3, text: `Dates set: ${draft.startDate}`, done: true },
+    { id: 4, text: 'Review Charity Hub content guidelines', done: false, isLink: true },
+  ]);
 
   const toggle = (id) =>
     setChecklist((prev) =>
       prev.map((item) => (item.id === id ? { ...item, done: !item.done } : item))
     );
 
+  const saveDraft = () => {
+    setSaved(true);
+    setTimeout(() => navigate('/feed'), 900);
+  };
+
+  const submit = () => {
+    resetDraft();
+    navigate('/approval');
+  };
+
+  const backingCount = draft.previewLiked ? 1 : 0;
+  const joinedCount = 0;
+
   return (
     <div className="phone-shell">
       <div className="screen">
-        {/* Step header */}
         <div className="step-bar">
-          <button className="back-btn" onClick={() => navigate('/event/step-3')}>
+          <button type="button" className="back-btn" onClick={() => navigate('/event/step-3')}>
             <ChevronLeft size={18} />
           </button>
           <span className="step-text">STEP 4 OF 4</span>
@@ -42,12 +53,10 @@ export default function EventStep4() {
             This is how your event will look to the world.
           </p>
 
-          {/* Event preview card */}
           <div className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: 24 }}>
-            {/* Hero image */}
             <div style={{
               height: 160,
-              backgroundImage: 'url(/events/neon-night/img1.jpg)',
+              backgroundImage: `url(${draft.photos[0]?.src})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               position: 'relative',
@@ -59,48 +68,53 @@ export default function EventStep4() {
                 position: 'absolute', inset: 0,
                 background: 'linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 50%)',
               }} />
-              <span className="badge badge-env" style={{ background: 'rgba(255,255,255,0.9)', color: '#C62828', fontWeight: 700, position: 'relative' }}>
-                Health
+              <span className="badge badge-env" style={{ background: 'rgba(255,255,255,0.9)', color: nonprofit?.color || '#C62828', fontWeight: 700, position: 'relative' }}>
+                {nonprofit?.category || 'Community'}
               </span>
             </div>
             <div style={{ padding: '14px 16px' }}>
               <p style={{ fontSize: 16, fontWeight: 800, color: 'var(--dark)', marginBottom: 4 }}>
-                Neon Night Run
+                {previewHashtag(draft.story).replace('#', '')}
               </p>
               <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>
-                Light up the night for a great cause. A glowing 5K...
+                {(draft.story || 'Your event story will appear here…').slice(0, 64)}{(draft.story?.length > 64) ? '…' : ''}
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, var(--primary), #FF8A65)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: 'white',
+                  width: 28, height: 28, borderRadius: '50%',
+                  background: nonprofit?.bg || 'linear-gradient(135deg, var(--primary), #FF8A65)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 11, fontWeight: 700, color: 'white',
                 }}>
-                  SJ
+                  {nonprofit?.initials || 'YOU'}
                 </div>
-                <div>
+                <div style={{ flex: 1 }}>
                   <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--dark)' }}>
-                    Sarah Jenkins{' '}
-                    <span style={{ color: 'var(--blue)' }}>✓</span>
+                    You <span style={{ color: 'var(--blue)' }}>✓</span>
                   </p>
-                  <p style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Youth Health Fund</p>
+                  <p style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{nonprofit?.name || 'Nonprofit'}</p>
                 </div>
-                <div style={{ marginLeft: 'auto', display: 'flex', gap: 14 }}>
-                  <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>0 backed</span>
-                  <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>0 joined</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{backingCount} backed</span>
+                  <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{joinedCount} joined</span>
+                  <button
+                    type="button"
+                    aria-label={draft.previewLiked ? 'Unlike preview' : 'Like preview'}
+                    aria-pressed={draft.previewLiked}
+                    onClick={() => updateDraft({ previewLiked: !draft.previewLiked })}
+                    style={{ background: 'none', border: 'none', padding: 4, cursor: 'pointer', display: 'flex' }}
+                  >
+                    <Heart
+                      size={18}
+                      color={draft.previewLiked ? 'var(--primary)' : 'var(--text-light)'}
+                      fill={draft.previewLiked ? 'var(--primary)' : 'none'}
+                    />
+                  </button>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Before you submit */}
           <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--dark)', marginBottom: 12 }}>
             Before you submit
           </p>
@@ -122,48 +136,23 @@ export default function EventStep4() {
             ))}
           </div>
 
-          {/* Info banner */}
           <div className="info-banner" style={{ marginTop: 14 }}>
             <Info size={16} color="var(--blue)" style={{ flexShrink: 0, marginTop: 1 }} />
             <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-              Youth Health Fund will review and approve your event before it goes live. You'll be notified within 24-48 hours.
+              {nonprofit?.name || 'Your nonprofit'} will review and approve your event before it goes live. You&apos;ll be notified within 24-48 hours.
             </p>
           </div>
 
-          {/* CTAs */}
           <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <button className="btn-primary" onClick={() => navigate('/approval')}>
+            <button type="button" className="btn-primary" onClick={submit}>
               Submit for approval
             </button>
-            <button className="btn-outline" onClick={saveDraft}>
-              Save as draft
+            <button type="button" className="btn-outline" onClick={saveDraft}>
+              {saved ? 'Draft saved ✓' : 'Save as draft'}
             </button>
           </div>
         </div>
       </div>
-
-      {toast && (
-        <div
-          style={{
-            position: 'absolute',
-            left: '50%',
-            bottom: 90,
-            transform: 'translateX(-50%)',
-            background: 'var(--dark)',
-            color: '#fff',
-            padding: '10px 18px',
-            borderRadius: 'var(--radius-pill)',
-            fontSize: 13,
-            fontWeight: 600,
-            zIndex: 100,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
-            maxWidth: '80%',
-            textAlign: 'center',
-          }}
-        >
-          {toast}
-        </div>
-      )}
     </div>
   );
 }
