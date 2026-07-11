@@ -1,15 +1,14 @@
-import { useMemo, useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Users, MessageCircle } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Users, MessageCircle, Camera } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../../components/desktop/DesktopFooter';
 import { events } from '../../../data/mockData';
 import useInfiniteScroll from '../../../hooks/useInfiniteScroll';
 
-const CATEGORIES = [...new Set(events.map((e) => e.category))];
-const FILTERS = ['All', 'Live now', ...CATEGORIES];
+const FILTERS = ['All', 'Live now', 'Environment', 'Education'];
 
-function EventCard({ ev, onRemind, reminded }) {
+function SceneEventCard({ ev }) {
   const navigate = useNavigate();
   const route = ev.isLive ? '/guest/event/live' : '/guest/event/upcoming';
 
@@ -27,23 +26,19 @@ function EventCard({ ev, onRemind, reminded }) {
         }
       }}
     >
-      <div
-        className="dsk-event-card-hero"
-        style={{ backgroundImage: `url(${ev.cover})` }}
-      >
+      <div className="dsk-event-card-hero" style={{ backgroundImage: `url(${ev.cover})` }}>
         <div className="dsk-event-card-badges">
           {ev.isLive ? (
             <span className="dsk-badge-live"><span className="live-dot" /> LIVE NOW</span>
           ) : (
             <span className="dsk-badge-date">{ev.date}</span>
           )}
-          <span className="dsk-badge-cat" style={{ background: ev.catBg, color: ev.catColor }}>
+          <span className="dsk-badge-cat">
             {ev.category}
           </span>
         </div>
         <div className="dsk-event-card-title-wrap">
-          <p className="dsk-event-card-title">{ev.title}</p>
-          <p className="dsk-event-card-loc">{ev.location}</p>
+          <p className="dsk-event-card-title">#{ev.title.replace(/[\s,'']+/g, '')}</p>
         </div>
       </div>
 
@@ -58,25 +53,8 @@ function EventCard({ ev, onRemind, reminded }) {
 
         <div className="dsk-event-card-stats-row">
           <span className="dsk-event-card-stat"><Users size={12} /> {ev.backed} backing</span>
-          {ev.isLive && (
-            <span className="dsk-event-card-stat"><MessageCircle size={12} /> {ev.chatCount} chatting</span>
-          )}
-
-          {ev.isLive ? (
-            <button
-              className="dsk-card-cta primary"
-              onClick={(e) => { e.stopPropagation(); navigate(route); }}
-            >
-              Back this
-            </button>
-          ) : (
-            <button
-              className={`dsk-card-cta ${reminded ? 'active' : ''}`}
-              onClick={(e) => { e.stopPropagation(); onRemind(ev.id); }}
-            >
-              {reminded ? 'Reminder set ✓' : 'Remind me'}
-            </button>
-          )}
+          <span className="dsk-event-card-stat"><MessageCircle size={12} /> {ev.chatCount} in chat</span>
+          <span className="dsk-event-card-stat"><Camera size={12} /> {ev.updates} moments</span>
         </div>
       </div>
     </div>
@@ -84,45 +62,9 @@ function EventCard({ ev, onRemind, reminded }) {
 }
 
 export default function DesktopGuestFeed() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const isCausesView = searchParams.get('view') === 'causes';
-  const [filter, setFilter] = useState(() => {
-    const cause = searchParams.get('cause');
-    return cause && FILTERS.includes(cause) ? cause : 'All';
-  });
-  const [sort, setSort] = useState('trending');
+  const navigate = useNavigate();
+  const [filter, setFilter] = useState('All');
   const [query, setQuery] = useState('');
-  const [reminders, setReminders] = useState({});
-
-  useEffect(() => {
-    if (isCausesView) {
-      document.getElementById('dsk-feed-filters')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, [isCausesView]);
-
-  useEffect(() => {
-    const cause = searchParams.get('cause');
-    if (cause && FILTERS.includes(cause)) {
-      setFilter(cause);
-      return;
-    }
-    if (!searchParams.get('view')) {
-      setFilter('All');
-    }
-  }, [searchParams]);
-
-  const setCauseFilter = (next) => {
-    setFilter(next);
-    const params = new URLSearchParams(searchParams);
-    if (next === 'All') {
-      params.delete('cause');
-      if (!isCausesView) params.delete('view');
-    } else {
-      params.set('view', 'causes');
-      params.set('cause', next);
-    }
-    setSearchParams(params, { replace: true });
-  };
 
   const filtered = useMemo(() => {
     let list = events.filter((e) => {
@@ -132,31 +74,47 @@ export default function DesktopGuestFeed() {
     });
     if (query.trim()) {
       const q = query.toLowerCase();
-      list = list.filter((e) => e.title.toLowerCase().includes(q));
+      list = list.filter((e) => e.title.toLowerCase().includes(q) || e.nonprofit.toLowerCase().includes(q));
     }
-    list = [...list];
-    if (sort === 'backed') list.sort((a, b) => b.backed - a.backed);
-    else if (sort === 'newest') list.reverse();
     return list;
-  }, [filter, sort, query]);
+  }, [filter, query]);
 
   const { items, sentinelRef, loading, hasMore } = useInfiniteScroll(filtered, {
-    pageSize: 6, max: 36,
+    pageSize: 6,
+    max: 36,
   });
 
   return (
     <div className="dsk-page">
-      <DesktopHeader active={isCausesView || filter !== 'All' ? 'Causes' : 'Discover'} />
+      <DesktopHeader active="Discover" homePath="/guest/feed" />
 
       <main className="dsk-main">
         <div className="dsk-container">
           <div className="dsk-feed-head">
-            <h1 className="dsk-page-title">{isCausesView || filter !== 'All' ? 'Causes' : 'The Scene'}</h1>
-            <p className="dsk-page-subtitle">
-              {isCausesView || filter !== 'All'
-                ? 'Browse live and upcoming events by the causes you care about.'
-                : 'Live and upcoming events for verified nonprofits, curated for you.'}
-            </p>
+            <h1 className="dsk-page-title">The Scene</h1>
+            <p className="dsk-page-subtitle">Events happening now — discover and back causes you care about.</p>
+          </div>
+
+          <div className="dsk-story-row">
+            <button type="button" className="dsk-story-item" onClick={() => navigate('/')}>
+              <div className="dsk-story-circle yours">
+                <Plus size={22} color="var(--primary)" />
+              </div>
+              <span className="dsk-story-label">Your Event</span>
+            </button>
+            {events.slice(0, 4).map((ev) => (
+              <button
+                key={ev.id}
+                type="button"
+                className="dsk-story-item"
+                onClick={() => navigate(ev.isLive ? '/guest/event/live' : '/guest/event/upcoming')}
+              >
+                <div className="dsk-story-circle">
+                  <img src={ev.cover} alt={ev.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+                <span className="dsk-story-label">{ev.title.split(' ').slice(0, 2).join(' ')}</span>
+              </button>
+            ))}
           </div>
 
           <div id="dsk-feed-filters" className="dsk-feed-controls">
@@ -164,10 +122,13 @@ export default function DesktopGuestFeed() {
               {FILTERS.map((f) => (
                 <button
                   key={f}
+                  type="button"
                   className={`dsk-filter-chip ${filter === f ? 'active' : ''}`}
-                  onClick={() => setCauseFilter(f)}
+                  onClick={() => setFilter(f)}
                 >
-                  {f === 'Live now' && <span className="live-dot" style={{ background: filter === f ? 'white' : 'var(--primary)' }} />}
+                  {f === 'Live now' && (
+                    <span className="live-dot" style={{ background: filter === f ? 'white' : 'var(--primary)' }} />
+                  )}
                   {f}
                 </button>
               ))}
@@ -175,33 +136,22 @@ export default function DesktopGuestFeed() {
             <div className="dsk-feed-right">
               <input
                 className="dsk-feed-search"
-                placeholder="Search this list..."
+                placeholder="Search events..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
-              <select className="dsk-sort-select" value={sort} onChange={(e) => setSort(e.target.value)}>
-                <option value="trending">Trending</option>
-                <option value="backed">Most backed</option>
-                <option value="newest">Newest</option>
-              </select>
             </div>
           </div>
 
           <div className="dsk-event-grid">
             {items.map((ev) => (
-              <EventCard
-                key={ev._key}
-                ev={ev}
-                reminded={!!reminders[ev._key]}
-                onRemind={() => setReminders((r) => ({ ...r, [ev._key]: !r[ev._key] }))}
-              />
+              <SceneEventCard key={ev._key} ev={ev} />
             ))}
             {filtered.length === 0 && (
               <p className="dsk-empty-note">No events match this filter yet.</p>
             )}
           </div>
 
-          {/* Infinite scroll */}
           {hasMore && filtered.length > 0 && (
             <div ref={sentinelRef} style={{ height: 1 }} aria-hidden="true" />
           )}
@@ -209,7 +159,7 @@ export default function DesktopGuestFeed() {
             <div className="feed-loader"><span className="feed-spinner" /> Loading more events…</div>
           )}
           {!hasMore && filtered.length > 0 && (
-            <p className="feed-end">You’re all caught up</p>
+            <p className="feed-end">You&apos;re all caught up</p>
           )}
         </div>
       </main>

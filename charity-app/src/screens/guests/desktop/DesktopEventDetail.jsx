@@ -252,7 +252,7 @@ function SupportTab({ onDonate }) {
   );
 }
 
-export default function DesktopEventDetail() {
+export default function DesktopEventDetail({ loggedIn = false }) {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('community');
   const [liked, setLiked] = useState(false);
@@ -262,12 +262,17 @@ export default function DesktopEventDetail() {
   const [showJoinGate, setShowJoinGate] = useState(false);
   const [showDonateGate, setShowDonateGate] = useState(false);
   const [donateAmount, setDonateAmount] = useState(25);
+  const [toast, setToast] = useState('');
 
   const shareUrl = `https://charity.hub/event/${ev.key}`;
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 1800);
+  };
 
   return (
     <div className="dsk-page">
-      <DesktopHeader active="Discover" />
+      <DesktopHeader active="Discover" loggedIn={loggedIn} homePath={loggedIn ? '/feed' : '/guest/feed'} />
 
       <div className="dsk-ev-hero" style={{ backgroundImage: `url(${ev.photos[1]})` }}>
         <div className="dsk-ev-hero-gradient" />
@@ -313,9 +318,24 @@ export default function DesktopEventDetail() {
             </div>
 
             {activeTab === 'community' && <CommunityTab />}
-            {activeTab === 'chat' && <ChatTab onNeedJoin={() => setShowJoinGate(true)} />}
+            {activeTab === 'chat' && (
+              <ChatTab onNeedJoin={() => {
+                if (loggedIn) {
+                  showToast('Photo sharing is coming soon');
+                  return;
+                }
+                setShowJoinGate(true);
+              }} />
+            )}
             {activeTab === 'support' && (
-              <SupportTab onDonate={(amt) => { setDonateAmount(amt); setShowDonateGate(true); }} />
+              <SupportTab onDonate={(amt) => {
+                setDonateAmount(amt);
+                if (loggedIn) {
+                  showToast(`Donation submitted for ${typeof amt === 'number' ? `$${amt}` : 'your amount'}`);
+                  return;
+                }
+                setShowDonateGate(true);
+              }} />
             )}
           </div>
 
@@ -383,6 +403,8 @@ export default function DesktopEventDetail() {
           previewStyle={{ backgroundImage: `url(${ev.photos[1]})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
         />
       )}
+
+      {toast && <div className="dsk-live-toast">{toast}</div>}
     </div>
   );
 }

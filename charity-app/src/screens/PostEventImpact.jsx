@@ -94,122 +94,33 @@ export default function PostEventImpact() {
 
           {/* Credential card */}
           <div className="credential-card" style={{ marginBottom: 20 }}>
-            {/* Decorative blur circles */}
-            <div style={{
-              position: 'absolute',
-              top: -20,
-              right: -20,
-              width: 100,
-              height: 100,
-              borderRadius: '50%',
-              background: 'rgba(255,255,255,0.1)',
-            }} />
-            <div style={{
-              position: 'absolute',
-              bottom: -30,
-              left: 20,
-              width: 80,
-              height: 80,
-              borderRadius: '50%',
-              background: 'rgba(255,255,255,0.08)',
-            }} />
-
-            {/* Charity Hub label */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, position: 'relative' }}>
-              <div style={{
-                width: 28,
-                height: 28,
-                borderRadius: '50%',
-                background: 'rgba(255,255,255,0.25)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 11,
-                fontWeight: 800,
-                color: 'white',
-              }}>
-                CH
-              </div>
-              <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>Charity Hub</span>
-              <span style={{
-                background: 'rgba(255,255,255,0.25)',
-                color: 'white',
-                fontSize: 9,
-                fontWeight: 800,
-                padding: '2px 7px',
-                borderRadius: 4,
-                letterSpacing: 0.5,
-              }}>
-                OFFICIAL EVENT ORGANISER
-              </span>
+            <div className="credential-brand">
+              <div className="credential-brand-mark">CH</div>
+              <span className="credential-brand-name">Charity Hub</span>
+              <span className="credential-badge">OFFICIAL EVENT ORGANISER</span>
             </div>
 
-            {/* User info */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, position: 'relative' }}>
-              <div style={{
-                width: 36,
-                height: 36,
-                borderRadius: '50%',
-                background: 'rgba(255,255,255,0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 13,
-                fontWeight: 700,
-                color: 'white',
-              }}>
-                SJ
-              </div>
+            <div className="credential-user">
+              <div className="credential-avatar">SJ</div>
               <div>
-                <p style={{ fontSize: 14, fontWeight: 700, color: 'white' }}>Sarah Jenkins</p>
-                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>Neon Night Run</p>
+                <p className="credential-name">Sarah Jenkins</p>
+                <p className="credential-event">Neon Night Run</p>
               </div>
             </div>
 
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginBottom: 16, position: 'relative' }}>
-              213 participants · Youth Health Fund · Nov 2025
-            </p>
+            <p className="credential-meta">213 participants · Youth Health Fund · Nov 2025</p>
 
-            {/* Share + settings row */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
-              <button
-                onClick={shareToLinkedIn}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  background: 'rgba(255,255,255,0.2)',
-                  border: '1.5px solid rgba(255,255,255,0.4)',
-                  borderRadius: 'var(--radius-pill)',
-                  color: 'white',
-                  fontSize: 14,
-                  fontWeight: 600,
-                  padding: '10px 20px',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  flex: 1,
-                  justifyContent: 'center',
-                }}
-              >
+            <div className="credential-actions">
+              <button type="button" className="credential-share-btn" onClick={shareToLinkedIn}>
                 Share to LinkedIn <Share2 size={15} />
               </button>
               <button
+                type="button"
+                className="credential-settings-btn"
                 onClick={() => navigate('/profile')}
                 aria-label="Credential settings"
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.15)',
-                  border: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  marginLeft: 10,
-                }}
               >
-                <Settings size={16} color="white" />
+                <Settings size={16} />
               </button>
             </div>
           </div>

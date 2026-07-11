@@ -24,6 +24,7 @@ export default function FeedScreen() {
   const { items, sentinelRef, loading, hasMore } = useInfiniteScroll(events, {
     rootRef: scrollRef, pageSize: 3, max: 30,
   });
+  const openEvent = (ev) => navigate(ev.isLive ? '/event/live' : '/event/upcoming');
 
   return (
     <div className="phone-shell">
@@ -73,8 +74,8 @@ export default function FeedScreen() {
                 role="button"
                 tabIndex={0}
                 aria-label={`Open ${ev.title}`}
-                onClick={() => navigate('/guest/event/live')}
-                onKeyDown={activateOnKey(() => navigate('/guest/event/live'))}
+                onClick={() => openEvent(ev)}
+                onKeyDown={activateOnKey(() => openEvent(ev))}
               >
                 <div className="story-circle">
                   <img src={ev.cover} alt={ev.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -118,8 +119,8 @@ export default function FeedScreen() {
               role="button"
               tabIndex={0}
               aria-label={`Open ${ev.title}`}
-              onClick={() => navigate('/guest/event/live')}
-              onKeyDown={activateOnKey(() => navigate('/guest/event/live'))}
+              onClick={() => openEvent(ev)}
+              onKeyDown={activateOnKey(() => openEvent(ev))}
             >
               {/* Hero image */}
               <div
@@ -132,13 +133,12 @@ export default function FeedScreen() {
                     DOORS OPEN · LIVE NOW
                   </span>
                 ) : (
-                  <span className="scene-live-badge" style={{ background: 'rgba(0,0,0,0.45)' }}>
+                  <span className="scene-live-badge scene-category-badge">
                     {ev.category.toUpperCase()}
                   </span>
                 )}
                 <div className="scene-card-overlay">
                   <h3 className="scene-card-title">#{ev.title.replace(/[\s,''']+/g, '')}</h3>
-                  <p className="scene-card-desc clamp-2">{ev.subtitle}</p>
                 </div>
               </div>
 
@@ -158,7 +158,7 @@ export default function FeedScreen() {
                 </div>
                 <div className="scene-card-stats">
                   <div className="av-stack" style={{ marginRight: 4 }}>
-                    {['var(--primary)', '#0D7377', '#7B1FA2'].map((c, i) => (
+                    {['var(--primary)', 'var(--primary-hover)', '#5BB8F5'].map((c, i) => (
                       <div key={i} className="av" style={{ background: c, width: 18, height: 18, fontSize: 8 }} />
                     ))}
                   </div>

@@ -1,31 +1,33 @@
 /* ════════════════════════════════════════════════════════════
    CHARITY HUB — PLATFORM ADMIN PORTAL
-   Everything is scoped under `.adm-root`. Brand tokens are declared
-   on `.adm-root` (not :root) so the PDF blue/orange system never
-   leaks into the coral SE/Guest/NP screens in index.css / desktop.css.
+   Everything is scoped under `.adm-root`. Brand tokens use the Charity Hub
+   blue system only — no orange, green, or red outside the blue family.
    Palette + type + spacing taken from CharityHub_Branding_Guidelines.
 ════════════════════════════════════════════════════════════ */
 
 .adm-root {
-  /* Colour — Quick Reference Card */
-  --a-primary: #1A6EB5;   /* Primary Blue  */
-  --a-deep: #0D4A8A;      /* Deep Blue     */
-  --a-navy: #1A2E4A;      /* Navy / Utility*/
+  /* Colour — Charity Hub blue system only */
+  --a-primary: #1A6EB5;   /* Primary Blue — CTAs, active nav, key actions */
+  --a-deep: #0D4A8A;      /* Deep Blue — headings, critical emphasis */
+  --a-navy: #1A2E4A;      /* Navy — sidebar, chrome */
   --a-accent: #1A6EB5;
   --a-accent-dk: #0D4A8A;
-  --a-sky: #5BB8F5;       /* Sky Blue      */
-  --a-sky-lt: #A8D8F0;    /* Sky Light     */
-  --a-surface: #FFFFFF;
+  --a-sky: #5BB8F5;       /* Sky Blue — highlights, attention */
+  --a-sky-lt: #E3F0FB;    /* Sky Light — toggle on, selected chips */
+  --a-surface: #F4F8FC;   /* Page wash */
   --a-white: #FFFFFF;
-  --a-text: #1A2E4A;      /* Dark Text     */
-  --a-mid: #444455;       /* Mid Text      */
-  --a-border: #D0E4F5;    /* Border/Divider*/
-  --a-danger: #CC2222;
-  --a-danger-bg: #FDEDED;
-  --a-ok: #1E7E4F;
-  --a-ok-bg: #E7F5EE;
-  --a-warn: #9A5B00;
-  --a-warn-bg: #FDF1DD;
+  --a-text: #1A2E4A;
+  --a-mid: #51617A;
+  --a-border: #D0E4F5;
+  /* Semantic tones — all blue-family, intensity varies by scenario */
+  --a-info: #1A6EB5;
+  --a-info-bg: #E3F0FB;
+  --a-ok: #0D4A8A;
+  --a-ok-bg: #DCEBF8;
+  --a-warn: #5BB8F5;
+  --a-warn-bg: #E8F4FC;
+  --a-danger: #0D4A8A;
+  --a-danger-bg: #D0E4F5;
   --a-shadow: 0 2px 8px rgba(26,110,181,0.10);
   --a-shadow-lg: 0 6px 22px rgba(26,46,74,0.14);
 
@@ -300,8 +302,8 @@
 .adm-btn-secondary:hover { background: #0a3a6d; }
 .adm-btn-ghost { background: #fff; color: var(--a-primary); border-color: var(--a-primary); }
 .adm-btn-ghost:hover { background: var(--a-surface); }
-.adm-btn-danger { background: #fff; color: var(--a-danger); border-color: var(--a-danger); }
-.adm-btn-danger:hover { background: var(--a-danger-bg); }
+.adm-btn-danger { background: var(--a-white); color: var(--a-deep); border-color: var(--a-deep); }
+.adm-btn-danger:hover { background: var(--a-sky-lt); border-color: var(--a-primary); color: var(--a-primary); }
 .adm-btn-sm { padding: 7px 12px; font-size: 12px; }
 .adm-btn:disabled { opacity: .5; cursor: not-allowed; }
 
@@ -317,9 +319,9 @@
 }
 .adm-stat.clickable { cursor: pointer; transition: box-shadow .15s, border-color .15s; }
 .adm-stat.clickable:hover { box-shadow: var(--a-shadow-lg); }
-.adm-stat.warn { border-left-color: var(--a-accent); }
-.adm-stat.danger { border-left-color: var(--a-danger); }
-.adm-stat.ok { border-left-color: var(--a-ok); }
+.adm-stat.warn { border-left-color: var(--a-sky); }
+.adm-stat.danger { border-left-color: var(--a-deep); }
+.adm-stat.ok { border-left-color: var(--a-primary); }
 .adm-stat-lbl { font-size: 12px; color: var(--a-mid); text-transform: uppercase; letter-spacing: .5px; font-weight: 600; }
 .adm-stat-num { font-size: 30px; font-weight: 800; color: var(--a-deep); margin-top: 6px; letter-spacing: -1px; }
 .adm-stat-sub { font-size: 12px; color: var(--a-mid); margin-top: 2px; }
@@ -342,9 +344,44 @@
   border-radius: 20px; border: 1px solid var(--a-border); background: #fff;
   color: var(--a-mid); cursor: pointer; transition: all .15s;
 }
-.adm-tab:hover { border-color: var(--a-primary); color: var(--a-primary); }
-.adm-tab.active { background: var(--a-primary); border-color: var(--a-primary); color: #fff; }
-.adm-tab .adm-tab-count { opacity: .7; margin-left: 5px; }
+.adm-tab:hover { border-color: var(--a-sky); color: var(--a-primary); background: var(--a-sky-lt); }
+.adm-tab.active {
+  background: var(--a-sky-lt);
+  border-color: var(--a-sky);
+  color: var(--a-deep);
+  font-weight: 700;
+}
+.adm-tab .adm-tab-count { opacity: .75; margin-left: 5px; }
+
+/* Toggle switch (admin) — light blue when on */
+.adm-root .toggle {
+  width: 51px;
+  height: 23px;
+  border-radius: 11.5px;
+  background: var(--a-border);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+  border: 1px solid var(--a-border);
+  padding: 0;
+}
+.adm-root .toggle.on {
+  background: var(--a-sky-lt);
+  border-color: var(--a-sky);
+}
+.adm-root .toggle-thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--a-white);
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(26, 46, 74, 0.12);
+}
+.adm-root .toggle.on .toggle-thumb { transform: translateX(28px); }
 
 /* ── Badges ─────────────────────────────────────────────── */
 .adm-badge {
@@ -352,10 +389,10 @@
   padding: 3px 9px; border-radius: 20px; letter-spacing: .2px; white-space: nowrap;
 }
 .adm-badge.ok { background: var(--a-ok-bg); color: var(--a-ok); }
-.adm-badge.info { background: #E3F0FB; color: var(--a-primary); }
-.adm-badge.warn { background: var(--a-warn-bg); color: var(--a-warn); }
+.adm-badge.info { background: var(--a-info-bg); color: var(--a-info); }
+.adm-badge.warn { background: var(--a-warn-bg); color: var(--a-deep); }
 .adm-badge.danger { background: var(--a-danger-bg); color: var(--a-danger); }
-.adm-badge.muted { background: #EEF2F6; color: var(--a-mid); }
+.adm-badge.muted { background: #EEF3F8; color: var(--a-mid); }
 .adm-badge .adm-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
 /* ── Tables ─────────────────────────────────────────────── */
@@ -382,7 +419,7 @@
   font-size: 12px; font-weight: 700; color: #fff; background: var(--a-primary);
 }
 .adm-ava.sky { background: var(--a-sky); }
-.adm-ava.orange { background: var(--a-accent); }
+.adm-ava.orange { background: var(--a-primary); }
 .adm-ava.navy { background: var(--a-navy); }
 
 /* ── Queue / list items ─────────────────────────────────── */
@@ -395,8 +432,8 @@
   display: flex; align-items: center; justify-content: center;
   background: #E3F0FB; color: var(--a-primary);
 }
-.adm-item-icon.warn { background: var(--a-warn-bg); color: var(--a-warn); }
-.adm-item-icon.danger { background: var(--a-danger-bg); color: var(--a-danger); }
+.adm-item-icon.warn { background: var(--a-warn-bg); color: var(--a-sky); }
+.adm-item-icon.danger { background: var(--a-danger-bg); color: var(--a-deep); }
 .adm-item-body { flex: 1; min-width: 0; }
 .adm-item-title { font-size: 14px; font-weight: 600; color: var(--a-navy); }
 .adm-item-meta { font-size: 12px; color: var(--a-mid); margin-top: 3px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
@@ -412,7 +449,7 @@
 .adm-check:last-child { border-bottom: none; }
 .adm-check-ico { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .adm-check-ico.ok { background: var(--a-ok-bg); color: var(--a-ok); }
-.adm-check-ico.no { background: var(--a-danger-bg); color: var(--a-danger); }
+.adm-check-ico.no { background: var(--a-danger-bg); color: var(--a-deep); }
 .adm-summary-box { background: var(--a-surface); border: 1px solid var(--a-border); border-radius: 6px; padding: 14px 16px; font-size: 14px; color: var(--a-mid); margin-bottom: 20px; }
 
 /* Sticky action rail on detail pages */

@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, CheckCircle, Home, Search, Plus, Heart } from 'lucide-react';
 
-const BACKER_COLORS = ['var(--primary)', '#0D7377', '#7B1FA2'];
+const BACKER_COLORS = ['var(--primary)', 'var(--primary-hover)', '#5BB8F5'];
 
 const REC_EVENTS = [
   {

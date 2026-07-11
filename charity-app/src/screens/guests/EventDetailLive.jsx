@@ -284,7 +284,7 @@ const TABS = [
   { id: 'support',   Icon: HandHeart,     label: 'Support',   sub: 'Back the cause'   },
 ];
 
-export default function EventDetailLive() {
+export default function EventDetailLive({ loggedIn = false }) {
   const navigate = useNavigate();
   const [activeTab, setActiveTab]         = useState('community');
   const [liked, setLiked]                 = useState(false);
@@ -400,7 +400,13 @@ export default function EventDetailLive() {
                 <SupportTab
                   selectedAmount={selectedAmount}
                   onSelectAmount={setSelectedAmount}
-                  onDonate={() => navigate('/guest/donate')}
+                  onDonate={() => {
+                    if (loggedIn) {
+                      showToast('Donation submitted');
+                      return;
+                    }
+                    navigate('/guest/donate');
+                  }}
                   onViewStructure={() => showToast('Funds go to Youth Health Fund (verified 501c3)')}
                 />
               )}
@@ -429,7 +435,17 @@ export default function EventDetailLive() {
               <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 14 }}>{ev.mission}</p>
               <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary)', letterSpacing: 0.5, marginBottom: 6 }}>THE STORY</p>
               <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 18 }}>{ev.story}</p>
-              <button className="btn-primary" onClick={() => { setShowAbout(false); navigate('/guest/donate'); }}>
+              <button
+                className="btn-primary"
+                onClick={() => {
+                  setShowAbout(false);
+                  if (loggedIn) {
+                    setActiveTab('support');
+                    return;
+                  }
+                  navigate('/guest/donate');
+                }}
+              >
                 Back this cause
               </button>
             </div>

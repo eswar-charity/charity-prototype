@@ -5,15 +5,16 @@ import { NonprofitLearnMoreModal, EventBackersModal } from '../../components/eve
 import { events, slugify } from '../../data/mockData';
 
 const ev = events[2];
-const BACKER_COLORS = ['var(--primary)', '#0D7377', '#7B1FA2', '#1976D2', '#1A6EB5'];
+const BACKER_COLORS = ['var(--primary)', 'var(--primary-hover)', '#5BB8F5', '#1A6EB5', 'var(--secondary-soft)'];
 
 const NP_DESCRIPTION = 'Books for Communities expands access to reading materials and literacy programs for underserved schools across New England. Every event on Charity Hub helps them reach more students.';
 
-export default function EventDetailUpcoming() {
+export default function EventDetailUpcoming({ loggedIn = false }) {
   const navigate = useNavigate();
   const [saved, setSaved] = useState(false);
   const [liked, setLiked] = useState(false);
   const [following, setFollowing] = useState(false);
+  const [backed, setBacked] = useState(false);
   const [showNpModal, setShowNpModal] = useState(false);
   const [showBackersModal, setShowBackersModal] = useState(false);
 
@@ -208,8 +209,17 @@ export default function EventDetailUpcoming() {
           <button className="event-bar-icon" onClick={() => navigate('/guest/share')} aria-label="Share event">
             <Share2 size={18} color="var(--dark)" />
           </button>
-          <button className="event-bar-btn" onClick={() => navigate('/guest/join')}>
-            Back this event
+          <button
+            className="event-bar-btn"
+            onClick={() => {
+              if (loggedIn) {
+                setBacked((prev) => !prev);
+                return;
+              }
+              navigate('/guest/join');
+            }}
+          >
+            {backed ? 'Backed ✓' : 'Back this event'}
           </button>
           <button className="event-bar-icon" onClick={() => setLiked(!liked)} aria-label={liked ? 'Unlike event' : 'Like event'}>
             <Heart size={18} color={liked ? 'var(--primary)' : 'var(--dark)'} fill={liked ? 'var(--primary)' : 'none'} />

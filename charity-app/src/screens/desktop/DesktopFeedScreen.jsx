@@ -11,7 +11,7 @@ const ORGANIZER_NAME = 'Sarah Jenkins';
 
 function SceneEventCard({ ev }) {
   const navigate = useNavigate();
-  const route = ev.isLive ? '/guest/event/live' : '/guest/event/upcoming';
+  const route = ev.isLive ? '/event/live' : '/event/upcoming';
 
   return (
     <div className="dsk-event-card" onClick={() => navigate(route)}>
@@ -22,13 +22,12 @@ function SceneEventCard({ ev }) {
           ) : (
             <span className="dsk-badge-date">{ev.date}</span>
           )}
-          <span className="dsk-badge-cat" style={{ background: ev.catBg, color: ev.catColor }}>
+          <span className="dsk-badge-cat">
             {ev.category}
           </span>
         </div>
         <div className="dsk-event-card-title-wrap">
           <p className="dsk-event-card-title">#{ev.title.replace(/[\s,'']+/g, '')}</p>
-          <p className="dsk-event-card-loc">{ev.subtitle}</p>
         </div>
       </div>
 
@@ -98,7 +97,7 @@ export default function DesktopFeedScreen() {
                 key={ev.id}
                 type="button"
                 className="dsk-story-item"
-                onClick={() => navigate(ev.isLive ? '/guest/event/live' : '/guest/event/upcoming')}
+                onClick={() => navigate(ev.isLive ? '/event/live' : '/event/upcoming')}
               >
                 <div className="dsk-story-circle">
                   <img src={ev.cover} alt={ev.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />

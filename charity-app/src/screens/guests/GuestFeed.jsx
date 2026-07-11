@@ -1,120 +1,47 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Bookmark, Share2, Users, Plus, TreePine, Palette, Apple, Waves, PawPrint } from 'lucide-react';
+import { Plus, Megaphone, Building2, Compass, MessageCircle, Camera, Bell } from 'lucide-react';
 import GuestBottomNav from '../../components/GuestBottomNav';
-import useInfiniteScroll from '../../hooks/useInfiniteScroll';
 import MobileAppHeader from '../../components/MobileAppHeader';
+import { events } from '../../data/mockData';
+import useInfiniteScroll from '../../hooks/useInfiniteScroll';
 
-const STORIES = [
-  { id: 0, label: 'Add', isAdd: true },
-  { id: 1, label: 'Tree Drive', category: 'Environment', bg: 'linear-gradient(135deg,#388E3C,#66BB6A)', Icon: TreePine },
-  { id: 2, label: 'Art Class', category: 'Education', bg: 'linear-gradient(135deg,#7B1FA2,#AB47BC)', Icon: Palette },
-  { id: 3, label: 'Food Store', category: 'Health', bg: 'linear-gradient(135deg,#1976D2,#42A5F5)', Icon: Apple },
-  { id: 4, label: 'Ocean', category: 'Environment', bg: 'linear-gradient(135deg,#0288D1,#26C6DA)', Icon: Waves },
-  { id: 5, label: 'Animals', category: 'Animals', bg: 'linear-gradient(135deg,#D32F2F,#EF5350)', Icon: PawPrint },
-];
+const FILTERS = ['All', 'Live now', 'Environment', 'Education'];
 
-const EVENTS = [
-  {
-    id: 1,
-    title: 'Neon Night Run',
-    subtitle: 'Light up the night for a great cause. A glowing 5K to fund youth fitness programs.',
-    organizer: 'Sarah Jenkins',
-    joined: 87,
-    backing: 213,
-    category: 'Health',
-    catColor: '#C62828',
-    catBg: '#FFEBEE',
-    isLive: true,
-    cover: '/events/neon-night/img1.jpg',
-    route: '/guest/event/live',
-  },
-  {
-    id: 2,
-    title: 'Breakneck Ridge Run',
-    subtitle: 'A trail run through the Hudson Valley raising awareness for clean waterways.',
-    organizer: 'Maya R.',
-    joined: 62,
-    backing: 145,
-    category: 'Environment',
-    catColor: '#388E3C',
-    catBg: '#E8F5E9',
-    isLive: false,
-    cover: '/events/breakneck-ridge-run/img1.jpg',
-    route: '/guest/event/upcoming',
-  },
-  {
-    id: 3,
-    title: "Give Now, Apré Later",
-    subtitle: 'Support cold-weather essentials for those in need — then celebrate with friends.',
-    organizer: 'Alex T.',
-    joined: 44,
-    backing: 89,
-    category: 'Education',
-    catColor: '#1976D2',
-    catBg: '#E3F2FD',
-    isLive: false,
-    cover: '/events/give-now/img1.jpg',
-    route: '/guest/event/upcoming',
-  },
-  {
-    id: 4,
-    title: 'Dog Dad 5K',
-    subtitle: '',
-    organizer: '',
-    joined: 0,
-    backing: 0,
-    category: 'Animals',
-    catColor: '#E65100',
-    catBg: '#FFF3E0',
-    isLive: false,
-    newStories: 3,
-    cover: '/events/dog-dad/img1.jpg',
-    route: '/guest/event/upcoming',
-  },
-];
+const activateOnKey = (fn) => (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    fn();
+  }
+};
 
 export default function GuestFeed() {
   const navigate = useNavigate();
-  const [toast, setToast] = useState('');
-  const [savedIds, setSavedIds] = useState({});
+  const [activeFilter, setActiveFilter] = useState('All');
+  const [showSheet, setShowSheet] = useState(false);
   const [hasAlerts, setHasAlerts] = useState(true);
-  const [activeCause, setActiveCause] = useState(null);
   const scrollRef = useRef(null);
 
-  const visibleEvents = useMemo(
-    () => (activeCause ? EVENTS.filter((ev) => ev.category === activeCause) : EVENTS),
-    [activeCause]
-  );
-
-  const { items, sentinelRef, loading, hasMore } = useInfiniteScroll(visibleEvents, {
-    rootRef: scrollRef, pageSize: 3, max: 24,
+  const filtered = events.filter((ev) => {
+    if (activeFilter === 'Live now') return ev.isLive;
+    if (activeFilter !== 'All') return ev.category === activeFilter;
+    return true;
   });
 
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(''), 1800);
-  };
+  const { items, sentinelRef, loading, hasMore } = useInfiniteScroll(filtered, {
+    rootRef: scrollRef, pageSize: 3, max: 30,
+  });
 
-  const handleStoryClick = (story) => {
-    if (story.isAdd) {
-      navigate('/guest/join');
-      return;
-    }
-    const next = activeCause === story.category ? null : story.category;
-    setActiveCause(next);
-    scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-    showToast(next ? `Showing ${next} events` : 'Showing all events');
-  };
+  const openEvent = (ev) => navigate(ev.isLive ? '/guest/event/live' : '/guest/event/upcoming');
 
   return (
     <div className="phone-shell">
       <div className="screen screen--split">
-        {/* Fixed top — header + stories */}
         <div className="screen-top">
           <MobileAppHeader
             homePath="/guest/feed"
-            title="Discover"
+            title="The Scene"
+            subtitle="Events happening now"
             actions={(
               <>
                 <button
@@ -137,162 +64,126 @@ export default function GuestFeed() {
             )}
           />
 
-          <div className="story-row guest-story-row">
-            {STORIES.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                className={`story-bubble${!s.isAdd && activeCause === s.category ? ' story-bubble-active' : ''}`}
-                onClick={() => handleStoryClick(s)}
+          <div className="story-row">
+            <div
+              className="story-item"
+              role="button"
+              tabIndex={0}
+              aria-label="Join an event"
+              onClick={() => setShowSheet(true)}
+              onKeyDown={activateOnKey(() => setShowSheet(true))}
+            >
+              <div className="story-circle yours">
+                <Plus size={22} color="var(--primary)" />
+              </div>
+              <span className="story-label">Your Event</span>
+            </div>
+            {events.slice(0, 4).map((ev) => (
+              <div
+                key={ev.id}
+                className="story-item"
+                role="button"
+                tabIndex={0}
+                aria-label={`Open ${ev.title}`}
+                onClick={() => openEvent(ev)}
+                onKeyDown={activateOnKey(() => openEvent(ev))}
               >
-                {s.isAdd ? (
-                  <div className="story-add-circle">
-                    <Plus size={22} color="var(--primary)" />
-                  </div>
-                ) : (
-                  <div className="story-circle" style={{ background: s.bg }}>
-                    <s.Icon size={24} color="white" aria-hidden="true" />
-                  </div>
-                )}
-                <span className="story-label">{s.label}</span>
+                <div className="story-circle">
+                  <img src={ev.cover} alt={ev.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+                <span className="story-label">{ev.title.split(' ').slice(0, 2).join(' ')}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="filter-row">
+            {FILTERS.map((f) => (
+              <button
+                key={f}
+                type="button"
+                className={`filter-chip ${activeFilter === f ? 'active' : ''}`}
+                onClick={() => setActiveFilter(f)}
+              >
+                {f === 'Live now' ? (
+                  <>
+                    <span style={{
+                      width: 6, height: 6, borderRadius: '50%',
+                      background: activeFilter === f ? 'white' : 'var(--primary)',
+                      display: 'inline-block', flexShrink: 0,
+                    }} />
+                    Live now
+                  </>
+                ) : f}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Scrollable event cards */}
         <div className="screen-scroll" ref={scrollRef}>
-          <div className="guest-feed-list">
-            {items.length === 0 && activeCause && (
-              <p className="feed-end" style={{ paddingTop: 24 }}>
-                No {activeCause.toLowerCase()} events right now. Try another cause.
-              </p>
-            )}
+          <div style={{ padding: '0 16px 16px' }}>
             {items.map((ev) => (
               <div
                 key={ev._key}
-                className="feed-card"
+                className="scene-card"
                 role="button"
                 tabIndex={0}
-                aria-label={`View ${ev.title}`}
-                onClick={() => navigate(ev.route)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    navigate(ev.route);
-                  }
-                }}
+                aria-label={`Open ${ev.title}`}
+                onClick={() => openEvent(ev)}
+                onKeyDown={activateOnKey(() => openEvent(ev))}
               >
-                <div className="feed-card-hero" style={{ backgroundImage: `url(${ev.cover})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                  <div style={{
-                    position: 'absolute', inset: 0,
-                    background: 'linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 60%)',
-                  }} />
-                  <div style={{
-                    position: 'absolute', top: 10, left: 10,
-                    display: 'flex', gap: 6,
-                  }}>
-                    {ev.isLive && (
-                      <span className="live-badge">
-                        <span className="live-dot" />
-                        LIVE NOW
-                      </span>
-                    )}
-                    <span className="badge" style={{ background: ev.catBg, color: ev.catColor }}>
-                      {ev.category}
+                <div
+                  className="scene-card-hero"
+                  style={{ backgroundImage: `url(${ev.cover})` }}
+                >
+                  {ev.isLive ? (
+                    <span className="scene-live-badge">
+                      <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'white', display: 'inline-block' }} />
+                      DOORS OPEN · LIVE NOW
                     </span>
-                  </div>
-                  {ev.newStories && (
-                    <div style={{ position: 'absolute', bottom: 10, left: 10 }}>
-                      <span className="new-stories-pill">
-                        ● {ev.newStories} new stories
-                      </span>
-                    </div>
+                  ) : (
+                    <span className="scene-live-badge scene-category-badge">
+                      {ev.category.toUpperCase()}
+                    </span>
                   )}
+                  <div className="scene-card-overlay">
+                    <h3 className="scene-card-title">#{ev.title.replace(/[\s,''']+/g, '')}</h3>
+                  </div>
                 </div>
 
-                <div style={{ padding: '12px 14px' }}>
-                  <p style={{ fontSize: 15, fontWeight: 800, color: 'var(--dark)', marginBottom: 3 }}>
-                    {ev.title}
-                  </p>
-                  {ev.subtitle && (
-                    <p className="clamp-2" style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10, lineHeight: 1.4 }}>
-                      {ev.subtitle}
-                    </p>
-                  )}
-
-                  {ev.organizer && (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                        <div style={{
-                          width: 24, height: 24, borderRadius: '50%',
-                          background: 'linear-gradient(135deg,var(--primary),var(--blue))',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 9, fontWeight: 700, color: 'white',
-                        }}>
-                          {ev.organizer.split(' ').map((w) => w[0]).join('')}
-                        </div>
-                        <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--dark)' }}>
-                          by {ev.organizer}
-                        </span>
-                        <span style={{
-                          width: 14, height: 14, borderRadius: '50%',
-                          background: 'var(--blue)', color: 'white',
-                          fontSize: 8, fontWeight: 700,
-                          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                        }}>✓</span>
-                      </div>
-                      <div style={{ display: 'flex', gap: 10 }}>
-                        <Bookmark
-                          size={16}
-                          color={savedIds[ev._key] ? 'var(--primary)' : 'var(--text-light)'}
-                          fill={savedIds[ev._key] ? 'var(--primary)' : 'none'}
-                          style={{ cursor: 'pointer' }}
-                          role="button"
-                          tabIndex={0}
-                          aria-label={savedIds[ev._key] ? 'Remove from saved' : 'Save event'}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSavedIds((prev) => ({ ...prev, [ev._key]: !prev[ev._key] }));
-                            showToast(savedIds[ev._key] ? 'Removed from saved' : 'Saved to your list');
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setSavedIds((prev) => ({ ...prev, [ev._key]: !prev[ev._key] }));
-                              showToast(savedIds[ev._key] ? 'Removed from saved' : 'Saved to your list');
-                            }
-                          }}
-                        />
-                        <Share2 size={16} color="var(--text-light)" style={{ cursor: 'pointer' }}
-                          role="button"
-                          tabIndex={0}
-                          aria-label="Share event"
-                          onClick={(e) => { e.stopPropagation(); navigate('/guest/share'); }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              navigate('/guest/share');
-                            }
-                          }} />
-                      </div>
+                <div className="scene-card-meta">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{
+                      width: 24, height: 24, borderRadius: '50%',
+                      background: ev.npBg, flexShrink: 0,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 9, fontWeight: 700, color: 'white',
+                    }}>{ev.npInitials}</div>
+                    <span style={{ fontSize: 12, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <span style={{ color: 'var(--dark)', fontWeight: 600 }}>for {ev.nonprofit}</span>
+                      {' · '}by {ev.organizer}
+                    </span>
+                  </div>
+                  <div className="scene-card-stats">
+                    <div className="av-stack" style={{ marginRight: 4 }}>
+                      {['var(--primary)', 'var(--primary-hover)', '#5BB8F5'].map((c, i) => (
+                        <div key={i} className="av" style={{ background: c, width: 18, height: 18, fontSize: 8 }} />
+                      ))}
                     </div>
-                  )}
-
-                  {ev.joined > 0 && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                      <Users size={13} color="var(--text-secondary)" />
-                      <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-                        {ev.joined} joined · {ev.backing} backing
-                      </span>
-                    </div>
-                  )}
+                    <span className="scene-stat">{ev.backed} <span className="scene-stat-lbl">backing</span></span>
+                    <span className="scene-stat-sep">·</span>
+                    <span className="scene-stat">
+                      <MessageCircle size={13} color="currentColor" style={{ verticalAlign: 'text-bottom' }} aria-hidden="true" />
+                      {' '}{ev.chatCount} <span className="scene-stat-lbl">in chat</span>
+                    </span>
+                    <span className="scene-stat-sep">·</span>
+                    <span className="scene-stat">
+                      <Camera size={13} color="currentColor" style={{ verticalAlign: 'text-bottom' }} aria-hidden="true" />
+                      {' '}{ev.updates} <span className="scene-stat-lbl">moments</span>
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
-
             {hasMore && <div ref={sentinelRef} style={{ height: 1 }} aria-hidden="true" />}
             {loading && (
               <div className="feed-loader"><span className="feed-spinner" /> Loading more events…</div>
@@ -302,11 +193,59 @@ export default function GuestFeed() {
         </div>
 
         <GuestBottomNav active="discover" />
-
-        {toast && (
-          <div className="guest-toast">{toast}</div>
-        )}
       </div>
+
+      {showSheet && (
+        <div className="overlay-bg" onClick={() => setShowSheet(false)}>
+          <div className="bottom-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="sheet-handle" />
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--dark)', textAlign: 'center', marginBottom: 6 }}>
+              Start something good
+            </h2>
+            <p style={{ fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center', marginBottom: 24, lineHeight: 1.5 }}>
+              Sign up to create a free event for any verified nonprofit. Your story drives real participation.
+            </p>
+
+            <div
+              className="opt-row"
+              role="button"
+              tabIndex={0}
+              onClick={() => { setShowSheet(false); navigate('/'); }}
+              onKeyDown={activateOnKey(() => { setShowSheet(false); navigate('/'); })}
+            >
+              <div className="opt-icon" style={{ background: 'var(--primary)' }}>
+                <Megaphone size={20} color="white" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)' }}>Create an event</p>
+                <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
+                  Sign up to host for a verified nonprofit.
+                </p>
+              </div>
+              <Compass size={16} color="var(--text-light)" />
+            </div>
+
+            <div
+              className="opt-row"
+              role="button"
+              tabIndex={0}
+              onClick={() => { setShowSheet(false); navigate('/guest/join'); }}
+              onKeyDown={activateOnKey(() => { setShowSheet(false); navigate('/guest/join'); })}
+            >
+              <div className="opt-icon" style={{ background: 'var(--blue)' }}>
+                <Building2 size={20} color="white" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)' }}>Join an event</p>
+                <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
+                  Back or join without a full account yet.
+                </p>
+              </div>
+              <Compass size={16} color="var(--text-light)" />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

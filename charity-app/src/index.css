@@ -9,8 +9,9 @@
   --text-light: #93A7BC;
   --border: #E8EEF4;
   --white: #FFFFFF;
-  --blue: #0D4A8A;
+  --blue: #1A6EB5;
   --blue-soft: #E3F0FB;
+  --cta-shadow: 0 4px 16px rgba(26, 110, 181, 0.35);
   --green: #1E9E57;
 
   /* Blue design system (final-check.md) */
@@ -465,6 +466,26 @@ textarea.input-field {
 }
 .btn-primary:active { background: var(--primary-hover); transform: scale(0.98); }
 
+.google-signin-btn {
+  width: 100%;
+  padding: 14px 18px;
+  background: var(--white);
+  color: var(--dark);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.google-signin-btn:hover { background: var(--bg); border-color: var(--text-light); }
+.google-signin-btn:active { transform: scale(0.98); }
+
 .btn-outline {
   width: 100%;
   padding: 16px;
@@ -557,8 +578,17 @@ textarea.input-field {
   letter-spacing: 0.2px;
 }
 .badge-coral { background: var(--primary); color: white; }
-.badge-env { background: #E8F5E9; color: #388E3C; }
-.badge-edu { background: #E3F2FD; color: #1976D2; }
+.badge-env { background: var(--primary); color: var(--white); }
+.badge-edu { background: var(--primary); color: var(--white); }
+.category-tag {
+  background: var(--primary);
+  color: var(--white);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+}
 
 /* Bottom nav — floating pill */
 .bottom-nav-wrap,
@@ -614,7 +644,7 @@ textarea.input-field {
   justify-content: center;
   margin-top: -20px;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(245,96,74,0.4);
+  box-shadow: var(--cta-shadow);
   flex-shrink: 0;
 }
 
@@ -632,9 +662,9 @@ textarea.input-field {
   white-space: nowrap;
 }
 .cause-chip.selected {
-  background: var(--blue-soft);
-  border-color: var(--blue);
-  color: var(--blue);
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  color: var(--primary);
   font-weight: 600;
 }
 
@@ -660,8 +690,8 @@ textarea.input-field {
   font-family: inherit;
 }
 .filter-tab.active {
-  background: var(--dark);
-  border-color: var(--dark);
+  background: var(--primary);
+  border-color: var(--primary);
   color: var(--white);
 }
 
@@ -706,7 +736,7 @@ textarea.input-field {
   font-size: 12px;
 }
 .td-done { background: var(--primary); color: white; }
-.td-active { border: 2px solid var(--blue); background: white; }
+.td-active { border: 2px solid var(--primary); background: white; }
 .td-pending { border: 2px solid var(--border); background: white; }
 .timeline-connector { width: 2px; height: 28px; background: var(--border); margin-left: 11px; }
 
@@ -812,11 +842,55 @@ textarea.input-field {
 /* Post event credential */
 .credential-card {
   border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, var(--primary) 0%, #7C3AED 100%);
+  background: var(--white);
+  border: 2px solid var(--primary);
   padding: 20px;
-  color: white;
+  color: var(--dark);
   position: relative;
   overflow: hidden;
+  box-shadow: var(--card-shadow);
+}
+.credential-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.credential-brand-mark {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--primary-soft);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; color: var(--primary);
+}
+.credential-brand-name { font-size: 12px; font-weight: 600; color: var(--dark); }
+.credential-badge {
+  background: var(--primary);
+  color: var(--white);
+  font-size: 9px; font-weight: 800;
+  padding: 2px 7px; border-radius: 4px; letter-spacing: 0.5px;
+}
+.credential-user { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.credential-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--primary-soft);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: var(--primary);
+}
+.credential-name { font-size: 14px; font-weight: 700; color: var(--dark); }
+.credential-event { font-size: 12px; color: var(--text-secondary); }
+.credential-meta { font-size: 12px; color: var(--text-secondary); margin-bottom: 16px; }
+.credential-actions { display: flex; align-items: center; gap: 10px; }
+.credential-share-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px; flex: 1;
+  background: var(--white);
+  border: 1.5px solid var(--primary);
+  border-radius: var(--radius-pill);
+  color: var(--primary);
+  font-size: 14px; font-weight: 600;
+  padding: 10px 20px; cursor: pointer; font-family: inherit;
+}
+.credential-settings-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--primary-soft);
+  border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+  color: var(--primary);
 }
 
 /* Keep going rows */
@@ -917,7 +991,7 @@ textarea.input-field {
   background: var(--white);
   margin-bottom: 10px;
 }
-.vis-option.selected-vis { border-color: var(--blue); background: var(--blue-soft); }
+.vis-option.selected-vis { border-color: var(--primary); background: var(--primary-soft); }
 .vis-option-btn { width: 100%; font-family: inherit; }
 .vis-check {
   width: 22px;
@@ -929,7 +1003,7 @@ textarea.input-field {
   align-items: center;
   justify-content: center;
 }
-.vis-check.checked { background: var(--blue); border-color: var(--blue); color: white; }
+.vis-check.checked { background: var(--primary); border-color: var(--primary); color: white; }
 
 /* Check items */
 .check-item {
@@ -1010,7 +1084,7 @@ textarea.input-field {
   align-items: center;
   justify-content: center;
 }
-.check-circle.checked { background: var(--blue); border-color: var(--blue); color: white; }
+.check-circle.checked { background: var(--primary); border-color: var(--primary); color: white; }
 
 /* Info banner */
 .info-banner {
@@ -1384,7 +1458,7 @@ textarea.input-field {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--blue));
+  background: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1591,7 +1665,7 @@ textarea.input-field {
   font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
   background: var(--white); color: var(--text-secondary); font-family: inherit;
 }
-.ap-tab.active { background: var(--blue); border-color: var(--blue); color: var(--white); }
+.ap-tab.active { background: var(--primary); border-color: var(--primary); color: var(--white); }
 
 /* Approval event card — Charity Hub brand palette */
 .ap-card {
@@ -1608,7 +1682,7 @@ textarea.input-field {
 .ap-organizer-row.spaced { margin-bottom: 8px; }
 .ap-organizer-avatar {
   width: 20px; height: 20px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--blue));
+  background: var(--primary);
   display: flex; align-items: center; justify-content: center;
   font-size: 8px; font-weight: 700; color: white; flex-shrink: 0;
 }
@@ -1628,10 +1702,10 @@ textarea.input-field {
   font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer;
   border: 1.5px solid; line-height: 1.2;
 }
-.ap-btn-outline { background: transparent; color: var(--blue); border-color: var(--blue); }
+.ap-btn-outline { background: transparent; color: var(--primary); border-color: var(--primary); }
 .ap-btn-reject { background: transparent; color: var(--text-secondary); border-color: var(--border); }
 .ap-btn-reject:active { background: var(--bg); }
-.ap-btn-approve { background: var(--blue); color: white; border-color: var(--blue); }
+.ap-btn-approve { background: var(--primary); color: white; border-color: var(--primary); }
 .ap-btn-approve:active { background: var(--primary-hover); border-color: var(--primary-hover); }
 
 /* Review warning banner */
@@ -1657,8 +1731,8 @@ textarea.input-field {
   flex-shrink: 0;
 }
 .review-bar-row { display: flex; gap: 10px; margin-bottom: 10px; }
-.review-bar-outline { flex: 1; padding: 13px; border: 1.5px solid var(--blue); border-radius: var(--radius-pill); background: transparent; color: var(--blue); font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; }
-.review-bar-approve { flex: 1; padding: 13px; border: none; border-radius: var(--radius-pill); background: var(--blue); color: white; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; }
+.review-bar-outline { flex: 1; padding: 13px; border: 1.5px solid var(--primary); border-radius: var(--radius-pill); background: transparent; color: var(--primary); font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; }
+.review-bar-approve { flex: 1; padding: 13px; border: none; border-radius: var(--radius-pill); background: var(--primary); color: white; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; }
 
 /* Financials / Activity backing row */
 .backing-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
@@ -1948,7 +2022,7 @@ textarea.input-field {
 .scene-subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
 .scene-avatar {
   width: 36px; height: 36px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--blue));
+  background: var(--primary);
   display: flex; align-items: center; justify-content: center;
   font-size: 12px; font-weight: 700; color: white; cursor: pointer; flex-shrink: 0;
 }
@@ -2012,7 +2086,7 @@ textarea.input-field {
   cursor: pointer; white-space: nowrap; font-family: inherit;
   display: flex; align-items: center; gap: 5px; flex-shrink: 0;
 }
-.filter-chip.active { background: var(--dark); color: white; }
+.filter-chip.active { background: var(--primary); color: white; }
 
 /* Scene feed card */
 .scene-card {
@@ -2030,6 +2104,10 @@ textarea.input-field {
   position: absolute; top: 12px; left: 12px; z-index: 1;
   background: var(--primary); color: white; font-size: 10px; font-weight: 700;
   padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 4px;
+}
+.scene-live-badge.scene-category-badge {
+  background: var(--primary);
+  color: var(--white);
 }
 .scene-card-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 14px; z-index: 1; }
 .scene-card-title { font-size: 22px; font-weight: 800; color: white; letter-spacing: -0.3px; margin-bottom: 2px; }

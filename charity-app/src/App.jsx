@@ -90,6 +90,12 @@ function EventDetailLiveRoute() {
 function EventDetailUpcomingRoute() {
   return useIsDesktop() ? <DesktopEventDetailUpcoming /> : <EventDetailUpcoming />;
 }
+function SeEventDetailLiveRoute() {
+  return useIsDesktop() ? <DesktopEventDetail loggedIn /> : <EventDetailLive loggedIn />;
+}
+function SeEventDetailUpcomingRoute() {
+  return useIsDesktop() ? <DesktopEventDetailUpcoming loggedIn /> : <EventDetailUpcoming loggedIn />;
+}
 function EventStep1Route() {
   return useIsDesktop() ? <DesktopEventStep1 /> : <EventStep1 />;
 }
@@ -156,6 +162,8 @@ export default function App() {
         <Route path="/live-dashboard" element={<LiveDashboardRoute />} />
         <Route path="/post-event" element={<PostEventImpactRoute />} />
         <Route path="/profile" element={<ProfileScreenRoute />} />
+        <Route path="/event/live" element={<SeEventDetailLiveRoute />} />
+        <Route path="/event/upcoming" element={<SeEventDetailUpcomingRoute />} />
 
         {/* Guest flow */}
         <Route path="/guest" element={<Navigate to="/guest/feed" replace />} />

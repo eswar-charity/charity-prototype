@@ -117,7 +117,7 @@ export default function DesktopLiveDashboard() {
                 <button type="button" className="dsk-live-action-secondary" onClick={shareEvent}>
                   Share event
                 </button>
-                <button type="button" className="dsk-live-action-secondary" onClick={() => navigate('/guest/event/live')}>
+                <button type="button" className="dsk-live-action-secondary" onClick={() => navigate('/event/live')}>
                   View public page
                 </button>
               </div>

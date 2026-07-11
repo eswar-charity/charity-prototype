@@ -55,9 +55,6 @@ export default function DesktopPostEventImpact() {
 
           <div className="dsk-post-event-grid">
             <div className="credential-card dsk-post-event-credential">
-              <div className="dsk-post-event-credential-blur dsk-post-event-credential-blur--tr" />
-              <div className="dsk-post-event-credential-blur dsk-post-event-credential-blur--bl" />
-
               <div className="dsk-post-event-credential-brand">
                 <Logo height={22} />
                 <span className="dsk-post-event-credential-badge">OFFICIAL EVENT ORGANISER</span>
@@ -83,7 +80,7 @@ export default function DesktopPostEventImpact() {
                   onClick={() => navigate('/profile')}
                   aria-label="Credential settings"
                 >
-                  <Settings size={16} color="white" />
+                  <Settings size={16} color="var(--primary)" />
                 </button>
               </div>
             </div>

@@ -7,11 +7,11 @@ import { NonprofitLearnMoreModal, EventBackersModal } from '../../../components/
 import { events, slugify } from '../../../data/mockData';
 
 const ev = events[2]; // Give Now, Apré Later — the app's featured upcoming event
-const BACKER_COLORS = ['var(--primary)', '#0D7377', '#7B1FA2', '#1976D2', '#1A6EB5'];
+const BACKER_COLORS = ['var(--primary)', 'var(--primary-hover)', '#5BB8F5', '#1A6EB5', 'var(--secondary-soft)'];
 
 const NP_DESCRIPTION = 'Books for Communities expands access to reading materials and literacy programs for underserved schools across New England. Every event on Charity Hub helps them reach more students.';
 
-export default function DesktopEventDetailUpcoming() {
+export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
   const navigate = useNavigate();
   const [saved, setSaved] = useState(false);
   const [following, setFollowing] = useState(false);
@@ -24,7 +24,7 @@ export default function DesktopEventDetailUpcoming() {
 
   return (
     <div className="dsk-page">
-      <DesktopHeader active="Discover" />
+      <DesktopHeader active="Discover" loggedIn={loggedIn} homePath={loggedIn ? '/feed' : '/guest/feed'} />
 
       <div className="dsk-ev-hero" style={{ backgroundImage: `url(${ev.cover})` }}>
         <div className="dsk-ev-hero-gradient" />
