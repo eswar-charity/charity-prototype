@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Info, Users, MessageCircle, Heart } from 'lucide-react';
 import DesktopCreateEventLayout from '../../components/desktop/DesktopCreateEventLayout';
+import SubmitChecklist from '../../components/SubmitChecklist';
 import { useCreateEventDraft, resetDraft, updateDraft } from '../../hooks/useCreateEventDraft';
 import { nonprofits } from '../../data/mockData';
 import { previewHashtag } from '../../utils/eventWizard';
@@ -10,16 +11,7 @@ export default function DesktopEventStep4() {
   const navigate = useNavigate();
   const draft = useCreateEventDraft();
   const nonprofit = nonprofits.find((n) => n.id === draft.nonprofitId);
-
-  const [checklist, setChecklist] = useState([
-    { id: 1, text: `Story media added (${draft.photos.length} items)`, done: draft.photos.length > 0 },
-    { id: 2, text: `Nonprofit selected: ${nonprofit?.name || '—'}`, done: !!nonprofit },
-    { id: 3, text: `Dates set: ${draft.startDate}`, done: true },
-    { id: 4, text: 'Review Charity Hub content guidelines', done: false, isLink: true },
-  ]);
   const [saved, setSaved] = useState(false);
-
-  const toggle = (id) => setChecklist((prev) => prev.map((c) => (c.id === id ? { ...c, done: !c.done } : c)));
 
   const submit = () => {
     resetDraft();
@@ -73,18 +65,7 @@ export default function DesktopEventStep4() {
       </div>
 
       <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--dark)', margin: '24px 0 12px' }}>Before you submit</p>
-      <div className="card">
-        {checklist.map((item) => (
-          <div key={item.id} className="check-item" style={{ cursor: 'pointer' }} onClick={() => toggle(item.id)}>
-            <div className={`check-circle ${item.done ? 'checked' : ''}`}>
-              {item.done && <Check size={12} strokeWidth={3} />}
-            </div>
-            <span style={{ color: item.isLink && !item.done ? 'var(--blue)' : 'var(--dark)', textDecoration: item.isLink && !item.done ? 'underline' : 'none' }}>
-              {item.text}
-            </span>
-          </div>
-        ))}
-      </div>
+      <SubmitChecklist draft={draft} nonprofit={nonprofit} />
 
       <div className="info-banner" style={{ marginTop: 14 }}>
         <Info size={16} color="var(--blue)" style={{ flexShrink: 0, marginTop: 1 }} />

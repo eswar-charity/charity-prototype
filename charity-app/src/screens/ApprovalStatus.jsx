@@ -24,7 +24,7 @@ function nodeStatuses(state) {
 
 const COPY = {
   review:    { title: 'Submitted!', sub: "Ocean Conservancy is reviewing your event. You'll hear back within 48 hours." },
-  approved:  { title: "You're approved 🎉", sub: 'Ocean Conservancy approved your event. Publish it whenever you’re ready.' },
+  approved:  { title: "You're approved", sub: 'Ocean Conservancy approved your event. Publish it whenever you’re ready.' },
   live:      { title: "You're live!", sub: 'Your event is published and open for people to join and back.' },
   completed: { title: 'Event complete', sub: 'Thanks for running a great event. Your impact recap is ready to share.' },
 };

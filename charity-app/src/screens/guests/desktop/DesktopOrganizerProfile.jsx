@@ -87,7 +87,21 @@ export default function DesktopOrganizerProfile() {
             <p className="dsk-panel-title">Events by {profile.name}</p>
             <div className="dsk-profile-event-tabs">
               {EVENT_TABS.map((t) => (
-                <span key={t} className={`dsk-profile-event-tab ${eventTab === t ? 'active' : ''}`} onClick={() => setEventTab(t)}>{t}</span>
+                <span
+                  key={t}
+                  className={`dsk-profile-event-tab ${eventTab === t ? 'active' : ''}`}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Show ${t} events`}
+                  aria-pressed={eventTab === t}
+                  onClick={() => setEventTab(t)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setEventTab(t);
+                    }
+                  }}
+                >{t}</span>
               ))}
             </div>
           </div>
@@ -97,7 +111,20 @@ export default function DesktopOrganizerProfile() {
               <p className="dsk-empty-note">No {eventTab.toLowerCase()} events yet.</p>
             )}
             {shownEvents.map((e) => (
-              <div key={e.id} className="dsk-profile-event-card" onClick={() => navigate(e.isLive ? '/guest/event/live' : '/guest/event/upcoming')}>
+              <div
+                key={e.id}
+                className="dsk-profile-event-card"
+                role="button"
+                tabIndex={0}
+                aria-label={`View ${e.title.replace(/\s+/g, '')}`}
+                onClick={() => navigate(e.isLive ? '/guest/event/live' : '/guest/event/upcoming')}
+                onKeyDown={(evt) => {
+                  if (evt.key === 'Enter' || evt.key === ' ') {
+                    evt.preventDefault();
+                    navigate(e.isLive ? '/guest/event/live' : '/guest/event/upcoming');
+                  }
+                }}
+              >
                 <div className="dsk-profile-event-hero" style={{ backgroundImage: `url(${e.cover})` }}>
                   {e.isLive && <span className="dsk-badge-live"><span className="live-dot" /> LIVE NOW</span>}
                 </div>

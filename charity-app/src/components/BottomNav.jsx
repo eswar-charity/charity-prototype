@@ -23,6 +23,7 @@ export default function BottomNav({ active = 'feed', onPlusClick }) {
       </button>
       <button
         className="nav-center-btn"
+        aria-label="Create event"
         onClick={onPlusClick || (() => navigate('/create-event'))}
       >
         <Plus size={24} />

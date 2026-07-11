@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Share2, ChevronRight, Rocket, Users } from 'lucide-react';
+import { Settings, Share2, ChevronRight, Rocket, Users, Award } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
 import Logo from '../../components/Logo';
@@ -90,7 +90,7 @@ export default function DesktopPostEventImpact() {
 
             <div className="dsk-post-event-side">
               <div className="card dsk-post-event-thanks">
-                <div className="dsk-post-event-thanks-icon">🎉</div>
+                <div className="dsk-post-event-thanks-icon"><Award size={24} color="var(--primary)" /></div>
                 <div>
                   <p className="dsk-post-event-thanks-title">
                     Thank you, Sarah! <span className="dsk-verify-dot">✓</span>

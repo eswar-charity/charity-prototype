@@ -55,6 +55,7 @@
 }
 .dsk-search input { border: none; background: none; outline: none; font-family: inherit; font-size: 13px; color: var(--dark); width: 100%; }
 .dsk-search input::placeholder { color: var(--text-light); }
+.dsk-search:focus-within { border-color: var(--primary); }
 .dsk-loglink { font-size: 14px; font-weight: 600; color: var(--dark); cursor: pointer; white-space: nowrap; }
 .dsk-header-avatar {
   width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
@@ -140,6 +141,7 @@
   border: 1.5px solid var(--border); border-radius: var(--radius-pill); padding: 9px 14px;
   font-size: 13px; font-family: inherit; color: var(--dark); background: var(--white); cursor: pointer; outline: none;
 }
+.dsk-sort-select:focus { border-color: var(--primary); }
 
 /* Post-event impact (desktop) */
 .dsk-post-event-wrap { padding-top: 40px; padding-bottom: 64px; }
@@ -1260,3 +1262,133 @@
   .dsk-live-activity-panel { max-height: none; }
 }
 
+
+/* ════════════════════════════════════════════════════════════
+   FINAL-CHECK UI/UX POLISH — blue design system + accessibility.
+   Loaded after index.css so these win for shared classes. The Admin
+   Portal (.adm-root) keeps its own scoped system and is unaffected.
+   No layout, flow, or logic changes — visual + a11y only.
+════════════════════════════════════════════════════════════ */
+
+/* ── Forms & neutral controls (never blue by default) ─────── */
+.input-field,
+textarea.input-field {
+  border: 1px solid var(--neutral-border);
+  background: var(--white);
+}
+.input-field::placeholder { color: var(--neutral-text); opacity: 0.7; }
+.input-field:focus { border-color: var(--primary); }
+.input-soft { background: var(--neutral-surface); border-color: transparent; }
+.input-soft:focus { background: var(--white); border-color: var(--primary); }
+
+/* Secondary CTAs / one-time actions / media upload → neutral, not blue */
+.btn-outline {
+  background: var(--white);
+  color: var(--neutral-text);
+  border: 1px solid var(--neutral-border);
+}
+.btn-outline:active { background: var(--neutral-btn); }
+.dsk-approval-btn-secondary,
+.dsk-sidebar-share-btn,
+.dsk-msg-btn {
+  background: var(--white) !important;
+  color: var(--neutral-text) !important;
+  border: 1px solid var(--neutral-border) !important;
+}
+.dsk-approval-btn-secondary:hover,
+.dsk-sidebar-share-btn:hover,
+.dsk-msg-btn:hover { background: var(--neutral-btn) !important; }
+.upload-area,
+.dsk-upload-zone,
+.dsk-upload-box { border-color: var(--neutral-border) !important; background: var(--neutral-surface) !important; }
+.upload-area .btn-primary { background: var(--neutral-btn); color: var(--neutral-text); }
+
+/* ── Selected states use a distinct Secondary Blue ────────── */
+.filter-chip.active { background: var(--secondary); color: #fff; border-color: var(--secondary); }
+.dsk-filter-chip.active { background: var(--secondary); border-color: var(--secondary); color: #fff; }
+
+/* Active nav clearly distinct from inactive */
+.nav-item { color: var(--text-secondary); }
+.nav-item.active { color: var(--primary); }
+.nav-item.active span { font-weight: 700; }
+
+/* ── Cards: clear boundary, consistent radius + elevation ── */
+.card,
+.feed-card,
+.scene-card,
+.dsk-event-card,
+.dsk-np-event-card,
+.story-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--card-shadow);
+  background: var(--white);
+}
+
+/* ── Pills / tags: prominent, scannable, consistent ───────── */
+.badge {
+  min-height: 24px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ── Chat & comments: tertiary-blue self bubbles, more air ── */
+.chat-messages { gap: 20px; padding: 16px; }
+.chat-msg.mine .chat-bubble {
+  background: var(--tertiary);
+  color: var(--tertiary-text);
+  border: 1px solid var(--tertiary-border);
+  border-radius: 14px 4px 14px 14px;
+}
+.chat-bubble { border-radius: 4px 14px 14px 14px; padding: 10px 14px; line-height: 1.55; }
+
+/* ── Event feed: concise previews (full text on detail view) ── */
+.scene-card-desc,
+.dsk-event-card-desc,
+.feed-card-desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Accessibility: visible keyboard focus everywhere ─────── */
+/* Form fields are excluded: their focus state is the border-color change
+   defined on each field, so no second ring is drawn on top of it. The
+   outline follows each element's own border-radius (no override). */
+:where(button, a, [tabindex], [role="button"]):not(.input-field):not(.role-select-trigger):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+:where(input, select, textarea):focus-visible,
+.input-field:focus-visible,
+.role-select-trigger:focus-visible {
+  outline: none;
+}
+/* Touch targets ≥ 40px on primary interactive controls */
+.nav-item, .nav-center-btn, .back-btn, .close-btn, .np-nav-item {
+  min-width: 40px;
+  min-height: 40px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+/* ── Review cards: complementary, high-contrast status colors ── */
+.badge-new-req { background: var(--primary-soft); color: var(--primary-hover); }
+.badge-changes { background: #FBEFD8; color: #8A5200; }        /* amber — complements blue */
+.badge-approved { background: #E4F5EC; color: #1E7E4F; }        /* green — resolved */
+.np-count-badge { background: var(--secondary-soft); color: var(--secondary); }

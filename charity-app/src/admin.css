@@ -270,7 +270,6 @@
 }
 .adm-search:focus-within {
   border-color: var(--a-primary);
-  box-shadow: 0 0 0 1px var(--a-primary);
 }
 .adm-icon-btn {
   position: relative; width: 38px; height: 38px; border-radius: 4px;
@@ -442,7 +441,11 @@
 @keyframes adm-rise { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
 
 /* ── Accessibility ──────────────────────────────────────── */
-.adm-root :focus-visible { outline: 2px solid var(--a-accent); outline-offset: 2px; border-radius: 3px; }
+/* Focus ring for buttons/links only; form fields signal focus via their own
+   border-color so no second ring is layered on top. No border-radius override
+   so the ring follows each element's own shape. */
+.adm-root :is(button, a, [tabindex], [role="button"]):focus-visible { outline: 2px solid var(--a-accent); outline-offset: 2px; }
+.adm-root :is(input, select, textarea):focus-visible { outline: none; }
 @media (prefers-reduced-motion: reduce) {
   .adm-root *, .adm-toast { animation: none !important; transition: none !important; }
   .adm-btn-primary:hover { transform: none; }

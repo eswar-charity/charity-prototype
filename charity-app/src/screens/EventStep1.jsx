@@ -27,7 +27,7 @@ export default function EventStep1() {
           layout="bar"
           homePath="/feed"
           left={(
-            <button type="button" className="back-btn" onClick={() => navigate('/feed')}>
+            <button type="button" className="back-btn" aria-label="Go back" onClick={() => navigate('/feed')}>
               <ChevronLeft size={18} />
             </button>
           )}
@@ -41,7 +41,20 @@ export default function EventStep1() {
             <div style={{ textAlign: 'right', fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
               Up to 10 items
             </div>
-            <div className="upload-area" onClick={addPhoto} style={{ cursor: 'pointer' }}>
+            <div
+              className="upload-area"
+              role="button"
+              tabIndex={0}
+              aria-label="Add photos or video"
+              onClick={addPhoto}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  addPhoto();
+                }
+              }}
+              style={{ cursor: 'pointer' }}
+            >
               <Camera size={28} color="var(--primary)" />
               <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)', marginTop: 8 }}>
                 Add photos or video
@@ -69,6 +82,7 @@ export default function EventStep1() {
                 />
                 <button
                   type="button"
+                  aria-label="Remove photo"
                   onClick={() => removePhoto(p.id)}
                   style={{
                     position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%',
@@ -82,6 +96,7 @@ export default function EventStep1() {
             ))}
             <button
               type="button"
+              aria-label="Add photo"
               onClick={addPhoto}
               style={{
                 width: 70, height: 70, border: '1.5px dashed var(--border)', borderRadius: 10,

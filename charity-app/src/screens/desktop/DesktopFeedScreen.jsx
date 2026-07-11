@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Users, MessageCircle } from 'lucide-react';
+import { Plus, Users, MessageCircle, Camera } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
 import { events } from '../../data/mockData';
@@ -44,7 +44,7 @@ function SceneEventCard({ ev }) {
         <div className="dsk-event-card-stats-row">
           <span className="dsk-event-card-stat"><Users size={12} /> {ev.backed} backing</span>
           <span className="dsk-event-card-stat"><MessageCircle size={12} /> {ev.chatCount} in chat</span>
-          <span className="dsk-event-card-stat">📸 {ev.updates} moments</span>
+          <span className="dsk-event-card-stat"><Camera size={12} /> {ev.updates} moments</span>
         </div>
       </div>
     </div>
@@ -150,7 +150,7 @@ export default function DesktopFeedScreen() {
             <div className="feed-loader"><span className="feed-spinner" /> Loading more events…</div>
           )}
           {!hasMore && filtered.length > 0 && (
-            <p className="feed-end">You&apos;re all caught up 🎉</p>
+            <p className="feed-end">You&apos;re all caught up</p>
           )}
         </div>
       </main>

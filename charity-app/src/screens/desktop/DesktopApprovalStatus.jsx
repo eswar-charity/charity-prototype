@@ -20,7 +20,7 @@ function statusesFor(state) {
 }
 const COPY = {
   review:    { title: 'Submitted!', sub: "Ocean Conservancy is reviewing your event. You'll hear back within 48 hours." },
-  approved:  { title: "You're approved 🎉", sub: 'Ocean Conservancy approved your event — publish it whenever you’re ready.' },
+  approved:  { title: "You're approved", sub: 'Ocean Conservancy approved your event — publish it whenever you’re ready.' },
   live:      { title: "You're live!", sub: 'Your event is published and open for people to join and back.' },
   completed: { title: 'Event complete', sub: 'Great work. Your impact recap is ready to review and share.' },
 };
@@ -97,7 +97,7 @@ export default function DesktopApprovalStatus() {
               }}
             >
               <p className="dsk-approval-hero-title">Coastal Cleanup Gala</p>
-              <p className="dsk-approval-hero-sub">📍 Santa Monica Pier{state === 'live' ? ' · LIVE NOW' : ''}</p>
+              <p className="dsk-approval-hero-sub">Santa Monica Pier{state === 'live' ? ' · LIVE NOW' : ''}</p>
             </div>
 
             <div className="dsk-approval-side">

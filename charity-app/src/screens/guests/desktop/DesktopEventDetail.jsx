@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Share2, Heart, X, Calendar, MapPin, Plus, Camera, ArrowUp,
-  MessageCircle, Users, Play,
+  MessageCircle, Users, Play, Info, PartyPopper,
 } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
@@ -125,9 +125,9 @@ function CommunityTab() {
 
 const CHAT_SEED = [
   { id: 1, initials: ev.initials, color: 'linear-gradient(135deg,var(--primary),var(--blue))', name: ev.organizer, host: true, text: "Welcome everyone! We're starting the main presentation in about 5 minutes. Feel free to grab a virtual seat and say hi!" },
-  { id: 2, initials: 'ML', color: 'linear-gradient(135deg,#0D7377,#14A085)', name: 'Marcus L.', text: 'So excited for this! Tuning in from Chicago. 👋', reaction: '🎉 12' },
+  { id: 2, initials: 'ML', color: 'linear-gradient(135deg,#0D7377,#14A085)', name: 'Marcus L.', text: 'So excited for this! Tuning in from Chicago.', reaction: '12' },
   { id: 3, initials: 'ME', color: 'linear-gradient(135deg,#7B1FA2,#AB47BC)', mine: true, text: "Incredible turnout already. Can't wait for the auction segment!", sent: true },
-  { id: 4, initials: 'EJ', color: 'linear-gradient(135deg,#1976D2,#42A5F5)', name: 'Emma J.', text: 'This is incredible! First time attending a Charity Hub event 🙌' },
+  { id: 4, initials: 'EJ', color: 'linear-gradient(135deg,#1976D2,#42A5F5)', name: 'Emma J.', text: 'This is incredible! First time attending a Charity Hub event' },
 ];
 
 function ChatTab({ onNeedJoin }) {
@@ -183,7 +183,7 @@ function ChatTab({ onNeedJoin }) {
                 </div>
               )}
               <div className="chat-bubble">{msg.text}</div>
-              {msg.reaction && <div className="chat-reaction">{msg.reaction}</div>}
+              {msg.reaction && <div className="chat-reaction"><PartyPopper size={12} aria-hidden="true" /> {msg.reaction}</div>}
               {msg.sent && <p className="chat-sent">Sent</p>}
             </div>
           </div>
@@ -199,6 +199,7 @@ function ChatTab({ onNeedJoin }) {
         </button>
         <input
           className="dsk-chat-input-field"
+          aria-label="Write a message"
           placeholder="Say something..."
           value={value}
           onChange={(e) => setValue(e.target.value)}
@@ -275,7 +276,7 @@ export default function DesktopEventDetail() {
             <span className="dsk-ev-hero-live"><span className="live-dot" /> DOORS OPEN · LIVE NOW</span>
           )}
           <div className="dsk-ev-hero-actions">
-            <button className="ev-hero-btn" onClick={() => setShowAbout(true)} aria-label="Event info">ⓘ</button>
+            <button className="ev-hero-btn" onClick={() => setShowAbout(true)} aria-label="Event info"><Info size={16} color="white" /></button>
             <button className="ev-hero-btn" onClick={() => setShowShare(true)} aria-label="Share"><Share2 size={16} color="white" /></button>
             <button className="ev-hero-btn" onClick={() => setLiked(!liked)} aria-label="Like">
               <Heart size={16} color={liked ? '#FF6B6B' : 'white'} fill={liked ? '#FF6B6B' : 'none'} />
@@ -284,7 +285,18 @@ export default function DesktopEventDetail() {
         </div>
         <div className="dsk-ev-hero-bottom">
           <h1 className="dsk-ev-hero-title">#{ev.title.replace(/\s+/g, '')}</h1>
-          <p className="dsk-ev-hero-sub">PRESENTED BY <span onClick={() => navigate(`/guest/organizer/${slugify(ev.organizer)}`)}>{ev.organizer}</span></p>
+          <p className="dsk-ev-hero-sub">PRESENTED BY <span
+            role="button"
+            tabIndex={0}
+            aria-label={`View ${ev.organizer}'s profile`}
+            onClick={() => navigate(`/guest/organizer/${slugify(ev.organizer)}`)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                navigate(`/guest/organizer/${slugify(ev.organizer)}`);
+              }
+            }}
+          >{ev.organizer}</span></p>
         </div>
       </div>
 
@@ -324,7 +336,7 @@ export default function DesktopEventDetail() {
                   <MessageCircle size={13} /> {ev.chatCount} in chat
                 </button>
               </div>
-              <button className="dsk-sidebar-details-link" onClick={() => setShowAbout(true)}>Event details ⓘ</button>
+              <button className="dsk-sidebar-details-link" onClick={() => setShowAbout(true)}>Event details <Info size={13} aria-hidden="true" style={{ verticalAlign: -2 }} /></button>
             </div>
           </aside>
         </div>

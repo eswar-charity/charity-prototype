@@ -90,7 +90,16 @@ export default function ProfileScreen() {
                 <div
                   key={ev.id}
                   className="recent-event-row"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View ${ev.title}`}
                   onClick={() => navigate('/post-event')}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      navigate('/post-event');
+                    }
+                  }}
                 >
                   <div
                     className="recent-thumb"

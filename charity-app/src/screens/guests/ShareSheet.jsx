@@ -92,7 +92,19 @@ export default function ShareSheet() {
         }} />
 
         {/* Close tap area */}
-        <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => navigate(-1)} />
+        <div
+          role="button"
+          tabIndex={0}
+          aria-label="Dismiss share sheet"
+          style={{ flex: 1, cursor: 'pointer' }}
+          onClick={() => navigate(-1)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              navigate(-1);
+            }
+          }}
+        />
 
         {/* Sheet */}
         <div className="bottom-sheet" style={{ position: 'relative', zIndex: 2 }}>
@@ -102,6 +114,7 @@ export default function ShareSheet() {
             <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--dark)' }}>Share this event</h2>
             <button
               onClick={() => navigate(-1)}
+              aria-label="Close"
               style={{
                 width: 30, height: 30, borderRadius: '50%',
                 background: 'var(--border)', border: 'none',
@@ -138,8 +151,21 @@ export default function ShareSheet() {
           {/* Share channels */}
           <div className="share-icons" style={{ marginBottom: 20 }}>
             {CHANNELS.map((ch) => (
-              <div key={ch.label} className="share-icon-item" onClick={() => handleChannel(ch.label)}>
-                <div className="share-icon-circle">
+              <div
+                key={ch.label}
+                className="share-icon-item"
+                role="button"
+                tabIndex={0}
+                aria-label={`Share on ${ch.label}`}
+                onClick={() => handleChannel(ch.label)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleChannel(ch.label);
+                  }
+                }}
+              >
+                <div className="share-icon-circle" aria-hidden="true">
                   {ch.icon}
                 </div>
                 <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 500 }}>
@@ -167,14 +193,26 @@ export default function ShareSheet() {
             </button>
           </div>
 
-          <div className="more-row" onClick={() => handleChannel('more apps')}>
+          <div
+            className="more-row"
+            role="button"
+            tabIndex={0}
+            aria-label="Share to more apps"
+            onClick={() => handleChannel('more apps')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleChannel('more apps');
+              }
+            }}
+          >
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{
                 width: 36, height: 36, borderRadius: '50%',
                 background: 'var(--border)', display: 'flex',
                 alignItems: 'center', justifyContent: 'center',
               }}>
-                <span style={{ fontSize: 16 }}>···</span>
+                <span style={{ fontSize: 16 }} aria-hidden="true">···</span>
               </div>
               <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--dark)' }}>More</span>
             </div>

@@ -39,6 +39,7 @@ export default function ExpiredEvent() {
             {/* Back */}
             <button
               className="back-btn"
+              aria-label="Back to feed"
               style={{
                 position: 'absolute', top: 48, left: 14,
                 background: 'rgba(255,255,255,0.2)', border: 'none',
@@ -102,7 +103,16 @@ export default function ExpiredEvent() {
                   <div
                     key={ev.id}
                     className="rec-card"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View ${ev.title}`}
                     onClick={() => navigate('/guest/event/upcoming')}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        navigate('/guest/event/upcoming');
+                      }
+                    }}
                   >
                     <div className="rec-hero" style={{ background: ev.bg }}>
                       <div style={{

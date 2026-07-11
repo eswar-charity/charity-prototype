@@ -1,18 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Plus, Heart } from 'lucide-react';
+import { Bell, Plus, Heart, BookOpen, Waves, PawPrint } from 'lucide-react';
 import MobileAppHeader from '../../components/MobileAppHeader';
 
 const CAUSES = [
   { label: 'Add', isAdd: true },
-  { label: 'Education', bg: 'linear-gradient(135deg,#7B1FA2,#AB47BC)', emoji: '📚' },
-  { label: 'Ocean', bg: 'linear-gradient(135deg,#0288D1,#26C6DA)', emoji: '🌊' },
-  { label: 'Animals', bg: 'linear-gradient(135deg,#D32F2F,#EF5350)', emoji: '🐾' },
+  { label: 'Education', bg: 'linear-gradient(135deg,#7B1FA2,#AB47BC)', Icon: BookOpen },
+  { label: 'Ocean', bg: 'linear-gradient(135deg,#0288D1,#26C6DA)', Icon: Waves },
+  { label: 'Animals', bg: 'linear-gradient(135deg,#D32F2F,#EF5350)', Icon: PawPrint },
 ];
 
 function EmptyIllustration() {
   return (
-    <svg viewBox="0 0 280 200" width="100%" height="100%" style={{ position: 'absolute', inset: 0 }}>
+    <svg viewBox="0 0 280 200" width="100%" height="100%" style={{ position: 'absolute', inset: 0 }} aria-hidden="true">
       {/* Background */}
       <rect width="280" height="200" fill="transparent" />
 
@@ -78,7 +78,16 @@ export default function EmptyFeed() {
             <div
               key={i}
               className="story-bubble"
+              role="button"
+              tabIndex={0}
+              aria-label={c.isAdd ? 'Add a cause' : `Browse ${c.label} events`}
               onClick={() => navigate(c.isAdd ? '/guest/join' : '/guest/feed')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  navigate(c.isAdd ? '/guest/join' : '/guest/feed');
+                }
+              }}
             >
               {c.isAdd ? (
                 <div style={{
@@ -91,7 +100,7 @@ export default function EmptyFeed() {
                 </div>
               ) : (
                 <div className="story-circle" style={{ background: c.bg }}>
-                  <span style={{ fontSize: 22 }}>{c.emoji}</span>
+                  <c.Icon size={24} color="white" aria-hidden="true" />
                 </div>
               )}
               <span className="story-label">{c.label}</span>
@@ -138,7 +147,19 @@ export default function EmptyFeed() {
             <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--blue)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>
               Featured Story
             </p>
-            <div className="story-card" onClick={() => navigate('/guest/event/upcoming')}>
+            <div
+              className="story-card"
+              role="button"
+              tabIndex={0}
+              aria-label="View Clean Water Initiative story"
+              onClick={() => navigate('/guest/event/upcoming')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  navigate('/guest/event/upcoming');
+                }
+              }}
+            >
               <div className="story-card-hero">
                 {/* Warm forest image */}
                 <div style={{

@@ -1,17 +1,17 @@
 import { useState, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Bookmark, Share2, Users, Plus } from 'lucide-react';
+import { Bell, Bookmark, Share2, Users, Plus, TreePine, Palette, Apple, Waves, PawPrint } from 'lucide-react';
 import GuestBottomNav from '../../components/GuestBottomNav';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
 import MobileAppHeader from '../../components/MobileAppHeader';
 
 const STORIES = [
   { id: 0, label: 'Add', isAdd: true },
-  { id: 1, label: 'Tree Drive', category: 'Environment', bg: 'linear-gradient(135deg,#388E3C,#66BB6A)', emoji: '🌳' },
-  { id: 2, label: 'Art Class', category: 'Education', bg: 'linear-gradient(135deg,#7B1FA2,#AB47BC)', emoji: '🎨' },
-  { id: 3, label: 'Food Store', category: 'Health', bg: 'linear-gradient(135deg,#1976D2,#42A5F5)', emoji: '🍎' },
-  { id: 4, label: 'Ocean', category: 'Environment', bg: 'linear-gradient(135deg,#0288D1,#26C6DA)', emoji: '🌊' },
-  { id: 5, label: 'Animals', category: 'Animals', bg: 'linear-gradient(135deg,#D32F2F,#EF5350)', emoji: '🐾' },
+  { id: 1, label: 'Tree Drive', category: 'Environment', bg: 'linear-gradient(135deg,#388E3C,#66BB6A)', Icon: TreePine },
+  { id: 2, label: 'Art Class', category: 'Education', bg: 'linear-gradient(135deg,#7B1FA2,#AB47BC)', Icon: Palette },
+  { id: 3, label: 'Food Store', category: 'Health', bg: 'linear-gradient(135deg,#1976D2,#42A5F5)', Icon: Apple },
+  { id: 4, label: 'Ocean', category: 'Environment', bg: 'linear-gradient(135deg,#0288D1,#26C6DA)', Icon: Waves },
+  { id: 5, label: 'Animals', category: 'Animals', bg: 'linear-gradient(135deg,#D32F2F,#EF5350)', Icon: PawPrint },
 ];
 
 const EVENTS = [
@@ -151,7 +151,7 @@ export default function GuestFeed() {
                   </div>
                 ) : (
                   <div className="story-circle" style={{ background: s.bg }}>
-                    <span style={{ fontSize: 22 }}>{s.emoji}</span>
+                    <s.Icon size={24} color="white" aria-hidden="true" />
                   </div>
                 )}
                 <span className="story-label">{s.label}</span>
@@ -169,7 +169,20 @@ export default function GuestFeed() {
               </p>
             )}
             {items.map((ev) => (
-              <div key={ev._key} className="feed-card" onClick={() => navigate(ev.route)}>
+              <div
+                key={ev._key}
+                className="feed-card"
+                role="button"
+                tabIndex={0}
+                aria-label={`View ${ev.title}`}
+                onClick={() => navigate(ev.route)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate(ev.route);
+                  }
+                }}
+              >
                 <div className="feed-card-hero" style={{ backgroundImage: `url(${ev.cover})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
                   <div style={{
                     position: 'absolute', inset: 0,
@@ -203,7 +216,7 @@ export default function GuestFeed() {
                     {ev.title}
                   </p>
                   {ev.subtitle && (
-                    <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10, lineHeight: 1.4 }}>
+                    <p className="clamp-2" style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10, lineHeight: 1.4 }}>
                       {ev.subtitle}
                     </p>
                   )}
@@ -235,14 +248,35 @@ export default function GuestFeed() {
                           color={savedIds[ev._key] ? 'var(--primary)' : 'var(--text-light)'}
                           fill={savedIds[ev._key] ? 'var(--primary)' : 'none'}
                           style={{ cursor: 'pointer' }}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={savedIds[ev._key] ? 'Remove from saved' : 'Save event'}
                           onClick={(e) => {
                             e.stopPropagation();
                             setSavedIds((prev) => ({ ...prev, [ev._key]: !prev[ev._key] }));
                             showToast(savedIds[ev._key] ? 'Removed from saved' : 'Saved to your list');
                           }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setSavedIds((prev) => ({ ...prev, [ev._key]: !prev[ev._key] }));
+                              showToast(savedIds[ev._key] ? 'Removed from saved' : 'Saved to your list');
+                            }
+                          }}
                         />
                         <Share2 size={16} color="var(--text-light)" style={{ cursor: 'pointer' }}
-                          onClick={(e) => { e.stopPropagation(); navigate('/guest/share'); }} />
+                          role="button"
+                          tabIndex={0}
+                          aria-label="Share event"
+                          onClick={(e) => { e.stopPropagation(); navigate('/guest/share'); }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              navigate('/guest/share');
+                            }
+                          }} />
                       </div>
                     </div>
                   )}
@@ -263,7 +297,7 @@ export default function GuestFeed() {
             {loading && (
               <div className="feed-loader"><span className="feed-spinner" /> Loading more events…</div>
             )}
-            {!hasMore && <p className="feed-end">You&apos;re all caught up 🎉</p>}
+            {!hasMore && <p className="feed-end">You&apos;re all caught up</p>}
           </div>
         </div>
 

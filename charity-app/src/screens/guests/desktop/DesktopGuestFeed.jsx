@@ -14,7 +14,19 @@ function EventCard({ ev, onRemind, reminded }) {
   const route = ev.isLive ? '/guest/event/live' : '/guest/event/upcoming';
 
   return (
-    <div className="dsk-event-card" onClick={() => navigate(route)}>
+    <div
+      className="dsk-event-card"
+      role="button"
+      tabIndex={0}
+      aria-label={`View ${ev.title}`}
+      onClick={() => navigate(route)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          navigate(route);
+        }
+      }}
+    >
       <div
         className="dsk-event-card-hero"
         style={{ backgroundImage: `url(${ev.cover})` }}
@@ -197,7 +209,7 @@ export default function DesktopGuestFeed() {
             <div className="feed-loader"><span className="feed-spinner" /> Loading more events…</div>
           )}
           {!hasMore && filtered.length > 0 && (
-            <p className="feed-end">You’re all caught up 🎉</p>
+            <p className="feed-end">You’re all caught up</p>
           )}
         </div>
       </main>

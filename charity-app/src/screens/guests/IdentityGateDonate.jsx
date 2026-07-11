@@ -75,7 +75,7 @@ export default function IdentityGateDonate() {
               fontSize: 15, fontWeight: 600, color: 'var(--dark)',
               whiteSpace: 'nowrap', flexShrink: 0,
             }}>
-              <span style={{ fontSize: 18 }}>🇺🇸</span> +1
+              +1
             </div>
             <input
               className="input-field input-soft"

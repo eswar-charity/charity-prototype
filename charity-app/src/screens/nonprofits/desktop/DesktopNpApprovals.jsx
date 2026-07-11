@@ -44,6 +44,9 @@ export default function DesktopNpApprovals() {
   const [events, setEvents] = useState(EVENTS);
   const [toast, setToast] = useState('');
   const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
+  const onKey = (fn) => (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
+  };
 
   const approve = (ev) => {
     setEvents((prev) => prev.map((e) => (e.id === ev.id ? { ...e, status: 'Approved' } : e)));
@@ -93,7 +96,7 @@ export default function DesktopNpApprovals() {
       )}
 
       {visible.map((ev) => (
-        <div key={ev.id} className="dsk-np-approval-card" onClick={() => navigate('/np/approvals/review')}>
+        <div key={ev.id} className="dsk-np-approval-card" role="button" tabIndex={0} aria-label={`Review ${ev.title}`} onClick={() => navigate('/np/approvals/review')} onKeyDown={onKey(() => navigate('/np/approvals/review'))}>
           <div className="dsk-np-approval-hero" style={{ backgroundImage: `url(${ev.heroImg})` }}>
             {ev.status === 'Approved'
               ? <span className="badge" style={{ background: 'var(--green)', color: 'white' }}>✓ Approved</span>

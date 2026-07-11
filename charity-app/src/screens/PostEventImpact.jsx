@@ -219,7 +219,19 @@ export default function PostEventImpact() {
             Keep the momentum going
           </p>
 
-          <div className="keep-row" onClick={() => navigate('/event/step-1')}>
+          <div
+            className="keep-row"
+            role="button"
+            tabIndex={0}
+            aria-label="Create your next event"
+            onClick={() => navigate('/event/step-1')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                navigate('/event/step-1');
+              }
+            }}
+          >
             <div className="keep-icon-circle" style={{ background: 'var(--primary-soft)' }}>
               <Rocket size={20} color="var(--primary)" />
             </div>
@@ -229,7 +241,19 @@ export default function PostEventImpact() {
             <ChevronRight size={18} color="var(--text-light)" />
           </div>
 
-          <div className="keep-row" onClick={() => navigate('/feed')}>
+          <div
+            className="keep-row"
+            role="button"
+            tabIndex={0}
+            aria-label="Explore other events"
+            onClick={() => navigate('/feed')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                navigate('/feed');
+              }
+            }}
+          >
             <div className="keep-icon-circle" style={{ background: 'var(--blue-soft)' }}>
               <Users size={20} color="var(--blue)" />
             </div>

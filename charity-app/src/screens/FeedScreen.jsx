@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Megaphone, Building2, Compass } from 'lucide-react';
+import { Plus, Megaphone, Building2, Compass, MessageCircle, Camera } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 import NotificationBell, { SE_FEED_NOTIFICATIONS } from '../components/NotificationBell';
 import MobileAppHeader from '../components/MobileAppHeader';
@@ -8,6 +8,13 @@ import { events } from '../data/mockData';
 import useInfiniteScroll from '../hooks/useInfiniteScroll';
 
 const FILTERS = ['All', 'You', 'Live now', 'Environment', 'Education'];
+
+const activateOnKey = (fn) => (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    fn();
+  }
+};
 
 export default function FeedScreen() {
   const navigate = useNavigate();
@@ -34,7 +41,11 @@ export default function FeedScreen() {
                 <div
                   className="scene-avatar"
                   style={{ cursor: 'pointer' }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Open your profile"
                   onClick={() => navigate('/profile')}
+                  onKeyDown={activateOnKey(() => navigate('/profile'))}
                 >SJ</div>
               </>
             )}
@@ -42,14 +53,29 @@ export default function FeedScreen() {
 
           {/* Story circles */}
           <div className="story-row">
-            <div className="story-item" onClick={() => setShowSheet(true)}>
+            <div
+              className="story-item"
+              role="button"
+              tabIndex={0}
+              aria-label="Create your event"
+              onClick={() => setShowSheet(true)}
+              onKeyDown={activateOnKey(() => setShowSheet(true))}
+            >
               <div className="story-circle yours">
                 <Plus size={22} color="var(--primary)" />
               </div>
               <span className="story-label">Your Event</span>
             </div>
             {events.slice(0, 4).map((ev) => (
-              <div key={ev.id} className="story-item" onClick={() => navigate('/guest/event/live')}>
+              <div
+                key={ev.id}
+                className="story-item"
+                role="button"
+                tabIndex={0}
+                aria-label={`Open ${ev.title}`}
+                onClick={() => navigate('/guest/event/live')}
+                onKeyDown={activateOnKey(() => navigate('/guest/event/live'))}
+              >
                 <div className="story-circle">
                   <img src={ev.cover} alt={ev.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
@@ -89,7 +115,11 @@ export default function FeedScreen() {
             <div
               key={ev._key}
               className="scene-card"
+              role="button"
+              tabIndex={0}
+              aria-label={`Open ${ev.title}`}
               onClick={() => navigate('/guest/event/live')}
+              onKeyDown={activateOnKey(() => navigate('/guest/event/live'))}
             >
               {/* Hero image */}
               <div
@@ -108,7 +138,7 @@ export default function FeedScreen() {
                 )}
                 <div className="scene-card-overlay">
                   <h3 className="scene-card-title">#{ev.title.replace(/[\s,''']+/g, '')}</h3>
-                  <p className="scene-card-desc">{ev.subtitle}</p>
+                  <p className="scene-card-desc clamp-2">{ev.subtitle}</p>
                 </div>
               </div>
 
@@ -134,9 +164,15 @@ export default function FeedScreen() {
                   </div>
                   <span className="scene-stat">{ev.backed} <span className="scene-stat-lbl">backing</span></span>
                   <span className="scene-stat-sep">·</span>
-                  <span className="scene-stat">💬 {ev.chatCount} <span className="scene-stat-lbl">in chat</span></span>
+                  <span className="scene-stat">
+                    <MessageCircle size={13} color="currentColor" style={{ verticalAlign: 'text-bottom' }} aria-hidden="true" />
+                    {' '}{ev.chatCount} <span className="scene-stat-lbl">in chat</span>
+                  </span>
                   <span className="scene-stat-sep">·</span>
-                  <span className="scene-stat">📸 {ev.updates} <span className="scene-stat-lbl">moments</span></span>
+                  <span className="scene-stat">
+                    <Camera size={13} color="currentColor" style={{ verticalAlign: 'text-bottom' }} aria-hidden="true" />
+                    {' '}{ev.updates} <span className="scene-stat-lbl">moments</span>
+                  </span>
                 </div>
               </div>
             </div>
@@ -145,7 +181,7 @@ export default function FeedScreen() {
           {loading && (
             <div className="feed-loader"><span className="feed-spinner" /> Loading more events…</div>
           )}
-          {!hasMore && <p className="feed-end">You’re all caught up 🎉</p>}
+          {!hasMore && <p className="feed-end">You’re all caught up</p>}
           </div>
         </div>{/* end scrollable area */}
 
@@ -167,7 +203,13 @@ export default function FeedScreen() {
               Create a free event for any verified nonprofit. Your story drives real participation.
             </p>
 
-            <div className="opt-row" onClick={() => { setShowSheet(false); navigate('/event/step-1'); }}>
+            <div
+              className="opt-row"
+              role="button"
+              tabIndex={0}
+              onClick={() => { setShowSheet(false); navigate('/event/step-1'); }}
+              onKeyDown={activateOnKey(() => { setShowSheet(false); navigate('/event/step-1'); })}
+            >
               <div className="opt-icon" style={{ background: 'var(--primary)' }}>
                 <Megaphone size={20} color="white" />
               </div>
@@ -180,7 +222,13 @@ export default function FeedScreen() {
               <Compass size={16} color="var(--text-light)" />
             </div>
 
-            <div className="opt-row" onClick={() => { setShowSheet(false); navigate('/np/home'); }}>
+            <div
+              className="opt-row"
+              role="button"
+              tabIndex={0}
+              onClick={() => { setShowSheet(false); navigate('/np/home'); }}
+              onKeyDown={activateOnKey(() => { setShowSheet(false); navigate('/np/home'); })}
+            >
               <div className="opt-icon" style={{ background: 'var(--blue)' }}>
                 <Building2 size={20} color="white" />
               </div>

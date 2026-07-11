@@ -10,19 +10,22 @@ const LIVE_EVENTS = [
 
 export default function DesktopNpLaunchpad() {
   const navigate = useNavigate();
+  const onKey = (fn) => (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
+  };
 
   return (
     <DesktopNpLayout active="home" title="Launchpad">
       <div className="dsk-np-stats-row">
-        <div className="dsk-np-stat-card" onClick={() => navigate('/np/approvals')} style={{ cursor: 'pointer' }}>
+        <div className="dsk-np-stat-card" role="button" tabIndex={0} onClick={() => navigate('/np/approvals')} onKeyDown={onKey(() => navigate('/np/approvals'))} style={{ cursor: 'pointer' }}>
           <p className="dsk-np-stat-lbl">Live events</p>
           <p className="dsk-np-stat-num blue">4</p>
         </div>
-        <div className="dsk-np-stat-card" onClick={() => navigate('/np/approvals')} style={{ cursor: 'pointer' }}>
+        <div className="dsk-np-stat-card" role="button" tabIndex={0} onClick={() => navigate('/np/approvals')} onKeyDown={onKey(() => navigate('/np/approvals'))} style={{ cursor: 'pointer' }}>
           <p className="dsk-np-stat-lbl">Pending approvals</p>
           <p className="dsk-np-stat-num coral">3</p>
         </div>
-        <div className="dsk-np-stat-card" onClick={() => navigate('/np/activity')} style={{ cursor: 'pointer' }}>
+        <div className="dsk-np-stat-card" role="button" tabIndex={0} onClick={() => navigate('/np/activity')} onKeyDown={onKey(() => navigate('/np/activity'))} style={{ cursor: 'pointer' }}>
           <p className="dsk-np-stat-lbl">Backers this week</p>
           <p className="dsk-np-stat-num dark">87</p>
         </div>
@@ -34,7 +37,7 @@ export default function DesktopNpLaunchpad() {
           <span className="np-count-badge">3 ITEMS</span>
         </div>
 
-        <div className="dsk-np-action-item" onClick={() => navigate('/np/approvals')}>
+        <div className="dsk-np-action-item" role="button" tabIndex={0} onClick={() => navigate('/np/approvals')} onKeyDown={onKey(() => navigate('/np/approvals'))}>
           <div className="action-item-icon" style={{ background: 'var(--primary-soft)' }}><Clock size={16} color="var(--primary)" /></div>
           <div className="action-item-body">
             <p className="action-item-title">New event request — Maya R. wants to run 'Coastal Cleanup Wave 2'</p>
@@ -42,7 +45,7 @@ export default function DesktopNpLaunchpad() {
           </div>
           <span className="np-link-btn">Review →</span>
         </div>
-        <div className="dsk-np-action-item" onClick={() => navigate('/np/activity')}>
+        <div className="dsk-np-action-item" role="button" tabIndex={0} onClick={() => navigate('/np/activity')} onKeyDown={onKey(() => navigate('/np/activity'))}>
           <div className="action-item-icon" style={{ background: 'var(--blue-soft)' }}><Flag size={16} color="var(--blue)" /></div>
           <div className="action-item-body">
             <p className="action-item-title">1 content item flagged — comment in 'Books for Bright Minds'</p>
@@ -62,7 +65,11 @@ export default function DesktopNpLaunchpad() {
             key={ev.id}
             className="dsk-np-event-card"
             style={{ cursor: 'pointer' }}
+            role="button"
+            tabIndex={0}
+            aria-label={`View ${ev.title}`}
             onClick={() => navigate(ev.isLive ? '/guest/event/live' : '/guest/event/upcoming')}
+            onKeyDown={onKey(() => navigate(ev.isLive ? '/guest/event/live' : '/guest/event/upcoming'))}
           >
             <div className="dsk-np-event-hero" style={{ backgroundImage: `url(${ev.cover})` }}>
               <span className={`badge ${ev.isLive ? 'badge-live' : 'badge-upcoming'}`}>{ev.isLive ? '● LIVE' : 'UPCOMING'}</span>

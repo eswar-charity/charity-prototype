@@ -40,8 +40,19 @@ export default function DesktopEventDetailUpcoming() {
         <div className="dsk-ev-hero-bottom">
           <h1 className="dsk-ev-hero-title">#{ev.title.replace(/[\s,''']+/g, '')}</h1>
           <p className="dsk-ev-hero-sub">
-            <MapPin size={12} style={{ verticalAlign: -1, marginRight: 4 }} />{ev.location} · PRESENTED BY{' '}
-            <span onClick={() => navigate(`/guest/organizer/${slugify(ev.organizer)}`)}>{ev.organizer}</span>
+            <MapPin size={12} style={{ verticalAlign: -1, marginRight: 4 }} aria-hidden="true" />{ev.location} · PRESENTED BY{' '}
+            <span
+              role="button"
+              tabIndex={0}
+              aria-label={`View ${ev.organizer}'s profile`}
+              onClick={() => navigate(`/guest/organizer/${slugify(ev.organizer)}`)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  navigate(`/guest/organizer/${slugify(ev.organizer)}`);
+                }
+              }}
+            >{ev.organizer}</span>
           </p>
         </div>
       </div>
@@ -65,8 +76,17 @@ export default function DesktopEventDetailUpcoming() {
 
               <div
                 className="dsk-upcoming-backers-row"
+                role="button"
+                tabIndex={0}
+                aria-label={`View ${ev.backed} people backing this event`}
                 style={{ cursor: 'pointer' }}
                 onClick={() => setShowBackersModal(true)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setShowBackersModal(true);
+                  }
+                }}
               >
                 <div className="av-stack">
                   {BACKER_COLORS.map((c, i) => <div key={i} className="av" style={{ background: c }} />)}

@@ -223,7 +223,7 @@ export const liveActivities = [
     user: 'Sarah Jenkins',
     initials: 'SJ',
     color: '#F5604A',
-    text: 'Setting up the start line now! See you all at Prospect Park — the neon glow is 🔥',
+    text: 'Setting up the start line now! See you all at Prospect Park — the neon glow is unreal.',
     time: '8 min ago',
     isOrganizer: true,
     hasImage: true,

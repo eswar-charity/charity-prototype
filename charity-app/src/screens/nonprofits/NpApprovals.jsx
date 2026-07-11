@@ -45,6 +45,9 @@ export default function NpApprovals() {
   const [events, setEvents] = useState(EVENTS);
   const [toast, setToast] = useState('');
   const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
+  const onKey = (fn) => (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
+  };
 
   const approve = (ev) => {
     setEvents((prev) => prev.filter((e) => e.id !== ev.id));
@@ -83,7 +86,11 @@ export default function NpApprovals() {
                 key={ev.id}
                 className="ap-card"
                 style={{ cursor: 'pointer' }}
+                role="button"
+                tabIndex={0}
+                aria-label={`Review ${ev.title}`}
                 onClick={() => navigate('/np/approvals/review')}
+                onKeyDown={onKey(() => navigate('/np/approvals/review'))}
               >
                 {ev.hasHero && (
                   <div className="ap-hero">

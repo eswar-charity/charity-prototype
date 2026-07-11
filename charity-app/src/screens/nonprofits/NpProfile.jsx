@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Pencil } from 'lucide-react';
+import { ChevronLeft, Pencil, Users, Heart, Calendar, Globe } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
 import Logo from '../../components/Logo';
 
@@ -23,10 +23,10 @@ const LOGO_OPTIONS = [
 ];
 
 const IMPACT = [
-  { num: '12k+', label: 'Supporters', icon: '👥' },
-  { num: '$2.4M', label: 'Raised Total', icon: '💝' },
-  { num: '15', label: 'Active Events', icon: '📅' },
-  { num: '8', label: 'Countries', icon: '🌍' },
+  { num: '12k+', label: 'Supporters', Icon: Users },
+  { num: '$2.4M', label: 'Raised Total', Icon: Heart },
+  { num: '15', label: 'Active Events', Icon: Calendar },
+  { num: '8', label: 'Countries', Icon: Globe },
 ];
 
 export default function NpProfile() {
@@ -114,7 +114,7 @@ export default function NpProfile() {
             <div className="impact-grid" style={{ marginBottom: 8 }}>
               {IMPACT.map((item) => (
                 <div key={item.label} className="impact-box">
-                  <span style={{ fontSize: 22 }}>{item.icon}</span>
+                  <item.Icon size={16} color="var(--text-secondary)" aria-hidden={true} />
                   <div className="impact-num">{item.num}</div>
                   <div className="impact-lbl">{item.label}</div>
                 </div>

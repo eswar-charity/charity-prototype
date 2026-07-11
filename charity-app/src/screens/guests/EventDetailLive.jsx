@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   ChevronLeft, Info, Share2, Heart,
   Plus, Camera, ArrowUp, MoreHorizontal,
+  Images, MessageCircle, HandHeart, PartyPopper,
 } from 'lucide-react';
 import { events, liveActivities } from '../../data/mockData';
 
@@ -31,7 +32,7 @@ function CommunityTab() {
       <div className="photo-reel">
         {REEL.map((item, i) => (
           <div key={i} className="photo-reel-item">
-            <img src={item.src} alt={item.user} />
+            <img src={item.src} alt={`Photo shared by ${item.user}`} />
             <div className="photo-reel-caption">
               <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                 <div style={{
@@ -95,7 +96,7 @@ function CommunityTab() {
             <p className="ev-activity-text" style={{ marginTop: 3 }}>{item.text}</p>
             {item.hasImage && (
               <div style={{ marginTop: 8, height: 100, borderRadius: 10, overflow: 'hidden' }}>
-                <img src={item.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={item.image} alt={`Photo shared by ${item.user}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
             )}
           </div>
@@ -122,84 +123,79 @@ function ChatTabHeader() {
   );
 }
 
-function ChatTabMessages() {
+const CHAT_SEED = [
+  {
+    id: 'seed-1', name: ev.organizer, initials: 'SJ',
+    avatar: 'linear-gradient(135deg,var(--primary),var(--blue))', host: true, verified: true,
+    text: "Welcome everyone! We're starting the main presentation in about 5 minutes. Feel free to grab a virtual seat and say hi!",
+  },
+  {
+    id: 'seed-2', name: 'Marcus L.', initials: 'ML',
+    avatar: 'linear-gradient(135deg,#0D7377,#14A085)',
+    text: 'So excited for this! Tuning in from Chicago.', reaction: 12,
+  },
+  {
+    id: 'seed-3', mine: true, initials: 'ME',
+    avatar: 'linear-gradient(135deg,#7B1FA2,#AB47BC)',
+    text: "Incredible turnout already. Can't wait for the auction segment!", sent: 'Sent',
+  },
+  {
+    id: 'seed-4', name: 'Emma J.', initials: 'EJ',
+    avatar: 'linear-gradient(135deg,#1976D2,#42A5F5)',
+    text: 'This is incredible! First time attending a Charity Hub event',
+  },
+];
+
+function ChatTabMessages({ messages }) {
   return (
     <div className="chat-messages">
-        {/* Host */}
-        <div className="chat-msg">
-          <div className="chat-msg-avatar" style={{ background: 'linear-gradient(135deg,var(--primary),var(--blue))' }}>SJ</div>
+      {messages.map((m) => (
+        <div key={m.id} className={`chat-msg${m.mine ? ' mine' : ''}`}>
+          <div className="chat-msg-avatar" style={{ background: m.avatar }}>{m.initials}</div>
           <div className="chat-msg-body">
-            <div className="chat-msg-name">
-              {ev.organizer}
-              <span style={{
-                display: 'inline-flex', width: 14, height: 14, borderRadius: '50%',
-                background: 'var(--blue)', color: 'white', fontSize: 9,
-                alignItems: 'center', justifyContent: 'center',
-              }}>✓</span>
-              <span className="chat-host-badge">Host</span>
-            </div>
-            <div className="chat-bubble">
-              Welcome everyone! We're starting the main presentation in about 5 minutes.
-              Feel free to grab a virtual seat and say hi!
-            </div>
+            {!m.mine && m.name && (
+              <div className="chat-msg-name">
+                {m.name}
+                {m.verified && (
+                  <span style={{
+                    display: 'inline-flex', width: 14, height: 14, borderRadius: '50%',
+                    background: 'var(--blue)', color: 'white', fontSize: 9,
+                    alignItems: 'center', justifyContent: 'center',
+                  }}>✓</span>
+                )}
+                {m.host && <span className="chat-host-badge">Host</span>}
+              </div>
+            )}
+            <div className="chat-bubble">{m.text}</div>
+            {m.reaction && <div className="chat-reaction"><PartyPopper size={13} aria-hidden="true" /> {m.reaction}</div>}
+            {m.sent && <p className="chat-sent">{m.sent}</p>}
           </div>
         </div>
-
-        {/* Marcus */}
-        <div className="chat-msg">
-          <div className="chat-msg-avatar" style={{ background: 'linear-gradient(135deg,#0D7377,#14A085)' }}>ML</div>
-          <div className="chat-msg-body">
-            <div className="chat-msg-name">Marcus L.</div>
-            <div className="chat-bubble">So excited for this! Tuning in from Chicago. 👋</div>
-            <div className="chat-reaction">🎉 12</div>
-          </div>
-        </div>
-
-        {/* My message */}
-        <div className="chat-msg mine">
-          <div className="chat-msg-avatar" style={{ background: 'linear-gradient(135deg,#7B1FA2,#AB47BC)' }}>ME</div>
-          <div className="chat-msg-body">
-            <div className="chat-bubble">
-              Incredible turnout already. Can't wait for the auction segment!
-            </div>
-            <p className="chat-sent">Sent</p>
-          </div>
-        </div>
-
-        {/* Emma */}
-        <div className="chat-msg">
-          <div className="chat-msg-avatar" style={{ background: 'linear-gradient(135deg,#1976D2,#42A5F5)' }}>EJ</div>
-          <div className="chat-msg-body">
-            <div className="chat-msg-name">Emma J.</div>
-            <div className="chat-bubble">
-              This is incredible! First time attending a Charity Hub event 🙌
-            </div>
-          </div>
-        </div>
-
-        <div style={{ height: 8 }} />
+      ))}
+      <div style={{ height: 8 }} />
     </div>
   );
 }
 
-function ChatInputBar({ value, onChange, onGate }) {
+function ChatInputBar({ value, onChange, onSend, onAttach }) {
   return (
     <div className="chat-input-bar">
       <div className="chat-input-pill">
-        <button type="button" className="chat-input-action" aria-label="Add attachment" onClick={onGate}>
+        <button type="button" className="chat-input-action" aria-label="Add attachment" onClick={onAttach}>
           <Plus size={20} />
         </button>
-        <button type="button" className="chat-input-action" aria-label="Add photo" onClick={onGate}>
+        <button type="button" className="chat-input-action" aria-label="Add photo" onClick={onAttach}>
           <Camera size={20} />
         </button>
         <input
           className="chat-input-field"
-          placeholder="Can't wait for this..."
+          aria-label="Write a message"
+          placeholder="Say something…"
           value={value}
           onChange={onChange}
-          onFocus={onGate}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSend(); } }}
         />
-        <button type="button" className="chat-send-btn" aria-label="Send message" onClick={onGate}>
+        <button type="button" className="chat-send-btn" aria-label="Send message" onClick={onSend}>
           <ArrowUp size={18} color="white" strokeWidth={2.5} />
         </button>
       </div>
@@ -283,9 +279,9 @@ function SupportTab({ selectedAmount, onSelectAmount, onDonate, onViewStructure 
 
 /* ── Main Component ──────────────────────────────────────── */
 const TABS = [
-  { id: 'community', icon: '🖼', label: 'Community', sub: 'Photos & moments' },
-  { id: 'chat',      icon: '💬', label: 'Chat',      sub: 'Live conversation' },
-  { id: 'support',   icon: '💝', label: 'Support',   sub: 'Back the cause'   },
+  { id: 'community', Icon: Images,        label: 'Community', sub: 'Photos & moments' },
+  { id: 'chat',      Icon: MessageCircle, label: 'Chat',      sub: 'Live conversation' },
+  { id: 'support',   Icon: HandHeart,     label: 'Support',   sub: 'Back the cause'   },
 ];
 
 export default function EventDetailLive() {
@@ -294,12 +290,23 @@ export default function EventDetailLive() {
   const [liked, setLiked]                 = useState(false);
   const [selectedAmount, setSelectedAmount] = useState(25);
   const [chatInput, setChatInput]         = useState('');
+  const [messages, setMessages]           = useState(CHAT_SEED);
   const [showAbout, setShowAbout]         = useState(false);
   const [toast, setToast]                 = useState('');
 
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(''), 1800);
+  };
+
+  const sendMessage = () => {
+    const text = chatInput.trim();
+    if (!text) return;
+    setMessages((prev) => [
+      ...prev,
+      { id: `me-${prev.length}`, mine: true, initials: 'ME', avatar: 'linear-gradient(135deg,#7B1FA2,#AB47BC)', text, sent: 'Sent' },
+    ]);
+    setChatInput('');
   };
 
   return (
@@ -313,7 +320,7 @@ export default function EventDetailLive() {
 
           {/* Top nav */}
           <div className="ev-hero-nav">
-            <button className="ev-hero-btn" onClick={() => navigate(-1)}>
+            <button className="ev-hero-btn" onClick={() => navigate(-1)} aria-label="Go back">
               <ChevronLeft size={18} color="white" />
             </button>
             <div style={{ display: 'flex', gap: 8 }}>
@@ -338,9 +345,11 @@ export default function EventDetailLive() {
               <div>
                 <p className="ev-presented">PRESENTED BY</p>
                 <p className="ev-presented-name">{ev.organizer}</p>
-                <button className="ev-details-link" onClick={() => setShowAbout(true)}>Event details ⓘ</button>
+                <button className="ev-details-link" onClick={() => setShowAbout(true)}>
+                  Event details <Info size={13} aria-hidden="true" style={{ verticalAlign: -2 }} />
+                </button>
               </div>
-              <button className="ev-heart-btn" onClick={() => setLiked(!liked)}>
+              <button className="ev-heart-btn" onClick={() => setLiked(!liked)} aria-label={liked ? 'Unlike event' : 'Like event'}>
                 <Heart
                   size={18}
                   color={liked ? '#FF6B6B' : 'white'}
@@ -363,7 +372,7 @@ export default function EventDetailLive() {
                 className={`ev-tab ${activeTab === tab.id ? 'active' : ''}`}
                 onClick={() => setActiveTab(tab.id)}
               >
-                <span className="ev-tab-icon">{tab.icon}</span>
+                <span className="ev-tab-icon"><tab.Icon size={18} aria-hidden="true" /></span>
                 <span className="ev-tab-label">{tab.label}</span>
                 <span className="ev-tab-sub">{tab.sub}</span>
               </button>
@@ -375,12 +384,13 @@ export default function EventDetailLive() {
             <>
               <ChatTabHeader />
               <div className="ev-tab-content">
-                <ChatTabMessages />
+                <ChatTabMessages messages={messages} />
               </div>
               <ChatInputBar
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
-                onGate={() => navigate('/guest/join')}
+                onSend={sendMessage}
+                onAttach={() => showToast('Photo sharing is coming soon')}
               />
             </>
           ) : (

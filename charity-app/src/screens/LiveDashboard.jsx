@@ -196,7 +196,7 @@ export default function LiveDashboard() {
             <Compass size={22} />
             <span>Explore</span>
           </button>
-          <button className="nav-center-btn" onClick={() => navigate('/create-event')}>
+          <button className="nav-center-btn" aria-label="Create event" onClick={() => navigate('/create-event')}>
             <Plus size={24} />
           </button>
           <button className="nav-item" onClick={() => navigate('/post-event')}>
@@ -227,6 +227,7 @@ export default function LiveDashboard() {
             </div>
             <textarea
               className="input-field"
+              aria-label="Write an update to your supporters"
               placeholder="Share what's happening with your supporters…"
               value={update}
               onChange={(e) => setUpdate(e.target.value)}

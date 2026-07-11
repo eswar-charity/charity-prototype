@@ -41,6 +41,7 @@ export default function EventDetailUpcoming() {
             }}>
               <button
                 className="back-btn"
+                aria-label="Back to feed"
                 style={{ background: 'rgba(255,255,255,0.2)', border: 'none' }}
                 onClick={() => navigate('/guest/feed')}
               >
@@ -48,6 +49,7 @@ export default function EventDetailUpcoming() {
               </button>
               <button
                 onClick={() => setSaved(!saved)}
+                aria-label={saved ? 'Remove bookmark' : 'Save event'}
                 style={{
                   width: 38, height: 38, borderRadius: '50%',
                   background: 'rgba(255,255,255,0.2)', border: 'none',
@@ -104,7 +106,16 @@ export default function EventDetailUpcoming() {
 
             {/* Backers */}
             <div
+              role="button"
+              tabIndex={0}
+              aria-label={`View ${ev.backed} people backing this event`}
               onClick={() => setShowBackersModal(true)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setShowBackersModal(true);
+                }
+              }}
               style={{
                 display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'space-between',
                 padding: '12px 0', borderBottom: '1px solid var(--border)', marginBottom: 0,
@@ -127,7 +138,16 @@ export default function EventDetailUpcoming() {
             {/* Organiser */}
             <div className="organiser-row">
               <div
+                role="button"
+                tabIndex={0}
+                aria-label={`View ${ev.organizer}'s profile`}
                 onClick={() => navigate(`/guest/organizer/${slugify(ev.organizer)}`)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate(`/guest/organizer/${slugify(ev.organizer)}`);
+                  }
+                }}
                 style={{
                   width: 38, height: 38, borderRadius: '50%',
                   background: ev.npBg,
@@ -136,8 +156,17 @@ export default function EventDetailUpcoming() {
                 }}
               >{ev.initials}</div>
               <div
+                role="button"
+                tabIndex={0}
+                aria-label={`View ${ev.organizer}'s profile`}
                 style={{ flex: 1, cursor: 'pointer' }}
                 onClick={() => navigate(`/guest/organizer/${slugify(ev.organizer)}`)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate(`/guest/organizer/${slugify(ev.organizer)}`);
+                  }
+                }}
               >
                 <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>
                   {ev.organizer}{' '}
@@ -176,13 +205,13 @@ export default function EventDetailUpcoming() {
 
         {/* Sticky bottom bar */}
         <div className="event-bar">
-          <button className="event-bar-icon" onClick={() => navigate('/guest/share')}>
+          <button className="event-bar-icon" onClick={() => navigate('/guest/share')} aria-label="Share event">
             <Share2 size={18} color="var(--dark)" />
           </button>
           <button className="event-bar-btn" onClick={() => navigate('/guest/join')}>
             Back this event
           </button>
-          <button className="event-bar-icon" onClick={() => setLiked(!liked)}>
+          <button className="event-bar-icon" onClick={() => setLiked(!liked)} aria-label={liked ? 'Unlike event' : 'Like event'}>
             <Heart size={18} color={liked ? 'var(--primary)' : 'var(--dark)'} fill={liked ? 'var(--primary)' : 'none'} />
           </button>
         </div>

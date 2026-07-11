@@ -14,6 +14,9 @@ const LIVE_EVENTS = [
 
 export default function NpLaunchpad() {
   const navigate = useNavigate();
+  const onKey = (fn) => (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
+  };
 
   return (
     <div className="phone-shell">
@@ -59,15 +62,15 @@ export default function NpLaunchpad() {
 
             {/* Stats row */}
             <div className="np-stats-row">
-              <div className="np-stat" style={{ cursor: 'pointer' }} onClick={() => navigate('/np/approvals')}>
+              <div className="np-stat" style={{ cursor: 'pointer' }} role="button" tabIndex={0} onClick={() => navigate('/np/approvals')} onKeyDown={onKey(() => navigate('/np/approvals'))}>
                 <div className="np-stat-num blue">4</div>
                 <div className="np-stat-lbl">Live Events</div>
               </div>
-              <div className="np-stat" style={{ cursor: 'pointer' }} onClick={() => navigate('/np/approvals')}>
+              <div className="np-stat" style={{ cursor: 'pointer' }} role="button" tabIndex={0} onClick={() => navigate('/np/approvals')} onKeyDown={onKey(() => navigate('/np/approvals'))}>
                 <div className="np-stat-num coral">3</div>
                 <div className="np-stat-lbl">Pending Approvals</div>
               </div>
-              <div className="np-stat" style={{ cursor: 'pointer' }} onClick={() => navigate('/np/activity')}>
+              <div className="np-stat" style={{ cursor: 'pointer' }} role="button" tabIndex={0} onClick={() => navigate('/np/activity')} onKeyDown={onKey(() => navigate('/np/activity'))}>
                 <div className="np-stat-num dark">87</div>
                 <div className="np-stat-lbl">Backers This Week</div>
               </div>
@@ -84,7 +87,7 @@ export default function NpLaunchpad() {
               </button>
             </div>
 
-            <div className="action-item coral-border" onClick={() => navigate('/np/approvals')}>
+            <div className="action-item coral-border" role="button" tabIndex={0} onClick={() => navigate('/np/approvals')} onKeyDown={onKey(() => navigate('/np/approvals'))}>
               <div className="action-item-icon" style={{ background: 'var(--primary-soft)' }}>
                 <Clock size={16} color="var(--primary)" />
               </div>
@@ -95,7 +98,7 @@ export default function NpLaunchpad() {
               </div>
             </div>
 
-            <div className="action-item blue-border" onClick={() => navigate('/np/activity')}>
+            <div className="action-item blue-border" role="button" tabIndex={0} onClick={() => navigate('/np/activity')} onKeyDown={onKey(() => navigate('/np/activity'))}>
               <div className="action-item-icon" style={{ background: 'var(--blue-soft)' }}>
                 <Flag size={16} color="var(--blue)" />
               </div>
@@ -120,7 +123,11 @@ export default function NpLaunchpad() {
                   key={ev.id}
                   className="lp-event-card"
                   style={{ cursor: 'pointer' }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View ${ev.title}`}
                   onClick={() => navigate(ev.isLive ? '/guest/event/live' : '/guest/event/upcoming')}
+                  onKeyDown={onKey(() => navigate(ev.isLive ? '/guest/event/live' : '/guest/event/upcoming'))}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                     <span className={`badge ${ev.isLive ? 'badge-live' : 'badge-upcoming'}`} style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 'var(--radius-pill)' }}>

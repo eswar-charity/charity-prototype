@@ -44,7 +44,16 @@ export default function TellAboutYou() {
             />
             <div
               className="photo-circle"
+              role="button"
+              tabIndex={0}
+              aria-label="Add profile photo"
               onClick={() => fileInputRef.current && fileInputRef.current.click()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  fileInputRef.current && fileInputRef.current.click();
+                }
+              }}
               style={{ cursor: 'pointer', overflow: 'hidden' }}
             >
               {photo ? (

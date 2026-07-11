@@ -15,12 +15,12 @@ export default function EventStep3() {
           layout="bar"
           homePath="/feed"
           left={(
-            <button type="button" className="back-btn" onClick={() => navigate('/event/step-2')}>
+            <button type="button" className="back-btn" aria-label="Go back" onClick={() => navigate('/event/step-2')}>
               <ChevronLeft size={18} />
             </button>
           )}
           actions={(
-            <button type="button" className="close-btn" onClick={() => navigate('/feed')} style={{ background: 'var(--white)', border: '1.5px solid var(--border)' }}>
+            <button type="button" className="close-btn" aria-label="Close" onClick={() => navigate('/feed')} style={{ background: 'var(--white)', border: '1.5px solid var(--border)' }}>
               <X size={16} color="var(--dark)" />
             </button>
           )}

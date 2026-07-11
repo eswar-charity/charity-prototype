@@ -12,7 +12,26 @@
   --blue: #0D4A8A;
   --blue-soft: #E3F0FB;
   --green: #1E9E57;
-  --card-shadow: 0 2px 16px rgba(26, 110, 181, 0.08);
+
+  /* Blue design system (final-check.md) */
+  --secondary: #0D4A8A;        /* Secondary Blue — selected states, secondary emphasis */
+  --secondary-soft: #DCEBF8;
+  --tertiary: #E4F0FB;         /* Tertiary Blue — info elements + self chat bubbles */
+  --tertiary-border: #C3DEF5;
+  --tertiary-text: #12446F;
+
+  /* Neutrals — forms, media upload, secondary/one-time actions (never blue by default) */
+  --neutral-surface: #F1F4F8;
+  --neutral-border: #CBD5E1;
+  --neutral-btn: #EEF2F7;
+  --neutral-btn-hover: #E2E9F1;
+  --neutral-text: #44556A;
+
+  /* Complementary accent — used sparingly, not for primary CTAs */
+  --accent: #F5A623;
+  --focus-ring: #1A6EB5;
+
+  --card-shadow: 0 1px 3px rgba(26, 46, 74, 0.06), 0 4px 16px rgba(26, 110, 181, 0.07);
   --radius-sm: 10px;
   --radius-md: 16px;
   --radius-lg: 24px;
@@ -922,6 +941,65 @@ textarea.input-field {
   color: var(--dark);
 }
 .check-item + .check-item { border-top: 1px solid var(--border); }
+.check-item-btn {
+  width: 100%;
+  border: none;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  padding: 11px 0;
+  margin: 0;
+  transition: background 0.12s;
+}
+.check-item-btn:hover { background: var(--bg); }
+.check-item-btn:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: -2px; border-radius: var(--radius-sm); }
+.submit-checklist-card { padding: 4px 16px; }
+.submit-checklist-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.submit-checklist-modal {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  width: 100%;
+  max-width: 460px;
+  max-height: 84vh;
+  overflow-y: auto;
+}
+.submit-checklist-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.submit-checklist-modal-head h3 { font-size: 18px; font-weight: 800; color: var(--dark); }
+.submit-checklist-modal-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.submit-checklist-guidelines {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.55;
+}
+.submit-checklist-guidelines li + li { margin-top: 8px; }
 .check-circle {
   width: 22px;
   height: 22px;
@@ -2105,6 +2183,7 @@ textarea.input-field {
   padding: 5px 6px 5px 10px;
   min-height: 48px;
 }
+.chat-input-pill:focus-within { border-color: var(--primary); }
 
 .chat-input-action {
   width: 32px;

@@ -20,6 +20,9 @@ export default function AdminReviewQueue() {
 
   const items = reviewQueue.filter((r) => filter === 'All' || r.status === filter);
   const countFor = (f) => (f === 'All' ? reviewQueue.length : reviewQueue.filter((r) => r.status === f).length);
+  const onKey = (fn) => (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
+  };
 
   return (
     <AdminLayout active="review" title="Review Queue">
@@ -44,7 +47,7 @@ export default function AdminReviewQueue() {
           </div>
         ) : (
           items.map((item) => (
-            <div key={item.id} className="adm-item clickable" onClick={() => navigate(`/admin/review/${item.id}`)}>
+            <div key={item.id} className="adm-item clickable" role="button" tabIndex={0} aria-label={`Open ${item.title}`} onClick={() => navigate(`/admin/review/${item.id}`)} onKeyDown={onKey(() => navigate(`/admin/review/${item.id}`))}>
               <div className={`adm-item-icon ${item.priority === 'High' ? 'warn' : ''}`}>{typeIcon(item.type)}</div>
               <div className="adm-item-body">
                 <p className="adm-item-title">{item.title}</p>

@@ -14,6 +14,9 @@ export default function AdminNonprofits() {
   const [filter, setFilter] = useState('All');
 
   const rows = adminNonprofits.filter((n) => filter === 'All' || n.status === filter);
+  const onKey = (fn) => (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
+  };
 
   return (
     <AdminLayout
@@ -47,7 +50,7 @@ export default function AdminNonprofits() {
             </thead>
             <tbody>
               {rows.map((n) => (
-                <tr key={n.id} className="adm-row-click" onClick={() => navigate(`/admin/nonprofits/${n.id}`)}>
+                <tr key={n.id} className="adm-row-click" role="button" tabIndex={0} aria-label={`View ${n.name}`} onClick={() => navigate(`/admin/nonprofits/${n.id}`)} onKeyDown={onKey(() => navigate(`/admin/nonprofits/${n.id}`))}>
                   <td>
                     <div className="adm-entity">
                       <span className="adm-ava">{n.initials}</span>

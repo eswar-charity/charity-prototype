@@ -26,7 +26,7 @@ export default function EventStep2() {
           layout="bar"
           homePath="/feed"
           left={(
-            <button type="button" className="back-btn" onClick={() => navigate('/event/step-1')}>
+            <button type="button" className="back-btn" aria-label="Go back" onClick={() => navigate('/event/step-1')}>
               <ChevronLeft size={18} />
             </button>
           )}
@@ -69,7 +69,17 @@ export default function EventStep2() {
               <div
                 key={np.id}
                 className={`np-item ${draft.nonprofitId === np.id ? 'selected-np' : ''}`}
+                role="button"
+                tabIndex={0}
+                aria-pressed={draft.nonprofitId === np.id}
+                aria-label={`Select ${np.name}`}
                 onClick={() => updateDraft({ nonprofitId: np.id })}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    updateDraft({ nonprofitId: np.id });
+                  }
+                }}
               >
                 <div className="np-logo" style={{ background: np.bg, color: 'white' }}>
                   {np.initials}
