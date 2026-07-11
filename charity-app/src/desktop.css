@@ -1432,3 +1432,161 @@ textarea.input-field {
   padding: 5px 10px; cursor: pointer; font-family: inherit; margin-top: 8px;
 }
 .dsk-np-scan-btn:hover { background: var(--primary); color: white; }
+
+/* ── Marketing info pages (How it works, Causes) ─────────── */
+.dsk-info-page { background: var(--white); }
+.dsk-info-hero {
+  padding: 56px 0 48px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+}
+.dsk-info-hero--blue {
+  background: linear-gradient(180deg, var(--blue-soft) 0%, var(--white) 100%);
+}
+.dsk-info-hero-inner { max-width: 720px; }
+.dsk-info-eyebrow {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 12px;
+}
+.dsk-info-title {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--dark);
+  letter-spacing: -0.8px;
+  line-height: 1.1;
+  margin-bottom: 14px;
+}
+.dsk-info-lead {
+  font-size: 17px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  max-width: 640px;
+}
+.dsk-info-hero-actions { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+.dsk-info-btn-outline {
+  background: var(--white);
+  color: var(--blue);
+  border: 1.5px solid var(--blue);
+  border-radius: var(--radius-pill);
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+.dsk-info-btn-outline:hover { background: var(--blue-soft); }
+.dsk-info-stats-row { display: flex; gap: 32px; margin-top: 32px; flex-wrap: wrap; }
+.dsk-info-stat { display: flex; flex-direction: column; gap: 4px; }
+.dsk-info-stat-num { font-size: 28px; font-weight: 800; color: var(--blue); line-height: 1; }
+.dsk-info-stat-lbl { font-size: 13px; color: var(--text-secondary); font-weight: 600; }
+.dsk-info-section { padding: 56px 0; background: var(--white); }
+.dsk-info-section--soft { background: var(--blue-soft); }
+.dsk-info-section-head { margin-bottom: 32px; max-width: 620px; }
+.dsk-info-h2 { font-size: 28px; font-weight: 800; color: var(--dark); letter-spacing: -0.4px; margin-bottom: 8px; }
+.dsk-info-sub { font-size: 15px; color: var(--text-secondary); line-height: 1.6; }
+.dsk-info-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+.dsk-info-step-card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 22px 20px;
+  box-shadow: var(--card-shadow);
+}
+.dsk-info-step-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.dsk-info-step-num { font-size: 12px; font-weight: 800; color: var(--blue); letter-spacing: 0.5px; }
+.dsk-info-step-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--blue-soft);
+  display: flex; align-items: center; justify-content: center;
+}
+.dsk-info-step-title { font-size: 16px; font-weight: 800; color: var(--dark); margin-bottom: 8px; }
+.dsk-info-step-body { font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+.dsk-info-trust {
+  display: flex; gap: 16px; align-items: flex-start;
+  background: var(--white);
+  border: 1.5px solid var(--blue);
+  border-radius: var(--radius-md);
+  padding: 22px 24px;
+}
+.dsk-info-trust-title { font-size: 16px; font-weight: 800; color: var(--dark); margin-bottom: 6px; }
+.dsk-info-trust-body { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+.dsk-info-role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.dsk-info-role-card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px 22px;
+}
+.dsk-info-role-title { font-size: 17px; font-weight: 800; color: var(--dark); margin-bottom: 10px; }
+.dsk-info-role-body { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px; }
+.dsk-info-link-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: none; padding: 0;
+  font-family: inherit; font-size: 14px; font-weight: 700;
+  color: var(--blue); cursor: pointer;
+}
+.dsk-info-link-btn:hover { color: var(--primary-hover); }
+.dsk-causes-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
+.dsk-cause-card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+}
+.dsk-cause-card-hero {
+  height: 160px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+.dsk-cause-badge {
+  position: absolute; top: 12px; left: 12px;
+  background: var(--white); color: var(--blue);
+  font-size: 11px; font-weight: 800; letter-spacing: 0.4px;
+  padding: 6px 12px; border-radius: var(--radius-pill);
+  border: 1.5px solid var(--blue);
+}
+.dsk-cause-live {
+  position: absolute; top: 12px; right: 12px;
+  background: var(--blue); color: var(--white);
+  font-size: 10px; font-weight: 800;
+  padding: 5px 10px; border-radius: var(--radius-pill);
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.dsk-cause-card-body { padding: 20px 22px 22px; }
+.dsk-cause-title { font-size: 20px; font-weight: 800; color: var(--dark); margin-bottom: 8px; }
+.dsk-cause-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 10px; }
+.dsk-cause-featured { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
+.dsk-cause-featured strong { color: var(--dark); }
+.dsk-cause-meta {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  font-size: 12px; font-weight: 600; color: var(--blue);
+  margin-bottom: 14px;
+}
+.dsk-cause-meta span { display: inline-flex; align-items: center; gap: 4px; }
+.dsk-info-cta-band {
+  background: var(--blue);
+  padding: 48px 0;
+  margin-top: 8px;
+}
+.dsk-info-cta-inner { text-align: center; max-width: 560px; }
+.dsk-info-cta-title { font-size: 28px; font-weight: 800; color: var(--white); margin-bottom: 10px; }
+.dsk-info-cta-sub { font-size: 15px; color: rgba(255,255,255,0.88); line-height: 1.6; margin-bottom: 22px; }
+.dsk-info-cta-btn { background: var(--white) !important; color: var(--blue) !important; }
+.dsk-info-cta-btn:hover { background: var(--blue-soft) !important; }
+
+@media (max-width: 1100px) {
+  .dsk-info-steps { grid-template-columns: repeat(2, 1fr); }
+  .dsk-info-role-grid { grid-template-columns: 1fr; }
+  .dsk-causes-grid { grid-template-columns: 1fr; }
+}

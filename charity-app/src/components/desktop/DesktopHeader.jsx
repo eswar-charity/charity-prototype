@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import Logo from '../Logo';
 
@@ -6,13 +6,6 @@ const NAV_LINKS = ['Discover', 'How it works', 'Causes', 'For nonprofits'];
 
 export default function DesktopHeader({ active = 'Discover', loggedIn = false, avatarInitials = 'SJ', homePath = '/guest/feed', showSearch = true }) {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const scrollToCauses = () => {
-    window.setTimeout(() => {
-      document.getElementById('dsk-feed-filters')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 0);
-  };
 
   const handleNav = (link) => {
     if (link === 'Discover') {
@@ -20,16 +13,21 @@ export default function DesktopHeader({ active = 'Discover', loggedIn = false, a
       return;
     }
     if (link === 'Causes') {
-      if (location.pathname === '/guest/feed') {
-        navigate('/guest/feed?view=causes');
-        scrollToCauses();
-      } else {
-        navigate('/guest/feed?view=causes');
-      }
+      navigate('/causes');
       return;
     }
-    if (link === 'For nonprofits') navigate('/np/home');
-    else navigate('/event/step-1');
+    if (link === 'How it works') {
+      navigate('/how-it-works');
+      return;
+    }
+    if (link === 'For nonprofits') {
+      navigate('/np/home');
+      return;
+    }
+  };
+
+  const handleStartEvent = () => {
+    navigate(loggedIn ? '/event/step-1' : '/');
   };
 
   return (
@@ -75,7 +73,7 @@ export default function DesktopHeader({ active = 'Discover', loggedIn = false, a
             <span className="dsk-loglink" onClick={() => navigate('/')}>Sign up</span>
           )}
 
-          <button className="dsk-cta-btn" onClick={() => navigate('/event/step-1')}>
+          <button className="dsk-cta-btn" onClick={handleStartEvent}>
             Start an event
           </button>
         </div>

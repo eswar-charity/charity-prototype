@@ -2,7 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { Calendar, Clock, MapPin, Globe, Lock, Check } from 'lucide-react';
 import DesktopCreateEventLayout from '../../components/desktop/DesktopCreateEventLayout';
 import { useCreateEventDraft, updateDraft } from '../../hooks/useCreateEventDraft';
-import { START_DATES, END_DATES, START_TIMES, END_TIMES, cycleValue } from '../../utils/eventWizard';
+import { START_TIMES, END_TIMES, cycleValue } from '../../utils/eventWizard';
+import DatePickerField from '../../components/DatePickerField';
 
 export default function DesktopEventStep3() {
   const navigate = useNavigate();
@@ -14,14 +15,18 @@ export default function DesktopEventStep3() {
       <p className="dsk-wizard-sub">Set the schedule and location for your gathering.</p>
 
       <div className="dt-grid" style={{ marginBottom: 10 }}>
-        <button type="button" className="dt-box dt-box-btn" onClick={() => updateDraft({ startDate: cycleValue(START_DATES, draft.startDate) })}>
-          <div className="dt-label"><Calendar size={11} color="var(--primary)" /> Start date</div>
-          <div className="dt-value">{draft.startDate}</div>
-        </button>
-        <button type="button" className="dt-box dt-box-btn" onClick={() => updateDraft({ endDate: cycleValue(END_DATES, draft.endDate) })}>
-          <div className="dt-label"><Calendar size={11} color="var(--primary)" /> End date</div>
-          <div className="dt-value">{draft.endDate}</div>
-        </button>
+        <DatePickerField
+          label="Start date"
+          value={draft.startDate}
+          onChange={(startDate) => updateDraft({ startDate })}
+          variant="desktop"
+        />
+        <DatePickerField
+          label="End date"
+          value={draft.endDate}
+          onChange={(endDate) => updateDraft({ endDate })}
+          variant="desktop"
+        />
       </div>
       <div className="dt-grid" style={{ marginBottom: 24 }}>
         <button type="button" className="dt-box dt-box-btn" onClick={() => updateDraft({ startTime: cycleValue(START_TIMES, draft.startTime) })}>

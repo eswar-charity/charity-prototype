@@ -5,18 +5,13 @@ import {
   Plus, Camera, ArrowUp, MoreHorizontal,
   Images, MessageCircle, HandHeart, PartyPopper, Check, UserPlus,
 } from 'lucide-react';
-import { events, liveActivities, buildDonationSuccessUrl } from '../../data/mockData';
+import { events, liveActivities, buildDonationSuccessUrl, getHappeningNowReel, EVENT_CREATOR } from '../../data/mockData';
 
 const ev = events[0]; // Neon Night Run
 
 /* ── Community Tab ──────────────────────────────────────── */
 function CommunityTab() {
-  const REEL = [
-    { src: ev.photos[1], user: 'Sarah J.',  initials: 'SJ', color: 'var(--primary)', time: '2m ago' },
-    { src: ev.photos[2], user: 'Emma T.',   initials: 'ET', color: '#0D7377', time: '8m ago' },
-    { src: ev.photos[3], user: 'Marcus L.', initials: 'ML', color: '#7B1FA2', time: '14m ago' },
-    { src: ev.photos[4], user: 'Priya M.',  initials: 'PM', color: '#1976D2', time: '22m ago' },
-  ];
+  const REEL = getHappeningNowReel(ev);
 
   return (
     <>
@@ -40,7 +35,12 @@ function CommunityTab() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 8, fontWeight: 700, color: 'white', flexShrink: 0,
                 }}>{item.initials}</div>
-                <span className="photo-reel-name">{item.user}</span>
+                <span className="photo-reel-name">
+                  {item.user}
+                  {item.isCreator && (
+                    <span style={{ fontWeight: 500, opacity: 0.9 }}> · Host</span>
+                  )}
+                </span>
               </div>
               <span className="photo-reel-time">{item.time}</span>
             </div>
@@ -57,10 +57,10 @@ function CommunityTab() {
 
       {/* Donation activity */}
       <div className="ev-activity-item">
-        <div className="ev-activity-avatar" style={{ background: 'linear-gradient(135deg,#1976D2,#42A5F5)' }}>MR</div>
+        <div className="ev-activity-avatar" style={{ background: 'linear-gradient(135deg,#1976D2,#42A5F5)' }}>MK</div>
         <div style={{ flex: 1 }}>
           <div className="ev-activity-header">
-            <span className="ev-activity-user">Michael R.</span>
+            <span className="ev-activity-user">Michael K.</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <span className="ev-activity-time">1h ago</span>
               <MoreHorizontal size={14} color="var(--text-light)" />

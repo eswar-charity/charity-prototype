@@ -17,7 +17,7 @@ export default function GuestBottomNav({ active = 'discover' }) {
         <button className={`nav-item ${active === 'search' ? 'active' : ''}`} onClick={() => navigate('/guest/empty')}>
           <Search size={22} /><span>Search</span>
         </button>
-        <button className="nav-center-btn" onClick={() => navigate('/guest/join')} aria-label="Create">
+        <button className="nav-center-btn" onClick={() => navigate('/')} aria-label="Start an event">
           <Plus size={24} />
         </button>
         <button className={`nav-item ${active === 'saved' ? 'active' : ''}`} onClick={() => navigate('/guest/join')}>

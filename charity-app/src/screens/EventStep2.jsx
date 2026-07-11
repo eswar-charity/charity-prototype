@@ -2,10 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Search, Check } from 'lucide-react';
 import { useCreateEventDraft, updateDraft } from '../hooks/useCreateEventDraft';
-import { nonprofits } from '../data/mockData';
+import { nonprofits, NP_CATEGORY_FILTERS } from '../data/mockData';
 import MobileAppHeader from '../components/MobileAppHeader';
-
-const FILTERS = ['All', 'Environment', 'Education', 'Health'];
 
 export default function EventStep2() {
   const navigate = useNavigate();
@@ -48,7 +46,7 @@ export default function EventStep2() {
           </div>
 
           <div className="filter-tabs" style={{ marginBottom: 16 }}>
-            {FILTERS.map((f) => (
+            {NP_CATEGORY_FILTERS.map((f) => (
               <button
                 key={f}
                 type="button"

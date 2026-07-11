@@ -11,7 +11,6 @@ export default function DesktopDonationSuccess() {
   const donorName = params.get('donor') || 'Sarah King';
   const publicName = params.get('public') || 'Sarah K.';
   const isSe = returnTo.startsWith('/event');
-  const receiptsPath = isSe ? '/profile' : '/guest/feed';
 
   return (
     <div className="dsk-page">
@@ -30,7 +29,6 @@ export default function DesktopDonationSuccess() {
             eventTitle={event.title}
             nonprofit={event.nonprofit}
             returnTo={returnTo}
-            receiptsPath={receiptsPath}
           />
         </div>
       </main>

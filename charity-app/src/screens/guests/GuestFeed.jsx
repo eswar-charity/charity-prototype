@@ -1,13 +1,10 @@
-import { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus, Megaphone, Building2, Compass, MessageCircle, Camera, Bell } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Plus, MessageCircle, Camera, Bell } from 'lucide-react';
 import GuestBottomNav from '../../components/GuestBottomNav';
 import MobileAppHeader from '../../components/MobileAppHeader';
-import { events, storyReel } from '../../data/mockData';
+import { events, storyReel, GUEST_FEED_FILTERS } from '../../data/mockData';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
-
-const CATEGORIES = [...new Set(events.map((ev) => ev.category))];
-const FILTERS = ['All', 'Live now', ...CATEGORIES];
 
 const activateOnKey = (fn) => (e) => {
   if (e.key === 'Enter' || e.key === ' ') {
@@ -18,10 +15,19 @@ const activateOnKey = (fn) => (e) => {
 
 export default function GuestFeed() {
   const navigate = useNavigate();
-  const [activeFilter, setActiveFilter] = useState('All');
-  const [showSheet, setShowSheet] = useState(false);
+  const [searchParams] = useSearchParams();
+  const causeParam = searchParams.get('cause');
+  const [activeFilter, setActiveFilter] = useState(
+    causeParam && GUEST_FEED_FILTERS.includes(causeParam) ? causeParam : 'All',
+  );
   const [hasAlerts, setHasAlerts] = useState(true);
   const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (causeParam && GUEST_FEED_FILTERS.includes(causeParam)) {
+      setActiveFilter(causeParam);
+    }
+  }, [causeParam]);
 
   const filtered = events.filter((ev) => {
     if (activeFilter === 'Live now') return ev.isLive;
@@ -70,9 +76,9 @@ export default function GuestFeed() {
               className="story-item"
               role="button"
               tabIndex={0}
-              aria-label="Join an event"
-              onClick={() => setShowSheet(true)}
-              onKeyDown={activateOnKey(() => setShowSheet(true))}
+              aria-label="Start an event — sign up"
+              onClick={() => navigate('/')}
+              onKeyDown={activateOnKey(() => navigate('/'))}
             >
               <div className="story-circle yours">
                 <Plus size={22} color="var(--primary)" />
@@ -98,7 +104,7 @@ export default function GuestFeed() {
           </div>
 
           <div className="filter-row">
-            {FILTERS.map((f) => (
+            {GUEST_FEED_FILTERS.map((f) => (
               <button
                 key={f}
                 type="button"
@@ -195,58 +201,6 @@ export default function GuestFeed() {
 
         <GuestBottomNav active="discover" />
       </div>
-
-      {showSheet && (
-        <div className="overlay-bg" onClick={() => setShowSheet(false)}>
-          <div className="bottom-sheet" onClick={(e) => e.stopPropagation()}>
-            <div className="sheet-handle" />
-            <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--dark)', textAlign: 'center', marginBottom: 6 }}>
-              Start something good
-            </h2>
-            <p style={{ fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center', marginBottom: 24, lineHeight: 1.5 }}>
-              Sign up to create a free event for any verified nonprofit. Your story drives real participation.
-            </p>
-
-            <div
-              className="opt-row"
-              role="button"
-              tabIndex={0}
-              onClick={() => { setShowSheet(false); navigate('/'); }}
-              onKeyDown={activateOnKey(() => { setShowSheet(false); navigate('/'); })}
-            >
-              <div className="opt-icon" style={{ background: 'var(--primary)' }}>
-                <Megaphone size={20} color="white" />
-              </div>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)' }}>Create an event</p>
-                <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
-                  Sign up to host for a verified nonprofit.
-                </p>
-              </div>
-              <Compass size={16} color="var(--text-light)" />
-            </div>
-
-            <div
-              className="opt-row"
-              role="button"
-              tabIndex={0}
-              onClick={() => { setShowSheet(false); navigate('/guest/join'); }}
-              onKeyDown={activateOnKey(() => { setShowSheet(false); navigate('/guest/join'); })}
-            >
-              <div className="opt-icon" style={{ background: 'var(--blue)' }}>
-                <Building2 size={20} color="white" />
-              </div>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)' }}>Join an event</p>
-                <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
-                  Back or join without a full account yet.
-                </p>
-              </div>
-              <Compass size={16} color="var(--text-light)" />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -9,7 +9,6 @@ export default function DonationSuccess() {
   const returnTo = params.get('return') || '/guest/event/live';
   const donorName = params.get('donor') || 'Sarah King';
   const publicName = params.get('public') || 'Sarah K.';
-  const receiptsPath = returnTo.startsWith('/event') ? '/profile' : '/guest/feed';
 
   return (
     <div className="phone-shell">
@@ -21,7 +20,6 @@ export default function DonationSuccess() {
           eventTitle={event.title}
           nonprofit={event.nonprofit}
           returnTo={returnTo}
-          receiptsPath={receiptsPath}
         />
       </div>
     </div>

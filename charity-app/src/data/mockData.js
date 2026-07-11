@@ -207,6 +207,26 @@ export const nonprofits = [
   },
 ];
 
+// Event creator — owns the Happening now photo reel (newest content rises to the top).
+export const EVENT_CREATOR = {
+  name: 'Mike Rivera',
+  initials: 'MR',
+  color: '#C62828',
+};
+
+const HAPPENING_NOW_TIMES = ['Just now', '2m ago', '5m ago', '8m ago'];
+
+export function getHappeningNowReel(event = events[0]) {
+  return event.photos.slice(1, 5).map((src, i) => ({
+    src,
+    user: EVENT_CREATOR.name,
+    initials: EVENT_CREATOR.initials,
+    color: EVENT_CREATOR.color,
+    time: HAPPENING_NOW_TIMES[i] || `${(i + 1) * 2}m ago`,
+    isCreator: true,
+  }));
+}
+
 export const liveActivities = [
   {
     id: 1,
@@ -215,28 +235,36 @@ export const liveActivities = [
     initials: 'PM',
     color: '#7C3AED',
     text: 'Priya M. just joined',
-    time: '2 min ago',
+    time: '12 min ago',
   },
   {
     id: 2,
     type: 'update',
-    user: 'Sarah Jenkins',
+    user: 'Sarah J.',
     initials: 'SJ',
     color: '#F5604A',
     text: 'Setting up the start line now! See you all at Prospect Park — the neon glow is unreal.',
-    time: '8 min ago',
-    isOrganizer: true,
+    time: '18 min ago',
     hasImage: true,
     image: '/events/neon-night/img3.jpg',
   },
   {
     id: 3,
+    type: 'update',
+    user: 'Emma T.',
+    initials: 'ET',
+    color: '#0D7377',
+    text: 'Love the energy out here — cheering everyone on at the start line!',
+    time: '24 min ago',
+  },
+  {
+    id: 4,
     type: 'org',
     user: 'Youth Health Fund',
     initials: 'YH',
     color: '#D32F2F',
     text: "Incredible energy tonight! Let's hit 100 backers before the finish line!",
-    time: '15 min ago',
+    time: '32 min ago',
     isVerified: true,
   },
 ];
@@ -256,19 +284,36 @@ export const eventData = {
   cover: '/events/neon-night/img1.jpg',
 };
 
-// Story-row items derived from every real event photo (not invented data) —
-// expands the 5 events into 20+ scrollable stories so the feed feels alive.
-export const storyReel = events.flatMap((ev) =>
-  ev.photos.map((src, i) => ({
-    id: `${ev.key}-${i}`,
-    src,
-    title: ev.title,
-    category: ev.category,
-    event: ev,
-  }))
-);
+// Story-row items interleaved batch-wise across events (1,2,3,4,5 then repeat)
+// so the reel cycles through every event before showing the next photo round.
+function buildStoryReel(eventList) {
+  const maxPhotos = Math.max(...eventList.map((ev) => ev.photos.length), 0);
+  const reel = [];
+  for (let i = 0; i < maxPhotos; i += 1) {
+    for (const ev of eventList) {
+      if (ev.photos[i]) {
+        reel.push({
+          id: `${ev.key}-${i}`,
+          src: ev.photos[i],
+          title: ev.title,
+          category: ev.category,
+          event: ev,
+        });
+      }
+    }
+  }
+  return reel;
+}
 
-export const causes = ['Environment', 'Education', 'Animals', 'Health', 'Arts', 'Housing'];
+export const storyReel = buildStoryReel(events);
+
+// Unique categories from SE event data (Health, Environment, Education, Animals, Food & Hunger)
+export const EVENT_CATEGORIES = [...new Set(events.map((ev) => ev.category))];
+export const SE_FEED_FILTERS = ['All', 'You', 'Live now', ...EVENT_CATEGORIES];
+export const GUEST_FEED_FILTERS = ['All', 'Live now', ...EVENT_CATEGORIES];
+export const NP_CATEGORY_FILTERS = ['All', ...EVENT_CATEGORIES];
+
+export const causes = [...EVENT_CATEGORIES];
 
 export const accountRoles = [
   { id: 'se', label: 'Social Entrepreneur', route: '/about-you', title: 'Create your account', subtitle: "You're one step from starting your first event." },

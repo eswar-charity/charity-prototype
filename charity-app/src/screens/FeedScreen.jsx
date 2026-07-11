@@ -4,11 +4,8 @@ import { Plus, Megaphone, Building2, Compass, MessageCircle, Camera } from 'luci
 import BottomNav from '../components/BottomNav';
 import NotificationBell, { SE_FEED_NOTIFICATIONS } from '../components/NotificationBell';
 import MobileAppHeader from '../components/MobileAppHeader';
-import { events, storyReel } from '../data/mockData';
+import { events, storyReel, SE_FEED_FILTERS } from '../data/mockData';
 import useInfiniteScroll from '../hooks/useInfiniteScroll';
-
-const CATEGORIES = [...new Set(events.map((ev) => ev.category))];
-const FILTERS = ['All', 'You', 'Live now', ...CATEGORIES];
 
 const activateOnKey = (fn) => (e) => {
   if (e.key === 'Enter' || e.key === ' ') {
@@ -94,7 +91,7 @@ export default function FeedScreen() {
 
           {/* Filter chips */}
           <div className="filter-row">
-            {FILTERS.map((f) => (
+            {SE_FEED_FILTERS.map((f) => (
               <button
                 key={f}
                 className={`filter-chip ${activeFilter === f ? 'active' : ''}`}

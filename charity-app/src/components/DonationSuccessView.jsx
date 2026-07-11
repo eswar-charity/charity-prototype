@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Mail, Clock } from 'lucide-react';
 import { calcDonationReceipt } from '../data/mockData';
@@ -13,10 +14,37 @@ export default function DonationSuccessView({
   nonprofit = 'Youth Health Fund',
   amount = 25,
   returnTo = '/guest/event/live',
-  receiptsPath = '/guest/feed',
 }) {
   const navigate = useNavigate();
+  const [toast, setToast] = useState('');
   const { donation, tip, total } = calcDonationReceipt(amount);
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 2200);
+  };
+
+  const handleDownloadReceipt = () => {
+    const receiptText = [
+      'Charity Hub — Donation Receipt',
+      `Donor: ${donorName}`,
+      `Event: ${eventTitle}`,
+      `Beneficiary: ${nonprofit}`,
+      `Donation: ${formatMoney(donation)}`,
+      `Tip to Charity Hub: ${formatMoney(tip)}`,
+      `Total charged: ${formatMoney(total)}`,
+      `Shown publicly as: ${publicName}`,
+    ].join('\n');
+
+    const blob = new Blob([receiptText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `charity-hub-receipt-${eventTitle.toLowerCase().replace(/\s+/g, '-')}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showToast('Receipt downloaded successfully');
+  };
 
   return (
     <div className="donate-success">
@@ -67,12 +95,18 @@ export default function DonationSuccessView({
         The event&apos;s raised total updates once funds settle — your gift shows as pending until then.
       </p>
 
-      <button type="button" className="btn-primary donate-success-cta" onClick={() => navigate(receiptsPath)}>
-        VIEW MY RECEIPTS
+      <button type="button" className="btn-primary donate-success-cta" onClick={handleDownloadReceipt}>
+        Download my receipt
       </button>
       <button type="button" className="btn-outline donate-success-back" onClick={() => navigate(returnTo)}>
         Back to event
       </button>
+
+      {toast && (
+        <div className="donate-success-toast" role="status">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

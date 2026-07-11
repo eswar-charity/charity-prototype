@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, X, Calendar, Clock, MapPin, Globe, Lock, Check } from 'lucide-react';
+import { ChevronLeft, X, Clock, MapPin, Globe, Lock, Check } from 'lucide-react';
 import { useCreateEventDraft, updateDraft } from '../hooks/useCreateEventDraft';
-import { START_DATES, END_DATES, START_TIMES, END_TIMES, cycleValue } from '../utils/eventWizard';
+import { START_TIMES, END_TIMES, cycleValue } from '../utils/eventWizard';
 import MobileAppHeader from '../components/MobileAppHeader';
+import DatePickerField from '../components/DatePickerField';
 
 export default function EventStep3() {
   const navigate = useNavigate();
@@ -31,20 +32,16 @@ export default function EventStep3() {
 
         <div className="screen-inner">
           <div className="dt-grid" style={{ marginBottom: 10 }}>
-            <button type="button" className="dt-box dt-box-btn" onClick={() => updateDraft({ startDate: cycleValue(START_DATES, draft.startDate) })}>
-              <div className="dt-label">
-                <Calendar size={11} color="var(--primary)" />
-                Start date
-              </div>
-              <div className="dt-value">{draft.startDate}</div>
-            </button>
-            <button type="button" className="dt-box dt-box-btn" onClick={() => updateDraft({ endDate: cycleValue(END_DATES, draft.endDate) })}>
-              <div className="dt-label">
-                <Calendar size={11} color="var(--primary)" />
-                End date
-              </div>
-              <div className="dt-value">{draft.endDate}</div>
-            </button>
+            <DatePickerField
+              label="Start date"
+              value={draft.startDate}
+              onChange={(startDate) => updateDraft({ startDate })}
+            />
+            <DatePickerField
+              label="End date"
+              value={draft.endDate}
+              onChange={(endDate) => updateDraft({ endDate })}
+            />
           </div>
           <div className="dt-grid" style={{ marginBottom: 24 }}>
             <button type="button" className="dt-box dt-box-btn" onClick={() => updateDraft({ startTime: cycleValue(START_TIMES, draft.startTime) })}>

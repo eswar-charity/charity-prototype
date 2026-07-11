@@ -81,11 +81,11 @@ export default function EmptyFeed() {
               role="button"
               tabIndex={0}
               aria-label={c.isAdd ? 'Add a cause' : `Browse ${c.label} events`}
-              onClick={() => navigate(c.isAdd ? '/guest/join' : '/guest/feed')}
+              onClick={() => navigate(c.isAdd ? '/' : '/guest/feed')}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  navigate(c.isAdd ? '/guest/join' : '/guest/feed');
+                  navigate(c.isAdd ? '/' : '/guest/feed');
                 }
               }}
             >

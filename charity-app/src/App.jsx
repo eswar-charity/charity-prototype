@@ -47,6 +47,10 @@ import DesktopPostEventImpact from './screens/desktop/DesktopPostEventImpact';
 import DesktopProfileScreen from './screens/desktop/DesktopProfileScreen';
 import DesktopLiveDashboard from './screens/desktop/DesktopLiveDashboard';
 import DesktopDonationSuccess from './screens/desktop/DesktopDonationSuccess';
+import DesktopHowItWorks from './screens/desktop/DesktopHowItWorks';
+import DesktopCauses from './screens/desktop/DesktopCauses';
+import HowItWorks from './screens/guests/HowItWorks';
+import Causes from './screens/guests/Causes';
 
 // Nonprofit screens
 import NpLaunchpad from './screens/nonprofits/NpLaunchpad';
@@ -149,6 +153,12 @@ function IdentityGateDonateRoute() {
 function DonationSuccessRoute() {
   return useIsDesktop() ? <DesktopDonationSuccess /> : <DonationSuccess />;
 }
+function HowItWorksRoute() {
+  return useIsDesktop() ? <DesktopHowItWorks /> : <HowItWorks />;
+}
+function CausesRoute() {
+  return useIsDesktop() ? <DesktopCauses /> : <Causes />;
+}
 
 export default function App() {
   return (
@@ -181,6 +191,8 @@ export default function App() {
         <Route path="/guest/join" element={<IdentityGateJoinRoute />} />
         <Route path="/guest/donate" element={<IdentityGateDonateRoute />} />
         <Route path="/donate/success" element={<DonationSuccessRoute />} />
+        <Route path="/how-it-works" element={<HowItWorksRoute />} />
+        <Route path="/causes" element={<CausesRoute />} />
         <Route path="/guest/organizer/:slug" element={<DesktopOrganizerProfile />} />
 
         {/* Nonprofit flow */}

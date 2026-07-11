@@ -3,9 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Check } from 'lucide-react';
 import DesktopCreateEventLayout from '../../components/desktop/DesktopCreateEventLayout';
 import { useCreateEventDraft, updateDraft } from '../../hooks/useCreateEventDraft';
-import { nonprofits } from '../../data/mockData';
-
-const FILTERS = ['All', 'Environment', 'Education', 'Health'];
+import { nonprofits, NP_CATEGORY_FILTERS } from '../../data/mockData';
 
 export default function DesktopEventStep2() {
   const navigate = useNavigate();
@@ -35,7 +33,7 @@ export default function DesktopEventStep2() {
       </div>
 
       <div className="filter-tabs" style={{ marginBottom: 18 }}>
-        {FILTERS.map((f) => (
+        {NP_CATEGORY_FILTERS.map((f) => (
           <button key={f} type="button" className={`filter-tab ${activeFilter === f ? 'active' : ''}`} onClick={() => setActiveFilter(f)}>
             {f}
           </button>

@@ -1,13 +1,10 @@
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, Users, MessageCircle, Camera } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../../components/desktop/DesktopFooter';
-import { events, storyReel } from '../../../data/mockData';
+import { events, storyReel, GUEST_FEED_FILTERS } from '../../../data/mockData';
 import useInfiniteScroll from '../../../hooks/useInfiniteScroll';
-
-const CATEGORIES = [...new Set(events.map((ev) => ev.category))];
-const FILTERS = ['All', 'Live now', ...CATEGORIES];
 
 function SceneEventCard({ ev }) {
   const navigate = useNavigate();
@@ -64,8 +61,18 @@ function SceneEventCard({ ev }) {
 
 export default function DesktopGuestFeed() {
   const navigate = useNavigate();
-  const [filter, setFilter] = useState('All');
+  const [searchParams] = useSearchParams();
+  const causeParam = searchParams.get('cause');
+  const [filter, setFilter] = useState(
+    causeParam && GUEST_FEED_FILTERS.includes(causeParam) ? causeParam : 'All',
+  );
   const [query, setQuery] = useState('');
+
+  useEffect(() => {
+    if (causeParam && GUEST_FEED_FILTERS.includes(causeParam)) {
+      setFilter(causeParam);
+    }
+  }, [causeParam]);
 
   const filtered = useMemo(() => {
     let list = events.filter((e) => {
@@ -120,7 +127,7 @@ export default function DesktopGuestFeed() {
 
           <div id="dsk-feed-filters" className="dsk-feed-controls">
             <div className="dsk-filter-row">
-              {FILTERS.map((f) => (
+              {GUEST_FEED_FILTERS.map((f) => (
                 <button
                   key={f}
                   type="button"

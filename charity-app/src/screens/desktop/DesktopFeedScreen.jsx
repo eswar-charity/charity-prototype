@@ -3,11 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Users, MessageCircle, Camera } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
-import { events, storyReel } from '../../data/mockData';
+import { events, storyReel, SE_FEED_FILTERS } from '../../data/mockData';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
 
-const CATEGORIES = [...new Set(events.map((e) => e.category))];
-const FILTERS = ['All', 'You', 'Live now', ...CATEGORIES];
 const ORGANIZER_NAME = 'Sarah Jenkins';
 
 function SceneEventCard({ ev }) {
@@ -104,7 +102,7 @@ export default function DesktopFeedScreen() {
 
           <div className="dsk-feed-controls">
             <div className="dsk-filter-row">
-              {FILTERS.map((f) => (
+              {SE_FEED_FILTERS.map((f) => (
                 <button
                   key={f}
                   type="button"

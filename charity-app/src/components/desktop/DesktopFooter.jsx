@@ -19,8 +19,8 @@ export default function DesktopFooter() {
 
         <div className="dsk-footer-col">
           <p className="dsk-footer-heading">Explore</p>
-          <span className="dsk-footer-link" onClick={() => navigate('/guest/feed')}>Product</span>
-          <span className="dsk-footer-link" onClick={() => navigate('/guest/feed?view=causes')}>Causes</span>
+          <span className="dsk-footer-link" onClick={() => navigate('/how-it-works')}>How it works</span>
+          <span className="dsk-footer-link" onClick={() => navigate('/causes')}>Causes</span>
         </div>
 
         <div className="dsk-footer-col">

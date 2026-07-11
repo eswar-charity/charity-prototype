@@ -10,16 +10,36 @@ const GUIDELINES = [
   'Charity Hub may review and moderate content before publication.',
 ];
 
+function formatDateRange(draft) {
+  if (draft.endDate && draft.endDate !== draft.startDate) {
+    return `${draft.startDate} – ${draft.endDate}`;
+  }
+  return draft.startDate;
+}
+
+function formatDatesLocation(draft) {
+  const dates = formatDateRange(draft);
+  const location = draft.location?.trim();
+  if (location) {
+    return `Dates & location: ${dates} · ${location}`;
+  }
+  return `Dates & location: ${dates}`;
+}
+
 export default function SubmitChecklist({ draft, nonprofit }) {
   const navigate = useNavigate();
   const [guidelinesReviewed, setGuidelinesReviewed] = useState(false);
   const [showGuidelines, setShowGuidelines] = useState(false);
 
+  const hasMedia = draft.photos.length > 0;
+  const hasDates = Boolean(draft.startDate?.trim());
+  const hasLocation = Boolean(draft.location?.trim());
+
   const items = useMemo(() => [
     {
       id: 1,
       text: `Story media added (${draft.photos.length} item${draft.photos.length === 1 ? '' : 's'})`,
-      done: draft.photos.length > 0 && draft.story.trim().length > 0,
+      done: hasMedia,
       path: '/event/step-1',
     },
     {
@@ -30,10 +50,8 @@ export default function SubmitChecklist({ draft, nonprofit }) {
     },
     {
       id: 3,
-      text: draft.location?.trim()
-        ? `Dates set: ${draft.startDate}`
-        : `Dates & location: ${draft.startDate}`,
-      done: Boolean(draft.startDate && draft.location?.trim()),
+      text: formatDatesLocation(draft),
+      done: hasDates && hasLocation,
       path: '/event/step-3',
     },
     {
@@ -43,7 +61,7 @@ export default function SubmitChecklist({ draft, nonprofit }) {
       isLink: true,
       action: 'guidelines',
     },
-  ], [draft, nonprofit, guidelinesReviewed]);
+  ], [draft, nonprofit, guidelinesReviewed, hasMedia, hasDates, hasLocation]);
 
   const handleClick = (item) => {
     if (item.action === 'guidelines') {

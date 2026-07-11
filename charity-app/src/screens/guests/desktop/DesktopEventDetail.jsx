@@ -7,14 +7,11 @@ import {
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
 import DesktopJoinGateModal from '../../../components/desktop/DesktopJoinGateModal';
-import { events, liveActivities, slugify, buildDonationSuccessUrl } from '../../../data/mockData';
+import { events, liveActivities, slugify, buildDonationSuccessUrl, getHappeningNowReel, EVENT_CREATOR } from '../../../data/mockData';
 
 const ev = events[0]; // Neon Night Run — the app's featured live event
 
-const REEL = [
-  { src: ev.photos[2], user: 'Emma T.', initials: 'ET', color: '#0D7377', time: '8m ago' },
-  { src: ev.photos[3], user: 'Marcus L.', initials: 'ML', color: '#7B1FA2', time: '14m ago' },
-];
+const REEL = getHappeningNowReel(ev).slice(1);
 
 const TABS = [
   { id: 'community', label: 'Community', sub: 'Photos & moments' },
@@ -80,17 +77,17 @@ function CommunityTab() {
         <span className="dsk-live-pill"><span className="live-dot" /> LIVE</span>
       </div>
 
-      <div className="dsk-community-hero" style={{ backgroundImage: `url(${ev.photos[1]})` }}>
+      <div className="dsk-community-hero" style={{ backgroundImage: `url(${getHappeningNowReel(ev)[0]?.src || ev.photos[1]})` }}>
         <div className="dsk-community-hero-play"><Play size={22} fill="white" color="white" /></div>
         <div className="dsk-community-hero-caption">
-          <div className="dsk-mini-avatar" style={{ background: 'linear-gradient(135deg,var(--primary),var(--blue))' }}>{ev.initials}</div>
-          <span>{ev.organizer} · Just now</span>
+          <div className="dsk-mini-avatar" style={{ background: EVENT_CREATOR.color }}>{EVENT_CREATOR.initials}</div>
+          <span>{EVENT_CREATOR.name} · Just now</span>
         </div>
       </div>
 
       <div className="dsk-community-grid">
-        {REEL.map((item) => (
-          <div key={item.user} className="dsk-community-thumb" style={{ backgroundImage: `url(${item.src})` }}>
+        {REEL.map((item, i) => (
+          <div key={`${item.src}-${i}`} className="dsk-community-thumb" style={{ backgroundImage: `url(${item.src})` }}>
             <div className="dsk-community-hero-caption">
               <div className="dsk-mini-avatar" style={{ background: item.color }}>{item.initials}</div>
               <span>{item.user} · {item.time}</span>
@@ -101,9 +98,9 @@ function CommunityTab() {
 
       <div className="dsk-activity-list">
         <div className="dsk-activity-item">
-          <div className="dsk-activity-avatar" style={{ background: 'linear-gradient(135deg,#1976D2,#42A5F5)' }}>MR</div>
+          <div className="dsk-activity-avatar" style={{ background: 'linear-gradient(135deg,#1976D2,#42A5F5)' }}>MK</div>
           <div>
-            <div className="dsk-activity-header"><span>Michael R.</span><span className="dsk-activity-time">1h ago</span></div>
+            <div className="dsk-activity-header"><span>Michael K.</span><span className="dsk-activity-time">1h ago</span></div>
             <p className="dsk-activity-highlight">Just donated $50</p>
             <p className="dsk-activity-text">Such a beautiful event! So happy to support this amazing cause.</p>
           </div>
