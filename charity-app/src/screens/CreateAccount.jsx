@@ -27,10 +27,13 @@ export default function CreateAccount() {
           </div>
 
           {roleId === 'se' ? (
-            <div style={{ marginTop: 28 }}>
+            <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', gap: 12 }}>
               <button type="button" className="google-signin-btn" onClick={() => navigate('/about-you')}>
                 <GoogleIcon size={20} />
                 Continue with Google
+              </button>
+              <button type="button" className="btn-outline" onClick={() => navigate('/about-you')}>
+                Sign up with email
               </button>
             </div>
           ) : (

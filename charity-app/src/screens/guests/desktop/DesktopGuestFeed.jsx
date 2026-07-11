@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Users, MessageCircle, Camera } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../../components/desktop/DesktopFooter';
-import { events } from '../../../data/mockData';
+import { events, storyReel } from '../../../data/mockData';
 import useInfiniteScroll from '../../../hooks/useInfiniteScroll';
 
-const FILTERS = ['All', 'Live now', 'Environment', 'Education'];
+const CATEGORIES = [...new Set(events.map((ev) => ev.category))];
+const FILTERS = ['All', 'Live now', ...CATEGORIES];
 
 function SceneEventCard({ ev }) {
   const navigate = useNavigate();
@@ -102,17 +103,17 @@ export default function DesktopGuestFeed() {
               </div>
               <span className="dsk-story-label">Your Event</span>
             </button>
-            {events.slice(0, 4).map((ev) => (
+            {storyReel.map((story) => (
               <button
-                key={ev.id}
+                key={story.id}
                 type="button"
                 className="dsk-story-item"
-                onClick={() => navigate(ev.isLive ? '/guest/event/live' : '/guest/event/upcoming')}
+                onClick={() => navigate(story.event.isLive ? '/guest/event/live' : '/guest/event/upcoming')}
               >
                 <div className="dsk-story-circle">
-                  <img src={ev.cover} alt={ev.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={story.src} alt={story.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
-                <span className="dsk-story-label">{ev.title.split(' ').slice(0, 2).join(' ')}</span>
+                <span className="dsk-story-label">{story.title.split(' ').slice(0, 2).join(' ')}</span>
               </button>
             ))}
           </div>

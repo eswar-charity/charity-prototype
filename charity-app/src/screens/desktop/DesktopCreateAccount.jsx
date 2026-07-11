@@ -23,10 +23,26 @@ export default function DesktopCreateAccount() {
       <RoleSelect options={accountRoles} value={roleId} onChange={setRoleId} />
 
       {roleId === 'se' ? (
-        <button type="button" className="google-signin-btn google-signin-btn--desktop" onClick={() => navigate('/about-you')}>
-          <GoogleIcon size={20} />
-          Continue with Google
-        </button>
+        <>
+          <button type="button" className="google-signin-btn google-signin-btn--desktop" onClick={() => navigate('/about-you')}>
+            <GoogleIcon size={20} />
+            Continue with Google
+          </button>
+          <button
+            type="button"
+            className="btn-outline"
+            style={{ marginTop: 12 }}
+            onClick={() => navigate('/about-you')}
+          >
+            Sign up with email
+          </button>
+          <p style={{ textAlign: 'center', marginTop: 24, fontSize: 14, color: 'var(--text-secondary)' }}>
+            Already have an account?{' '}
+            <button type="button" className="btn-ghost" style={{ fontSize: 14 }} onClick={() => navigate('/feed')}>
+              Sign in
+            </button>
+          </p>
+        </>
       ) : (
         <button type="button" className="dsk-auth-submit" onClick={() => navigate(role.route)}>Continue</button>
       )}

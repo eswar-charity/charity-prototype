@@ -3,22 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Pencil, MapPin, ChevronRight, Share2 } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 import MobileAppHeader from '../components/MobileAppHeader';
+import MobileShareModal from '../components/MobileShareModal';
 import { events } from '../data/mockData';
 
 const RECENT_EVENTS = events.slice(0, 3);
 
 export default function ProfileScreen() {
   const navigate = useNavigate();
-  const [toast, setToast] = useState('');
-
-  const handleShare = () => {
-    const link = `${window.location.origin}/profile`;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(link).catch(() => {});
-    }
-    setToast('Profile link copied');
-    setTimeout(() => setToast(''), 2200);
-  };
+  const [showShare, setShowShare] = useState(false);
 
   return (
     <div className="phone-shell">
@@ -35,7 +27,7 @@ export default function ProfileScreen() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
                 }}
                 aria-label="Share profile"
-                onClick={handleShare}
+                onClick={() => setShowShare(true)}
               >
                 <Share2 size={18} color="var(--dark)" />
               </button>
@@ -119,28 +111,13 @@ export default function ProfileScreen() {
         <BottomNav active="profile" onPlusClick={() => navigate('/create-event')} />
       </div>
 
-      {/* ── Lightweight toast ── */}
-      {toast && (
-        <div
-          style={{
-            position: 'absolute',
-            left: '50%',
-            bottom: 92,
-            transform: 'translateX(-50%)',
-            background: 'var(--dark)',
-            color: 'white',
-            padding: '12px 18px',
-            borderRadius: 'var(--radius-pill)',
-            fontSize: 13,
-            fontWeight: 600,
-            boxShadow: 'var(--card-shadow)',
-            zIndex: 50,
-            whiteSpace: 'nowrap',
-            maxWidth: '90%',
-          }}
-        >
-          {toast}
-        </div>
+      {showShare && (
+        <MobileShareModal
+          title="Sarah Jenkins"
+          subtitle="Event Presenter · Charity Hub"
+          url={`${window.location.origin}/profile`}
+          onClose={() => setShowShare(false)}
+        />
       )}
     </div>
   );

@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, TriangleAlert, Pencil, X } from 'lucide-react';
+import { Settings, TriangleAlert, Pencil, X, ScanLine } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
+import DesktopShareModal from '../../components/desktop/DesktopShareModal';
+import QRScannerModal from '../../components/QRScannerModal';
 import { events, liveActivities } from '../../data/mockData';
 
 const ev = events[0];
@@ -12,23 +14,14 @@ export default function DesktopLiveDashboard() {
   const [toast, setToast] = useState('');
   const [showAlert, setShowAlert] = useState(true);
   const [postOpen, setPostOpen] = useState(false);
+  const [showShare, setShowShare] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
+  const [joinedCount, setJoinedCount] = useState(ev.joined);
   const [update, setUpdate] = useState('');
 
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(''), 2200);
-  };
-
-  const shareEvent = () => {
-    const link = 'https://charityhub.app/e/neon-night-run';
-    if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(link).then(
-        () => showToast('Event link copied'),
-        () => showToast('Event link ready to share')
-      );
-    } else {
-      showToast('Event link ready to share');
-    }
   };
 
   const postUpdate = () => {
@@ -94,7 +87,7 @@ export default function DesktopLiveDashboard() {
 
               <div className="dsk-live-stats">
                 <div className="stat-box">
-                  <div className="stat-num">{ev.joined}</div>
+                  <div className="stat-num">{joinedCount}</div>
                   <div className="stat-lbl">Joined</div>
                 </div>
                 <div className="stat-box">
@@ -108,13 +101,17 @@ export default function DesktopLiveDashboard() {
               </div>
 
               <div className="dsk-live-actions">
+                <button type="button" className="dsk-cta-btn dsk-live-action-scan" onClick={() => setShowScanner(true)}>
+                  <ScanLine size={16} aria-hidden="true" />
+                  Scan check-in
+                </button>
                 <button type="button" className="dsk-cta-btn" onClick={() => setPostOpen(true)}>
                   Post update
                 </button>
                 <button type="button" className="dsk-live-action-secondary" onClick={() => showToast('Photo added to your event')}>
                   Add photo
                 </button>
-                <button type="button" className="dsk-live-action-secondary" onClick={shareEvent}>
+                <button type="button" className="dsk-live-action-secondary" onClick={() => setShowShare(true)}>
                   Share event
                 </button>
                 <button type="button" className="dsk-live-action-secondary" onClick={() => navigate('/event/live')}>
@@ -206,6 +203,28 @@ export default function DesktopLiveDashboard() {
           </div>
         </div>
       )}
+
+      {showShare && (
+        <DesktopShareModal
+          open={showShare}
+          onClose={() => setShowShare(false)}
+          url="https://charityhub.app/e/neon-night-run"
+          title={`#${ev.title.replace(/\s+/g, '')}`}
+          subtitle={`${ev.nonprofit} · verified`}
+        />
+      )}
+
+      <QRScannerModal
+        open={showScanner}
+        onClose={() => setShowScanner(false)}
+        role="se"
+        variant="desktop"
+        eventTitle={ev.title}
+        onScanSuccess={(attendee) => {
+          setJoinedCount((c) => c + 1);
+          showToast(`${attendee.name} checked in`);
+        }}
+      />
 
       {toast && <div className="dsk-live-toast">{toast}</div>}
     </div>

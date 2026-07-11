@@ -305,6 +305,8 @@
 .adm-btn-danger { background: var(--a-white); color: var(--a-deep); border-color: var(--a-deep); }
 .adm-btn-danger:hover { background: var(--a-sky-lt); border-color: var(--a-primary); color: var(--a-primary); }
 .adm-btn-sm { padding: 7px 12px; font-size: 12px; }
+.adm-btn-scan { background: var(--a-sky-lt); color: var(--a-primary); border-color: var(--a-primary); }
+.adm-btn-scan:hover { background: var(--a-primary); color: #fff; }
 .adm-btn:disabled { opacity: .5; cursor: not-allowed; }
 
 .adm-link { color: var(--a-primary); font-weight: 700; font-size: 13px; background: none; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }

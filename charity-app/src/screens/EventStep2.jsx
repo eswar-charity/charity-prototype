@@ -30,16 +30,12 @@ export default function EventStep2() {
               <ChevronLeft size={18} />
             </button>
           )}
-          meta="2 of 4 — Choose your nonprofit"
+          meta="Step 2 of 4"
+          title="Choose your nonprofit"
+          subtitle="Your event raises participation for a verified 501(c)(3)."
         />
 
         <div className="screen-inner">
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4 }}>2 of 4</p>
-          <h1 className="screen-title" style={{ marginBottom: 6 }}>Choose your nonprofit</h1>
-          <p className="screen-subtitle" style={{ marginBottom: 18 }}>
-            Your event raises participation for a verified 501(c)(3).
-          </p>
-
           <div className="search-wrap" style={{ marginBottom: 14 }}>
             <Search size={16} className="search-ico" />
             <input

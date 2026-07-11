@@ -25,14 +25,11 @@ export default function EventStep3() {
             </button>
           )}
           meta="Step 3 of 4"
+          title="When and where?"
+          subtitle="Set the logistics so your supporters know exactly how to join."
         />
 
         <div className="screen-inner">
-          <h1 className="screen-title" style={{ marginBottom: 6 }}>When and where?</h1>
-          <p className="screen-subtitle" style={{ marginBottom: 24 }}>
-            Set the logistics so your supporters know exactly how to join.
-          </p>
-
           <div className="dt-grid" style={{ marginBottom: 10 }}>
             <button type="button" className="dt-box dt-box-btn" onClick={() => updateDraft({ startDate: cycleValue(START_DATES, draft.startDate) })}>
               <div className="dt-label">

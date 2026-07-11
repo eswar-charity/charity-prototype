@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import {
   ChevronLeft, Info, Share2, Heart,
   Plus, Camera, ArrowUp, MoreHorizontal,
-  Images, MessageCircle, HandHeart, PartyPopper,
+  Images, MessageCircle, HandHeart, PartyPopper, Check, UserPlus,
 } from 'lucide-react';
-import { events, liveActivities } from '../../data/mockData';
+import { events, liveActivities, buildDonationSuccessUrl } from '../../data/mockData';
 
 const ev = events[0]; // Neon Night Run
 
@@ -177,7 +177,7 @@ function ChatTabMessages({ messages }) {
   );
 }
 
-function ChatInputBar({ value, onChange, onSend, onAttach }) {
+function ChatInputBar({ value, onChange, onSend, onAttach, onFocus }) {
   return (
     <div className="chat-input-bar">
       <div className="chat-input-pill">
@@ -193,6 +193,7 @@ function ChatInputBar({ value, onChange, onSend, onAttach }) {
           placeholder="Say something…"
           value={value}
           onChange={onChange}
+          onFocus={onFocus}
           onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSend(); } }}
         />
         <button type="button" className="chat-send-btn" aria-label="Send message" onClick={onSend}>
@@ -277,6 +278,23 @@ function SupportTab({ selectedAmount, onSelectAmount, onDonate, onViewStructure 
   );
 }
 
+function GuestChatGate({ onSignUp }) {
+  return (
+    <div className="chat-guest-gate">
+      <p className="chat-guest-gate-title">Chat is for members</p>
+      <p className="chat-guest-gate-copy">
+        Create a free account to join the live conversation, back this event, and get updates.
+      </p>
+      <button type="button" className="btn-primary" onClick={onSignUp}>
+        Sign up to chat
+      </button>
+      <button type="button" className="btn-ghost" style={{ marginTop: 10 }} onClick={onSignUp}>
+        Log in
+      </button>
+    </div>
+  );
+}
+
 /* ── Main Component ──────────────────────────────────────── */
 const TABS = [
   { id: 'community', Icon: Images,        label: 'Community', sub: 'Photos & moments' },
@@ -292,6 +310,7 @@ export default function EventDetailLive({ loggedIn = false }) {
   const [chatInput, setChatInput]         = useState('');
   const [messages, setMessages]           = useState(CHAT_SEED);
   const [showAbout, setShowAbout]         = useState(false);
+  const [joined, setJoined]               = useState(false);
   const [toast, setToast]                 = useState('');
 
   const showToast = (msg) => {
@@ -299,7 +318,38 @@ export default function EventDetailLive({ loggedIn = false }) {
     setTimeout(() => setToast(''), 1800);
   };
 
+  // Per the Identity Gate model: viewing/liking is open to anyone, but
+  // commenting requires identity — guests are routed to the join gate,
+  // while a logged-in SE can chat freely.
+  const requireJoin = () => {
+    if (loggedIn) return false;
+    navigate('/guest/join');
+    return true;
+  };
+
+  // Join / Participate (Blueprint §5 business functions): identity is
+  // required to join — guests hit the identity gate, an SE (already
+  // identified) joins immediately.
+  const handleJoin = () => {
+    if (!loggedIn) {
+      navigate('/guest/join');
+      return;
+    }
+    setJoined(true);
+    showToast("You're in! See you there.");
+  };
+
+  const handleDonate = () => {
+    const amount = selectedAmount === 'other' ? 25 : selectedAmount;
+    navigate(buildDonationSuccessUrl({
+      amount,
+      eventKey: ev.key,
+      returnTo: loggedIn ? '/event/live' : '/guest/event/live',
+    }));
+  };
+
   const sendMessage = () => {
+    if (requireJoin()) return;
     const text = chatInput.trim();
     if (!text) return;
     setMessages((prev) => [
@@ -349,13 +399,25 @@ export default function EventDetailLive({ loggedIn = false }) {
                   Event details <Info size={13} aria-hidden="true" style={{ verticalAlign: -2 }} />
                 </button>
               </div>
-              <button className="ev-heart-btn" onClick={() => setLiked(!liked)} aria-label={liked ? 'Unlike event' : 'Like event'}>
-                <Heart
-                  size={18}
-                  color={liked ? '#FF6B6B' : 'white'}
-                  fill={liked ? '#FF6B6B' : 'none'}
-                />
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button
+                  type="button"
+                  className={`ev-join-btn${joined ? ' joined' : ''}`}
+                  onClick={handleJoin}
+                  disabled={joined}
+                  aria-label={joined ? 'Joined this event' : 'Join this event'}
+                >
+                  {joined ? <Check size={15} strokeWidth={3} /> : <UserPlus size={15} />}
+                  {joined ? 'Joined' : 'Join event'}
+                </button>
+                <button className="ev-heart-btn" onClick={() => setLiked(!liked)} aria-label={liked ? 'Unlike event' : 'Like event'}>
+                  <Heart
+                    size={18}
+                    color={liked ? '#FF6B6B' : 'white'}
+                    fill={liked ? '#FF6B6B' : 'none'}
+                  />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -381,18 +443,24 @@ export default function EventDetailLive({ loggedIn = false }) {
 
           {/* Scrollable tab content */}
           {activeTab === 'chat' ? (
-            <>
-              <ChatTabHeader />
+            loggedIn ? (
+              <>
+                <ChatTabHeader />
+                <div className="ev-tab-content">
+                  <ChatTabMessages messages={messages} />
+                </div>
+                <ChatInputBar
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  onSend={sendMessage}
+                  onAttach={() => showToast('Photo sharing is coming soon')}
+                />
+              </>
+            ) : (
               <div className="ev-tab-content">
-                <ChatTabMessages messages={messages} />
+                <GuestChatGate onSignUp={() => navigate('/guest/join')} />
               </div>
-              <ChatInputBar
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                onSend={sendMessage}
-                onAttach={() => showToast('Photo sharing is coming soon')}
-              />
-            </>
+            )
           ) : (
             <div className="ev-tab-content">
               {activeTab === 'community' && <CommunityTab />}
@@ -400,13 +468,7 @@ export default function EventDetailLive({ loggedIn = false }) {
                 <SupportTab
                   selectedAmount={selectedAmount}
                   onSelectAmount={setSelectedAmount}
-                  onDonate={() => {
-                    if (loggedIn) {
-                      showToast('Donation submitted');
-                      return;
-                    }
-                    navigate('/guest/donate');
-                  }}
+                  onDonate={handleDonate}
                   onViewStructure={() => showToast('Funds go to Youth Health Fund (verified 501c3)')}
                 />
               )}
@@ -443,7 +505,7 @@ export default function EventDetailLive({ loggedIn = false }) {
                     setActiveTab('support');
                     return;
                   }
-                  navigate('/guest/donate');
+                  setActiveTab('support');
                 }}
               >
                 Back this cause

@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Clock, Flag, MoreHorizontal } from 'lucide-react';
+import { Clock, Flag, MoreHorizontal, ScanLine } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
 import NotificationBell, { NP_NOTIFICATIONS } from '../../components/NotificationBell';
 import MobileAppHeader from '../../components/MobileAppHeader';
+import QRScannerModal from '../../components/QRScannerModal';
 
 const ORG_LOGO = '/events/breakneck-ridge-run/img1.jpg';
 const HEADER_AVATAR = '/events/give-now/img2.jpg';
@@ -14,6 +16,8 @@ const LIVE_EVENTS = [
 
 export default function NpLaunchpad() {
   const navigate = useNavigate();
+  const [showScanner, setShowScanner] = useState(false);
+  const [scannerEvent, setScannerEvent] = useState(LIVE_EVENTS[0].title);
   const onKey = (fn) => (e) => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
   };
@@ -151,6 +155,20 @@ export default function NpLaunchpad() {
                     </svg>
                     <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{ev.stat}</span>
                   </div>
+                  {ev.isLive && (
+                    <button
+                      type="button"
+                      className="np-scan-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setScannerEvent(ev.title);
+                        setShowScanner(true);
+                      }}
+                    >
+                      <ScanLine size={12} aria-hidden="true" />
+                      Verify attendance
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
@@ -159,6 +177,14 @@ export default function NpLaunchpad() {
 
         <NpBottomNav active="home" />
       </div>
+
+      <QRScannerModal
+        open={showScanner}
+        onClose={() => setShowScanner(false)}
+        role="np"
+        variant="mobile"
+        eventTitle={scannerEvent}
+      />
     </div>
   );
 }

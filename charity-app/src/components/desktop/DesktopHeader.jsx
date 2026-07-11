@@ -4,7 +4,7 @@ import Logo from '../Logo';
 
 const NAV_LINKS = ['Discover', 'How it works', 'Causes', 'For nonprofits'];
 
-export default function DesktopHeader({ active = 'Discover', loggedIn = false, avatarInitials = 'SJ', homePath = '/guest/feed' }) {
+export default function DesktopHeader({ active = 'Discover', loggedIn = false, avatarInitials = 'SJ', homePath = '/guest/feed', showSearch = true }) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -50,13 +50,15 @@ export default function DesktopHeader({ active = 'Discover', loggedIn = false, a
         </nav>
 
         <div className="dsk-header-actions">
-          <div className="dsk-search">
-            <Search size={15} />
-            <input
-              placeholder="Search events..."
-              onKeyDown={(e) => { if (e.key === 'Enter') navigate('/guest/feed'); }}
-            />
-          </div>
+          {showSearch && (
+            <div className="dsk-search">
+              <Search size={15} />
+              <input
+                placeholder="Search events..."
+                onKeyDown={(e) => { if (e.key === 'Enter') navigate('/guest/feed'); }}
+              />
+            </div>
+          )}
 
           {loggedIn ? (
             <div

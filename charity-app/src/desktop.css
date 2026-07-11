@@ -918,8 +918,8 @@
 .dsk-wizard-rail-item.active .dsk-wizard-rail-label { color: var(--dark); font-weight: 700; }
 
 .dsk-wizard-content { background: var(--white); border-radius: var(--radius-md); box-shadow: var(--card-shadow); padding: 28px; }
-.dsk-wizard-h1 { font-size: 24px; font-weight: 800; color: var(--dark); letter-spacing: -0.4px; margin-bottom: 4px; }
-.dsk-wizard-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 22px; }
+.dsk-wizard-h1 { font-size: 26px; font-weight: 800; color: var(--dark); letter-spacing: -0.4px; margin: 0 0 10px; line-height: 1.25; }
+.dsk-wizard-sub { font-size: 14px; color: var(--text-secondary); margin: 0 0 28px; line-height: 1.55; }
 .dsk-wizard-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 28px; }
 .dsk-wizard-back-link { background: none; border: none; cursor: pointer; font-family: inherit; color: var(--text-secondary); font-size: 14px; font-weight: 600; }
 
@@ -1119,9 +1119,9 @@
 .dsk-np-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
 .dsk-np-stat-card { background: var(--white); border-radius: var(--radius-md); box-shadow: var(--card-shadow); padding: 18px 20px; }
 .dsk-np-stat-lbl { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
-.dsk-np-stat-num { font-size: 28px; font-weight: 800; }
-.dsk-np-stat-num.blue { color: var(--blue); }
-.dsk-np-stat-num.coral { color: var(--primary); }
+.dsk-np-stat-num { font-size: 28px; font-weight: 800; color: var(--dark); }
+.dsk-np-stat-num.blue,
+.dsk-np-stat-num.coral,
 .dsk-np-stat-num.dark { color: var(--dark); }
 
 .dsk-np-panel { background: var(--white); border-radius: var(--radius-md); box-shadow: var(--card-shadow); padding: 20px; margin-bottom: 18px; }
@@ -1218,8 +1218,8 @@
 
 .dsk-auth-form-side { flex: 1; display: flex; align-items: center; justify-content: center; padding: 48px; }
 .dsk-auth-form-card { width: 100%; max-width: 420px; }
-.dsk-auth-title { font-size: 26px; font-weight: 800; color: var(--dark); letter-spacing: -0.4px; margin-bottom: 6px; }
-.dsk-auth-subtitle { font-size: 14px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 24px; }
+.dsk-auth-title { font-size: 26px; font-weight: 800; color: var(--dark); letter-spacing: -0.4px; margin: 0 0 10px; line-height: 1.25; }
+.dsk-auth-subtitle { font-size: 14px; color: var(--text-secondary); line-height: 1.55; margin: 0 0 28px; }
 .dsk-auth-label { display: block; font-size: 13px; font-weight: 600; color: var(--dark); margin-bottom: 8px; }
 .dsk-auth-form-card > .role-select { margin-bottom: 4px; }
 .dsk-auth-fields { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
@@ -1393,3 +1393,42 @@ textarea.input-field {
 .badge-changes { background: #FBEFD8; color: #8A5200; }        /* amber — complements blue */
 .badge-approved { background: #E4F5EC; color: #1E7E4F; }        /* green — resolved */
 .np-count-badge { background: var(--secondary-soft); color: var(--secondary); }
+
+/* Donation success (desktop) */
+.dsk-donate-success-wrap {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 48px 0 64px;
+}
+.dsk-donate-success-wrap .donate-success {
+  padding: 0;
+}
+.dsk-donate-success-wrap .donate-success-title {
+  font-size: 30px;
+}
+.dsk-donate-success-wrap .donate-success-lead {
+  font-size: 16px;
+  max-width: 400px;
+}
+.dsk-donate-success-wrap .donate-success-receipt,
+.dsk-donate-success-wrap .donate-success-email,
+.dsk-donate-success-wrap .donate-success-pending,
+.dsk-donate-success-wrap .donate-success-cta,
+.dsk-donate-success-wrap .donate-success-back {
+  max-width: 420px;
+}
+
+/* QR Scanner (desktop) */
+.qr-scanner--desktop .qr-scanner-title { font-size: 20px; }
+.qr-scanner--desktop .qr-scanner-camera { min-height: 220px; }
+.dsk-live-action-scan {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--primary) !important; color: white !important; border-color: var(--primary) !important;
+}
+.dsk-np-scan-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 700; color: var(--primary);
+  background: var(--primary-soft); border: none; border-radius: var(--radius-pill);
+  padding: 5px 10px; cursor: pointer; font-family: inherit; margin-top: 8px;
+}
+.dsk-np-scan-btn:hover { background: var(--primary); color: white; }

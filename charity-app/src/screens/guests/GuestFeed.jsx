@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Megaphone, Building2, Compass, MessageCircle, Camera, Bell } from 'lucide-react';
 import GuestBottomNav from '../../components/GuestBottomNav';
 import MobileAppHeader from '../../components/MobileAppHeader';
-import { events } from '../../data/mockData';
+import { events, storyReel } from '../../data/mockData';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
 
-const FILTERS = ['All', 'Live now', 'Environment', 'Education'];
+const CATEGORIES = [...new Set(events.map((ev) => ev.category))];
+const FILTERS = ['All', 'Live now', ...CATEGORIES];
 
 const activateOnKey = (fn) => (e) => {
   if (e.key === 'Enter' || e.key === ' ') {
@@ -78,20 +79,20 @@ export default function GuestFeed() {
               </div>
               <span className="story-label">Your Event</span>
             </div>
-            {events.slice(0, 4).map((ev) => (
+            {storyReel.map((story) => (
               <div
-                key={ev.id}
+                key={story.id}
                 className="story-item"
                 role="button"
                 tabIndex={0}
-                aria-label={`Open ${ev.title}`}
-                onClick={() => openEvent(ev)}
-                onKeyDown={activateOnKey(() => openEvent(ev))}
+                aria-label={`Open ${story.title}`}
+                onClick={() => openEvent(story.event)}
+                onKeyDown={activateOnKey(() => openEvent(story.event))}
               >
                 <div className="story-circle">
-                  <img src={ev.cover} alt={ev.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={story.src} alt={story.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
-                <span className="story-label">{ev.title.split(' ').slice(0, 2).join(' ')}</span>
+                <span className="story-label">{story.title.split(' ').slice(0, 2).join(' ')}</span>
               </div>
             ))}
           </div>

@@ -11,8 +11,6 @@ export default function DesktopAuthLayout({ eyebrow, headline, subhead, children
       <div className="dsk-auth-hero" style={{ backgroundImage: `url(${live.cover})` }}>
         <div className="dsk-auth-hero-scrim" />
         <div className="dsk-auth-hero-content">
-          <Logo height={26} tone="light" onClick={() => navigate('/guest/feed')} style={{ cursor: 'pointer' }} />
-
           <div>
             <p className="dsk-auth-eyebrow">{eyebrow}</p>
             <h1 className="dsk-auth-headline">{headline}</h1>
@@ -32,7 +30,15 @@ export default function DesktopAuthLayout({ eyebrow, headline, subhead, children
       </div>
 
       <div className="dsk-auth-form-side">
-        <div className="dsk-auth-form-card">{children}</div>
+        <div className="dsk-auth-form-card">
+          <Logo
+            height={38}
+            tone="dark"
+            onClick={() => navigate('/guest/feed')}
+            style={{ cursor: 'pointer', marginBottom: 28 }}
+          />
+          {children}
+        </div>
       </div>
     </div>
   );

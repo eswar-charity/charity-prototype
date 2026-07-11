@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download, Flag } from 'lucide-react';
+import { Download, Flag, ScanLine } from 'lucide-react';
 import AdminLayout, { Badge } from '../../components/admin/AdminLayout';
 import { Toast, useToast } from '../../components/admin/useToast';
+import QRScannerModal from '../../components/QRScannerModal';
 import { adminEvents, statusTone } from '../../data/adminData';
 
 const FILTERS = ['All', 'Live', 'Submitted', 'Approved', 'Changes Requested', 'Completed', 'Cancelled'];
@@ -12,6 +13,8 @@ export default function AdminEvents() {
   const navigate = useNavigate();
   const { msg, show } = useToast();
   const [filter, setFilter] = useState('All');
+  const [showScanner, setShowScanner] = useState(false);
+  const [scannerEvent, setScannerEvent] = useState('Neon Night Run');
 
   const rows = adminEvents.filter((e) => filter === 'All' || e.status === filter);
 
@@ -54,6 +57,17 @@ export default function AdminEvents() {
                   <td className="adm-td-strong">{money(e.raised)}</td>
                   <td className="adm-td-actions">
                     <button className="adm-btn adm-btn-ghost adm-btn-sm" onClick={() => navigate('/guest/event/live')}>View</button>
+                    {e.status === 'Live' && (
+                      <button
+                        className="adm-btn adm-btn-scan adm-btn-sm"
+                        onClick={() => {
+                          setScannerEvent(e.title);
+                          setShowScanner(true);
+                        }}
+                      >
+                        <ScanLine size={13} /> Scan audit
+                      </button>
+                    )}
                     {e.flags > 0 && (
                       <button className="adm-btn adm-btn-danger adm-btn-sm" onClick={() => show('Opened moderation for ' + e.title)}>Moderate</button>
                     )}
@@ -66,6 +80,15 @@ export default function AdminEvents() {
       </div>
 
       <Toast msg={msg} />
+
+      <QRScannerModal
+        open={showScanner}
+        onClose={() => setShowScanner(false)}
+        role="admin"
+        variant="desktop"
+        eventTitle={scannerEvent}
+        onScanSuccess={(attendee) => show(`Audit logged: ${attendee.name} at ${scannerEvent}`)}
+      />
     </AdminLayout>
   );
 }

@@ -256,6 +256,18 @@ export const eventData = {
   cover: '/events/neon-night/img1.jpg',
 };
 
+// Story-row items derived from every real event photo (not invented data) —
+// expands the 5 events into 20+ scrollable stories so the feed feels alive.
+export const storyReel = events.flatMap((ev) =>
+  ev.photos.map((src, i) => ({
+    id: `${ev.key}-${i}`,
+    src,
+    title: ev.title,
+    category: ev.category,
+    event: ev,
+  }))
+);
+
 export const causes = ['Environment', 'Education', 'Animals', 'Health', 'Arts', 'Housing'];
 
 export const accountRoles = [
@@ -289,4 +301,34 @@ export function getOrganizerProfile(slug) {
     },
     events: hosted,
   };
+}
+
+export function getEventByKey(key) {
+  return events.find((e) => e.key === key) || events[0];
+}
+
+export function calcDonationReceipt(amount) {
+  const donation = typeof amount === 'number' && amount > 0 ? amount : 25;
+  const tip = donation >= 25 ? 3 : Math.max(1, Math.round(donation * 0.12));
+  const subtotal = donation + tip;
+  const processingFee = Math.round(subtotal * 0.03964 * 100) / 100;
+  const total = Math.round((subtotal + processingFee) * 100) / 100;
+  return { donation, tip, processingFee, total };
+}
+
+export function buildDonationSuccessUrl({
+  amount = 25,
+  eventKey = 'neon-night',
+  returnTo = '/guest/event/live',
+  donorName = 'Sarah King',
+  publicName = 'Sarah K.',
+} = {}) {
+  const params = new URLSearchParams({
+    amount: String(amount),
+    event: eventKey,
+    return: returnTo,
+    donor: donorName,
+    public: publicName,
+  });
+  return `/donate/success?${params.toString()}`;
 }

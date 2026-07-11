@@ -3,27 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { Settings, Share2, ChevronRight, Rocket, Users, Award } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
+import DesktopShareModal from '../../components/desktop/DesktopShareModal';
 import Logo from '../../components/Logo';
 
 export default function DesktopPostEventImpact() {
   const navigate = useNavigate();
   const [toast, setToast] = useState('');
+  const [showShare, setShowShare] = useState(false);
 
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(''), 2200);
-  };
-
-  const shareToLinkedIn = () => {
-    const link = 'https://charityhub.app/e/neon-night-run';
-    if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(link).then(
-        () => showToast('Impact link copied — ready to share'),
-        () => showToast('Impact link ready to share')
-      );
-    } else {
-      showToast('Impact link ready to share');
-    }
   };
 
   return (
@@ -71,8 +61,8 @@ export default function DesktopPostEventImpact() {
               <p className="dsk-post-event-credential-meta">213 participants · Youth Health Fund · Nov 2025</p>
 
               <div className="dsk-post-event-credential-actions">
-                <button type="button" className="dsk-post-event-share-btn" onClick={shareToLinkedIn}>
-                  Share to LinkedIn <Share2 size={15} />
+                <button type="button" className="dsk-post-event-share-btn" onClick={() => setShowShare(true)}>
+                  Share your impact <Share2 size={15} />
                 </button>
                 <button
                   type="button"
@@ -127,6 +117,16 @@ export default function DesktopPostEventImpact() {
       </main>
 
       <DesktopFooter />
+
+      {showShare && (
+        <DesktopShareModal
+          open={showShare}
+          onClose={() => setShowShare(false)}
+          url="https://charityhub.app/e/neon-night-run"
+          title="Neon Night Run — Impact Recap"
+          subtitle="213 participants · Youth Health Fund"
+        />
+      )}
 
       {toast && (
         <div className="dsk-post-event-toast">{toast}</div>

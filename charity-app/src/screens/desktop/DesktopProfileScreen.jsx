@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { MapPin, Pencil, Share2 } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
+import DesktopShareModal from '../../components/desktop/DesktopShareModal';
 import { events } from '../../data/mockData';
 
 const RECENT_EVENTS = events.slice(0, 3);
@@ -10,16 +11,7 @@ const COVER = events[0]?.photos?.[1] || events[0]?.cover;
 
 export default function DesktopProfileScreen() {
   const navigate = useNavigate();
-  const [toast, setToast] = useState('');
-
-  const handleShare = () => {
-    const link = `${window.location.origin}/profile`;
-    if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(link).catch(() => {});
-    }
-    setToast('Profile link copied');
-    setTimeout(() => setToast(''), 2200);
-  };
+  const [showShare, setShowShare] = useState(false);
 
   return (
     <div className="dsk-page">
@@ -44,7 +36,7 @@ export default function DesktopProfileScreen() {
                 <Pencil size={14} style={{ marginRight: 6, verticalAlign: -2 }} />
                 Edit profile
               </button>
-              <button type="button" className="dsk-follow-cta" onClick={handleShare}>
+              <button type="button" className="dsk-follow-cta" onClick={() => setShowShare(true)}>
                 <Share2 size={14} style={{ marginRight: 6, verticalAlign: -2 }} />
                 Share
               </button>
@@ -96,7 +88,15 @@ export default function DesktopProfileScreen() {
 
       <DesktopFooter />
 
-      {toast && <div className="dsk-post-event-toast">{toast}</div>}
+      {showShare && (
+        <DesktopShareModal
+          open={showShare}
+          onClose={() => setShowShare(false)}
+          url={`${window.location.origin}/profile`}
+          title="Sarah Jenkins"
+          subtitle="Event Presenter · Charity Hub"
+        />
+      )}
     </div>
   );
 }

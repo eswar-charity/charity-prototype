@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Users, MessageCircle, Camera } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
-import { events } from '../../data/mockData';
+import { events, storyReel } from '../../data/mockData';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
 
-const FILTERS = ['All', 'You', 'Live now', 'Environment', 'Education'];
+const CATEGORIES = [...new Set(events.map((e) => e.category))];
+const FILTERS = ['All', 'You', 'Live now', ...CATEGORIES];
 const ORGANIZER_NAME = 'Sarah Jenkins';
 
 function SceneEventCard({ ev }) {
@@ -53,21 +54,15 @@ function SceneEventCard({ ev }) {
 export default function DesktopFeedScreen() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState('All');
-  const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
-    let list = events.filter((e) => {
+    return events.filter((e) => {
       if (filter === 'Live now') return e.isLive;
       if (filter === 'You') return e.organizer === ORGANIZER_NAME;
       if (filter !== 'All') return e.category === filter;
       return true;
     });
-    if (query.trim()) {
-      const q = query.toLowerCase();
-      list = list.filter((e) => e.title.toLowerCase().includes(q) || e.nonprofit.toLowerCase().includes(q));
-    }
-    return list;
-  }, [filter, query]);
+  }, [filter]);
 
   const { items, sentinelRef, loading, hasMore } = useInfiniteScroll(filtered, {
     pageSize: 6,
@@ -76,7 +71,7 @@ export default function DesktopFeedScreen() {
 
   return (
     <div className="dsk-page">
-      <DesktopHeader active="Discover" loggedIn homePath="/feed" />
+      <DesktopHeader active="Discover" loggedIn homePath="/feed" showSearch={false} />
 
       <main className="dsk-main">
         <div className="dsk-container">
@@ -92,17 +87,17 @@ export default function DesktopFeedScreen() {
               </div>
               <span className="dsk-story-label">Your Event</span>
             </button>
-            {events.slice(0, 4).map((ev) => (
+            {storyReel.map((story) => (
               <button
-                key={ev.id}
+                key={story.id}
                 type="button"
                 className="dsk-story-item"
-                onClick={() => navigate(ev.isLive ? '/event/live' : '/event/upcoming')}
+                onClick={() => navigate(story.event.isLive ? '/event/live' : '/event/upcoming')}
               >
                 <div className="dsk-story-circle">
-                  <img src={ev.cover} alt={ev.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={story.src} alt={story.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
-                <span className="dsk-story-label">{ev.title.split(' ').slice(0, 2).join(' ')}</span>
+                <span className="dsk-story-label">{story.title.split(' ').slice(0, 2).join(' ')}</span>
               </button>
             ))}
           </div>
@@ -122,14 +117,6 @@ export default function DesktopFeedScreen() {
                   {f}
                 </button>
               ))}
-            </div>
-            <div className="dsk-feed-right">
-              <input
-                className="dsk-feed-search"
-                placeholder="Search events..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
             </div>
           </div>
 

@@ -3,26 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { Settings, Share2, ChevronRight, Rocket, Users } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 import MobileAppHeader from '../components/MobileAppHeader';
+import MobileShareModal from '../components/MobileShareModal';
 
 export default function PostEventImpact() {
   const navigate = useNavigate();
   const [toast, setToast] = useState('');
+  const [showShare, setShowShare] = useState(false);
 
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(''), 2200);
-  };
-
-  const shareToLinkedIn = () => {
-    const link = 'https://charityhub.app/e/neon-night-run';
-    if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(link).then(
-        () => showToast('Impact link copied — ready to share'),
-        () => showToast('Impact link ready to share')
-      );
-    } else {
-      showToast('Impact link ready to share');
-    }
   };
 
   return (
@@ -111,8 +101,8 @@ export default function PostEventImpact() {
             <p className="credential-meta">213 participants · Youth Health Fund · Nov 2025</p>
 
             <div className="credential-actions">
-              <button type="button" className="credential-share-btn" onClick={shareToLinkedIn}>
-                Share to LinkedIn <Share2 size={15} />
+              <button type="button" className="credential-share-btn" onClick={() => setShowShare(true)}>
+                Share your impact <Share2 size={15} />
               </button>
               <button
                 type="button"
@@ -178,6 +168,15 @@ export default function PostEventImpact() {
 
         <BottomNav active="activity" onPlusClick={() => navigate('/create-event')} />
       </div>
+
+      {showShare && (
+        <MobileShareModal
+          title="Neon Night Run — Impact Recap"
+          subtitle="213 participants · Youth Health Fund"
+          url="https://charityhub.app/e/neon-night-run"
+          onClose={() => setShowShare(false)}
+        />
+      )}
 
       {toast && (
         <div

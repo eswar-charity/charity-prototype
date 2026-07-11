@@ -4,10 +4,11 @@ import { Plus, Megaphone, Building2, Compass, MessageCircle, Camera } from 'luci
 import BottomNav from '../components/BottomNav';
 import NotificationBell, { SE_FEED_NOTIFICATIONS } from '../components/NotificationBell';
 import MobileAppHeader from '../components/MobileAppHeader';
-import { events } from '../data/mockData';
+import { events, storyReel } from '../data/mockData';
 import useInfiniteScroll from '../hooks/useInfiniteScroll';
 
-const FILTERS = ['All', 'You', 'Live now', 'Environment', 'Education'];
+const CATEGORIES = [...new Set(events.map((ev) => ev.category))];
+const FILTERS = ['All', 'You', 'Live now', ...CATEGORIES];
 
 const activateOnKey = (fn) => (e) => {
   if (e.key === 'Enter' || e.key === ' ') {
@@ -21,7 +22,13 @@ export default function FeedScreen() {
   const [activeFilter, setActiveFilter] = useState('All');
   const [showSheet, setShowSheet] = useState(false);
   const scrollRef = useRef(null);
-  const { items, sentinelRef, loading, hasMore } = useInfiniteScroll(events, {
+  const filteredEvents = events.filter((ev) => {
+    if (activeFilter === 'You') return ev.organizer === 'Sarah Jenkins';
+    if (activeFilter === 'Live now') return ev.isLive;
+    if (activeFilter !== 'All') return ev.category === activeFilter;
+    return true;
+  });
+  const { items, sentinelRef, loading, hasMore } = useInfiniteScroll(filteredEvents, {
     rootRef: scrollRef, pageSize: 3, max: 30,
   });
   const openEvent = (ev) => navigate(ev.isLive ? '/event/live' : '/event/upcoming');
@@ -67,20 +74,20 @@ export default function FeedScreen() {
               </div>
               <span className="story-label">Your Event</span>
             </div>
-            {events.slice(0, 4).map((ev) => (
+            {storyReel.map((story) => (
               <div
-                key={ev.id}
+                key={story.id}
                 className="story-item"
                 role="button"
                 tabIndex={0}
-                aria-label={`Open ${ev.title}`}
-                onClick={() => openEvent(ev)}
-                onKeyDown={activateOnKey(() => openEvent(ev))}
+                aria-label={`Open ${story.title}`}
+                onClick={() => openEvent(story.event)}
+                onKeyDown={activateOnKey(() => openEvent(story.event))}
               >
                 <div className="story-circle">
-                  <img src={ev.cover} alt={ev.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={story.src} alt={story.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
-                <span className="story-label">{ev.title.split(' ').slice(0, 2).join(' ')}</span>
+                <span className="story-label">{story.title.split(' ').slice(0, 2).join(' ')}</span>
               </div>
             ))}
           </div>

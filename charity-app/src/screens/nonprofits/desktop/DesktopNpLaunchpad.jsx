@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Clock, Flag, MoreHorizontal } from 'lucide-react';
+import { Clock, Flag, MoreHorizontal, ScanLine } from 'lucide-react';
 import { DesktopNpLayout } from '../../../components/desktop/DesktopNpLayout';
+import QRScannerModal from '../../../components/QRScannerModal';
 
 const LIVE_EVENTS = [
   { id: 1, title: 'Coastal Cleanup Wave 1', category: 'Community', joined: 87, backing: 150, isLive: true, cover: '/events/breakneck-ridge-run/img1.jpg' },
@@ -10,6 +12,8 @@ const LIVE_EVENTS = [
 
 export default function DesktopNpLaunchpad() {
   const navigate = useNavigate();
+  const [showScanner, setShowScanner] = useState(false);
+  const [scannerEvent, setScannerEvent] = useState(LIVE_EVENTS[0].title);
   const onKey = (fn) => (e) => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
   };
@@ -86,10 +90,32 @@ export default function DesktopNpLaunchpad() {
               <span className="dsk-np-event-cat">{ev.category}</span>
               <p className="dsk-np-event-title">{ev.title}</p>
               <p className="dsk-np-event-stat">{ev.joined} joined / {ev.backing} backing</p>
+              {ev.isLive && (
+                <button
+                  type="button"
+                  className="dsk-np-scan-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setScannerEvent(ev.title);
+                    setShowScanner(true);
+                  }}
+                >
+                  <ScanLine size={12} aria-hidden="true" />
+                  Verify attendance
+                </button>
+              )}
             </div>
           </div>
         ))}
       </div>
+
+      <QRScannerModal
+        open={showScanner}
+        onClose={() => setShowScanner(false)}
+        role="np"
+        variant="desktop"
+        eventTitle={scannerEvent}
+      />
     </DesktopNpLayout>
   );
 }

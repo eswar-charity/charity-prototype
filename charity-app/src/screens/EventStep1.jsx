@@ -31,12 +31,12 @@ export default function EventStep1() {
               <ChevronLeft size={18} />
             </button>
           )}
-          meta="1 of 4 — Add your story media"
+          meta="Step 1 of 4"
+          title="Create your event"
+          subtitle="Add photos and tell your story to inspire people to join."
         />
 
         <div className="screen-inner">
-          <h1 className="screen-title" style={{ marginBottom: 20 }}>Create your event</h1>
-
           <div style={{ position: 'relative', marginBottom: 16 }}>
             <div style={{ textAlign: 'right', fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
               Up to 10 items

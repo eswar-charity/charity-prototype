@@ -2,13 +2,12 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Share2, Heart, X, Calendar, MapPin, Plus, Camera, ArrowUp,
-  MessageCircle, Users, Play, Info, PartyPopper,
+  MessageCircle, Users, Play, Info, PartyPopper, Check, UserPlus,
 } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
 import DesktopJoinGateModal from '../../../components/desktop/DesktopJoinGateModal';
-import DesktopDonateGateModal from '../../../components/desktop/DesktopDonateGateModal';
-import { events, liveActivities, slugify } from '../../../data/mockData';
+import { events, liveActivities, slugify, buildDonationSuccessUrl } from '../../../data/mockData';
 
 const ev = events[0]; // Neon Night Run — the app's featured live event
 
@@ -130,9 +129,25 @@ const CHAT_SEED = [
   { id: 4, initials: 'EJ', color: 'linear-gradient(135deg,#1976D2,#42A5F5)', name: 'Emma J.', text: 'This is incredible! First time attending a Charity Hub event' },
 ];
 
-function ChatTab({ onNeedJoin }) {
+function ChatTab({ onNeedJoin, loggedIn }) {
   const [value, setValue] = useState('');
   const [messages, setMessages] = useState(CHAT_SEED);
+
+  if (!loggedIn) {
+    return (
+      <div className="dsk-tab-panel">
+        <div className="chat-guest-gate">
+          <p className="chat-guest-gate-title">Chat is for members</p>
+          <p className="chat-guest-gate-copy">
+            Create a free account to join the live conversation, back this event, and get updates.
+          </p>
+          <button type="button" className="dsk-cta-btn" onClick={onNeedJoin}>
+            Sign up to chat
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const send = () => {
     const text = value.trim();
@@ -215,6 +230,7 @@ function ChatTab({ onNeedJoin }) {
 
 function SupportTab({ onDonate }) {
   const [amount, setAmount] = useState(25);
+
   return (
     <div className="dsk-tab-panel">
       <p className="dsk-panel-title" style={{ marginBottom: 14 }}>Support {ev.nonprofit}</p>
@@ -260,14 +276,33 @@ export default function DesktopEventDetail({ loggedIn = false }) {
   const [following, setFollowing] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showJoinGate, setShowJoinGate] = useState(false);
-  const [showDonateGate, setShowDonateGate] = useState(false);
-  const [donateAmount, setDonateAmount] = useState(25);
+  const [joined, setJoined] = useState(false);
   const [toast, setToast] = useState('');
 
   const shareUrl = `https://charity.hub/event/${ev.key}`;
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(''), 1800);
+  };
+
+  // Join / Participate (Blueprint §5): identity required — guests hit the
+  // join gate, a logged-in SE joins immediately.
+  const handleJoin = () => {
+    if (!loggedIn) {
+      setShowJoinGate(true);
+      return;
+    }
+    setJoined(true);
+    showToast("You're in! See you there.");
+  };
+
+  const handleDonate = (amt) => {
+    const amount = amt === 'other' ? 25 : amt;
+    navigate(buildDonationSuccessUrl({
+      amount,
+      eventKey: ev.key,
+      returnTo: loggedIn ? '/event/live' : '/guest/event/live',
+    }));
   };
 
   return (
@@ -319,23 +354,13 @@ export default function DesktopEventDetail({ loggedIn = false }) {
 
             {activeTab === 'community' && <CommunityTab />}
             {activeTab === 'chat' && (
-              <ChatTab onNeedJoin={() => {
-                if (loggedIn) {
-                  showToast('Photo sharing is coming soon');
-                  return;
-                }
-                setShowJoinGate(true);
-              }} />
+              <ChatTab
+                loggedIn={loggedIn}
+                onNeedJoin={() => setShowJoinGate(true)}
+              />
             )}
             {activeTab === 'support' && (
-              <SupportTab onDonate={(amt) => {
-                setDonateAmount(amt);
-                if (loggedIn) {
-                  showToast(`Donation submitted for ${typeof amt === 'number' ? `$${amt}` : 'your amount'}`);
-                  return;
-                }
-                setShowDonateGate(true);
-              }} />
+              <SupportTab onDonate={handleDonate} />
             )}
           </div>
 
@@ -348,6 +373,19 @@ export default function DesktopEventDetail({ loggedIn = false }) {
                   <p className="dsk-sidebar-np-sub">Registered 501(c)(3)</p>
                 </div>
               </div>
+              <button
+                type="button"
+                className="ev-join-btn"
+                style={{
+                  width: '100%', justifyContent: 'center', marginBottom: 10,
+                  ...(joined ? { background: 'var(--tertiary)', color: 'var(--tertiary-text)' } : {}),
+                }}
+                onClick={handleJoin}
+                disabled={joined}
+              >
+                {joined ? <Check size={15} strokeWidth={3} /> : <UserPlus size={15} />}
+                {joined ? 'Joined' : 'Join event'}
+              </button>
               <button className="dsk-sidebar-back-btn" onClick={() => setActiveTab('support')}>Back this event</button>
               <button className="dsk-sidebar-share-btn" onClick={() => setShowShare(true)}>Share</button>
               <div className="dsk-sidebar-stats">
@@ -367,18 +405,6 @@ export default function DesktopEventDetail({ loggedIn = false }) {
           onClose={() => setShowAbout(false)}
           following={following}
           onToggleFollow={() => setFollowing((f) => !f)}
-        />
-      )}
-
-      {showDonateGate && (
-        <DesktopDonateGateModal
-          open={showDonateGate}
-          onClose={() => setShowDonateGate(false)}
-          amount={donateAmount}
-          eventTitle={ev.title}
-          nonprofit={ev.nonprofit}
-          npInitials={ev.npInitials}
-          npBg={ev.npBg}
         />
       )}
 

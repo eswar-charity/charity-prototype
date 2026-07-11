@@ -38,14 +38,11 @@ export default function EventStep4() {
             </button>
           )}
           meta="Step 4 of 4"
+          title="Preview & submit"
+          subtitle="This is how your event will look to the world."
         />
 
         <div className="screen-inner">
-          <h1 className="screen-title" style={{ marginBottom: 6 }}>Preview & submit</h1>
-          <p className="screen-subtitle" style={{ marginBottom: 18 }}>
-            This is how your event will look to the world.
-          </p>
-
           <div className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: 24 }}>
             <div style={{
               height: 160,

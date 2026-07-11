@@ -1,31 +1,24 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, Compass, Plus, Bell, User, Settings, TriangleAlert, Pencil, X } from 'lucide-react';
+import { Home, Compass, Plus, Bell, User, Settings, TriangleAlert, Pencil, X, ScanLine } from 'lucide-react';
 import { liveActivities } from '../data/mockData';
 import MobileAppHeader from '../components/MobileAppHeader';
+import MobileShareModal from '../components/MobileShareModal';
+import QRScannerModal from '../components/QRScannerModal';
 
 export default function LiveDashboard() {
   const navigate = useNavigate();
   const [toast, setToast] = useState('');
   const [showAlert, setShowAlert] = useState(true);
   const [postSheet, setPostSheet] = useState(false);
+  const [showShare, setShowShare] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
+  const [joinedCount, setJoinedCount] = useState(87);
   const [update, setUpdate] = useState('');
 
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(''), 2200);
-  };
-
-  const shareEvent = () => {
-    const link = 'https://charityhub.app/e/neon-night-run';
-    if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(link).then(
-        () => showToast('Event link copied'),
-        () => showToast('Event link ready to share')
-      );
-    } else {
-      showToast('Event link ready to share');
-    }
   };
 
   const postUpdate = () => {
@@ -99,7 +92,7 @@ export default function LiveDashboard() {
           {/* Stats row */}
           <div className="stat-row" style={{ marginBottom: 16 }}>
             <div className="stat-box">
-              <div className="stat-num">87</div>
+              <div className="stat-num">{joinedCount}</div>
               <div className="stat-lbl">Joined</div>
             </div>
             <div className="stat-box">
@@ -114,9 +107,13 @@ export default function LiveDashboard() {
 
           {/* Action chips */}
           <div className="action-chips" style={{ marginBottom: 20 }}>
+            <button type="button" className="action-chip action-chip--scan" onClick={() => setShowScanner(true)}>
+              <ScanLine size={14} aria-hidden="true" />
+              Scan check-in
+            </button>
             <button className="action-chip" onClick={() => setPostSheet(true)}>Post update</button>
             <button className="action-chip" onClick={() => showToast('Photo added to your event')}>Add photo</button>
-            <button className="action-chip" onClick={shareEvent}>Share event</button>
+            <button className="action-chip" onClick={() => setShowShare(true)}>Share event</button>
           </div>
 
           {/* Live activity section */}
@@ -244,6 +241,27 @@ export default function LiveDashboard() {
           </div>
         </div>
       )}
+
+      {showShare && (
+        <MobileShareModal
+          title="Neon Night Run"
+          subtitle="Youth Health Fund · verified"
+          url="https://charityhub.app/e/neon-night-run"
+          onClose={() => setShowShare(false)}
+        />
+      )}
+
+      <QRScannerModal
+        open={showScanner}
+        onClose={() => setShowScanner(false)}
+        role="se"
+        variant="mobile"
+        eventTitle="Neon Night Run"
+        onScanSuccess={(attendee) => {
+          setJoinedCount((c) => c + 1);
+          showToast(`${attendee.name} checked in`);
+        }}
+      />
 
       {toast && (
         <div
