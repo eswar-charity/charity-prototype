@@ -8,15 +8,6 @@ export const QR_SCANNER_ROLES = {
     simulateLabel: 'Simulate scan',
     alreadyLabel: 'Already checked in',
   },
-  np: {
-    title: 'Verify on-site attendance',
-    subtitle: 'Scan attendee badges to validate turnout for settlement records',
-    successLabel: 'Attendance verified',
-    successDetail: (name, event) => `${name} verified for ${event} — logged for nonprofit compliance.`,
-    statLabel: 'Verified this session',
-    simulateLabel: 'Simulate verification',
-    alreadyLabel: 'Already verified',
-  },
   admin: {
     title: 'Audit check-in scan',
     subtitle: 'Verify physical attendance against platform records for governance',

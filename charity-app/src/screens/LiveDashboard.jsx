@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, Compass, Plus, Bell, User, Settings, TriangleAlert, Pencil, X, ScanLine } from 'lucide-react';
+import { Home, Compass, Plus, Bell, User, Settings, TriangleAlert, Pencil, X, ScanLine, QrCode } from 'lucide-react';
 import { liveActivities } from '../data/mockData';
 import MobileAppHeader from '../components/MobileAppHeader';
 import MobileShareModal from '../components/MobileShareModal';
 import QRScannerModal from '../components/QRScannerModal';
+import ShareQRModal from '../components/ShareQRModal';
 
 export default function LiveDashboard() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function LiveDashboard() {
   const [postSheet, setPostSheet] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
+  const [showQR, setShowQR] = useState(false);
   const [joinedCount, setJoinedCount] = useState(87);
   const [update, setUpdate] = useState('');
 
@@ -114,6 +116,10 @@ export default function LiveDashboard() {
             <button className="action-chip" onClick={() => setPostSheet(true)}>Post update</button>
             <button className="action-chip" onClick={() => showToast('Photo added to your event')}>Add photo</button>
             <button className="action-chip" onClick={() => setShowShare(true)}>Share event</button>
+            <button type="button" className="action-chip action-chip--scan" onClick={() => setShowQR(true)}>
+              <QrCode size={14} aria-hidden="true" />
+              Show event QR
+            </button>
           </div>
 
           {/* Live activity section */}
@@ -261,6 +267,15 @@ export default function LiveDashboard() {
           setJoinedCount((c) => c + 1);
           showToast(`${attendee.name} checked in`);
         }}
+      />
+
+      <ShareQRModal
+        open={showQR}
+        onClose={() => setShowQR(false)}
+        variant="mobile"
+        path="/guest/event/live"
+        title="Scan to join Neon Night Run"
+        subtitle="Guests land straight on the event page to join and back it."
       />
 
       {toast && (

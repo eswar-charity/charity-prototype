@@ -123,14 +123,26 @@
 }
 .dsk-story-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); }
 
-.dsk-feed-controls { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
-.dsk-filter-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.dsk-feed-controls { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+.dsk-feed-controls .dsk-filter-row { flex: 1 1 280px; min-width: 0; }
+.dsk-filter-row { display: flex; gap: 8px; flex-wrap: wrap; min-width: 0; }
 .dsk-filter-chip {
   display: flex; align-items: center; gap: 6px;
   padding: 8px 16px; border-radius: var(--radius-pill); border: 1.5px solid var(--border);
   background: var(--white); color: var(--dark); font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
+  flex-shrink: 0;
 }
 .dsk-filter-chip.active { background: var(--primary); border-color: var(--primary); color: white; }
+
+.dsk-category-heading { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px; }
+.dsk-category-row { display: flex; gap: 16px; overflow-x: auto; padding: 4px 0 20px; scrollbar-width: none; }
+.dsk-category-row::-webkit-scrollbar { display: none; }
+.dsk-category-item { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; background: none; border: none; cursor: pointer; font-family: inherit; }
+.dsk-category-circle { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
+.dsk-category-item.active .dsk-category-circle { box-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--dark); }
+.dsk-category-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); }
+.dsk-category-item.active .dsk-category-label { color: var(--primary); }
+
 .dsk-feed-right { display: flex; align-items: center; gap: 10px; }
 .dsk-feed-search {
   border: 1.5px solid var(--border); border-radius: var(--radius-pill); padding: 9px 16px;
@@ -917,7 +929,9 @@
 .dsk-wizard-rail-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
 .dsk-wizard-rail-item.active .dsk-wizard-rail-label { color: var(--dark); font-weight: 700; }
 
-.dsk-wizard-content { background: var(--white); border-radius: var(--radius-md); box-shadow: var(--card-shadow); padding: 28px; }
+.dsk-wizard-content { background: var(--white); border-radius: var(--radius-md); box-shadow: var(--card-shadow); padding: 28px; min-width: 0; overflow: hidden; }
+.dsk-wizard-filter-row { margin-bottom: 18px; width: 100%; }
+.dsk-wizard-filter-row .dsk-filter-chip { flex-shrink: 0; white-space: nowrap; }
 .dsk-wizard-h1 { font-size: 26px; font-weight: 800; color: var(--dark); letter-spacing: -0.4px; margin: 0 0 10px; line-height: 1.25; }
 .dsk-wizard-sub { font-size: 14px; color: var(--text-secondary); margin: 0 0 28px; line-height: 1.55; }
 .dsk-wizard-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 28px; }
@@ -1425,14 +1439,6 @@ textarea.input-field {
   display: inline-flex; align-items: center; gap: 6px;
   background: var(--primary) !important; color: white !important; border-color: var(--primary) !important;
 }
-.dsk-np-scan-btn {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 11px; font-weight: 700; color: var(--primary);
-  background: var(--primary-soft); border: none; border-radius: var(--radius-pill);
-  padding: 5px 10px; cursor: pointer; font-family: inherit; margin-top: 8px;
-}
-.dsk-np-scan-btn:hover { background: var(--primary); color: white; }
-
 /* ── Marketing info pages (How it works, Causes) ─────────── */
 .dsk-info-page { background: var(--white); }
 .dsk-info-hero {

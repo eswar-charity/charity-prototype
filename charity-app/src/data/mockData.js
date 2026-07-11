@@ -1,3 +1,5 @@
+import { BROWSE_CATEGORIES } from './categoryIcons';
+
 export const events = [
   {
     id: 1,
@@ -8,7 +10,7 @@ export const events = [
     initials: 'SJ',
     nonprofit: 'Youth Health Fund',
     npInitials: 'YH',
-    npBg: 'linear-gradient(135deg,#D32F2F,#EF5350)',
+    npBg: 'linear-gradient(135deg,#0A2E52,#1A6EB5)',
     category: 'Health',
     catColor: '#1A6EB5',
     catBg: '#E3F0FB',
@@ -43,7 +45,7 @@ export const events = [
     initials: 'MR',
     nonprofit: 'Ocean Conservancy',
     npInitials: 'OC',
-    npBg: 'linear-gradient(135deg,#0D7377,#14A085)',
+    npBg: 'linear-gradient(135deg,#0D4A8A,#1A6EB5)',
     category: 'Environment',
     catColor: '#1A6EB5',
     catBg: '#E3F0FB',
@@ -76,7 +78,7 @@ export const events = [
     initials: 'AT',
     nonprofit: 'Books for Communities',
     npInitials: 'BC',
-    npBg: 'linear-gradient(135deg,#7B1FA2,#AB47BC)',
+    npBg: 'linear-gradient(135deg,#14507F,#2E86C1)',
     category: 'Education',
     catColor: '#1A6EB5',
     catBg: '#E3F0FB',
@@ -108,7 +110,7 @@ export const events = [
     initials: 'JM',
     nonprofit: 'Youth Health Fund',
     npInitials: 'YH',
-    npBg: 'linear-gradient(135deg,#D32F2F,#EF5350)',
+    npBg: 'linear-gradient(135deg,#0A2E52,#1A6EB5)',
     category: 'Animals',
     catColor: '#1A6EB5',
     catBg: '#E3F0FB',
@@ -165,9 +167,10 @@ export const nonprofits = [
     name: 'Ocean Conservancy',
     category: 'Environment',
     verified: true,
-    color: '#0D7377',
+    color: '#0D4A8A',
     initials: 'OC',
-    bg: 'linear-gradient(135deg, #0D7377, #14A085)',
+    bg: 'linear-gradient(135deg, #0D4A8A, #1A6EB5)',
+    mission: 'Protecting clean waterways and coastlines through community-powered cleanups and conservation events.',
   },
   {
     id: 2,
@@ -177,35 +180,56 @@ export const nonprofits = [
     color: '#1976D2',
     initials: 'FB',
     bg: 'linear-gradient(135deg, #1976D2, #42A5F5)',
+    mission: 'Putting meals on tables across the city through food drives and community fundraising events.',
   },
   {
     id: 3,
     name: 'Books for Communities',
     category: 'Education',
     verified: true,
-    color: '#7B1FA2',
+    color: '#14507F',
     initials: 'BC',
-    bg: 'linear-gradient(135deg, #7B1FA2, #AB47BC)',
+    bg: 'linear-gradient(135deg, #14507F, #2E86C1)',
+    mission: 'Putting learning resources within reach through book drives and school partnership events.',
   },
   {
     id: 4,
     name: 'Clean Air Alliance',
     category: 'Environment',
     verified: true,
-    color: '#388E3C',
+    color: '#1A6EB5',
     initials: 'CA',
-    bg: 'linear-gradient(135deg, #388E3C, #66BB6A)',
+    bg: 'linear-gradient(135deg, #1A6EB5, #5BC0EB)',
+    mission: 'Advocating for cleaner air and climate action through awareness campaigns and community events.',
   },
   {
     id: 5,
     name: 'Youth Health Fund',
     category: 'Health',
     verified: true,
-    color: '#D32F2F',
+    color: '#0A2E52',
     initials: 'YH',
-    bg: 'linear-gradient(135deg, #D32F2F, #EF5350)',
+    bg: 'linear-gradient(135deg, #0A2E52, #1A6EB5)',
+    mission: 'Funding free youth fitness and wellness programs through runs, walks, and community events.',
   },
 ];
+
+export function getNonprofitProfile(slug) {
+  const org = nonprofits.find((n) => slugify(n.name) === slug);
+  if (!org) return null;
+
+  const orgEvents = events.filter((e) => e.nonprofit === org.name);
+  return {
+    ...org,
+    slug,
+    events: orgEvents,
+    stats: {
+      eventsHosted: orgEvents.length,
+      totalRaised: orgEvents.reduce((sum, e) => sum + e.raised, 0),
+      totalBacked: orgEvents.reduce((sum, e) => sum + e.backed, 0),
+    },
+  };
+}
 
 // Event creator — owns the Happening now photo reel (newest content rises to the top).
 export const EVENT_CREATOR = {
@@ -309,11 +333,15 @@ export const storyReel = buildStoryReel(events);
 
 // Unique categories from SE event data (Health, Environment, Education, Animals, Food & Hunger)
 export const EVENT_CATEGORIES = [...new Set(events.map((ev) => ev.category))];
-export const SE_FEED_FILTERS = ['All', 'You', 'Live now', ...EVENT_CATEGORIES];
-export const GUEST_FEED_FILTERS = ['All', 'Live now', ...EVENT_CATEGORIES];
-export const NP_CATEGORY_FILTERS = ['All', ...EVENT_CATEGORIES];
 
-export const causes = [...EVENT_CATEGORIES];
+const extraEventCategories = EVENT_CATEGORIES.filter((c) => !BROWSE_CATEGORIES.includes(c));
+const ALL_BROWSE_FILTERS = [...BROWSE_CATEGORIES, ...extraEventCategories];
+
+export const SE_FEED_FILTERS = ['All', 'You', 'Live now', ...ALL_BROWSE_FILTERS];
+export const GUEST_FEED_FILTERS = ['All', 'Live now', ...ALL_BROWSE_FILTERS];
+export const NP_CATEGORY_FILTERS = ['All', ...ALL_BROWSE_FILTERS];
+
+export const causes = [...ALL_BROWSE_FILTERS];
 
 export const accountRoles = [
   { id: 'se', label: 'Social Entrepreneur', route: '/about-you', title: 'Create your account', subtitle: "You're one step from starting your first event." },

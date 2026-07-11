@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, TriangleAlert, Pencil, X, ScanLine } from 'lucide-react';
+import { Settings, TriangleAlert, Pencil, X, ScanLine, QrCode } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
 import DesktopShareModal from '../../components/desktop/DesktopShareModal';
 import QRScannerModal from '../../components/QRScannerModal';
+import ShareQRModal from '../../components/ShareQRModal';
 import { events, liveActivities } from '../../data/mockData';
 
 const ev = events[0];
@@ -16,6 +17,7 @@ export default function DesktopLiveDashboard() {
   const [postOpen, setPostOpen] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
+  const [showQR, setShowQR] = useState(false);
   const [joinedCount, setJoinedCount] = useState(ev.joined);
   const [update, setUpdate] = useState('');
 
@@ -113,6 +115,10 @@ export default function DesktopLiveDashboard() {
                 </button>
                 <button type="button" className="dsk-live-action-secondary" onClick={() => setShowShare(true)}>
                   Share event
+                </button>
+                <button type="button" className="dsk-live-action-secondary" onClick={() => setShowQR(true)}>
+                  <QrCode size={14} aria-hidden="true" style={{ marginRight: 5, verticalAlign: 'text-bottom' }} />
+                  Show event QR
                 </button>
                 <button type="button" className="dsk-live-action-secondary" onClick={() => navigate('/event/live')}>
                   View public page
@@ -224,6 +230,15 @@ export default function DesktopLiveDashboard() {
           setJoinedCount((c) => c + 1);
           showToast(`${attendee.name} checked in`);
         }}
+      />
+
+      <ShareQRModal
+        open={showQR}
+        onClose={() => setShowQR(false)}
+        variant="desktop"
+        path="/guest/event/live"
+        title={`Scan to join ${ev.title}`}
+        subtitle="Guests land straight on the event page to join and back it."
       />
 
       {toast && <div className="dsk-live-toast">{toast}</div>}

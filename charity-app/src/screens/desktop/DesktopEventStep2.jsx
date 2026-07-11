@@ -32,9 +32,9 @@ export default function DesktopEventStep2() {
         />
       </div>
 
-      <div className="filter-tabs" style={{ marginBottom: 18 }}>
+      <div className="dsk-filter-row dsk-wizard-filter-row">
         {NP_CATEGORY_FILTERS.map((f) => (
-          <button key={f} type="button" className={`filter-tab ${activeFilter === f ? 'active' : ''}`} onClick={() => setActiveFilter(f)}>
+          <button key={f} type="button" className={`dsk-filter-chip ${activeFilter === f ? 'active' : ''}`} onClick={() => setActiveFilter(f)}>
             {f}
           </button>
         ))}

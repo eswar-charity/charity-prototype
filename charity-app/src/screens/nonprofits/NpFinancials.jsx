@@ -5,9 +5,9 @@ import NpBottomNav from '../../components/NpBottomNav';
 import MobileAppHeader from '../../components/MobileAppHeader';
 
 const BACKING_BY_EVENT = [
-  { id: 1, title: 'Coastal Cleanup Drive', count: 87, bg: 'linear-gradient(135deg,#FF8C42,var(--primary))' },
-  { id: 2, title: 'Books for Bright Minds', count: 42, bg: 'linear-gradient(135deg,#8B6914,#C8960C)' },
-  { id: 3, title: 'Plant a Tree', count: 28, bg: 'linear-gradient(135deg,#388E3C,#66BB6A)' },
+  { id: 1, title: 'Coastal Cleanup Drive', count: 87, bg: 'linear-gradient(135deg,#0D4A8A,var(--primary))' },
+  { id: 2, title: 'Books for Bright Minds', count: 42, bg: 'linear-gradient(135deg,#14507F,#2E86C1)' },
+  { id: 3, title: 'Plant a Tree', count: 28, bg: 'linear-gradient(135deg,#1A6EB5,#5BC0EB)' },
 ];
 
 export default function NpFinancials() {

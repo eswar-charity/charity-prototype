@@ -31,6 +31,7 @@ import DesktopGuestFeed from './screens/guests/desktop/DesktopGuestFeed';
 import DesktopEventDetail from './screens/guests/desktop/DesktopEventDetail';
 import DesktopEventDetailUpcoming from './screens/guests/desktop/DesktopEventDetailUpcoming';
 import DesktopOrganizerProfile from './screens/guests/desktop/DesktopOrganizerProfile';
+import DesktopNpPublicProfile from './screens/guests/desktop/DesktopNpPublicProfile';
 import DesktopIdentityGateJoin from './screens/guests/desktop/DesktopIdentityGateJoin';
 import DesktopIdentityGateDonate from './screens/guests/desktop/DesktopIdentityGateDonate';
 
@@ -194,6 +195,7 @@ export default function App() {
         <Route path="/how-it-works" element={<HowItWorksRoute />} />
         <Route path="/causes" element={<CausesRoute />} />
         <Route path="/guest/organizer/:slug" element={<DesktopOrganizerProfile />} />
+        <Route path="/guest/np/:slug" element={<DesktopNpPublicProfile />} />
 
         {/* Nonprofit flow */}
         <Route path="/np" element={<Navigate to="/np/home" replace />} />
