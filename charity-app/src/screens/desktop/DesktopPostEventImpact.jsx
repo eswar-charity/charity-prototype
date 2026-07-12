@@ -5,6 +5,7 @@ import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
 import DesktopShareModal from '../../components/desktop/DesktopShareModal';
 import Logo from '../../components/Logo';
+import { SE_ORGANIZER } from '../../data/mockData';
 
 export default function DesktopPostEventImpact() {
   const navigate = useNavigate();
@@ -51,9 +52,9 @@ export default function DesktopPostEventImpact() {
               </div>
 
               <div className="dsk-post-event-credential-user">
-                <div className="dsk-post-event-credential-avatar">SJ</div>
+                <div className="dsk-post-event-credential-avatar">{SE_ORGANIZER.initials}</div>
                 <div>
-                  <p className="dsk-post-event-credential-name">Sarah Jenkins</p>
+                  <p className="dsk-post-event-credential-name">{SE_ORGANIZER.name}</p>
                   <p className="dsk-post-event-credential-event">Neon Night Run</p>
                 </div>
               </div>
@@ -80,7 +81,7 @@ export default function DesktopPostEventImpact() {
                 <div className="dsk-post-event-thanks-icon"><Award size={24} color="var(--primary)" /></div>
                 <div>
                   <p className="dsk-post-event-thanks-title">
-                    Thank you, Sarah! <span className="dsk-verify-dot">✓</span>
+                    Thank you, {SE_ORGANIZER.name.split(' ')[0]}! <span className="dsk-verify-dot">✓</span>
                   </p>
                   <p className="dsk-post-event-thanks-text">
                     Your event brought real people to this cause. We&apos;re grateful.

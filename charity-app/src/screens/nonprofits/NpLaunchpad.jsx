@@ -5,14 +5,18 @@ import NpBottomNav from '../../components/NpBottomNav';
 import NotificationBell, { NP_NOTIFICATIONS } from '../../components/NotificationBell';
 import MobileAppHeader from '../../components/MobileAppHeader';
 import ShareQRModal from '../../components/ShareQRModal';
+import { events } from '../../data/mockData';
 
 const ORG_LOGO = '/events/breakneck-ridge-run/img1.jpg';
 const HEADER_AVATAR = '/events/give-now/img2.jpg';
 
-const LIVE_EVENTS = [
-  { id: 1, title: 'Neon Night Run', stat: '87 joined', isLive: true, cover: '/events/neon-night/img1.jpg' },
-  { id: 2, title: 'Breakneck Ridge Run', stat: '145 backing', isLive: false, cover: '/events/breakneck-ridge-run/img1.jpg' },
-];
+const LIVE_EVENTS = events.map((ev) => ({
+  id: ev.id,
+  title: ev.title,
+  stat: `${ev.joined} joined`,
+  isLive: ev.isLive,
+  cover: ev.cover,
+}));
 
 export default function NpLaunchpad() {
   const navigate = useNavigate();
@@ -105,7 +109,7 @@ export default function NpLaunchpad() {
               </div>
               <div className="action-item-body">
                 <p className="action-item-title">New event request</p>
-                <p className="action-item-desc">Maya R. wants to run &apos;Coastal Cleanup Wave 2&apos;</p>
+                <p className="action-item-desc">Mike Rivera wants to run &apos;Coastal Cleanup Wave 2&apos;</p>
                 <span className="np-link-btn">Review →</span>
               </div>
             </div>

@@ -3,10 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Users, MessageCircle, Camera } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
-import { events, storyReel, SE_FEED_FILTERS } from '../../data/mockData';
+import { events, storyReel, SE_FEED_FILTERS, SE_ORGANIZER } from '../../data/mockData';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
-
-const ORGANIZER_NAME = 'Sarah Jenkins';
 
 function SceneEventCard({ ev }) {
   const navigate = useNavigate();
@@ -56,7 +54,7 @@ export default function DesktopFeedScreen() {
   const filtered = useMemo(() => {
     return events.filter((e) => {
       if (filter === 'Live now') return e.isLive;
-      if (filter === 'You') return e.organizer === ORGANIZER_NAME;
+      if (filter === 'You') return e.organizer === SE_ORGANIZER.name;
       if (filter !== 'All') return e.category === filter;
       return true;
     });

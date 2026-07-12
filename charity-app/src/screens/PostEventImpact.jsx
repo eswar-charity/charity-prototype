@@ -4,6 +4,7 @@ import { Settings, Share2, ChevronRight, Rocket, Users } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 import MobileAppHeader from '../components/MobileAppHeader';
 import MobileShareModal from '../components/MobileShareModal';
+import { SE_ORGANIZER } from '../data/mockData';
 
 export default function PostEventImpact() {
   const navigate = useNavigate();
@@ -61,7 +62,7 @@ export default function PostEventImpact() {
             </div>
             <div>
               <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)', marginBottom: 4 }}>
-                Thank you, Sarah!{' '}
+                Thank you, {SE_ORGANIZER.name.split(' ')[0]}!{' '}
                 <span style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -91,9 +92,9 @@ export default function PostEventImpact() {
             </div>
 
             <div className="credential-user">
-              <div className="credential-avatar">SJ</div>
+              <div className="credential-avatar">{SE_ORGANIZER.initials}</div>
               <div>
-                <p className="credential-name">Sarah Jenkins</p>
+                <p className="credential-name">{SE_ORGANIZER.name}</p>
                 <p className="credential-event">Neon Night Run</p>
               </div>
             </div>

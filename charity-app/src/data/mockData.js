@@ -1,13 +1,19 @@
 import { BROWSE_CATEGORIES } from './categoryIcons';
 
+export const SE_ORGANIZER = {
+  name: 'Mike Rivera',
+  initials: 'MR',
+  color: '#C62828',
+};
+
 export const events = [
   {
     id: 1,
     key: 'neon-night',
     title: 'Neon Night Run',
     subtitle: 'Light up the night for a great cause. A glowing 5K to fund youth fitness programs.',
-    organizer: 'Sarah Jenkins',
-    initials: 'SJ',
+    organizer: SE_ORGANIZER.name,
+    initials: SE_ORGANIZER.initials,
     nonprofit: 'Youth Health Fund',
     npInitials: 'YH',
     npBg: 'linear-gradient(135deg,#0A2E52,#1A6EB5)',
@@ -41,8 +47,8 @@ export const events = [
     key: 'breakneck-ridge-run',
     title: 'Breakneck Ridge Run',
     subtitle: 'A trail run through the Hudson Valley raising awareness for clean waterways.',
-    organizer: 'Maya R.',
-    initials: 'MR',
+    organizer: SE_ORGANIZER.name,
+    initials: SE_ORGANIZER.initials,
     nonprofit: 'Ocean Conservancy',
     npInitials: 'OC',
     npBg: 'linear-gradient(135deg,#0D4A8A,#1A6EB5)',
@@ -58,7 +64,7 @@ export const events = [
     updates: 24,
     chatCount: 89,
     raised: 8920,
-    isLive: false,
+    isLive: true,
     cover: '/events/breakneck-ridge-run/img1.jpg',
     photos: [
       '/events/breakneck-ridge-run/img1.jpg',
@@ -74,8 +80,8 @@ export const events = [
     key: 'give-now',
     title: "Give Now, Apré Later",
     subtitle: 'Support cold-weather essentials for those in need — then celebrate with friends.',
-    organizer: 'Alex T.',
-    initials: 'AT',
+    organizer: SE_ORGANIZER.name,
+    initials: SE_ORGANIZER.initials,
     nonprofit: 'Books for Communities',
     npInitials: 'BC',
     npBg: 'linear-gradient(135deg,#14507F,#2E86C1)',
@@ -91,7 +97,7 @@ export const events = [
     updates: 12,
     chatCount: 56,
     raised: 5400,
-    isLive: false,
+    isLive: true,
     cover: '/events/give-now/img1.jpg',
     photos: [
       '/events/give-now/img1.jpg',
@@ -106,8 +112,8 @@ export const events = [
     key: 'dog-dad',
     title: 'Dog Dad 5K',
     subtitle: 'Bring your pup for a charity walk-run benefiting local animal shelters.',
-    organizer: 'Jordan M.',
-    initials: 'JM',
+    organizer: SE_ORGANIZER.name,
+    initials: SE_ORGANIZER.initials,
     nonprofit: 'Youth Health Fund',
     npInitials: 'YH',
     npBg: 'linear-gradient(135deg,#0A2E52,#1A6EB5)',
@@ -123,7 +129,7 @@ export const events = [
     updates: 8,
     chatCount: 34,
     raised: 3200,
-    isLive: false,
+    isLive: true,
     cover: '/events/dog-dad/img1.jpg',
     photos: [
       '/events/dog-dad/img1.jpg',
@@ -138,8 +144,8 @@ export const events = [
     key: 'golf-outing',
     title: 'Charity Hub Golf Outing',
     subtitle: 'A charity golf scramble supporting local food banks. Lunch included.',
-    organizer: 'David K.',
-    initials: 'DK',
+    organizer: SE_ORGANIZER.name,
+    initials: SE_ORGANIZER.initials,
     nonprofit: 'Food Bank NYC',
     npInitials: 'FB',
     npBg: 'linear-gradient(135deg,#1976D2,#42A5F5)',
@@ -155,7 +161,7 @@ export const events = [
     updates: 15,
     chatCount: 48,
     raised: 6800,
-    isLive: false,
+    isLive: true,
     cover: '/events/golf-outing/img1.jpg',
     photos: ['/events/golf-outing/img1.jpg'],
   },
@@ -232,11 +238,7 @@ export function getNonprofitProfile(slug) {
 }
 
 // Event creator — owns the Happening now photo reel (newest content rises to the top).
-export const EVENT_CREATOR = {
-  name: 'Mike Rivera',
-  initials: 'MR',
-  color: '#C62828',
-};
+export const EVENT_CREATOR = SE_ORGANIZER;
 
 const HAPPENING_NOW_TIMES = ['Just now', '2m ago', '5m ago', '8m ago'];
 
@@ -264,8 +266,8 @@ export const liveActivities = [
   {
     id: 2,
     type: 'update',
-    user: 'Sarah J.',
-    initials: 'SJ',
+    user: 'James L.',
+    initials: 'JL',
     color: '#F5604A',
     text: 'Setting up the start line now! See you all at Prospect Park — the neon glow is unreal.',
     time: '18 min ago',
@@ -296,7 +298,7 @@ export const liveActivities = [
 export const eventData = {
   title: 'Neon Night Run',
   subtitle: 'Light up the night for a great cause.',
-  organizer: 'Sarah Jenkins',
+  organizer: SE_ORGANIZER.name,
   nonprofit: 'Youth Health Fund',
   category: 'Health',
   date: 'Nov 8, 2025',

@@ -6,11 +6,11 @@ export const SE_FEED_NOTIFICATIONS = [
   { id: 1, title: 'Neon Night Run is live', body: 'Doors are open — 87 people joined', time: '2m ago', unread: true, route: '/event/live' },
   { id: 2, title: '3 new backers', body: 'Your Coastal Cleanup event gained support', time: '1h ago', unread: true, route: '/live-dashboard' },
   { id: 3, title: 'Event approved', body: 'Ocean Conservancy approved your submission', time: 'Yesterday', unread: false, route: '/approval' },
-  { id: 4, title: 'New chat activity', body: 'Maya and 4 others are in the thread', time: '2d ago', unread: false, route: '/event/live' },
+  { id: 4, title: 'New chat activity', body: 'Mike and 4 others are in the thread', time: '2d ago', unread: false, route: '/event/live' },
 ];
 
 export const NP_NOTIFICATIONS = [
-  { id: 1, title: 'New event request', body: "Maya R. wants to run 'Coastal Cleanup Wave 2'", time: '2h ago', unread: true, route: '/np/approvals/review' },
+  { id: 1, title: 'New event request', body: "Mike Rivera wants to run 'Coastal Cleanup Wave 2'", time: '2h ago', unread: true, route: '/np/approvals/review' },
   { id: 2, title: 'Content flagged', body: "Comment in 'Books for Bright Minds' needs review", time: '5h ago', unread: true, route: '/np/approvals' },
   { id: 3, title: 'Settlement ready', body: '$12,480 available for payout via Stripe', time: 'Yesterday', unread: false, route: '/np/activity' },
   { id: 4, title: '87 new supporters', body: 'Coastal Cleanup Drive gained backing this week', time: '2d ago', unread: false, route: '/guest/event/live' },

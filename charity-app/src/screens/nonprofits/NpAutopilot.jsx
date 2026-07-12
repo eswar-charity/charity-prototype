@@ -11,8 +11,7 @@ const CHECKS = [
 ];
 
 const TRUSTED_SES = [
-  { id: 1, name: 'Maya R.', events: 3, avatar: '/events/breakneck-ridge-run/img4.jpg' },
-  { id: 2, name: 'David K.', events: 2, avatar: '/events/dog-dad/img2.jpg' },
+  { id: 1, name: 'Mike Rivera', events: 5, avatar: '/events/breakneck-ridge-run/img4.jpg' },
 ];
 
 export default function NpAutopilot() {

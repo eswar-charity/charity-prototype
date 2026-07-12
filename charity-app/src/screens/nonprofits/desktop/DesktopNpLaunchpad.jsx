@@ -3,12 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { Clock, Flag, MoreHorizontal, QrCode } from 'lucide-react';
 import { DesktopNpLayout } from '../../../components/desktop/DesktopNpLayout';
 import ShareQRModal from '../../../components/ShareQRModal';
+import { events } from '../../../data/mockData';
 
-const LIVE_EVENTS = [
-  { id: 1, title: 'Coastal Cleanup Wave 1', category: 'Community', joined: 87, backing: 150, isLive: true, cover: '/events/breakneck-ridge-run/img1.jpg' },
-  { id: 2, title: 'Books for Bright Minds Gala', category: 'Education', joined: 42, backing: 100, isLive: false, cover: '/events/give-now/img1.jpg' },
-  { id: 3, title: 'Urban Oasis Seed Drive', category: 'Environment', joined: 215, backing: 300, isLive: true, cover: '/events/dog-dad/img5.png' },
-];
+const LIVE_EVENTS = events.map((ev) => ({
+  id: ev.id,
+  title: ev.title,
+  category: ev.category,
+  joined: ev.joined,
+  backing: ev.backed,
+  isLive: ev.isLive,
+  cover: ev.cover,
+}));
 
 export default function DesktopNpLaunchpad() {
   const navigate = useNavigate();
@@ -50,7 +55,7 @@ export default function DesktopNpLaunchpad() {
         <div className="dsk-np-action-item" role="button" tabIndex={0} onClick={() => navigate('/np/approvals')} onKeyDown={onKey(() => navigate('/np/approvals'))}>
           <div className="action-item-icon" style={{ background: 'var(--primary-soft)' }}><Clock size={16} color="var(--primary)" /></div>
           <div className="action-item-body">
-            <p className="action-item-title">New event request — Maya R. wants to run 'Coastal Cleanup Wave 2'</p>
+            <p className="action-item-title">New event request — Mike Rivera wants to run 'Coastal Cleanup Wave 2'</p>
             <p className="action-item-desc">Submitted 2 hours ago</p>
           </div>
           <span className="np-link-btn">Review →</span>

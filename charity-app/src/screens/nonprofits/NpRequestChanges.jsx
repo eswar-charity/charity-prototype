@@ -40,10 +40,10 @@ export default function NpRequestChanges() {
           <div className="sheet-handle" />
 
           <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--dark)', marginBottom: 6 }}>
-            Request changes from Maya R.
+            Request changes from Mike Rivera.
           </h2>
           <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 18, lineHeight: 1.5 }}>
-            Maya will be notified and can resubmit after making updates.
+            Mike will be notified and can resubmit after making updates.
           </p>
 
           <textarea

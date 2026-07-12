@@ -14,7 +14,7 @@
 export const adminStats = {
   reviewQueue: 7,
   pendingVerification: 3,
-  liveEvents: 12,
+  liveEvents: 5,
   openExceptions: 4,
   gmvWeek: 48250,
   payoutsPending: 6,
@@ -50,7 +50,7 @@ export const reviewQueue = [
     title: "Coastal Cleanup Wave 2 — SE event approval",
     entity: 'Ocean Conservancy',
     entityInitials: 'OC',
-    submittedBy: 'Maya R.',
+    submittedBy: 'Mike Rivera',
     submittedRole: 'Social Entrepreneur',
     submittedAt: '5 hours ago',
     status: 'In Review',
@@ -123,7 +123,7 @@ export const reviewQueue = [
     title: "Urban Oasis Seed Drive — SE event approval",
     entity: 'Clean Air Alliance',
     entityInitials: 'CA',
-    submittedBy: 'Jordan M.',
+    submittedBy: 'Mike Rivera',
     submittedRole: 'Social Entrepreneur',
     submittedAt: '2 days ago',
     status: 'Approved',
@@ -175,13 +175,13 @@ export const adminNonprofits = [
    Draft -> Submitted -> Changes Requested -> Approved
         -> Live -> Completed -> Archived / Cancelled / Rejected */
 export const adminEvents = [
-  { id: 1, title: 'Coastal Cleanup Wave 1', nonprofit: 'Ocean Conservancy', organizer: 'Maya R.', kind: 'SE-led', status: 'Live', joined: 87, raised: 14280, flags: 0 },
-  { id: 2, title: 'Books for Bright Minds Gala', nonprofit: 'Books for Communities', organizer: 'Books for Communities', kind: 'Nonprofit-led', status: 'Live', joined: 42, raised: 8920, flags: 1 },
-  { id: 3, title: 'Urban Oasis Seed Drive', nonprofit: 'Clean Air Alliance', organizer: 'Jordan M.', kind: 'SE-led', status: 'Approved', joined: 0, raised: 0, flags: 0 },
-  { id: 4, title: 'Coastal Cleanup Wave 2', nonprofit: 'Ocean Conservancy', organizer: 'Maya R.', kind: 'SE-led', status: 'Submitted', joined: 0, raised: 0, flags: 0 },
-  { id: 5, title: 'Neon Night Run', nonprofit: 'Youth Health Fund', organizer: 'Sarah Jenkins', kind: 'SE-led', status: 'Completed', joined: 213, raised: 14280, flags: 0 },
-  { id: 6, title: 'Winter Warmth Drive', nonprofit: 'Food Bank NYC', organizer: 'Food Bank NYC', kind: 'Nonprofit-led', status: 'Changes Requested', joined: 0, raised: 0, flags: 0 },
-  { id: 7, title: 'Dog Dad 5K', nonprofit: 'Youth Health Fund', organizer: 'Jordan M.', kind: 'SE-led', status: 'Cancelled', joined: 28, raised: 3200, flags: 0 },
+  { id: 1, title: 'Neon Night Run', nonprofit: 'Youth Health Fund', organizer: 'Mike Rivera', kind: 'SE-led', status: 'Live', joined: 87, raised: 14280, flags: 0 },
+  { id: 2, title: 'Breakneck Ridge Run', nonprofit: 'Ocean Conservancy', organizer: 'Mike Rivera', kind: 'SE-led', status: 'Live', joined: 62, raised: 8920, flags: 0 },
+  { id: 3, title: 'Give Now, Apré Later', nonprofit: 'Books for Communities', organizer: 'Mike Rivera', kind: 'SE-led', status: 'Live', joined: 44, raised: 5400, flags: 0 },
+  { id: 4, title: 'Dog Dad 5K', nonprofit: 'Youth Health Fund', organizer: 'Mike Rivera', kind: 'SE-led', status: 'Live', joined: 28, raised: 3200, flags: 0 },
+  { id: 5, title: 'Charity Hub Golf Outing', nonprofit: 'Food Bank NYC', organizer: 'Mike Rivera', kind: 'SE-led', status: 'Live', joined: 36, raised: 6800, flags: 0 },
+  { id: 6, title: 'Books for Bright Minds Gala', nonprofit: 'Books for Communities', organizer: 'Books for Communities', kind: 'Nonprofit-led', status: 'Live', joined: 42, raised: 8920, flags: 1 },
+  { id: 7, title: 'Winter Warmth Drive', nonprofit: 'Food Bank NYC', organizer: 'Food Bank NYC', kind: 'Nonprofit-led', status: 'Changes Requested', joined: 0, raised: 0, flags: 0 },
 ];
 
 /* Exceptions — payout, donation, dispute, and content edge cases

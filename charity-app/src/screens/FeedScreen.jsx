@@ -4,7 +4,7 @@ import { Plus, Megaphone, Building2, Compass, MessageCircle, Camera } from 'luci
 import BottomNav from '../components/BottomNav';
 import NotificationBell, { SE_FEED_NOTIFICATIONS } from '../components/NotificationBell';
 import MobileAppHeader from '../components/MobileAppHeader';
-import { events, storyReel, SE_FEED_FILTERS } from '../data/mockData';
+import { events, storyReel, SE_FEED_FILTERS, SE_ORGANIZER } from '../data/mockData';
 import useInfiniteScroll from '../hooks/useInfiniteScroll';
 
 const activateOnKey = (fn) => (e) => {
@@ -20,7 +20,7 @@ export default function FeedScreen() {
   const [showSheet, setShowSheet] = useState(false);
   const scrollRef = useRef(null);
   const filteredEvents = events.filter((ev) => {
-    if (activeFilter === 'You') return ev.organizer === 'Sarah Jenkins';
+    if (activeFilter === 'You') return ev.organizer === SE_ORGANIZER.name;
     if (activeFilter === 'Live now') return ev.isLive;
     if (activeFilter !== 'All') return ev.category === activeFilter;
     return true;
@@ -51,7 +51,7 @@ export default function FeedScreen() {
                   aria-label="Open your profile"
                   onClick={() => navigate('/profile')}
                   onKeyDown={activateOnKey(() => navigate('/profile'))}
-                >SJ</div>
+                >{SE_ORGANIZER.initials}</div>
               </>
             )}
           />

@@ -125,7 +125,7 @@ function ChatTabHeader() {
 
 const CHAT_SEED = [
   {
-    id: 'seed-1', name: ev.organizer, initials: 'SJ',
+    id: 'seed-1', name: ev.organizer, initials: ev.initials,
     avatar: 'linear-gradient(135deg,var(--primary),var(--blue))', host: true, verified: true,
     text: "Welcome everyone! We're starting the main presentation in about 5 minutes. Feel free to grab a virtual seat and say hi!",
   },

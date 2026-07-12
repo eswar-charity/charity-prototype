@@ -4,7 +4,7 @@ import { MapPin, Pencil, Share2 } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
 import DesktopShareModal from '../../components/desktop/DesktopShareModal';
-import { events } from '../../data/mockData';
+import { events, SE_ORGANIZER } from '../../data/mockData';
 
 const RECENT_EVENTS = events.slice(0, 3);
 const COVER = events[0]?.photos?.[1] || events[0]?.cover;
@@ -22,10 +22,10 @@ export default function DesktopProfileScreen() {
       <main className="dsk-main">
         <div className="dsk-container">
           <div className="dsk-profile-card">
-            <div className="dsk-profile-avatar">SJ</div>
+            <div className="dsk-profile-avatar">{SE_ORGANIZER.initials}</div>
             <div className="dsk-profile-info">
               <p className="dsk-profile-role">Social Entrepreneur · Charity Hub</p>
-              <h1 className="dsk-profile-name">Sarah Jenkins</h1>
+              <h1 className="dsk-profile-name">{SE_ORGANIZER.name}</h1>
               <p className="dsk-profile-loc"><MapPin size={13} /> San Francisco, CA</p>
               <p className="dsk-profile-bio">
                 Creating events that bring communities together for causes that matter.
@@ -93,7 +93,7 @@ export default function DesktopProfileScreen() {
           open={showShare}
           onClose={() => setShowShare(false)}
           url={`${window.location.origin}/profile`}
-          title="Sarah Jenkins"
+          title={SE_ORGANIZER.name}
           subtitle="Event Presenter · Charity Hub"
         />
       )}

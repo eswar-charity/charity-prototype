@@ -9,7 +9,7 @@ const EVENTS = [
   {
     id: 1,
     title: 'Coastal Cleanup Wave 2',
-    organizer: 'Maya R.',
+    organizer: 'Mike Rivera',
     date: 'Oct 28, 2025',
     location: 'Santa Monica Pier',
     desc: "Join us for our second wave of coastal cleanup efforts. We will be providing all necessary equipment and a light breakfast for volunteers.",
@@ -20,7 +20,7 @@ const EVENTS = [
   {
     id: 2,
     title: 'Art for All',
-    organizer: 'David K.',
+    organizer: 'Mike Rivera',
     date: 'Nov 12, 2025',
     location: 'Downtown Arts District',
     desc: 'An inclusive community art session focusing on collaborative murals. We updated the budget per previous feedback and...',

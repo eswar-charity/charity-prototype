@@ -27,7 +27,7 @@ export default function DesktopNpReviewDetail() {
             </div>
             <div className="dsk-np-review-hero-title">
               <h2>#CoastalCleanupWave2</h2>
-              <p>for Ocean Conservancy · by Maya R.</p>
+              <p>for Ocean Conservancy · by Mike Rivera</p>
             </div>
           </div>
 
@@ -60,9 +60,9 @@ export default function DesktopNpReviewDetail() {
         <aside className="dsk-np-review-sidebar">
           <div className="dsk-sidebar-card">
             <div className="dsk-sidebar-np-row">
-              <img src={SUBMITTER_AVATAR} alt="Maya R." style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} />
+              <img src={SUBMITTER_AVATAR} alt="Mike Rivera" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} />
               <div>
-                <p className="dsk-sidebar-np-name">Maya R. <span className="dsk-verify-dot">✓</span></p>
+                <p className="dsk-sidebar-np-name">Mike Rivera <span className="dsk-verify-dot">✓</span></p>
                 <p className="dsk-sidebar-np-sub">3 events approved · Joined Mar 2024</p>
               </div>
             </div>

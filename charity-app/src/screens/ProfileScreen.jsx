@@ -4,7 +4,7 @@ import { Pencil, MapPin, ChevronRight, Share2 } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 import MobileAppHeader from '../components/MobileAppHeader';
 import MobileShareModal from '../components/MobileShareModal';
-import { events } from '../data/mockData';
+import { events, SE_ORGANIZER } from '../data/mockData';
 
 const RECENT_EVENTS = events.slice(0, 3);
 
@@ -42,8 +42,8 @@ export default function ProfileScreen() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 22, fontWeight: 800, color: 'white',
                 margin: '0 auto 12px',
-              }}>SJ</div>
-              <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--dark)', marginBottom: 4 }}>Sarah Jenkins</h2>
+              }}>{SE_ORGANIZER.initials}</div>
+              <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--dark)', marginBottom: 4 }}>{SE_ORGANIZER.name}</h2>
               <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10 }}>Social Entrepreneur</p>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginBottom: 14 }}>
                 <MapPin size={13} color="var(--text-secondary)" />
@@ -113,7 +113,7 @@ export default function ProfileScreen() {
 
       {showShare && (
         <MobileShareModal
-          title="Sarah Jenkins"
+          title={SE_ORGANIZER.name}
           subtitle="Event Presenter · Charity Hub"
           url={`${window.location.origin}/profile`}
           onClose={() => setShowShare(false)}

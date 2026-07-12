@@ -4,7 +4,7 @@ import Logo from '../Logo';
 
 const NAV_LINKS = ['Discover', 'How it works', 'Causes', 'For nonprofits'];
 
-export default function DesktopHeader({ active = 'Discover', loggedIn = false, avatarInitials = 'SJ', homePath = '/guest/feed', showSearch = true }) {
+export default function DesktopHeader({ active = 'Discover', loggedIn = false, avatarInitials = 'MR', homePath = '/guest/feed', showSearch = true }) {
   const navigate = useNavigate();
 
   const handleNav = (link) => {
