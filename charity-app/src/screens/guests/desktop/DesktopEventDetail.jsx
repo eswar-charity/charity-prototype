@@ -7,7 +7,8 @@ import {
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
 import DesktopJoinGateModal from '../../../components/desktop/DesktopJoinGateModal';
-import { liveActivities, slugify, buildDonationSuccessUrl, getHappeningNowReel, EVENT_CREATOR, getEventByKey, eventLivePath } from '../../../data/mockData';
+import { liveActivities, slugify, buildDonationSuccessUrl, getHappeningNowReel, EVENT_CREATOR, getEventByKey, eventLivePath, eventDisplayTitle } from '../../../data/mockData';
+import { EventImage, EventImageBanner } from '../../../components/event/EventImage';
 
 const TABS = [
   { id: 'community', label: 'Community', sub: 'Photos & moments' },
@@ -84,22 +85,22 @@ function CommunityTab({ ev }) {
         <span className="dsk-live-pill"><span className="live-dot" /> LIVE</span>
       </div>
 
-      <div className="dsk-community-hero" style={{ backgroundImage: `url(${getHappeningNowReel(ev)[0]?.src || ev.photos[1]})` }}>
+      <EventImageBanner src={getHappeningNowReel(ev)[0]?.src || ev.photos[1]} alt="" variant="community" className="dsk-community-hero">
         <div className="dsk-community-hero-play"><Play size={22} fill="white" color="white" /></div>
         <div className="dsk-community-hero-caption">
           <div className="dsk-mini-avatar" style={{ background: EVENT_CREATOR.color }}>{EVENT_CREATOR.initials}</div>
           <span>{EVENT_CREATOR.name} · Just now</span>
         </div>
-      </div>
+      </EventImageBanner>
 
       <div className="dsk-community-grid">
         {reel.map((item, i) => (
-          <div key={`${item.src}-${i}`} className="dsk-community-thumb" style={{ backgroundImage: `url(${item.src})` }}>
+          <EventImageBanner key={`${item.src}-${i}`} src={item.src} alt={`Photo by ${item.user}`} variant="community" className="dsk-community-thumb">
             <div className="dsk-community-hero-caption">
               <div className="dsk-mini-avatar" style={{ background: item.color }}>{item.initials}</div>
               <span>{item.user} · {item.time}</span>
             </div>
-          </div>
+          </EventImageBanner>
         ))}
       </div>
 
@@ -309,7 +310,7 @@ export default function DesktopEventDetail({ loggedIn = false }) {
     <div className="dsk-page">
       <DesktopHeader active="Discover" loggedIn={loggedIn} homePath={loggedIn ? '/feed' : '/guest/feed'} />
 
-      <div className="dsk-ev-hero" style={{ backgroundImage: `url(${heroImage})` }}>
+      <EventImageBanner src={heroImage} alt={ev.title} variant="hero" className="dsk-ev-hero">
         <div className="dsk-ev-hero-gradient" />
         <div className="dsk-ev-hero-top">
           {ev.isLive && (
@@ -324,7 +325,7 @@ export default function DesktopEventDetail({ loggedIn = false }) {
           </div>
         </div>
         <div className="dsk-ev-hero-bottom">
-          <h1 className="dsk-ev-hero-title">#{ev.title.replace(/\s+/g, '')}</h1>
+          <h1 className="dsk-ev-hero-title">{eventDisplayTitle(ev.title)}</h1>
           <p className="dsk-ev-hero-sub">PRESENTED BY <span
             role="button"
             tabIndex={0}
@@ -338,7 +339,7 @@ export default function DesktopEventDetail({ loggedIn = false }) {
             }}
           >{ev.organizer}</span></p>
         </div>
-      </div>
+      </EventImageBanner>
 
       <main className="dsk-main">
         <div className="dsk-container dsk-ev-grid">
@@ -426,9 +427,9 @@ export default function DesktopEventDetail({ loggedIn = false }) {
           open={showShare}
           onClose={() => setShowShare(false)}
           url={shareUrl}
-          title={`#${ev.title.replace(/\s+/g, '')}`}
+          title={eventDisplayTitle(ev.title)}
           subtitle={`${ev.nonprofit} · verified`}
-          previewStyle={{ backgroundImage: `url(${heroImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+          previewSrc={heroImage}
         />
       )}
 

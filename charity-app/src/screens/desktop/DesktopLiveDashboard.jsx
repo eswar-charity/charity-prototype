@@ -6,7 +6,8 @@ import DesktopFooter from '../../components/desktop/DesktopFooter';
 import DesktopShareModal from '../../components/desktop/DesktopShareModal';
 import QRScannerModal from '../../components/QRScannerModal';
 import ShareQRModal from '../../components/ShareQRModal';
-import { events, liveActivities } from '../../data/mockData';
+import { events, liveActivities, eventDisplayTitle } from '../../data/mockData';
+import { EventImage, EventImageBanner } from '../../components/event/EventImage';
 
 const ev = events[0];
 
@@ -76,10 +77,7 @@ export default function DesktopLiveDashboard() {
           <div className="dsk-live-dashboard-grid">
             <div className="dsk-live-dashboard-main">
               <div className="dsk-live-event-card">
-                <div
-                  className="dsk-live-event-thumb"
-                  style={{ backgroundImage: `url(${ev.photos[0]})` }}
-                />
+                <EventImageBanner src={ev.photos[0]} alt={ev.title} variant="preview" className="dsk-live-event-thumb" />
                 <div className="dsk-live-event-copy">
                   <p className="dsk-live-event-title">{ev.title}</p>
                   <p className="dsk-live-event-sub">{ev.nonprofit} · {ev.location}</p>
@@ -151,10 +149,9 @@ export default function DesktopLiveDashboard() {
                           </div>
                           <p className="dsk-activity-text">{act.text}</p>
                           {act.image && (
-                            <div
-                              className="dsk-live-activity-image"
-                              style={{ backgroundImage: `url(${act.image})` }}
-                            />
+                            <div className="event-img-frame event-img-frame--activity-lg dsk-live-activity-image">
+                              <EventImage src={act.image} alt={`Photo by ${act.user}`} fill />
+                            </div>
                           )}
                         </>
                       )}
@@ -215,7 +212,7 @@ export default function DesktopLiveDashboard() {
           open={showShare}
           onClose={() => setShowShare(false)}
           url="https://charityhub.app/e/neon-night-run"
-          title={`#${ev.title.replace(/\s+/g, '')}`}
+          title={eventDisplayTitle(ev.title)}
           subtitle={`${ev.nonprofit} · verified`}
         />
       )}

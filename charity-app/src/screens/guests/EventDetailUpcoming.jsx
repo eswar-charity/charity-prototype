@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, Bookmark, MapPin, Share2, Heart, Calendar, ChevronRight } from 'lucide-react';
 import { NonprofitLearnMoreModal, EventBackersModal } from '../../components/event/EventModals';
-import { slugify, getEventByKey, getNonprofitForEvent } from '../../data/mockData';
+import { slugify, getEventByKey, getNonprofitForEvent, eventDisplayTitle } from '../../data/mockData';
+import { EventImageBanner } from '../../components/event/EventImage';
 
 const BACKER_COLORS = ['var(--primary)', 'var(--primary-hover)', '#5BB8F5', '#1A6EB5', 'var(--secondary-soft)'];
 
@@ -24,12 +25,7 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
       <div className="detail-screen">
         <div className="detail-scroll">
           {/* Hero */}
-          <div className="detail-hero" style={{ height: 240 }}>
-            <img
-              src={ev.cover}
-              alt={ev.title}
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-            />
+          <EventImageBanner src={ev.cover} alt={ev.title} variant="hero" className="detail-hero" style={{ height: 240 }}>
             <div style={{
               position: 'absolute', inset: 0,
               background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.1) 55%, transparent 100%)',
@@ -75,7 +71,7 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
                 {ev.location.split(',')[0]}
               </span>
             </div>
-          </div>
+          </EventImageBanner>
 
           {/* White detail card */}
           <div className="detail-card">
@@ -199,8 +195,8 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
 
             {/* Photo grid */}
             <div className="photo-grid-2">
-              <div style={{ backgroundImage: `url(${ev.photos[2] || ev.photos[0]})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
-              <div style={{ backgroundImage: `url(${ev.photos[3] || ev.photos[1] || ev.cover})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+              <EventImageBanner src={ev.photos[2] || ev.photos[0]} alt="" variant="grid" />
+              <EventImageBanner src={ev.photos[3] || ev.photos[1] || ev.cover} alt="" variant="grid" />
             </div>
           </div>
         </div>

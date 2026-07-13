@@ -3,6 +3,7 @@ import { ArrowRight, Users } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
 import { getCausesWithEvents } from '../../data/marketingPages';
+import { EventImageBanner } from '../../components/event/EventImage';
 
 function formatRaised(value) {
   return value >= 1000 ? `$${(value / 1000).toFixed(1)}k` : `$${value}`;
@@ -59,17 +60,14 @@ export default function DesktopCauses() {
             <div className="dsk-causes-grid">
               {causes.map((cause) => (
                 <article key={cause.category} className="dsk-cause-card">
-                  <div
-                    className="dsk-cause-card-hero"
-                    style={{ backgroundImage: `url(${cause.featured?.cover})` }}
-                  >
+                  <EventImageBanner src={cause.featured?.cover} alt={cause.featured?.title || cause.category} variant="card" className="dsk-cause-card-hero">
                     <span className="dsk-cause-badge">{cause.category}</span>
                     {cause.featured?.isLive && (
                       <span className="dsk-cause-live">
                         <span className="live-dot" /> LIVE
                       </span>
                     )}
-                  </div>
+                  </EventImageBanner>
                   <div className="dsk-cause-card-body">
                     <h3 className="dsk-cause-title">{cause.category}</h3>
                     <p className="dsk-cause-desc">{cause.description}</p>

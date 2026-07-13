@@ -5,7 +5,9 @@ import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
 import DesktopShareModal from '../../components/desktop/DesktopShareModal';
 import Logo from '../../components/Logo';
-import { SE_ORGANIZER } from '../../data/mockData';
+import { SE_ORGANIZER, events, eventDisplayTitle } from '../../data/mockData';
+
+const FEATURED_EVENT = events[0];
 
 export default function DesktopPostEventImpact() {
   const navigate = useNavigate();
@@ -25,21 +27,21 @@ export default function DesktopPostEventImpact() {
         <div className="dsk-container dsk-post-event-wrap">
           <div className="dsk-post-event-head">
             <p className="dsk-post-event-eyebrow">You made this happen</p>
-            <h1 className="dsk-post-event-title">Neon Night Run</h1>
-            <p className="dsk-post-event-subtitle">Nov 8, 2025 · Youth Health Fund</p>
+            <h1 className="dsk-post-event-title">{eventDisplayTitle(FEATURED_EVENT?.title)}</h1>
+            <p className="dsk-post-event-subtitle">{FEATURED_EVENT?.date} · {FEATURED_EVENT?.nonprofit}</p>
           </div>
 
           <div className="dsk-post-event-stats">
             <div className="stat-box">
-              <div className="stat-num">213</div>
+              <div className="stat-num">{FEATURED_EVENT?.backed ?? 0}</div>
               <div className="stat-lbl">People backed</div>
             </div>
             <div className="stat-box">
-              <div className="stat-num">87</div>
+              <div className="stat-num">{FEATURED_EVENT?.joined ?? 0}</div>
               <div className="stat-lbl">Joined in person</div>
             </div>
             <div className="stat-box">
-              <div className="stat-num">38</div>
+              <div className="stat-num">{FEATURED_EVENT?.updates ?? 0}</div>
               <div className="stat-lbl">Live updates</div>
             </div>
           </div>
@@ -55,11 +57,11 @@ export default function DesktopPostEventImpact() {
                 <div className="dsk-post-event-credential-avatar">{SE_ORGANIZER.initials}</div>
                 <div>
                   <p className="dsk-post-event-credential-name">{SE_ORGANIZER.name}</p>
-                  <p className="dsk-post-event-credential-event">Neon Night Run</p>
+                  <p className="dsk-post-event-credential-event">{eventDisplayTitle(FEATURED_EVENT?.title)}</p>
                 </div>
               </div>
 
-              <p className="dsk-post-event-credential-meta">213 participants · Youth Health Fund · Nov 2025</p>
+              <p className="dsk-post-event-credential-meta">{FEATURED_EVENT?.backed ?? 0} participants · {FEATURED_EVENT?.nonprofit} · {FEATURED_EVENT?.date}</p>
 
               <div className="dsk-post-event-credential-actions">
                 <button type="button" className="dsk-post-event-share-btn" onClick={() => setShowShare(true)}>
@@ -123,9 +125,9 @@ export default function DesktopPostEventImpact() {
         <DesktopShareModal
           open={showShare}
           onClose={() => setShowShare(false)}
-          url="https://charityhub.app/e/neon-night-run"
-          title="Neon Night Run — Impact Recap"
-          subtitle="213 participants · Youth Health Fund"
+          url={`https://charityhub.app/e/${FEATURED_EVENT?.key}`}
+          title={`${eventDisplayTitle(FEATURED_EVENT?.title)} — Impact Recap`}
+          subtitle={`${FEATURED_EVENT?.backed ?? 0} participants · ${FEATURED_EVENT?.nonprofit}`}
         />
       )}
 

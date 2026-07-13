@@ -4,6 +4,7 @@ import { Clock, Flag, MoreHorizontal, QrCode } from 'lucide-react';
 import { DesktopNpLayout } from '../../../components/desktop/DesktopNpLayout';
 import ShareQRModal from '../../../components/ShareQRModal';
 import { events, eventDetailPath } from '../../../data/mockData';
+import { EventImageBanner } from '../../../components/event/EventImage';
 
 const LIVE_EVENTS = events.map((ev) => ({
   id: ev.id,
@@ -87,7 +88,7 @@ export default function DesktopNpLaunchpad() {
             onClick={() => navigate(eventDetailPath(ev, { loggedIn: false }))}
             onKeyDown={onKey(() => navigate(eventDetailPath(ev, { loggedIn: false })))}
           >
-            <div className="dsk-np-event-hero" style={{ backgroundImage: `url(${ev.cover})` }}>
+            <EventImageBanner src={ev.cover} alt={ev.title} variant="np-tile" className="dsk-np-event-hero">
               <span className={`badge ${ev.isLive ? 'badge-live' : 'badge-upcoming'}`}>{ev.isLive ? '● LIVE' : 'UPCOMING'}</span>
               <button
                 type="button"
@@ -97,7 +98,7 @@ export default function DesktopNpLaunchpad() {
               >
                 <MoreHorizontal size={16} color="white" />
               </button>
-            </div>
+            </EventImageBanner>
             <div className="dsk-np-event-body">
               <span className="dsk-np-event-cat">{ev.category}</span>
               <p className="dsk-np-event-title">{ev.title}</p>

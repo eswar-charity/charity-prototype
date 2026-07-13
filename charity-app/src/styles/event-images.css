@@ -1,0 +1,258 @@
+/* ── Event images: fixed containers, smart fill inside ── */
+
+.event-img {
+  display: block;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.event-img--fill {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.event-img--avatar {
+  object-fit: cover;
+  object-position: center;
+}
+
+.event-img-banner {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Page heroes */
+.event-img-banner--hero > :not(.event-img) {
+  position: absolute;
+  z-index: 2;
+  line-height: normal;
+}
+
+.event-img-banner--hero > .ev-hero-gradient,
+.event-img-banner--hero > .dsk-ev-hero-gradient {
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.event-img-banner--hero > .dsk-ev-hero-top,
+.event-img-banner--hero > .ev-hero-nav {
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.event-img-banner--hero > .dsk-ev-hero-bottom,
+.event-img-banner--hero > .ev-hero-content {
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+/* Feed cards (mobile + desktop) */
+.event-img-banner--card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, transparent 55%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.event-img-banner--card > :not(.event-img) {
+  position: absolute;
+  z-index: 2;
+  line-height: normal;
+}
+
+.event-img-banner--card .scene-card-badges {
+  top: 12px;
+  left: 12px;
+  right: auto;
+}
+
+.event-img-banner--card .dsk-event-card-badges {
+  top: 12px;
+  left: 12px;
+  right: 12px;
+}
+
+.event-img-banner--card .scene-card-overlay,
+.event-img-banner--card .dsk-event-card-title-wrap {
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.event-img-banner--card .dsk-cause-live {
+  top: 12px;
+  right: 12px;
+  left: auto;
+}
+
+/* Horizontal photo reel */
+.event-img-banner--reel {
+  width: 155px;
+  height: 140px;
+  flex-shrink: 0;
+  border-radius: 12px;
+}
+
+/* Photo grid cells */
+.event-img-banner--grid {
+  height: 110px;
+  border-radius: var(--radius-sm);
+}
+
+/* Small list / launchpad thumb */
+.event-img-banner--compact {
+  height: 70px;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.event-img-banner--compact .event-img--fill {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Share modal / live dashboard thumb */
+.event-img-banner--preview {
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.event-img-banner--preview.dsk-share-preview-thumb {
+  width: 44px;
+  height: 44px;
+}
+
+.event-img-banner--preview.dsk-live-event-thumb {
+  width: 72px;
+  height: 72px;
+}
+
+.event-img-banner--preview.recent-thumb {
+  width: 52px;
+  height: 52px;
+}
+
+/* Profile cover strip */
+.event-img-banner--profile-cover {
+  height: 220px;
+}
+
+/* Profile event tile */
+.event-img-banner--profile-tile {
+  height: 140px;
+  border-radius: inherit;
+}
+
+.event-img-banner--profile-tile > :not(.event-img) {
+  position: absolute;
+  z-index: 2;
+  line-height: normal;
+}
+
+.event-img-banner--profile-tile .dsk-badge-live,
+.event-img-banner--profile-tile .badge {
+  top: 10px;
+  left: 10px;
+}
+
+.event-img-banner--np-tile {
+  height: 100px;
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+
+.event-img-banner--np-tile .event-img--fill {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.event-img-banner--np-tile > :not(.event-img) {
+  position: absolute;
+  z-index: 2;
+  line-height: normal;
+}
+
+.event-img-banner--np-tile .badge {
+  top: 10px;
+  left: 10px;
+}
+
+.event-img-banner--np-tile > button {
+  top: 10px;
+  right: 10px;
+}
+
+/* Community grid thumb (desktop live detail) */
+.event-img-banner--community {
+  border-radius: var(--radius-sm);
+}
+
+.event-img-banner--community.dsk-community-hero {
+  height: 260px;
+}
+
+.event-img-banner--community.dsk-community-thumb {
+  height: 150px;
+}
+
+.event-img-banner--community > :not(.event-img) {
+  position: absolute;
+  z-index: 2;
+  line-height: normal;
+}
+
+.event-img-banner--community .dsk-community-hero-play {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.event-img-banner--community .dsk-community-hero-caption {
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+/* Photo reel caption overlay */
+.event-img-banner--reel .photo-reel-caption {
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+/* Inline activity / feed images in fixed wrappers */
+.event-img-frame {
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.event-img-frame--activity {
+  height: 100px;
+}
+
+.event-img-frame--activity-lg {
+  height: 120px;
+  border-radius: var(--radius-sm);
+}
+
+.event-story-avatar {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+}

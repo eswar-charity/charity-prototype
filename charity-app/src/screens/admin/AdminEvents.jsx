@@ -5,7 +5,7 @@ import AdminLayout, { Badge } from '../../components/admin/AdminLayout';
 import { Toast, useToast } from '../../components/admin/useToast';
 import QRScannerModal from '../../components/QRScannerModal';
 import { adminEvents, statusTone } from '../../data/adminData';
-import { eventLivePath, getEventKeyByTitle } from '../../data/mockData';
+import { eventLivePath, getEventKeyByTitle, events } from '../../data/mockData';
 
 const FILTERS = ['All', 'Live', 'Submitted', 'Approved', 'Changes Requested', 'Completed', 'Cancelled'];
 const money = (n) => '$' + n.toLocaleString('en-US');
@@ -15,7 +15,7 @@ export default function AdminEvents() {
   const { msg, show } = useToast();
   const [filter, setFilter] = useState('All');
   const [showScanner, setShowScanner] = useState(false);
-  const [scannerEvent, setScannerEvent] = useState('Neon Night Run');
+  const [scannerEvent, setScannerEvent] = useState(events[0]?.title || '#NeonNight');
 
   const rows = adminEvents.filter((e) => filter === 'All' || e.status === filter);
 

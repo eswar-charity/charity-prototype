@@ -4,7 +4,8 @@ import { MapPin, Share2 } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../../components/desktop/DesktopFooter';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
-import { getOrganizerProfile, eventDetailPath } from '../../../data/mockData';
+import { getOrganizerProfile, eventDetailPath, eventDisplayTitle } from '../../../data/mockData';
+import { EventImageBanner } from '../../../components/event/EventImage';
 
 const EVENT_TABS = ['Live', 'Upcoming', 'Past'];
 
@@ -41,7 +42,12 @@ export default function DesktopOrganizerProfile() {
     <div className="dsk-page">
       <DesktopHeader active="Discover" loggedIn avatarInitials={profile.initials} />
 
-      <div className="dsk-profile-cover" style={{ backgroundImage: `url(${profile.events[0]?.photos?.[4] || profile.events[0]?.cover})` }} />
+      <EventImageBanner
+        src={profile.events[0]?.photos?.[4] || profile.events[0]?.cover}
+        alt=""
+        variant="profile-cover"
+        className="dsk-profile-cover"
+      />
 
       <main className="dsk-main">
         <div className="dsk-container">
@@ -125,11 +131,11 @@ export default function DesktopOrganizerProfile() {
                   }
                 }}
               >
-                <div className="dsk-profile-event-hero" style={{ backgroundImage: `url(${e.cover})` }}>
+                <EventImageBanner src={e.cover} alt={e.title} variant="profile-tile" className="dsk-profile-event-hero">
                   {e.isLive && <span className="dsk-badge-live"><span className="live-dot" /> LIVE NOW</span>}
-                </div>
+                </EventImageBanner>
                 <div className="dsk-profile-event-body">
-                  <p className="dsk-profile-event-title">#{e.title.replace(/\s+/g, '')}</p>
+                  <p className="dsk-profile-event-title">{eventDisplayTitle(e.title)}</p>
                   <p className="dsk-profile-event-np">for {e.nonprofit}</p>
                   <p className="dsk-profile-event-stat">{e.joined} attending</p>
                 </div>
@@ -147,11 +153,7 @@ export default function DesktopOrganizerProfile() {
           title={profile.name}
           subtitle="Event Presenter · Charity Hub"
           heading="Share profile"
-          previewStyle={{
-            backgroundImage: `url(${profile.events[0]?.photos?.[4] || profile.events[0]?.cover})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
+          previewSrc={profile.events[0]?.photos?.[4] || profile.events[0]?.cover}
         />
       )}
 

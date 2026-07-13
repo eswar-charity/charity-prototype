@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "sync:events": "node scripts/sync-event-assets.mjs",
     "lint": "oxlint",
     "preview": "vite preview"
   },

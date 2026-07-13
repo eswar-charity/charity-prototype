@@ -3,17 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Check } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
 import MobileAppHeader from '../../components/MobileAppHeader';
+import { events, eventDisplayTitle } from '../../data/mockData';
 
-const BACKING_BY_EVENT = [
-  { id: 1, title: 'Coastal Cleanup Drive', count: 87, thumb: '/events/breakneck-ridge-run/img1.jpg' },
-  { id: 2, title: 'Books for Bright Minds', count: 42, thumb: '/events/give-now/img1.jpg' },
-  { id: 3, title: 'Plant a Tree', count: 28, thumb: '/events/dog-dad/img1.jpg' },
-];
+const BACKING_BY_EVENT = events.slice(0, 3).map((ev) => ({
+  id: ev.id,
+  title: eventDisplayTitle(ev.title),
+  count: ev.backed,
+  thumb: ev.cover,
+}));
 
-const EXTRA_EVENTS = [
-  { id: 4, title: 'Urban Oasis Seed Drive', count: 19, thumb: '/events/golf-outing/img1.jpg' },
-  { id: 5, title: 'Neon Night Run', count: 15, thumb: '/events/neon-night/img1.jpg' },
-];
+const EXTRA_EVENTS = events.slice(3).map((ev) => ({
+  id: ev.id,
+  title: eventDisplayTitle(ev.title),
+  count: ev.backed,
+  thumb: ev.cover,
+}));
 
 export default function NpActivity() {
   const navigate = useNavigate();

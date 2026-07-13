@@ -1,11 +1,12 @@
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { events } from '../../data/mockData';
 import Logo from '../Logo';
 
 const live = events.find((e) => e.isLive) || events[0];
 
 export default function DesktopAuthLayout({ eyebrow, headline, subhead, children }) {
-  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
   return (
     <div className="dsk-page dsk-auth-page">
       <div className="dsk-auth-hero" style={{ backgroundImage: `url(${live.cover})` }}>
@@ -34,8 +35,8 @@ export default function DesktopAuthLayout({ eyebrow, headline, subhead, children
           <Logo
             height={38}
             tone="dark"
-            onClick={() => navigate('/guest/feed')}
-            style={{ cursor: 'pointer', marginBottom: 28 }}
+            linkToFeed={pathname !== '/'}
+            style={{ marginBottom: 28, cursor: pathname !== '/' ? 'pointer' : undefined }}
           />
           {children}
         </div>

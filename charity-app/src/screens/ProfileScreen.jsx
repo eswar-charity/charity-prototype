@@ -4,9 +4,11 @@ import { Pencil, MapPin, ChevronRight, Share2 } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 import MobileAppHeader from '../components/MobileAppHeader';
 import MobileShareModal from '../components/MobileShareModal';
-import { events, SE_ORGANIZER } from '../data/mockData';
+import { events, SE_ORGANIZER, getOrganizerProfile, slugify, eventDetailPath } from '../data/mockData';
+import { EventImageBanner } from '../components/event/EventImage';
 
-const RECENT_EVENTS = events.slice(0, 3);
+const profile = getOrganizerProfile(slugify(SE_ORGANIZER.name));
+const HOSTED_EVENTS = profile?.events ?? events;
 
 export default function ProfileScreen() {
   const navigate = useNavigate();
@@ -63,40 +65,37 @@ export default function ProfileScreen() {
 
             <div className="stat-row" style={{ marginBottom: 20 }}>
               <div className="stat-box">
-                <div className="stat-num">5</div>
+                <div className="stat-num">{HOSTED_EVENTS.length}</div>
                 <div className="stat-lbl">Events hosted</div>
               </div>
               <div className="stat-box">
-                <div className="stat-num">847</div>
+                <div className="stat-num">{profile?.stats.peopleReached ?? 0}</div>
                 <div className="stat-lbl">People reached</div>
               </div>
               <div className="stat-box">
-                <div className="stat-num">$12k</div>
+                <div className="stat-num">${Math.round((profile?.stats.raised ?? 0) / 1000)}k</div>
                 <div className="stat-lbl">Raised</div>
               </div>
             </div>
 
             <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)', marginBottom: 12 }}>Your events</p>
             <div className="card" style={{ marginBottom: 16 }}>
-              {RECENT_EVENTS.map((ev) => (
+              {HOSTED_EVENTS.map((ev) => (
                 <div
                   key={ev.id}
                   className="recent-event-row"
                   role="button"
                   tabIndex={0}
                   aria-label={`View ${ev.title}`}
-                  onClick={() => navigate('/post-event')}
+                  onClick={() => navigate(eventDetailPath(ev, { loggedIn: true }))}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
-                      navigate('/post-event');
+                      navigate(eventDetailPath(ev, { loggedIn: true }));
                     }
                   }}
                 >
-                  <div
-                    className="recent-thumb"
-                    style={{ backgroundImage: `url(${ev.cover})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-                  />
+                  <EventImageBanner src={ev.cover} alt={ev.title} variant="preview" className="recent-thumb" />
                   <div style={{ flex: 1 }}>
                     <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)', marginBottom: 2 }}>{ev.title}</p>
                     <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{ev.nonprofit} · {ev.backed} backing</p>

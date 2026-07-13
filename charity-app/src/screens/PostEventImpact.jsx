@@ -4,7 +4,9 @@ import { Settings, Share2, ChevronRight, Rocket, Users } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 import MobileAppHeader from '../components/MobileAppHeader';
 import MobileShareModal from '../components/MobileShareModal';
-import { SE_ORGANIZER } from '../data/mockData';
+import { SE_ORGANIZER, events, eventDisplayTitle } from '../data/mockData';
+
+const FEATURED_EVENT = events[0];
 
 export default function PostEventImpact() {
   const navigate = useNavigate();
@@ -26,22 +28,22 @@ export default function PostEventImpact() {
           <div style={{ textAlign: 'center', marginBottom: 20 }}>
             <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4 }}>You made this happen</p>
             <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--dark)' }}>
-              Neon Night Run · Nov 8, 2025
+              {eventDisplayTitle(FEATURED_EVENT?.title)} · {FEATURED_EVENT?.date}
             </p>
           </div>
 
           {/* Stats row */}
           <div className="stat-row" style={{ marginBottom: 16 }}>
             <div className="stat-box">
-              <div className="stat-num">213</div>
+              <div className="stat-num">{FEATURED_EVENT?.backed ?? 0}</div>
               <div className="stat-lbl">People backed</div>
             </div>
             <div className="stat-box">
-              <div className="stat-num">87</div>
+              <div className="stat-num">{FEATURED_EVENT?.joined ?? 0}</div>
               <div className="stat-lbl">Joined in person</div>
             </div>
             <div className="stat-box">
-              <div className="stat-num">38</div>
+              <div className="stat-num">{FEATURED_EVENT?.updates ?? 0}</div>
               <div className="stat-lbl">Live updates</div>
             </div>
           </div>
@@ -95,11 +97,11 @@ export default function PostEventImpact() {
               <div className="credential-avatar">{SE_ORGANIZER.initials}</div>
               <div>
                 <p className="credential-name">{SE_ORGANIZER.name}</p>
-                <p className="credential-event">Neon Night Run</p>
+                <p className="credential-event">{eventDisplayTitle(FEATURED_EVENT?.title)}</p>
               </div>
             </div>
 
-            <p className="credential-meta">213 participants · Youth Health Fund · Nov 2025</p>
+            <p className="credential-meta">{FEATURED_EVENT?.backed ?? 0} participants · {FEATURED_EVENT?.nonprofit} · {FEATURED_EVENT?.date}</p>
 
             <div className="credential-actions">
               <button type="button" className="credential-share-btn" onClick={() => setShowShare(true)}>
@@ -172,8 +174,8 @@ export default function PostEventImpact() {
 
       {showShare && (
         <MobileShareModal
-          title="Neon Night Run — Impact Recap"
-          subtitle="213 participants · Youth Health Fund"
+          title={`${eventDisplayTitle(FEATURED_EVENT?.title)} — Impact Recap`}
+          subtitle={`${FEATURED_EVENT?.backed ?? 0} participants · ${FEATURED_EVENT?.nonprofit}`}
           url="https://charityhub.app/e/neon-night-run"
           onClose={() => setShowShare(false)}
         />

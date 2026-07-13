@@ -1,23 +1,7 @@
-import { useNavigate } from 'react-router-dom';
 import Logo from './Logo';
 
-function LogoButton({ homePath, height = 22 }) {
-  const navigate = useNavigate();
-
-  if (!homePath) {
-    return <Logo height={height} />;
-  }
-
-  return (
-    <button
-      type="button"
-      className="mobile-app-header-logo-btn"
-      onClick={() => navigate(homePath)}
-      aria-label="Charity Hub home"
-    >
-      <Logo height={height} />
-    </button>
-  );
+function LogoButton({ height = 22 }) {
+  return <Logo height={height} />;
 }
 
 /**
@@ -26,7 +10,6 @@ function LogoButton({ homePath, height = 22 }) {
  */
 export default function MobileAppHeader({
   layout = 'feed',
-  homePath,
   left,
   actions,
   title,
@@ -44,7 +27,7 @@ export default function MobileAppHeader({
         <div className="mobile-app-header-bar">
           <div className="mobile-app-header-bar-side">{left}</div>
           <div className="mobile-app-header-bar-logo">
-            <LogoButton homePath={homePath} height={logoHeight} />
+            <LogoButton height={logoHeight} />
           </div>
           <div className="mobile-app-header-bar-side mobile-app-header-bar-side--end">
             {actions ?? <div className="mobile-auth-top-spacer" aria-hidden />}
@@ -65,7 +48,7 @@ export default function MobileAppHeader({
     <header className={`mobile-app-header ${className}`.trim()}>
       <div className="mobile-app-header-row">
         <div className="mobile-app-header-brand">
-          {left ?? <LogoButton homePath={homePath} height={logoHeight} />}
+          {left ?? <LogoButton height={logoHeight} />}
         </div>
         {actions && <div className="mobile-app-header-actions">{actions}</div>}
       </div>

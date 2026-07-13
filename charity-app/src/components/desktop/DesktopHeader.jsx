@@ -33,7 +33,7 @@ export default function DesktopHeader({ active = 'Discover', loggedIn = false, a
   return (
     <header className="dsk-header">
       <div className="dsk-header-inner">
-        <Logo height={26} tone="dark" onClick={() => navigate(homePath)} style={{ cursor: 'pointer' }} />
+        <Logo height={26} tone="dark" style={{ cursor: 'pointer' }} />
 
         <nav className="dsk-nav">
           {NAV_LINKS.map((link) => (

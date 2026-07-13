@@ -1458,7 +1458,7 @@ textarea.input-field {
 /* Event detail hero + white card pattern */
 .detail-screen { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
 .detail-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; }
-.detail-hero { position: relative; flex-shrink: 0; }
+.detail-hero { position: relative; flex-shrink: 0; height: 240px; }
 .detail-card {
   background: var(--white);
   border-radius: 24px 24px 0 0;
@@ -1711,7 +1711,7 @@ textarea.input-field {
 
 /* Two-column photo grid */
 .photo-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 16px 0; }
-.photo-grid-2 > div { height: 110px; border-radius: var(--radius-sm); }
+.photo-grid-2 > div { height: 110px; border-radius: var(--radius-sm); overflow: hidden; }
 
 /* ── NONPROFIT SCREENS ── */
 
@@ -1786,7 +1786,7 @@ textarea.input-field {
   padding: 12px 0; cursor: pointer;
 }
 .recent-event-row + .recent-event-row { border-top: 1px solid var(--border); }
-.recent-thumb { width: 48px; height: 48px; border-radius: 10px; flex-shrink: 0; }
+.recent-thumb { width: 48px; height: 48px; border-radius: 10px; flex-shrink: 0; overflow: hidden; }
 
 /* Approval filter tabs (pill style) */
 .ap-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
@@ -2240,16 +2240,55 @@ textarea.input-field {
   margin-bottom: 14px; cursor: pointer; box-shadow: 0 1px 6px rgba(0,0,0,0.07);
 }
 .scene-card-hero {
-  height: 200px; background-size: cover; background-position: center; position: relative;
+  height: 200px;
+  position: relative;
 }
 .scene-card-hero::after {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 55%);
+  display: none;
+}
+.scene-card-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  max-width: calc(100% - 24px);
+}
+.scene-badge-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--primary);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.scene-badge-date {
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.scene-badge-cat {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 20px;
+  background: var(--primary);
+  color: var(--white);
+  white-space: nowrap;
 }
 .scene-live-badge {
   position: absolute; top: 12px; left: 12px; z-index: 1;
   background: var(--primary); color: white; font-size: 10px; font-weight: 700;
-  padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 20px;
+  display: inline-flex; align-items: center; gap: 4px;
+  white-space: nowrap;
 }
 .scene-live-badge.scene-category-badge {
   background: var(--primary);
@@ -2921,8 +2960,6 @@ textarea.input-field {
 }
 .info-cause-hero {
   height: 120px;
-  background-size: cover;
-  background-position: center;
   position: relative;
 }
 .info-cause-badge {

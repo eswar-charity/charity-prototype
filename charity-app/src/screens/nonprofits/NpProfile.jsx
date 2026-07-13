@@ -56,14 +56,9 @@ export default function NpProfile() {
               <button type="button" className="np-profile-hero-btn" onClick={() => navigate('/np/home')} aria-label="Back">
                 <ChevronLeft size={18} color="white" />
               </button>
-              <button
-                type="button"
-                className="np-profile-hero-logo"
-                onClick={() => navigate('/np/home')}
-                aria-label="Charity Hub home"
-              >
+              <div className="np-profile-hero-logo">
                 <Logo height={20} />
-              </button>
+              </div>
               <button
                 type="button"
                 className="np-profile-hero-btn"

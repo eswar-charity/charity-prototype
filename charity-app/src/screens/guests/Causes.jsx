@@ -3,6 +3,7 @@ import { ChevronLeft, ArrowRight, Users } from 'lucide-react';
 import MobileAppHeader from '../../components/MobileAppHeader';
 import GuestBottomNav from '../../components/GuestBottomNav';
 import { getCausesWithEvents } from '../../data/marketingPages';
+import { EventImageBanner } from '../../components/event/EventImage';
 
 function formatRaised(value) {
   return value >= 1000 ? `$${(value / 1000).toFixed(1)}k` : `$${value}`;
@@ -38,12 +39,9 @@ export default function Causes() {
 
           {causes.map((cause) => (
             <article key={cause.category} className="info-cause-card">
-              <div
-                className="info-cause-hero"
-                style={{ backgroundImage: `url(${cause.featured?.cover})` }}
-              >
+              <EventImageBanner src={cause.featured?.cover} alt={cause.featured?.title || cause.category} variant="card" className="info-cause-hero">
                 <span className="info-cause-badge">{cause.category}</span>
-              </div>
+              </EventImageBanner>
               <div className="info-cause-body">
                 <h3 className="info-cause-title">{cause.category}</h3>
                 <p className="info-cause-desc">{cause.description}</p>

@@ -4,8 +4,9 @@ import { Plus, Megaphone, Building2, Compass, MessageCircle, Camera } from 'luci
 import BottomNav from '../components/BottomNav';
 import NotificationBell, { SE_FEED_NOTIFICATIONS } from '../components/NotificationBell';
 import MobileAppHeader from '../components/MobileAppHeader';
-import { events, storyReel, SE_FEED_FILTERS, SE_ORGANIZER, eventDetailPath } from '../data/mockData';
+import { events, storyReel, SE_FEED_FILTERS, SE_ORGANIZER, eventDetailPath, eventDisplayTitle } from '../data/mockData';
 import useInfiniteScroll from '../hooks/useInfiniteScroll';
+import { EventImageBanner, EventStoryAvatar } from '../components/event/EventImage';
 
 const activateOnKey = (fn) => (e) => {
   if (e.key === 'Enter' || e.key === ' ') {
@@ -82,7 +83,7 @@ export default function FeedScreen() {
                 onKeyDown={activateOnKey(() => openEvent(story.event))}
               >
                 <div className="story-circle">
-                  <img src={story.src} alt={story.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <EventStoryAvatar src={story.src} alt={story.title} />
                 </div>
                 <span className="story-label">{story.title.split(' ').slice(0, 2).join(' ')}</span>
               </div>
@@ -127,24 +128,19 @@ export default function FeedScreen() {
               onKeyDown={activateOnKey(() => openEvent(ev))}
             >
               {/* Hero image */}
-              <div
-                className="scene-card-hero"
-                style={{ backgroundImage: `url(${ev.cover})` }}
-              >
-                {ev.isLive ? (
-                  <span className="scene-live-badge">
-                    <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'white', display: 'inline-block' }} />
-                    DOORS OPEN · LIVE NOW
-                  </span>
-                ) : (
-                  <span className="scene-live-badge scene-category-badge">
-                    {ev.category.toUpperCase()}
-                  </span>
-                )}
-                <div className="scene-card-overlay">
-                  <h3 className="scene-card-title">#{ev.title.replace(/[\s,''']+/g, '')}</h3>
+              <EventImageBanner src={ev.cover} alt={ev.title} variant="card" className="scene-card-hero">
+                <div className="scene-card-badges">
+                  {ev.isLive ? (
+                    <span className="scene-badge-live"><span className="live-dot" /> LIVE NOW</span>
+                  ) : (
+                    <span className="scene-badge-date">{ev.date}</span>
+                  )}
+                  <span className="scene-badge-cat">{ev.category}</span>
                 </div>
-              </div>
+                <div className="scene-card-overlay">
+                  <h3 className="scene-card-title">{eventDisplayTitle(ev.title)}</h3>
+                </div>
+              </EventImageBanner>
 
               {/* Meta row */}
               <div className="scene-card-meta">

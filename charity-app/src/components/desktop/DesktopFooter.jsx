@@ -10,7 +10,7 @@ export default function DesktopFooter() {
     <footer className="dsk-footer">
       <div className="dsk-footer-inner">
         <div className="dsk-footer-brand">
-          <Logo height={26} tone="dark" onClick={() => navigate('/guest/feed')} style={{ cursor: 'pointer' }} />
+          <Logo height={26} tone="dark" style={{ cursor: 'pointer' }} />
           <p className="dsk-footer-tagline">
             Empowering communities through meaningful connections and impactful events. Join the movement.
           </p>

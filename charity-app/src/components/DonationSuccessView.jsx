@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Mail, Clock } from 'lucide-react';
-import { calcDonationReceipt } from '../data/mockData';
+import { calcDonationReceipt, events } from '../data/mockData';
+
+const DEFAULT_EVENT = events[0];
 
 function formatMoney(value) {
   return `$${value.toFixed(2)}`;
@@ -10,8 +12,8 @@ function formatMoney(value) {
 export default function DonationSuccessView({
   donorName = 'Sarah King',
   publicName = 'Sarah K.',
-  eventTitle = 'Neon Night Run',
-  nonprofit = 'Youth Health Fund',
+  eventTitle = DEFAULT_EVENT?.title,
+  nonprofit = DEFAULT_EVENT?.nonprofit,
   amount = 25,
   returnTo = '/guest/event/live',
 }) {

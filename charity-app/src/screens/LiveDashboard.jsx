@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, Compass, Plus, Bell, User, Settings, TriangleAlert, Pencil, X, ScanLine, QrCode } from 'lucide-react';
-import { liveActivities } from '../data/mockData';
+import { liveActivities, events, eventDisplayTitle } from '../data/mockData';
+import { EventImage, EventImageBanner } from '../components/event/EventImage';
 import MobileAppHeader from '../components/MobileAppHeader';
 import MobileShareModal from '../components/MobileShareModal';
 import QRScannerModal from '../components/QRScannerModal';
 import ShareQRModal from '../components/ShareQRModal';
+
+const ev = events[0];
 
 export default function LiveDashboard() {
   const navigate = useNavigate();
@@ -73,17 +76,14 @@ export default function LiveDashboard() {
 
           {/* Event card row */}
           <div className="event-card-row" style={{ marginBottom: 16 }}>
-            <div style={{
-              width: 52,
-              height: 52,
-              borderRadius: 10,
-              backgroundImage: 'url(/events/neon-night/img1.jpg)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              flexShrink: 0,
-            }} />
+            <EventImageBanner
+              src={ev?.cover}
+              alt={ev?.title}
+              variant="preview"
+              className="recent-thumb"
+            />
             <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>Neon Night Run</p>
+              <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>{eventDisplayTitle(ev?.title)}</p>
               <div className="live-badge" style={{ marginTop: 4 }}>
                 <div className="live-dot" />
                 LIVE NOW
@@ -150,14 +150,9 @@ export default function LiveDashboard() {
                     <p style={{ fontSize: 13, color: 'var(--dark)', lineHeight: 1.5, marginBottom: 8 }}>
                       {act.text}
                     </p>
-                    <div style={{
-                      height: 100,
-                      borderRadius: 10,
-                      backgroundImage: `url(${act.image})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      overflow: 'hidden',
-                    }} />
+                    <div className="event-img-frame event-img-frame--activity">
+                      <EventImage src={act.image} alt={`Photo by ${act.user}`} fill />
+                    </div>
                   </>
                 )}
                 {act.type === 'org' && (
@@ -250,9 +245,9 @@ export default function LiveDashboard() {
 
       {showShare && (
         <MobileShareModal
-          title="Neon Night Run"
-          subtitle="Youth Health Fund · verified"
-          url="https://charityhub.app/e/neon-night-run"
+          title={eventDisplayTitle(ev?.title)}
+          subtitle={`${ev?.nonprofit} · verified`}
+          url={`https://charityhub.app/e/${ev?.key}`}
           onClose={() => setShowShare(false)}
         />
       )}
@@ -262,7 +257,7 @@ export default function LiveDashboard() {
         onClose={() => setShowScanner(false)}
         role="se"
         variant="mobile"
-        eventTitle="Neon Night Run"
+        eventTitle={eventDisplayTitle(ev?.title)}
         onScanSuccess={(attendee) => {
           setJoinedCount((c) => c + 1);
           showToast(`${attendee.name} checked in`);
@@ -274,7 +269,7 @@ export default function LiveDashboard() {
         onClose={() => setShowQR(false)}
         variant="mobile"
         path="/guest/event/live"
-        title="Scan to join Neon Night Run"
+        title={`Scan to join ${eventDisplayTitle(ev?.title)}`}
         subtitle="Guests land straight on the event page to join and back it."
       />
 

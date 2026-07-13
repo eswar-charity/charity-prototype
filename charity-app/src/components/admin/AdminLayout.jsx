@@ -81,14 +81,7 @@ export default function AdminLayout({ active, title, eyebrow = 'Charity Hub Admi
               <button className="adm-icon-btn adm-menu-btn" aria-label="Open menu" onClick={() => setNavOpen(true)}>
                 <Menu size={18} />
               </button>
-              <button
-                type="button"
-                className="adm-topbar-logo"
-                onClick={() => navigate('/admin/dashboard')}
-                aria-label="Charity Hub Admin home"
-              >
-                <Logo height={22} tone="light" />
-              </button>
+              <Logo height={22} tone="light" className="adm-topbar-logo" />
               <button
                 type="button"
                 className="adm-icon-btn adm-topbar-bell-mobile"

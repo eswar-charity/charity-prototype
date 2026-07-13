@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, Lock, X } from 'lucide-react';
+import { events } from '../../data/mockData';
+
+const DEFAULT_EVENT = events[0];
 
 export default function DesktopDonateGateModal({
   open,
   onClose,
   amount = 25,
-  eventTitle = 'Neon Night Run',
-  nonprofit = 'Youth Health Fund',
-  npInitials = 'YH',
-  npBg = 'var(--primary)',
+  eventTitle = DEFAULT_EVENT?.title,
+  nonprofit = DEFAULT_EVENT?.nonprofit,
+  npInitials = DEFAULT_EVENT?.npInitials,
+  npBg = DEFAULT_EVENT?.npBg,
 }) {
   const navigate = useNavigate();
   const [phone, setPhone] = useState('');

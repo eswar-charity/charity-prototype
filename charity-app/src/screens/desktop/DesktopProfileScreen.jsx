@@ -4,10 +4,12 @@ import { MapPin, Pencil, Share2 } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
 import DesktopShareModal from '../../components/desktop/DesktopShareModal';
-import { events, SE_ORGANIZER } from '../../data/mockData';
+import { events, SE_ORGANIZER, getOrganizerProfile, slugify, eventDetailPath } from '../../data/mockData';
+import { EventImageBanner } from '../../components/event/EventImage';
 
-const RECENT_EVENTS = events.slice(0, 3);
-const COVER = events[0]?.photos?.[1] || events[0]?.cover;
+const profile = getOrganizerProfile(slugify(SE_ORGANIZER.name));
+const HOSTED_EVENTS = profile?.events ?? events;
+const COVER = HOSTED_EVENTS[0]?.photos?.[1] || HOSTED_EVENTS[0]?.cover;
 
 export default function DesktopProfileScreen() {
   const navigate = useNavigate();
@@ -17,7 +19,7 @@ export default function DesktopProfileScreen() {
     <div className="dsk-page">
       <DesktopHeader active="Discover" loggedIn homePath="/feed" />
 
-      <div className="dsk-profile-cover" style={{ backgroundImage: `url(${COVER})` }} />
+      <EventImageBanner src={COVER} alt="" variant="profile-cover" className="dsk-profile-cover" />
 
       <main className="dsk-main">
         <div className="dsk-container">
@@ -45,15 +47,15 @@ export default function DesktopProfileScreen() {
 
           <div className="dsk-profile-stats-row">
             <div className="dsk-profile-stat">
-              <span className="dsk-profile-stat-num">5</span>
+              <span className="dsk-profile-stat-num">{HOSTED_EVENTS.length}</span>
               <span className="dsk-profile-stat-lbl">Events hosted</span>
             </div>
             <div className="dsk-profile-stat">
-              <span className="dsk-profile-stat-num">847</span>
+              <span className="dsk-profile-stat-num">{profile?.stats.peopleReached ?? 0}</span>
               <span className="dsk-profile-stat-lbl">People reached</span>
             </div>
             <div className="dsk-profile-stat">
-              <span className="dsk-profile-stat-num">$12k</span>
+              <span className="dsk-profile-stat-num">${Math.round((profile?.stats.raised ?? 0) / 1000)}k</span>
               <span className="dsk-profile-stat-lbl">Raised</span>
             </div>
           </div>
@@ -63,18 +65,18 @@ export default function DesktopProfileScreen() {
           </div>
 
           <div className="dsk-profile-event-grid">
-            {RECENT_EVENTS.map((ev) => (
+            {HOSTED_EVENTS.map((ev) => (
               <button
                 key={ev.id}
                 type="button"
                 className="dsk-profile-event-card"
-                onClick={() => navigate('/post-event')}
+                onClick={() => navigate(eventDetailPath(ev, { loggedIn: true }))}
               >
-                <div className="dsk-profile-event-hero" style={{ backgroundImage: `url(${ev.cover})` }}>
+                <EventImageBanner src={ev.cover} alt={ev.title} variant="profile-tile" className="dsk-profile-event-hero">
                   {ev.isLive && (
                     <span className="dsk-badge-live"><span className="live-dot" /> LIVE NOW</span>
                   )}
-                </div>
+                </EventImageBanner>
                 <div className="dsk-profile-event-body">
                   <p className="dsk-profile-event-title">{ev.title}</p>
                   <p className="dsk-profile-event-np">for {ev.nonprofit}</p>

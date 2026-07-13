@@ -6,6 +6,7 @@ import NotificationBell, { NP_NOTIFICATIONS } from '../../components/Notificatio
 import MobileAppHeader from '../../components/MobileAppHeader';
 import ShareQRModal from '../../components/ShareQRModal';
 import { events, eventDetailPath } from '../../data/mockData';
+import { EventImageBanner } from '../../components/event/EventImage';
 
 const ORG_LOGO = '/events/breakneck-ridge-run/img1.jpg';
 const HEADER_AVATAR = '/events/give-now/img2.jpg';
@@ -159,7 +160,7 @@ export default function NpLaunchpad() {
                       <MoreHorizontal size={16} color="var(--text-light)" />
                     </button>
                   </div>
-                  <div style={{ height: 70, borderRadius: 8, backgroundImage: `url(${ev.cover})`, backgroundSize: 'cover', backgroundPosition: 'center', marginBottom: 10, backgroundColor: 'var(--border)' }} />
+                  <EventImageBanner src={ev.cover} alt={ev.title} variant="compact" style={{ marginBottom: 10 }} />
                   <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)', marginBottom: 4 }}>{ev.title}</p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2">

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, ChevronRight, X } from 'lucide-react';
+import { EventImageBanner } from '../event/EventImage';
 
 const CHANNELS = [
   {
@@ -56,6 +57,7 @@ export default function DesktopShareModal({
   title,
   subtitle,
   previewStyle,
+  previewSrc,
   heading = 'Share this event',
 }) {
   const [copied, setCopied] = useState(false);
@@ -85,7 +87,11 @@ export default function DesktopShareModal({
         </div>
 
         <div className="dsk-share-preview">
-          <div className="dsk-share-preview-thumb" style={previewStyle} />
+          {previewSrc ? (
+            <EventImageBanner src={previewSrc} alt="" variant="preview" className="dsk-share-preview-thumb" />
+          ) : (
+            <div className="dsk-share-preview-thumb" style={previewStyle} />
+          )}
           <div className="dsk-share-preview-body">
             <p className="dsk-share-preview-title">{title}</p>
             {subtitle && <p className="dsk-share-preview-sub">{subtitle}</p>}

@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Check, QrCode, ScanLine, X, UserCheck, Clock } from 'lucide-react';
 import { QR_SCANNER_ROLES, nextAttendee } from '../data/qrScannerData';
+import { events } from '../data/mockData';
+
+const DEFAULT_EVENT = events[0];
 
 const SCAN_DELAY_MS = 2200;
 
@@ -13,7 +16,7 @@ export default function QRScannerModal({
   onClose,
   role = 'se',
   variant = 'mobile',
-  eventTitle = 'Neon Night Run',
+  eventTitle = DEFAULT_EVENT?.title,
   onScanSuccess,
 }) {
   const config = QR_SCANNER_ROLES[role] || QR_SCANNER_ROLES.se;

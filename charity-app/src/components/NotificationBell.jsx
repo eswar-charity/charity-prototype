@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 
 export const SE_FEED_NOTIFICATIONS = [
-  { id: 1, title: 'Neon Night Run is live', body: 'Doors are open — 87 people joined', time: '2m ago', unread: true, route: '/event/live/neon-night' },
-  { id: 2, title: '3 new backers', body: 'Your Coastal Cleanup event gained support', time: '1h ago', unread: true, route: '/live-dashboard' },
-  { id: 3, title: 'Event approved', body: 'Ocean Conservancy approved your submission', time: 'Yesterday', unread: false, route: '/approval' },
+  { id: 1, title: '#NeonNight is live', body: 'Doors are open — join the event', time: '2m ago', unread: true, route: '/event/live/neon-night' },
+  { id: 2, title: '3 new backers', body: '#BreakneckRidgeRun gained support', time: '1h ago', unread: true, route: '/live-dashboard' },
+  { id: 3, title: 'Event approved', body: 'Hoboken Homeless Home approved your submission', time: 'Yesterday', unread: false, route: '/approval' },
   { id: 4, title: 'New chat activity', body: 'Mike and 4 others are in the thread', time: '2d ago', unread: false, route: '/event/live/breakneck-ridge-run' },
 ];
 

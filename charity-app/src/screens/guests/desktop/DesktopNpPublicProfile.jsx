@@ -2,7 +2,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Users } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../../components/desktop/DesktopFooter';
-import { getNonprofitProfile, eventDetailPath } from '../../../data/mockData';
+import { getNonprofitProfile, eventDetailPath, eventDisplayTitle } from '../../../data/mockData';
+import { EventImageBanner } from '../../../components/event/EventImage';
 
 export default function DesktopNpPublicProfile() {
   const { slug } = useParams();
@@ -32,7 +33,7 @@ export default function DesktopNpPublicProfile() {
     <div className="dsk-page">
       <DesktopHeader active="Discover" />
 
-      {cover && <div className="dsk-profile-cover" style={{ backgroundImage: `url(${cover})` }} />}
+      {cover && <EventImageBanner src={cover} alt="" variant="profile-cover" className="dsk-profile-cover" />}
 
       <main className="dsk-main">
         <div className="dsk-container">
@@ -77,11 +78,11 @@ export default function DesktopNpPublicProfile() {
                   }
                 }}
               >
-                <div className="dsk-profile-event-hero" style={{ backgroundImage: `url(${e.cover})` }}>
+                <EventImageBanner src={e.cover} alt={e.title} variant="profile-tile" className="dsk-profile-event-hero">
                   {e.isLive && <span className="dsk-badge-live"><span className="live-dot" /> LIVE NOW</span>}
-                </div>
+                </EventImageBanner>
                 <div className="dsk-profile-event-body">
-                  <p className="dsk-profile-event-title">#{e.title.replace(/\s+/g, '')}</p>
+                  <p className="dsk-profile-event-title">{eventDisplayTitle(e.title)}</p>
                   <p className="dsk-profile-event-np"><Users size={12} style={{ verticalAlign: 'text-bottom', marginRight: 4 }} />{e.backed} backing</p>
                   <p className="dsk-profile-event-stat">{e.joined} attending</p>
                 </div>

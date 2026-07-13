@@ -1,0 +1,151 @@
+/**
+ * Canonical event catalog — metadata from event-data / check.md.
+ * Image assets live in /event-data (repo) and are served from /public/events.
+ */
+
+function npInitials(name) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 3)
+    .toUpperCase();
+}
+
+function photoPath(assetKey, index, ext = 'jpg') {
+  return `/events/${assetKey}/img${index}.${ext}`;
+}
+
+export const EVENT_CATALOG = [
+  {
+    id: 1,
+    key: 'neon-night',
+    assetKey: 'neon-night',
+    title: '#NeonNight',
+    nonprofit: 'Hoboken Homeless Home',
+    mission: "Let's throw back to the 80's and party for the people!",
+    category: 'Community',
+    photoCount: 5,
+  },
+  {
+    id: 2,
+    key: 'give-now',
+    assetKey: 'give-now',
+    title: "#GiveNowApre'Later",
+    nonprofit: 'Windham Mountain Conservatory',
+    mission: "Snowboarding + Giving makes for the best Apre'!",
+    category: 'Sports',
+    photoCount: 5,
+  },
+  {
+    id: 3,
+    key: 'golf-outing',
+    assetKey: 'golf-outing',
+    title: '#CharityHubGolfOuting',
+    nonprofit: 'Center For Sight Restoration',
+    mission: 'Bring your good times to the course and may the best shooter win.',
+    category: 'Sports',
+    photoCount: 1,
+  },
+  {
+    id: 4,
+    key: 'dog-dad',
+    assetKey: 'dog-dad',
+    title: '#DogDads',
+    nonprofit: 'Bergen County Rescue Shelter',
+    mission: 'Give some street cred to all the Dog Dads who stepped up and rescued a pooch.',
+    category: 'Animals',
+    photoCount: 5,
+    photoExt: (i) => (i === 5 ? 'png' : 'jpg'),
+  },
+  {
+    id: 5,
+    key: 'breakneck-ridge-run',
+    assetKey: 'breakneck-ridge-run',
+    title: '#BreakneckRidgeRun',
+    nonprofit: 'Hudson Valley Trail Society',
+    mission: "Don't give up and don't break your neck.",
+    category: 'Environment',
+    photoCount: 6,
+  },
+];
+
+const NP_STYLES = {
+  'Hoboken Homeless Home': { bg: 'linear-gradient(135deg,#C62828,#E53935)', catColor: '#C62828', catBg: '#FFEBEE' },
+  'Windham Mountain Conservatory': { bg: 'linear-gradient(135deg,#0D4A8A,#1A6EB5)', catColor: '#1A6EB5', catBg: '#E3F0FB' },
+  'Center For Sight Restoration': { bg: 'linear-gradient(135deg,#14507F,#2E86C1)', catColor: '#1A6EB5', catBg: '#E3F0FB' },
+  'Bergen County Rescue Shelter': { bg: 'linear-gradient(135deg,#6A1B9A,#AB47BC)', catColor: '#6A1B9A', catBg: '#F3E5F5' },
+  'Hudson Valley Trail Society': { bg: 'linear-gradient(135deg,#2E7D32,#66BB6A)', catColor: '#2E7D32', catBg: '#E8F5E9' },
+};
+
+function buildPhotos(entry) {
+  const extFor = entry.photoExt || (() => 'jpg');
+  return Array.from({ length: entry.photoCount }, (_, i) => {
+    const n = i + 1;
+    return photoPath(entry.assetKey, n, extFor(n));
+  });
+}
+
+export function buildEvents(seOrganizer) {
+  return EVENT_CATALOG.map((entry) => {
+    const photos = buildPhotos(entry);
+    const style = NP_STYLES[entry.nonprofit] || { bg: 'linear-gradient(135deg,#0A2E52,#1A6EB5)', catColor: '#1A6EB5', catBg: '#E3F0FB' };
+    const npInit = npInitials(entry.nonprofit);
+
+    return {
+      id: entry.id,
+      key: entry.key,
+      title: entry.title,
+      subtitle: entry.mission,
+      mission: entry.mission,
+      story: entry.mission,
+      organizer: seOrganizer.name,
+      initials: seOrganizer.initials,
+      nonprofit: entry.nonprofit,
+      npInitials: npInit,
+      npBg: style.bg,
+      category: entry.category,
+      catColor: style.catColor,
+      catBg: style.catBg,
+      date: 'TBA',
+      startTime: 'TBA',
+      endTime: 'TBA',
+      location: 'TBA',
+      backed: 0,
+      joined: 0,
+      updates: entry.photoCount,
+      chatCount: 0,
+      raised: 0,
+      isLive: true,
+      cover: photos[0],
+      photos,
+      tags: [entry.category],
+    };
+  });
+}
+
+export function buildNonprofits(eventList) {
+  const seen = new Set();
+  return eventList
+    .filter((ev) => {
+      if (seen.has(ev.nonprofit)) return false;
+      seen.add(ev.nonprofit);
+      return true;
+    })
+    .map((ev, idx) => ({
+      id: idx + 1,
+      name: ev.nonprofit,
+      category: ev.category,
+      verified: true,
+      color: ev.catColor,
+      initials: ev.npInitials,
+      bg: ev.npBg,
+      mission: ev.mission,
+    }));
+}
+
+/** Display hashtag — title is already stored with # prefix from source data. */
+export function eventDisplayTitle(title) {
+  return title.startsWith('#') ? title : `#${title.replace(/[\s,'']+/g, '')}`;
+}

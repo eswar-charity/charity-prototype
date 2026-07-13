@@ -4,7 +4,8 @@ import { Share2, Bookmark, Calendar, MapPin, Users, ChevronRight } from 'lucide-
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
 import { NonprofitLearnMoreModal, EventBackersModal } from '../../../components/event/EventModals';
-import { slugify, getEventByKey, getNonprofitForEvent } from '../../../data/mockData';
+import { slugify, getEventByKey, getNonprofitForEvent, eventDisplayTitle } from '../../../data/mockData';
+import { EventImageBanner } from '../../../components/event/EventImage';
 
 const BACKER_COLORS = ['var(--primary)', 'var(--primary-hover)', '#5BB8F5', '#1A6EB5', 'var(--secondary-soft)'];
 
@@ -27,7 +28,7 @@ export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
     <div className="dsk-page">
       <DesktopHeader active="Discover" loggedIn={loggedIn} homePath={loggedIn ? '/feed' : '/guest/feed'} />
 
-      <div className="dsk-ev-hero" style={{ backgroundImage: `url(${ev.cover})` }}>
+      <EventImageBanner src={ev.cover} alt={ev.title} variant="hero" className="dsk-ev-hero">
         <div className="dsk-ev-hero-gradient" />
         <div className="dsk-ev-hero-top">
           <span className="dsk-ev-hero-pill"><Calendar size={12} /> {ev.date} · {ev.startTime}</span>
@@ -39,7 +40,7 @@ export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
           </div>
         </div>
         <div className="dsk-ev-hero-bottom">
-          <h1 className="dsk-ev-hero-title">#{ev.title.replace(/[\s,''']+/g, '')}</h1>
+          <h1 className="dsk-ev-hero-title">{eventDisplayTitle(ev.title)}</h1>
           <p className="dsk-ev-hero-sub">
             <MapPin size={12} style={{ verticalAlign: -1, marginRight: 4 }} aria-hidden="true" />{ev.location} · PRESENTED BY{' '}
             <span
@@ -56,7 +57,7 @@ export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
             >{ev.organizer}</span>
           </p>
         </div>
-      </div>
+      </EventImageBanner>
 
       <main className="dsk-main">
         <div className="dsk-container dsk-ev-grid">
@@ -116,7 +117,7 @@ export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
 
               <div className="dsk-community-grid" style={{ marginTop: 20 }}>
                 {ev.photos.slice(1, 3).map((src) => (
-                  <div key={src} className="dsk-community-thumb" style={{ backgroundImage: `url(${src})` }} />
+                  <EventImageBanner key={src} src={src} alt="" variant="community" className="dsk-community-thumb" />
                 ))}
               </div>
             </div>
@@ -153,9 +154,9 @@ export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
           open={showShare}
           onClose={() => setShowShare(false)}
           url={shareUrl}
-          title={`#${ev.title.replace(/[\s,''']+/g, '')}`}
+          title={eventDisplayTitle(ev.title)}
           subtitle={`${ev.nonprofit} · verified`}
-          previewStyle={{ backgroundImage: `url(${ev.cover})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+          previewSrc={ev.cover}
         />
       )}
 

@@ -3,15 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Users, MessageCircle, Camera } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
-import { events, storyReel, SE_FEED_FILTERS, SE_ORGANIZER, eventDetailPath } from '../../data/mockData';
+import { events, storyReel, SE_FEED_FILTERS, SE_ORGANIZER, eventDetailPath, eventDisplayTitle } from '../../data/mockData';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
+import { EventImageBanner, EventStoryAvatar } from '../../components/event/EventImage';
 
 function SceneEventCard({ ev }) {
   const navigate = useNavigate();
 
   return (
     <div className="dsk-event-card" onClick={() => navigate(eventDetailPath(ev, { loggedIn: true }))}>
-      <div className="dsk-event-card-hero" style={{ backgroundImage: `url(${ev.cover})` }}>
+      <EventImageBanner src={ev.cover} alt={ev.title} variant="card" className="dsk-event-card-hero">
         <div className="dsk-event-card-badges">
           {ev.isLive ? (
             <span className="dsk-badge-live"><span className="live-dot" /> LIVE NOW</span>
@@ -23,9 +24,9 @@ function SceneEventCard({ ev }) {
           </span>
         </div>
         <div className="dsk-event-card-title-wrap">
-          <p className="dsk-event-card-title">#{ev.title.replace(/[\s,'']+/g, '')}</p>
+          <p className="dsk-event-card-title">{eventDisplayTitle(ev.title)}</p>
         </div>
-      </div>
+      </EventImageBanner>
 
       <div className="dsk-event-card-body">
         <div className="dsk-event-card-org">
@@ -90,7 +91,7 @@ export default function DesktopFeedScreen() {
                 onClick={() => navigate(eventDetailPath(story.event, { loggedIn: true }))}
               >
                 <div className="dsk-story-circle">
-                  <img src={story.src} alt={story.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <EventStoryAvatar src={story.src} alt={story.title} />
                 </div>
                 <span className="dsk-story-label">{story.title.split(' ').slice(0, 2).join(' ')}</span>
               </button>

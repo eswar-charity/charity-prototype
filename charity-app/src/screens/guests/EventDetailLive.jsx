@@ -5,7 +5,8 @@ import {
   Plus, Camera, ArrowUp, MoreHorizontal,
   Images, MessageCircle, HandHeart, PartyPopper, Check, UserPlus,
 } from 'lucide-react';
-import { liveActivities, buildDonationSuccessUrl, getHappeningNowReel, EVENT_CREATOR, getEventByKey, eventLivePath } from '../../data/mockData';
+import { liveActivities, buildDonationSuccessUrl, getHappeningNowReel, EVENT_CREATOR, getEventByKey, eventLivePath, eventDisplayTitle } from '../../data/mockData';
+import { EventImage, EventImageBanner } from '../../components/event/EventImage';
 
 function buildChatSeed(ev) {
   return [
@@ -49,8 +50,7 @@ function CommunityTab({ ev }) {
       {/* Photo reel */}
       <div className="photo-reel">
         {REEL.map((item, i) => (
-          <div key={i} className="photo-reel-item">
-            <img src={item.src} alt={`Photo shared by ${item.user}`} />
+          <EventImageBanner key={i} src={item.src} alt={`Photo shared by ${item.user}`} variant="reel" className="photo-reel-item">
             <div className="photo-reel-caption">
               <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                 <div style={{
@@ -67,7 +67,7 @@ function CommunityTab({ ev }) {
               </div>
               <span className="photo-reel-time">{item.time}</span>
             </div>
-          </div>
+          </EventImageBanner>
         ))}
       </div>
 
@@ -118,8 +118,8 @@ function CommunityTab({ ev }) {
             </div>
             <p className="ev-activity-text" style={{ marginTop: 3 }}>{item.text}</p>
             {item.hasImage && (
-              <div style={{ marginTop: 8, height: 100, borderRadius: 10, overflow: 'hidden' }}>
-                <img src={item.image} alt={`Photo shared by ${item.user}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <div className="event-img-frame event-img-frame--activity" style={{ marginTop: 8 }}>
+                <EventImage src={item.image} alt={`Photo shared by ${item.user}`} fill />
               </div>
             )}
           </div>
@@ -367,8 +367,7 @@ export default function EventDetailLive({ loggedIn = false }) {
       <div className="detail-screen">
 
         {/* ── Hero ── */}
-        <div className="ev-hero">
-          <img className="ev-hero-img" src={heroImage} alt={ev.title} />
+        <EventImageBanner src={heroImage} alt={ev.title} variant="hero" className="ev-hero">
           <div className="ev-hero-gradient" />
 
           {/* Top nav */}
@@ -392,7 +391,7 @@ export default function EventDetailLive({ loggedIn = false }) {
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'white', display: 'inline-block' }} />
               DOORS OPEN · LIVE NOW
             </div>
-            <h1 className="ev-hero-title">#{ev.title.replace(/\s+/g, '')}</h1>
+            <h1 className="ev-hero-title">{eventDisplayTitle(ev.title)}</h1>
             <p className="ev-hero-subtitle">{ev.subtitle.split('.')[0]}.</p>
             <div className="ev-hero-meta">
               <div>
@@ -423,7 +422,7 @@ export default function EventDetailLive({ loggedIn = false }) {
               </div>
             </div>
           </div>
-        </div>
+        </EventImageBanner>
 
         {/* ── Bottom sheet ── */}
         <div className="ev-sheet">
