@@ -5,6 +5,7 @@ import AdminLayout, { Badge } from '../../components/admin/AdminLayout';
 import { Toast, useToast } from '../../components/admin/useToast';
 import QRScannerModal from '../../components/QRScannerModal';
 import { adminEvents, statusTone } from '../../data/adminData';
+import { eventLivePath, getEventKeyByTitle } from '../../data/mockData';
 
 const FILTERS = ['All', 'Live', 'Submitted', 'Approved', 'Changes Requested', 'Completed', 'Cancelled'];
 const money = (n) => '$' + n.toLocaleString('en-US');
@@ -56,7 +57,7 @@ export default function AdminEvents() {
                   <td>{e.joined}</td>
                   <td className="adm-td-strong">{money(e.raised)}</td>
                   <td className="adm-td-actions">
-                    <button className="adm-btn adm-btn-ghost adm-btn-sm" onClick={() => navigate('/guest/event/live')}>View</button>
+                    <button className="adm-btn adm-btn-ghost adm-btn-sm" onClick={() => navigate(eventLivePath(getEventKeyByTitle(e.title), { loggedIn: false }))}>View</button>
                     {e.status === 'Live' && (
                       <button
                         className="adm-btn adm-btn-scan adm-btn-sm"

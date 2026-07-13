@@ -5,13 +5,14 @@ import NpBottomNav from '../../components/NpBottomNav';
 import NotificationBell, { NP_NOTIFICATIONS } from '../../components/NotificationBell';
 import MobileAppHeader from '../../components/MobileAppHeader';
 import ShareQRModal from '../../components/ShareQRModal';
-import { events } from '../../data/mockData';
+import { events, eventDetailPath } from '../../data/mockData';
 
 const ORG_LOGO = '/events/breakneck-ridge-run/img1.jpg';
 const HEADER_AVATAR = '/events/give-now/img2.jpg';
 
 const LIVE_EVENTS = events.map((ev) => ({
   id: ev.id,
+  key: ev.key,
   title: ev.title,
   stat: `${ev.joined} joined`,
   isLive: ev.isLive,
@@ -142,8 +143,8 @@ export default function NpLaunchpad() {
                   role="button"
                   tabIndex={0}
                   aria-label={`View ${ev.title}`}
-                  onClick={() => navigate(ev.isLive ? '/guest/event/live' : '/guest/event/upcoming')}
-                  onKeyDown={onKey(() => navigate(ev.isLive ? '/guest/event/live' : '/guest/event/upcoming'))}
+                  onClick={() => navigate(eventDetailPath(ev, { loggedIn: false }))}
+                  onKeyDown={onKey(() => navigate(eventDetailPath(ev, { loggedIn: false })))}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                     <span className={`badge ${ev.isLive ? 'badge-live' : 'badge-upcoming'}`} style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 'var(--radius-pill)' }}>

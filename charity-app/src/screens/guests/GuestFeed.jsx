@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, MessageCircle, Camera, Bell } from 'lucide-react';
 import GuestBottomNav from '../../components/GuestBottomNav';
 import MobileAppHeader from '../../components/MobileAppHeader';
-import { events, storyReel, GUEST_FEED_FILTERS } from '../../data/mockData';
+import { events, storyReel, GUEST_FEED_FILTERS, eventDetailPath } from '../../data/mockData';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
 
 const activateOnKey = (fn) => (e) => {
@@ -39,7 +39,7 @@ export default function GuestFeed() {
     rootRef: scrollRef, pageSize: 3, max: 30,
   });
 
-  const openEvent = (ev) => navigate(ev.isLive ? '/guest/event/live' : '/guest/event/upcoming');
+  const openEvent = (ev) => navigate(eventDetailPath(ev, { loggedIn: false }));
 
   return (
     <div className="phone-shell">

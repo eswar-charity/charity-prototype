@@ -4,7 +4,7 @@ import { Plus, Megaphone, Building2, Compass, MessageCircle, Camera } from 'luci
 import BottomNav from '../components/BottomNav';
 import NotificationBell, { SE_FEED_NOTIFICATIONS } from '../components/NotificationBell';
 import MobileAppHeader from '../components/MobileAppHeader';
-import { events, storyReel, SE_FEED_FILTERS, SE_ORGANIZER } from '../data/mockData';
+import { events, storyReel, SE_FEED_FILTERS, SE_ORGANIZER, eventDetailPath } from '../data/mockData';
 import useInfiniteScroll from '../hooks/useInfiniteScroll';
 
 const activateOnKey = (fn) => (e) => {
@@ -28,7 +28,7 @@ export default function FeedScreen() {
   const { items, sentinelRef, loading, hasMore } = useInfiniteScroll(filteredEvents, {
     rootRef: scrollRef, pageSize: 3, max: 30,
   });
-  const openEvent = (ev) => navigate(ev.isLive ? '/event/live' : '/event/upcoming');
+  const openEvent = (ev) => navigate(eventDetailPath(ev, { loggedIn: true }));
 
   return (
     <div className="phone-shell">

@@ -1,18 +1,19 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Share2, Bookmark, Calendar, MapPin, Users, ChevronRight } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
 import { NonprofitLearnMoreModal, EventBackersModal } from '../../../components/event/EventModals';
-import { events, slugify } from '../../../data/mockData';
+import { slugify, getEventByKey, getNonprofitForEvent } from '../../../data/mockData';
 
-const ev = events[2]; // Give Now, Apré Later — the app's featured upcoming event
 const BACKER_COLORS = ['var(--primary)', 'var(--primary-hover)', '#5BB8F5', '#1A6EB5', 'var(--secondary-soft)'];
-
-const NP_DESCRIPTION = 'Books for Communities expands access to reading materials and literacy programs for underserved schools across New England. Every event on Charity Hub helps them reach more students.';
 
 export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
   const navigate = useNavigate();
+  const { eventKey } = useParams();
+  const ev = getEventByKey(eventKey);
+  const np = getNonprofitForEvent(ev);
+  const npDescription = np?.mission || ev.subtitle;
   const [saved, setSaved] = useState(false);
   const [following, setFollowing] = useState(false);
   const [backed, setBacked] = useState(false);
@@ -165,7 +166,7 @@ export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
         initials={ev.npInitials}
         avatarStyle={{ background: ev.npBg }}
         category={ev.category}
-        description={NP_DESCRIPTION}
+        description={npDescription}
         onViewProfile={() => { setShowNpModal(false); navigate('/np/profile'); }}
       />
 

@@ -3,12 +3,11 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, Users, MessageCircle, Camera } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../../components/desktop/DesktopFooter';
-import { events, storyReel, GUEST_FEED_FILTERS } from '../../../data/mockData';
+import { events, storyReel, GUEST_FEED_FILTERS, eventDetailPath } from '../../../data/mockData';
 import useInfiniteScroll from '../../../hooks/useInfiniteScroll';
 
 function SceneEventCard({ ev }) {
   const navigate = useNavigate();
-  const route = ev.isLive ? '/guest/event/live' : '/guest/event/upcoming';
 
   return (
     <div
@@ -16,7 +15,7 @@ function SceneEventCard({ ev }) {
       role="button"
       tabIndex={0}
       aria-label={`View ${ev.title}`}
-      onClick={() => navigate(route)}
+      onClick={() => navigate(eventDetailPath(ev, { loggedIn: false }))}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -115,7 +114,7 @@ export default function DesktopGuestFeed() {
                 key={story.id}
                 type="button"
                 className="dsk-story-item"
-                onClick={() => navigate(story.event.isLive ? '/guest/event/live' : '/guest/event/upcoming')}
+                onClick={() => navigate(eventDetailPath(story.event, { loggedIn: false }))}
               >
                 <div className="dsk-story-circle">
                   <img src={story.src} alt={story.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />

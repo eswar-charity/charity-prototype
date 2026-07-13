@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Share2, Heart, X, Calendar, MapPin, Plus, Camera, ArrowUp,
   MessageCircle, Users, Play, Info, PartyPopper, Check, UserPlus,
@@ -7,11 +7,7 @@ import {
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
 import DesktopJoinGateModal from '../../../components/desktop/DesktopJoinGateModal';
-import { events, liveActivities, slugify, buildDonationSuccessUrl, getHappeningNowReel, EVENT_CREATOR } from '../../../data/mockData';
-
-const ev = events[0]; // Neon Night Run — the app's featured live event
-
-const REEL = getHappeningNowReel(ev).slice(1);
+import { liveActivities, slugify, buildDonationSuccessUrl, getHappeningNowReel, EVENT_CREATOR, getEventByKey, eventLivePath } from '../../../data/mockData';
 
 const TABS = [
   { id: 'community', label: 'Community', sub: 'Photos & moments' },
@@ -19,7 +15,16 @@ const TABS = [
   { id: 'support', label: 'Support', sub: 'Back the cause' },
 ];
 
-function AboutModal({ onClose, following, onToggleFollow }) {
+function buildChatSeed(ev) {
+  return [
+    { id: 1, initials: ev.initials, color: 'linear-gradient(135deg,var(--primary),var(--blue))', name: ev.organizer, host: true, text: "Welcome everyone! We're starting the main presentation in about 5 minutes. Feel free to grab a virtual seat and say hi!" },
+    { id: 2, initials: 'ML', color: 'linear-gradient(135deg,#0D7377,#14A085)', name: 'Marcus L.', text: 'So excited for this! Tuning in from Chicago.', reaction: '12' },
+    { id: 3, initials: 'ME', color: 'linear-gradient(135deg,#7B1FA2,#AB47BC)', mine: true, text: "Incredible turnout already. Can't wait for the auction segment!", sent: true },
+    { id: 4, initials: 'EJ', color: 'linear-gradient(135deg,#1976D2,#42A5F5)', name: 'Emma J.', text: 'This is incredible! First time attending a Charity Hub event' },
+  ];
+}
+
+function AboutModal({ ev, onClose, following, onToggleFollow }) {
   return (
     <div className="dsk-modal-backdrop" onClick={onClose}>
       <div className="dsk-modal" onClick={(e) => e.stopPropagation()}>
@@ -43,10 +48,10 @@ function AboutModal({ onClose, following, onToggleFollow }) {
         </div>
 
         <p className="dsk-modal-section-lbl">MISSION</p>
-        <p className="dsk-modal-section-text">{ev.mission}</p>
+        <p className="dsk-modal-section-text">{ev.mission || ev.subtitle}</p>
 
         <p className="dsk-modal-section-lbl">THE STORY</p>
-        <p className="dsk-modal-section-text">{ev.story}</p>
+        <p className="dsk-modal-section-text">{ev.story || ev.subtitle}</p>
 
         <div className="dsk-modal-info-box">
           <div className="dsk-modal-info-row">
@@ -61,7 +66,7 @@ function AboutModal({ onClose, following, onToggleFollow }) {
             <p className="dsk-modal-info-main">{ev.location}</p>
           </div>
           <div className="dsk-modal-tags">
-            {ev.tags.map((t) => <span key={t} className="dsk-modal-tag">{t}</span>)}
+            {(ev.tags || [ev.category]).map((t) => <span key={t} className="dsk-modal-tag">{t}</span>)}
           </div>
         </div>
       </div>
@@ -69,7 +74,9 @@ function AboutModal({ onClose, following, onToggleFollow }) {
   );
 }
 
-function CommunityTab() {
+function CommunityTab({ ev }) {
+  const reel = getHappeningNowReel(ev).slice(1);
+
   return (
     <div className="dsk-tab-panel">
       <div className="dsk-panel-head">
@@ -86,7 +93,7 @@ function CommunityTab() {
       </div>
 
       <div className="dsk-community-grid">
-        {REEL.map((item, i) => (
+        {reel.map((item, i) => (
           <div key={`${item.src}-${i}`} className="dsk-community-thumb" style={{ backgroundImage: `url(${item.src})` }}>
             <div className="dsk-community-hero-caption">
               <div className="dsk-mini-avatar" style={{ background: item.color }}>{item.initials}</div>
@@ -119,16 +126,9 @@ function CommunityTab() {
   );
 }
 
-const CHAT_SEED = [
-  { id: 1, initials: ev.initials, color: 'linear-gradient(135deg,var(--primary),var(--blue))', name: ev.organizer, host: true, text: "Welcome everyone! We're starting the main presentation in about 5 minutes. Feel free to grab a virtual seat and say hi!" },
-  { id: 2, initials: 'ML', color: 'linear-gradient(135deg,#0D7377,#14A085)', name: 'Marcus L.', text: 'So excited for this! Tuning in from Chicago.', reaction: '12' },
-  { id: 3, initials: 'ME', color: 'linear-gradient(135deg,#7B1FA2,#AB47BC)', mine: true, text: "Incredible turnout already. Can't wait for the auction segment!", sent: true },
-  { id: 4, initials: 'EJ', color: 'linear-gradient(135deg,#1976D2,#42A5F5)', name: 'Emma J.', text: 'This is incredible! First time attending a Charity Hub event' },
-];
-
-function ChatTab({ onNeedJoin, loggedIn }) {
+function ChatTab({ ev, onNeedJoin, loggedIn }) {
   const [value, setValue] = useState('');
-  const [messages, setMessages] = useState(CHAT_SEED);
+  const [messages, setMessages] = useState(() => buildChatSeed(ev));
 
   if (!loggedIn) {
     return (
@@ -225,7 +225,7 @@ function ChatTab({ onNeedJoin, loggedIn }) {
   );
 }
 
-function SupportTab({ onDonate }) {
+function SupportTab({ ev, onDonate }) {
   const [amount, setAmount] = useState(25);
 
   return (
@@ -267,6 +267,9 @@ function SupportTab({ onDonate }) {
 
 export default function DesktopEventDetail({ loggedIn = false }) {
   const navigate = useNavigate();
+  const { eventKey } = useParams();
+  const ev = getEventByKey(eventKey);
+  const heroImage = ev.photos[1] || ev.cover;
   const [activeTab, setActiveTab] = useState('community');
   const [liked, setLiked] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
@@ -298,7 +301,7 @@ export default function DesktopEventDetail({ loggedIn = false }) {
     navigate(buildDonationSuccessUrl({
       amount,
       eventKey: ev.key,
-      returnTo: loggedIn ? '/event/live' : '/guest/event/live',
+      returnTo: eventLivePath(ev.key, { loggedIn }),
     }));
   };
 
@@ -306,7 +309,7 @@ export default function DesktopEventDetail({ loggedIn = false }) {
     <div className="dsk-page">
       <DesktopHeader active="Discover" loggedIn={loggedIn} homePath={loggedIn ? '/feed' : '/guest/feed'} />
 
-      <div className="dsk-ev-hero" style={{ backgroundImage: `url(${ev.photos[1]})` }}>
+      <div className="dsk-ev-hero" style={{ backgroundImage: `url(${heroImage})` }}>
         <div className="dsk-ev-hero-gradient" />
         <div className="dsk-ev-hero-top">
           {ev.isLive && (
@@ -349,15 +352,16 @@ export default function DesktopEventDetail({ loggedIn = false }) {
               ))}
             </div>
 
-            {activeTab === 'community' && <CommunityTab />}
+            {activeTab === 'community' && <CommunityTab ev={ev} />}
             {activeTab === 'chat' && (
               <ChatTab
+                ev={ev}
                 loggedIn={loggedIn}
                 onNeedJoin={() => setShowJoinGate(true)}
               />
             )}
             {activeTab === 'support' && (
-              <SupportTab onDonate={handleDonate} />
+              <SupportTab ev={ev} onDonate={handleDonate} />
             )}
           </div>
 
@@ -399,6 +403,7 @@ export default function DesktopEventDetail({ loggedIn = false }) {
 
       {showAbout && (
         <AboutModal
+          ev={ev}
           onClose={() => setShowAbout(false)}
           following={following}
           onToggleFollow={() => setFollowing((f) => !f)}
@@ -423,7 +428,7 @@ export default function DesktopEventDetail({ loggedIn = false }) {
           url={shareUrl}
           title={`#${ev.title.replace(/\s+/g, '')}`}
           subtitle={`${ev.nonprofit} · verified`}
-          previewStyle={{ backgroundImage: `url(${ev.photos[1]})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+          previewStyle={{ backgroundImage: `url(${heroImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
         />
       )}
 

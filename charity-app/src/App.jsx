@@ -1,5 +1,8 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import useIsDesktop from './hooks/useIsDesktop';
+import { events } from './data/mockData';
+
+const DEFAULT_EVENT_KEY = events[0].key;
 
 // SE (organiser) screens
 import CreateAccount from './screens/CreateAccount';
@@ -92,16 +95,28 @@ function GuestFeedRoute() {
   return useIsDesktop() ? <DesktopGuestFeed /> : <GuestFeed />;
 }
 function EventDetailLiveRoute() {
-  return useIsDesktop() ? <DesktopEventDetail /> : <EventDetailLive />;
+  const { eventKey } = useParams();
+  return useIsDesktop()
+    ? <DesktopEventDetail key={eventKey} />
+    : <EventDetailLive key={eventKey} />;
 }
 function EventDetailUpcomingRoute() {
-  return useIsDesktop() ? <DesktopEventDetailUpcoming /> : <EventDetailUpcoming />;
+  const { eventKey } = useParams();
+  return useIsDesktop()
+    ? <DesktopEventDetailUpcoming key={eventKey} />
+    : <EventDetailUpcoming key={eventKey} />;
 }
 function SeEventDetailLiveRoute() {
-  return useIsDesktop() ? <DesktopEventDetail loggedIn /> : <EventDetailLive loggedIn />;
+  const { eventKey } = useParams();
+  return useIsDesktop()
+    ? <DesktopEventDetail key={eventKey} loggedIn />
+    : <EventDetailLive key={eventKey} loggedIn />;
 }
 function SeEventDetailUpcomingRoute() {
-  return useIsDesktop() ? <DesktopEventDetailUpcoming loggedIn /> : <EventDetailUpcoming loggedIn />;
+  const { eventKey } = useParams();
+  return useIsDesktop()
+    ? <DesktopEventDetailUpcoming key={eventKey} loggedIn />
+    : <EventDetailUpcoming key={eventKey} loggedIn />;
 }
 function EventStep1Route() {
   return useIsDesktop() ? <DesktopEventStep1 /> : <EventStep1 />;
@@ -178,15 +193,19 @@ export default function App() {
         <Route path="/live-dashboard" element={<LiveDashboardRoute />} />
         <Route path="/post-event" element={<PostEventImpactRoute />} />
         <Route path="/profile" element={<ProfileScreenRoute />} />
-        <Route path="/event/live" element={<SeEventDetailLiveRoute />} />
-        <Route path="/event/upcoming" element={<SeEventDetailUpcomingRoute />} />
+        <Route path="/event/live" element={<Navigate to={`/event/live/${DEFAULT_EVENT_KEY}`} replace />} />
+        <Route path="/event/live/:eventKey" element={<SeEventDetailLiveRoute />} />
+        <Route path="/event/upcoming" element={<Navigate to={`/event/upcoming/${DEFAULT_EVENT_KEY}`} replace />} />
+        <Route path="/event/upcoming/:eventKey" element={<SeEventDetailUpcomingRoute />} />
 
         {/* Guest flow */}
         <Route path="/guest" element={<Navigate to="/guest/feed" replace />} />
         <Route path="/guest/feed" element={<GuestFeedRoute />} />
         <Route path="/guest/empty" element={<EmptyFeed />} />
-        <Route path="/guest/event/live" element={<EventDetailLiveRoute />} />
-        <Route path="/guest/event/upcoming" element={<EventDetailUpcomingRoute />} />
+        <Route path="/guest/event/live" element={<Navigate to={`/guest/event/live/${DEFAULT_EVENT_KEY}`} replace />} />
+        <Route path="/guest/event/live/:eventKey" element={<EventDetailLiveRoute />} />
+        <Route path="/guest/event/upcoming" element={<Navigate to={`/guest/event/upcoming/${DEFAULT_EVENT_KEY}`} replace />} />
+        <Route path="/guest/event/upcoming/:eventKey" element={<EventDetailUpcomingRoute />} />
         <Route path="/guest/event/expired" element={<ExpiredEvent />} />
         <Route path="/guest/share" element={<ShareSheet />} />
         <Route path="/guest/join" element={<IdentityGateJoinRoute />} />

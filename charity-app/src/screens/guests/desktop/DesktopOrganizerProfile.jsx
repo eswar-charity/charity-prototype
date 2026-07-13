@@ -4,7 +4,7 @@ import { MapPin, Share2 } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../../components/desktop/DesktopFooter';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
-import { getOrganizerProfile } from '../../../data/mockData';
+import { getOrganizerProfile, eventDetailPath } from '../../../data/mockData';
 
 const EVENT_TABS = ['Live', 'Upcoming', 'Past'];
 
@@ -117,11 +117,11 @@ export default function DesktopOrganizerProfile() {
                 role="button"
                 tabIndex={0}
                 aria-label={`View ${e.title.replace(/\s+/g, '')}`}
-                onClick={() => navigate(e.isLive ? '/guest/event/live' : '/guest/event/upcoming')}
+                onClick={() => navigate(eventDetailPath(e, { loggedIn: false }))}
                 onKeyDown={(evt) => {
                   if (evt.key === 'Enter' || evt.key === ' ') {
                     evt.preventDefault();
-                    navigate(e.isLive ? '/guest/event/live' : '/guest/event/upcoming');
+                    navigate(eventDetailPath(e, { loggedIn: false }));
                   }
                 }}
               >

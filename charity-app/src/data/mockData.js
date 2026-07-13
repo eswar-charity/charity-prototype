@@ -243,7 +243,8 @@ export const EVENT_CREATOR = SE_ORGANIZER;
 const HAPPENING_NOW_TIMES = ['Just now', '2m ago', '5m ago', '8m ago'];
 
 export function getHappeningNowReel(event = events[0]) {
-  return event.photos.slice(1, 5).map((src, i) => ({
+  const pool = event.photos.length > 1 ? event.photos.slice(1, 5) : event.photos;
+  return pool.map((src, i) => ({
     src,
     user: EVENT_CREATOR.name,
     initials: EVENT_CREATOR.initials,
@@ -382,6 +383,30 @@ export function getEventByKey(key) {
   return events.find((e) => e.key === key) || events[0];
 }
 
+export function eventLivePath(eventKey, { loggedIn = false } = {}) {
+  const prefix = loggedIn ? '/event' : '/guest/event';
+  return `${prefix}/live/${eventKey}`;
+}
+
+export function eventUpcomingPath(eventKey, { loggedIn = false } = {}) {
+  const prefix = loggedIn ? '/event' : '/guest/event';
+  return `${prefix}/upcoming/${eventKey}`;
+}
+
+export function eventDetailPath(ev, { loggedIn = false } = {}) {
+  return ev.isLive
+    ? eventLivePath(ev.key, { loggedIn })
+    : eventUpcomingPath(ev.key, { loggedIn });
+}
+
+export function getNonprofitForEvent(ev) {
+  return nonprofits.find((n) => n.name === ev.nonprofit);
+}
+
+export function getEventKeyByTitle(title) {
+  return events.find((e) => e.title === title)?.key || events[0].key;
+}
+
 export function calcDonationReceipt(amount) {
   const donation = typeof amount === 'number' && amount > 0 ? amount : 25;
   const tip = donation >= 25 ? 3 : Math.max(1, Math.round(donation * 0.12));
@@ -394,7 +419,7 @@ export function calcDonationReceipt(amount) {
 export function buildDonationSuccessUrl({
   amount = 25,
   eventKey = 'neon-night',
-  returnTo = '/guest/event/live',
+  returnTo = eventLivePath(eventKey, { loggedIn: false }),
   donorName = 'Sarah King',
   publicName = 'Sarah K.',
 } = {}) {

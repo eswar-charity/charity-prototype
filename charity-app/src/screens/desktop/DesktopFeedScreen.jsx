@@ -3,15 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Users, MessageCircle, Camera } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
-import { events, storyReel, SE_FEED_FILTERS, SE_ORGANIZER } from '../../data/mockData';
+import { events, storyReel, SE_FEED_FILTERS, SE_ORGANIZER, eventDetailPath } from '../../data/mockData';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
 
 function SceneEventCard({ ev }) {
   const navigate = useNavigate();
-  const route = ev.isLive ? '/event/live' : '/event/upcoming';
 
   return (
-    <div className="dsk-event-card" onClick={() => navigate(route)}>
+    <div className="dsk-event-card" onClick={() => navigate(eventDetailPath(ev, { loggedIn: true }))}>
       <div className="dsk-event-card-hero" style={{ backgroundImage: `url(${ev.cover})` }}>
         <div className="dsk-event-card-badges">
           {ev.isLive ? (
@@ -88,7 +87,7 @@ export default function DesktopFeedScreen() {
                 key={story.id}
                 type="button"
                 className="dsk-story-item"
-                onClick={() => navigate(story.event.isLive ? '/event/live' : '/event/upcoming')}
+                onClick={() => navigate(eventDetailPath(story.event, { loggedIn: true }))}
               >
                 <div className="dsk-story-circle">
                   <img src={story.src} alt={story.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />

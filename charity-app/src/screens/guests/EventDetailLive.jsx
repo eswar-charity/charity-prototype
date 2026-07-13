@@ -1,16 +1,39 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   ChevronLeft, Info, Share2, Heart,
   Plus, Camera, ArrowUp, MoreHorizontal,
   Images, MessageCircle, HandHeart, PartyPopper, Check, UserPlus,
 } from 'lucide-react';
-import { events, liveActivities, buildDonationSuccessUrl, getHappeningNowReel, EVENT_CREATOR } from '../../data/mockData';
+import { liveActivities, buildDonationSuccessUrl, getHappeningNowReel, EVENT_CREATOR, getEventByKey, eventLivePath } from '../../data/mockData';
 
-const ev = events[0]; // Neon Night Run
+function buildChatSeed(ev) {
+  return [
+    {
+      id: 'seed-1', name: ev.organizer, initials: ev.initials,
+      avatar: 'linear-gradient(135deg,var(--primary),var(--blue))', host: true, verified: true,
+      text: "Welcome everyone! We're starting the main presentation in about 5 minutes. Feel free to grab a virtual seat and say hi!",
+    },
+    {
+      id: 'seed-2', name: 'Marcus L.', initials: 'ML',
+      avatar: 'linear-gradient(135deg,#0D7377,#14A085)',
+      text: 'So excited for this! Tuning in from Chicago.', reaction: 12,
+    },
+    {
+      id: 'seed-3', mine: true, initials: 'ME',
+      avatar: 'linear-gradient(135deg,#7B1FA2,#AB47BC)',
+      text: "Incredible turnout already. Can't wait for the auction segment!", sent: 'Sent',
+    },
+    {
+      id: 'seed-4', name: 'Emma J.', initials: 'EJ',
+      avatar: 'linear-gradient(135deg,#1976D2,#42A5F5)',
+      text: 'This is incredible! First time attending a Charity Hub event',
+    },
+  ];
+}
 
 /* ── Community Tab ──────────────────────────────────────── */
-function CommunityTab() {
+function CommunityTab({ ev }) {
   const REEL = getHappeningNowReel(ev);
 
   return (
@@ -108,7 +131,7 @@ function CommunityTab() {
 }
 
 /* ── Chat Tab ────────────────────────────────────────────── */
-function ChatTabHeader() {
+function ChatTabHeader({ ev }) {
   return (
     <div className="chat-room-header">
       <div className="chat-room-title">
@@ -122,29 +145,6 @@ function ChatTabHeader() {
     </div>
   );
 }
-
-const CHAT_SEED = [
-  {
-    id: 'seed-1', name: ev.organizer, initials: ev.initials,
-    avatar: 'linear-gradient(135deg,var(--primary),var(--blue))', host: true, verified: true,
-    text: "Welcome everyone! We're starting the main presentation in about 5 minutes. Feel free to grab a virtual seat and say hi!",
-  },
-  {
-    id: 'seed-2', name: 'Marcus L.', initials: 'ML',
-    avatar: 'linear-gradient(135deg,#0D7377,#14A085)',
-    text: 'So excited for this! Tuning in from Chicago.', reaction: 12,
-  },
-  {
-    id: 'seed-3', mine: true, initials: 'ME',
-    avatar: 'linear-gradient(135deg,#7B1FA2,#AB47BC)',
-    text: "Incredible turnout already. Can't wait for the auction segment!", sent: 'Sent',
-  },
-  {
-    id: 'seed-4', name: 'Emma J.', initials: 'EJ',
-    avatar: 'linear-gradient(135deg,#1976D2,#42A5F5)',
-    text: 'This is incredible! First time attending a Charity Hub event',
-  },
-];
 
 function ChatTabMessages({ messages }) {
   return (
@@ -205,7 +205,7 @@ function ChatInputBar({ value, onChange, onSend, onAttach, onFocus }) {
 }
 
 /* ── Support Tab ─────────────────────────────────────────── */
-function SupportTab({ selectedAmount, onSelectAmount, onDonate, onViewStructure }) {
+function SupportTab({ ev, selectedAmount, onSelectAmount, onDonate, onViewStructure }) {
   return (
     <div className="support-content">
       {/* Charity hierarchy */}
@@ -304,11 +304,14 @@ const TABS = [
 
 export default function EventDetailLive({ loggedIn = false }) {
   const navigate = useNavigate();
+  const { eventKey } = useParams();
+  const ev = getEventByKey(eventKey);
+  const heroImage = ev.photos[1] || ev.cover;
   const [activeTab, setActiveTab]         = useState('community');
   const [liked, setLiked]                 = useState(false);
   const [selectedAmount, setSelectedAmount] = useState(25);
   const [chatInput, setChatInput]         = useState('');
-  const [messages, setMessages]           = useState(CHAT_SEED);
+  const [messages, setMessages]           = useState(() => buildChatSeed(ev));
   const [showAbout, setShowAbout]         = useState(false);
   const [joined, setJoined]               = useState(false);
   const [toast, setToast]                 = useState('');
@@ -344,7 +347,7 @@ export default function EventDetailLive({ loggedIn = false }) {
     navigate(buildDonationSuccessUrl({
       amount,
       eventKey: ev.key,
-      returnTo: loggedIn ? '/event/live' : '/guest/event/live',
+      returnTo: eventLivePath(ev.key, { loggedIn }),
     }));
   };
 
@@ -365,7 +368,7 @@ export default function EventDetailLive({ loggedIn = false }) {
 
         {/* ── Hero ── */}
         <div className="ev-hero">
-          <img className="ev-hero-img" src="/events/neon-night/img2.jpg" alt="Neon Night Run" />
+          <img className="ev-hero-img" src={heroImage} alt={ev.title} />
           <div className="ev-hero-gradient" />
 
           {/* Top nav */}
@@ -445,7 +448,7 @@ export default function EventDetailLive({ loggedIn = false }) {
           {activeTab === 'chat' ? (
             loggedIn ? (
               <>
-                <ChatTabHeader />
+                <ChatTabHeader ev={ev} />
                 <div className="ev-tab-content">
                   <ChatTabMessages messages={messages} />
                 </div>
@@ -463,13 +466,14 @@ export default function EventDetailLive({ loggedIn = false }) {
             )
           ) : (
             <div className="ev-tab-content">
-              {activeTab === 'community' && <CommunityTab />}
+              {activeTab === 'community' && <CommunityTab ev={ev} />}
               {activeTab === 'support' && (
                 <SupportTab
+                  ev={ev}
                   selectedAmount={selectedAmount}
                   onSelectAmount={setSelectedAmount}
                   onDonate={handleDonate}
-                  onViewStructure={() => showToast('Funds go to Youth Health Fund (verified 501c3)')}
+                  onViewStructure={() => showToast(`Funds go to ${ev.nonprofit} (verified 501c3)`)}
                 />
               )}
             </div>
@@ -494,9 +498,9 @@ export default function EventDetailLive({ loggedIn = false }) {
                 >✕</button>
               </div>
               <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary)', letterSpacing: 0.5, marginBottom: 6 }}>MISSION</p>
-              <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 14 }}>{ev.mission}</p>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 14 }}>{ev.mission || ev.subtitle}</p>
               <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary)', letterSpacing: 0.5, marginBottom: 6 }}>THE STORY</p>
-              <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 18 }}>{ev.story}</p>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 18 }}>{ev.story || ev.subtitle}</p>
               <button
                 className="btn-primary"
                 onClick={() => {

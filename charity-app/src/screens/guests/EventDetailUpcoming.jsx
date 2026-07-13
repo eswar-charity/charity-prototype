@@ -1,16 +1,17 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, Bookmark, MapPin, Share2, Heart, Calendar, ChevronRight } from 'lucide-react';
 import { NonprofitLearnMoreModal, EventBackersModal } from '../../components/event/EventModals';
-import { events, slugify } from '../../data/mockData';
+import { slugify, getEventByKey, getNonprofitForEvent } from '../../data/mockData';
 
-const ev = events[2];
 const BACKER_COLORS = ['var(--primary)', 'var(--primary-hover)', '#5BB8F5', '#1A6EB5', 'var(--secondary-soft)'];
-
-const NP_DESCRIPTION = 'Books for Communities expands access to reading materials and literacy programs for underserved schools across New England. Every event on Charity Hub helps them reach more students.';
 
 export default function EventDetailUpcoming({ loggedIn = false }) {
   const navigate = useNavigate();
+  const { eventKey } = useParams();
+  const ev = getEventByKey(eventKey);
+  const np = getNonprofitForEvent(ev);
+  const npDescription = np?.mission || ev.subtitle;
   const [saved, setSaved] = useState(false);
   const [liked, setLiked] = useState(false);
   const [following, setFollowing] = useState(false);
@@ -198,8 +199,8 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
 
             {/* Photo grid */}
             <div className="photo-grid-2">
-              <div style={{ backgroundImage: `url(${ev.photos[2]})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
-              <div style={{ backgroundImage: `url(${ev.photos[3]})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+              <div style={{ backgroundImage: `url(${ev.photos[2] || ev.photos[0]})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+              <div style={{ backgroundImage: `url(${ev.photos[3] || ev.photos[1] || ev.cover})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
             </div>
           </div>
         </div>
@@ -233,7 +234,7 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
           initials={ev.npInitials}
           avatarStyle={{ background: ev.npBg }}
           category={ev.category}
-          description={NP_DESCRIPTION}
+          description={npDescription}
           onViewProfile={() => { setShowNpModal(false); navigate('/np/profile'); }}
         />
 

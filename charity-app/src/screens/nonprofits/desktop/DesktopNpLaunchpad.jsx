@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Clock, Flag, MoreHorizontal, QrCode } from 'lucide-react';
 import { DesktopNpLayout } from '../../../components/desktop/DesktopNpLayout';
 import ShareQRModal from '../../../components/ShareQRModal';
-import { events } from '../../../data/mockData';
+import { events, eventDetailPath } from '../../../data/mockData';
 
 const LIVE_EVENTS = events.map((ev) => ({
   id: ev.id,
+  key: ev.key,
   title: ev.title,
   category: ev.category,
   joined: ev.joined,
@@ -83,8 +84,8 @@ export default function DesktopNpLaunchpad() {
             role="button"
             tabIndex={0}
             aria-label={`View ${ev.title}`}
-            onClick={() => navigate(ev.isLive ? '/guest/event/live' : '/guest/event/upcoming')}
-            onKeyDown={onKey(() => navigate(ev.isLive ? '/guest/event/live' : '/guest/event/upcoming'))}
+            onClick={() => navigate(eventDetailPath(ev, { loggedIn: false }))}
+            onKeyDown={onKey(() => navigate(eventDetailPath(ev, { loggedIn: false })))}
           >
             <div className="dsk-np-event-hero" style={{ backgroundImage: `url(${ev.cover})` }}>
               <span className={`badge ${ev.isLive ? 'badge-live' : 'badge-upcoming'}`}>{ev.isLive ? '● LIVE' : 'UPCOMING'}</span>
