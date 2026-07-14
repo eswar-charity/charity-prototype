@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Pencil, Users, Heart, Calendar, Globe } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
-import Logo from '../../components/Logo';
 
 const TOAST_STYLE = {
   position: 'fixed', bottom: 96, left: '50%', transform: 'translateX(-50%)',
@@ -56,9 +55,6 @@ export default function NpProfile() {
               <button type="button" className="np-profile-hero-btn" onClick={() => navigate('/np/home')} aria-label="Back">
                 <ChevronLeft size={18} color="white" />
               </button>
-              <div className="np-profile-hero-logo">
-                <Logo height={20} />
-              </div>
               <button
                 type="button"
                 className="np-profile-hero-btn"

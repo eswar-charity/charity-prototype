@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { liveActivities, buildDonationSuccessUrl, getHappeningNowReel, EVENT_CREATOR, getEventByKey, eventLivePath, eventDisplayTitle, getEventBanner } from '../../data/mockData';
 import { EventImage, EventImageBanner } from '../../components/event/EventImage';
+import MobileShareModal from '../../components/MobileShareModal';
 
 function buildChatSeed(ev) {
   return [
@@ -313,6 +314,7 @@ export default function EventDetailLive({ loggedIn = false }) {
   const [chatInput, setChatInput]         = useState('');
   const [messages, setMessages]           = useState(() => buildChatSeed(ev));
   const [showAbout, setShowAbout]         = useState(false);
+  const [showShare, setShowShare]         = useState(false);
   const [joined, setJoined]               = useState(false);
   const [toast, setToast]                 = useState('');
 
@@ -379,7 +381,7 @@ export default function EventDetailLive({ loggedIn = false }) {
               <button className="ev-hero-btn" onClick={() => setShowAbout(true)} aria-label="Event details">
                 <Info size={16} color="white" />
               </button>
-              <button className="ev-hero-btn" onClick={() => navigate('/guest/share')} aria-label="Share">
+              <button className="ev-hero-btn" onClick={() => setShowShare(true)} aria-label="Share">
                 <Share2 size={16} color="white" />
               </button>
             </div>
@@ -515,6 +517,15 @@ export default function EventDetailLive({ loggedIn = false }) {
               </button>
             </div>
           </div>
+        )}
+
+        {showShare && (
+          <MobileShareModal
+            title={eventDisplayTitle(ev.title)}
+            subtitle={`${ev.nonprofit} · verified`}
+            url={`https://charity-prototype.vercel.app${eventLivePath(ev.key)}`}
+            onClose={() => setShowShare(false)}
+          />
         )}
 
         {toast && (

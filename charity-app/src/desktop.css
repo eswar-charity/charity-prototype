@@ -524,7 +524,7 @@
 }
 .dsk-ev-hero-live {
   display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(6px);
+  background: var(--primary);
   color: white;
   font-size: 11px; font-weight: 700; letter-spacing: 0.3px;
   padding: 6px 12px; border-radius: var(--radius-pill);
@@ -548,10 +548,7 @@
   letter-spacing: -0.8px;
   margin: 0;
   display: inline-block;
-  background: rgba(0, 0, 0, 0.42);
-  backdrop-filter: blur(6px);
-  padding: 10px 22px;
-  border-radius: 18px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
   line-height: 1.15;
 }
 .dsk-ev-hero-sub {

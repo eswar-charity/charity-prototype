@@ -396,7 +396,6 @@ export default function DesktopEventDetail({ loggedIn = false }) {
                 {joined ? <Check size={15} strokeWidth={3} /> : <UserPlus size={15} />}
                 {joined ? 'Joined' : 'Join event'}
               </button>
-              <button className="dsk-sidebar-back-btn" onClick={() => setActiveTab('support')}>Back this event</button>
               <button className="dsk-sidebar-share-btn" onClick={() => setShowShare(true)}>Share</button>
               <div className="dsk-sidebar-stats">
                 <span><Users size={13} /> {ev.backed} backing</span>
