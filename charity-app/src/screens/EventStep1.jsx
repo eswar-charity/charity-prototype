@@ -1,23 +1,30 @@
+import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Camera, Plus, X } from 'lucide-react';
 import { useCreateEventDraft, updateDraft } from '../hooks/useCreateEventDraft';
 import MobileAppHeader from '../components/MobileAppHeader';
 
-const POOL = [
-  '/events/neon-night/img1.jpg',
-  '/events/neon-night/img2.jpg',
-  '/events/neon-night/img3.jpg',
-];
-
 export default function EventStep1() {
   const navigate = useNavigate();
   const draft = useCreateEventDraft();
+  const fileInputRef = useRef(null);
 
   const removePhoto = (id) => updateDraft({ photos: draft.photos.filter((p) => p.id !== id) });
-  const addPhoto = () => {
-    if (draft.photos.length >= 10) return;
-    const nextId = draft.photos.reduce((m, p) => Math.max(m, p.id), 0) + 1;
-    updateDraft({ photos: [...draft.photos, { id: nextId, src: POOL[draft.photos.length % POOL.length] }] });
+
+  const openFilePicker = () => fileInputRef.current?.click();
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (!files.length) return;
+    const remaining = 10 - draft.photos.length;
+    if (remaining <= 0) return;
+    let nextId = draft.photos.reduce((m, p) => Math.max(m, p.id), 0);
+    const newPhotos = files.slice(0, remaining).map((file) => {
+      nextId += 1;
+      return { id: nextId, src: URL.createObjectURL(file), type: file.type.startsWith('video') ? 'video' : 'image' };
+    });
+    updateDraft({ photos: [...draft.photos, ...newPhotos] });
   };
 
   return (
@@ -41,16 +48,24 @@ export default function EventStep1() {
             <div style={{ textAlign: 'right', fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
               Up to 10 items
             </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,video/*"
+              multiple
+              style={{ display: 'none' }}
+              onChange={handleFileChange}
+            />
             <div
               className="upload-area"
               role="button"
               tabIndex={0}
               aria-label="Add photos or video"
-              onClick={addPhoto}
+              onClick={openFilePicker}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  addPhoto();
+                  openFilePicker();
                 }
               }}
               style={{ cursor: 'pointer' }}
@@ -65,7 +80,7 @@ export default function EventStep1() {
               <button
                 type="button"
                 className="btn-outline"
-                onClick={(e) => { e.stopPropagation(); addPhoto(); }}
+                onClick={(e) => { e.stopPropagation(); openFilePicker(); }}
                 style={{ width: 'auto', marginTop: 14, padding: '9px 24px', fontSize: 14 }}
               >
                 Choose from library
@@ -76,10 +91,14 @@ export default function EventStep1() {
           <div className="photo-strip" style={{ marginBottom: 24 }}>
             {draft.photos.map((p) => (
               <div key={p.id} style={{ position: 'relative', flexShrink: 0 }}>
-                <div
-                  className="photo-thumb"
-                  style={{ backgroundImage: `url(${p.src})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-                />
+                {p.type === 'video' ? (
+                  <video className="photo-thumb" src={p.src} muted playsInline style={{ objectFit: 'cover' }} />
+                ) : (
+                  <div
+                    className="photo-thumb"
+                    style={{ backgroundImage: `url(${p.src})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+                  />
+                )}
                 <button
                   type="button"
                   aria-label="Remove photo"
@@ -97,7 +116,7 @@ export default function EventStep1() {
             <button
               type="button"
               aria-label="Add photo"
-              onClick={addPhoto}
+              onClick={openFilePicker}
               style={{
                 width: 70, height: 70, border: '1.5px dashed var(--border)', borderRadius: 10,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',

@@ -18,7 +18,7 @@ const DEFAULT_DRAFT = {
   endDate: 'Oct 14, 2025',
   startTime: '9:00 AM',
   endTime: '9:00 PM',
-  location: '',
+  location: 'Central Park, New York NY',
   visibility: 'public',
   previewLiked: false,
   inviteSent: false,

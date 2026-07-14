@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, Plus, X } from 'lucide-react';
 import DesktopCreateEventLayout from '../../components/desktop/DesktopCreateEventLayout';
@@ -6,15 +7,24 @@ import { useCreateEventDraft, updateDraft } from '../../hooks/useCreateEventDraf
 export default function DesktopEventStep1() {
   const navigate = useNavigate();
   const draft = useCreateEventDraft();
+  const fileInputRef = useRef(null);
 
   const removePhoto = (id) => updateDraft({ photos: draft.photos.filter((p) => p.id !== id) });
 
-  const STOCK = ['/events/neon-night/img1.jpg', '/events/neon-night/img2.jpg', '/events/neon-night/img3.jpg'];
-  const addPhoto = () => {
-    if (draft.photos.length >= 10) return;
-    const nextId = draft.photos.reduce((m, p) => Math.max(m, p.id), 0) + 1;
-    const src = STOCK[draft.photos.length % STOCK.length];
-    updateDraft({ photos: [...draft.photos, { id: nextId, src }] });
+  const openFilePicker = () => fileInputRef.current?.click();
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (!files.length) return;
+    const remaining = 10 - draft.photos.length;
+    if (remaining <= 0) return;
+    let nextId = draft.photos.reduce((m, p) => Math.max(m, p.id), 0);
+    const newPhotos = files.slice(0, remaining).map((file) => {
+      nextId += 1;
+      return { id: nextId, src: URL.createObjectURL(file), type: file.type.startsWith('video') ? 'video' : 'image' };
+    });
+    updateDraft({ photos: [...draft.photos, ...newPhotos] });
   };
 
   return (
@@ -25,12 +35,20 @@ export default function DesktopEventStep1() {
       <div style={{ textAlign: 'right', fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
         Up to 10 items
       </div>
-      <div className="upload-area" onClick={addPhoto} style={{ cursor: 'pointer' }}>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,video/*"
+        multiple
+        style={{ display: 'none' }}
+        onChange={handleFileChange}
+      />
+      <div className="upload-area" onClick={openFilePicker} style={{ cursor: 'pointer' }}>
         <Camera size={26} color="var(--primary)" />
         <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)', marginTop: 8 }}>
           Drag photos or video here, or browse
         </p>
-        <button className="btn-outline" style={{ width: 'auto', marginTop: 14, padding: '9px 24px', fontSize: 14 }} onClick={(e) => { e.stopPropagation(); addPhoto(); }}>
+        <button className="btn-outline" style={{ width: 'auto', marginTop: 14, padding: '9px 24px', fontSize: 14 }} onClick={(e) => { e.stopPropagation(); openFilePicker(); }}>
           Choose files
         </button>
       </div>
@@ -38,7 +56,11 @@ export default function DesktopEventStep1() {
       <div className="photo-strip" style={{ margin: '20px 0 28px' }}>
         {draft.photos.map((p) => (
           <div key={p.id} style={{ position: 'relative', flexShrink: 0 }}>
-            <div className="photo-thumb" style={{ backgroundImage: `url(${p.src})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+            {p.type === 'video' ? (
+              <video className="photo-thumb" src={p.src} muted playsInline style={{ objectFit: 'cover' }} />
+            ) : (
+              <div className="photo-thumb" style={{ backgroundImage: `url(${p.src})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+            )}
             <button
               onClick={() => removePhoto(p.id)}
               style={{
@@ -52,7 +74,7 @@ export default function DesktopEventStep1() {
           </div>
         ))}
         <div
-          onClick={addPhoto}
+          onClick={openFilePicker}
           style={{
             width: 70, height: 70, border: '1.5px dashed var(--border)', borderRadius: 10,
             display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, background: 'var(--white)',
