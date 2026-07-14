@@ -8,6 +8,7 @@ import {
 import { liveActivities, buildDonationSuccessUrl, getHappeningNowReel, EVENT_CREATOR, getEventByKey, eventLivePath, eventDisplayTitle, getEventBanner } from '../../data/mockData';
 import { EventImage, EventImageBanner } from '../../components/event/EventImage';
 import MobileShareModal from '../../components/MobileShareModal';
+import MobileJoinModal from '../../components/MobileJoinModal';
 
 function buildChatSeed(ev) {
   return [
@@ -315,6 +316,7 @@ export default function EventDetailLive({ loggedIn = false }) {
   const [messages, setMessages]           = useState(() => buildChatSeed(ev));
   const [showAbout, setShowAbout]         = useState(false);
   const [showShare, setShowShare]         = useState(false);
+  const [showJoin, setShowJoin]           = useState(false);
   const [joined, setJoined]               = useState(false);
   const [toast, setToast]                 = useState('');
 
@@ -328,7 +330,7 @@ export default function EventDetailLive({ loggedIn = false }) {
   // while a logged-in SE can chat freely.
   const requireJoin = () => {
     if (loggedIn) return false;
-    navigate('/guest/join');
+    setShowJoin(true);
     return true;
   };
 
@@ -337,7 +339,7 @@ export default function EventDetailLive({ loggedIn = false }) {
   // identified) joins immediately.
   const handleJoin = () => {
     if (!loggedIn) {
-      navigate('/guest/join');
+      setShowJoin(true);
       return;
     }
     setJoined(true);
@@ -462,7 +464,7 @@ export default function EventDetailLive({ loggedIn = false }) {
               </>
             ) : (
               <div className="ev-tab-content">
-                <GuestChatGate onSignUp={() => navigate('/guest/join')} />
+                <GuestChatGate onSignUp={() => setShowJoin(true)} />
               </div>
             )
           ) : (
@@ -525,6 +527,14 @@ export default function EventDetailLive({ loggedIn = false }) {
             subtitle={`${ev.nonprofit} · verified`}
             url={`https://charity-prototype.vercel.app${eventLivePath(ev.key)}`}
             onClose={() => setShowShare(false)}
+          />
+        )}
+
+        {showJoin && (
+          <MobileJoinModal
+            title={eventDisplayTitle(ev.title)}
+            subtitle={ev.nonprofit}
+            onClose={() => setShowJoin(false)}
           />
         )}
 

@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, Bookmark, MapPin, Share2, Heart, Calendar, ChevronRight } from 'lucide-react';
 import { NonprofitLearnMoreModal, EventBackersModal } from '../../components/event/EventModals';
-import { slugify, getEventByKey, getNonprofitForEvent, eventDisplayTitle, getCommunityPhotos } from '../../data/mockData';
+import { slugify, getEventByKey, getNonprofitForEvent, eventDisplayTitle, getCommunityPhotos, eventUpcomingPath } from '../../data/mockData';
 import { EventImageBanner } from '../../components/event/EventImage';
+import MobileShareModal from '../../components/MobileShareModal';
+import MobileJoinModal from '../../components/MobileJoinModal';
 
 const BACKER_COLORS = ['var(--primary)', 'var(--primary-hover)', '#5BB8F5', '#1A6EB5', 'var(--secondary-soft)'];
 
@@ -19,6 +21,8 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
   const [backed, setBacked] = useState(false);
   const [showNpModal, setShowNpModal] = useState(false);
   const [showBackersModal, setShowBackersModal] = useState(false);
+  const [showShare, setShowShare] = useState(false);
+  const [showJoin, setShowJoin] = useState(false);
 
   return (
     <div className="phone-shell">
@@ -204,7 +208,7 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
 
         {/* Sticky bottom bar */}
         <div className="event-bar">
-          <button className="event-bar-icon" onClick={() => navigate('/guest/share')} aria-label="Share event">
+          <button className="event-bar-icon" onClick={() => setShowShare(true)} aria-label="Share event">
             <Share2 size={18} color="var(--dark)" />
           </button>
           <button
@@ -214,7 +218,7 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
                 setBacked((prev) => !prev);
                 return;
               }
-              navigate('/guest/join');
+              setShowJoin(true);
             }}
           >
             {backed ? 'Backed ✓' : 'Back this event'}
@@ -242,6 +246,23 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
           eventTitle={ev.title}
           raised={ev.raised}
         />
+
+        {showShare && (
+          <MobileShareModal
+            title={eventDisplayTitle(ev.title)}
+            subtitle={`${ev.nonprofit} · verified`}
+            url={`https://charity-prototype.vercel.app${eventUpcomingPath(ev.key)}`}
+            onClose={() => setShowShare(false)}
+          />
+        )}
+
+        {showJoin && (
+          <MobileJoinModal
+            title={eventDisplayTitle(ev.title)}
+            subtitle={ev.nonprofit}
+            onClose={() => setShowJoin(false)}
+          />
+        )}
       </div>
     </div>
   );

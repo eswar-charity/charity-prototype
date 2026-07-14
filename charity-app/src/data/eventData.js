@@ -28,6 +28,7 @@ export const EVENT_CATALOG = [
     nonprofit: 'Hoboken Homeless Home',
     mission: "Let's throw back to the 80's and party for the people!",
     category: 'Community',
+    backed: 213, joined: 87, chatCount: 212, raised: 14280, updates: 38,
   },
   {
     id: 2,
@@ -37,6 +38,7 @@ export const EVENT_CATALOG = [
     nonprofit: 'Windham Mountain Conservatory',
     mission: "Snowboarding + Giving makes for the best Apre'!",
     category: 'Sports',
+    backed: 89, joined: 44, chatCount: 56, raised: 5400, updates: 12,
   },
   {
     id: 3,
@@ -46,6 +48,7 @@ export const EVENT_CATALOG = [
     nonprofit: 'Center For Sight Restoration',
     mission: 'Bring your good times to the course and may the best shooter win.',
     category: 'Sports',
+    backed: 72, joined: 36, chatCount: 48, raised: 6800, updates: 15,
   },
   {
     id: 4,
@@ -55,6 +58,7 @@ export const EVENT_CATALOG = [
     nonprofit: 'Bergen County Rescue Shelter',
     mission: 'Give some street cred to all the Dog Dads who stepped up and rescued a pooch.',
     category: 'Animals',
+    backed: 56, joined: 28, chatCount: 34, raised: 3200, updates: 8,
   },
   {
     id: 5,
@@ -64,6 +68,7 @@ export const EVENT_CATALOG = [
     nonprofit: 'Hudson Valley Trail Society',
     mission: "Don't give up and don't break your neck.",
     category: 'Environment',
+    backed: 145, joined: 62, chatCount: 89, raised: 8920, updates: 24,
   },
 ];
 
@@ -113,11 +118,11 @@ export function buildEvents(seOrganizer) {
       startTime: 'TBA',
       endTime: 'TBA',
       location: 'TBA',
-      backed: 0,
-      joined: 0,
-      updates: photos.length,
-      chatCount: 0,
-      raised: 0,
+      backed: entry.backed ?? 0,
+      joined: entry.joined ?? 0,
+      updates: entry.updates ?? photos.length,
+      chatCount: entry.chatCount ?? 0,
+      raised: entry.raised ?? 0,
       isLive: true,
       cover: photos[0],
       photos,
