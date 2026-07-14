@@ -44,8 +44,8 @@ export default function DesktopEventStep4() {
           <div className="dsk-wizard-final-meta">
             <span>for {nonprofit ? nonprofit.name : '[Nonprofit]'} · by You</span>
             <div className="dsk-wizard-final-stats">
-              <span><Users size={13} /> {backingCount} backing</span>
-              <span><MessageCircle size={13} /> 0 in chat</span>
+              <span><Users size={13} /> {backingCount} joined</span>
+              <span><MessageCircle size={13} /> 6 in chat</span>
               <button
                 type="button"
                 className="dsk-wizard-preview-like"
