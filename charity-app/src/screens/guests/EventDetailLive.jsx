@@ -5,7 +5,7 @@ import {
   Plus, Camera, ArrowUp, MoreHorizontal,
   Images, MessageCircle, HandHeart, PartyPopper, Check, UserPlus,
 } from 'lucide-react';
-import { liveActivities, buildDonationSuccessUrl, getHappeningNowReel, EVENT_CREATOR, getEventByKey, eventLivePath, eventDisplayTitle } from '../../data/mockData';
+import { liveActivities, buildDonationSuccessUrl, getHappeningNowReel, EVENT_CREATOR, getEventByKey, eventLivePath, eventDisplayTitle, getEventBanner } from '../../data/mockData';
 import { EventImage, EventImageBanner } from '../../components/event/EventImage';
 
 function buildChatSeed(ev) {
@@ -306,7 +306,7 @@ export default function EventDetailLive({ loggedIn = false }) {
   const navigate = useNavigate();
   const { eventKey } = useParams();
   const ev = getEventByKey(eventKey);
-  const heroImage = ev.photos[1] || ev.cover;
+  const heroImage = getEventBanner(ev);
   const [activeTab, setActiveTab]         = useState('community');
   const [liked, setLiked]                 = useState(false);
   const [selectedAmount, setSelectedAmount] = useState(25);

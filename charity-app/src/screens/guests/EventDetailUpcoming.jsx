@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, Bookmark, MapPin, Share2, Heart, Calendar, ChevronRight } from 'lucide-react';
 import { NonprofitLearnMoreModal, EventBackersModal } from '../../components/event/EventModals';
-import { slugify, getEventByKey, getNonprofitForEvent, eventDisplayTitle } from '../../data/mockData';
+import { slugify, getEventByKey, getNonprofitForEvent, eventDisplayTitle, getCommunityPhotos } from '../../data/mockData';
 import { EventImageBanner } from '../../components/event/EventImage';
 
 const BACKER_COLORS = ['var(--primary)', 'var(--primary-hover)', '#5BB8F5', '#1A6EB5', 'var(--secondary-soft)'];
@@ -195,8 +195,9 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
 
             {/* Photo grid */}
             <div className="photo-grid-2">
-              <EventImageBanner src={ev.photos[2] || ev.photos[0]} alt="" variant="grid" />
-              <EventImageBanner src={ev.photos[3] || ev.photos[1] || ev.cover} alt="" variant="grid" />
+              {getCommunityPhotos(ev).map((src) => (
+                <EventImageBanner key={src} src={src} alt="" variant="grid" />
+              ))}
             </div>
           </div>
         </div>

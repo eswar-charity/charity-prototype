@@ -76,18 +76,25 @@ export function EventImageBanner({
   variant = 'card',
   className = '',
   style,
+  objectPosition,
   children,
 }) {
   if (!src) return null;
 
-  const fillCover = variant === 'np-tile' || variant === 'compact';
+  const fillCover = variant === 'np-tile' || variant === 'compact' || variant === 'hero';
 
   return (
     <div
       className={`event-img-banner event-img-banner--${variant}${className ? ` ${className}` : ''}`}
       style={style}
     >
-      <EventImage src={src} alt={alt} fill fit={fillCover ? 'cover' : 'smart'} />
+      <EventImage
+        src={src}
+        alt={alt}
+        fill
+        fit={fillCover ? 'cover' : 'smart'}
+        style={objectPosition ? { objectPosition } : undefined}
+      />
       {children}
     </div>
   );

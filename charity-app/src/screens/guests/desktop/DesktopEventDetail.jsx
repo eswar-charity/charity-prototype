@@ -7,7 +7,7 @@ import {
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
 import DesktopJoinGateModal from '../../../components/desktop/DesktopJoinGateModal';
-import { liveActivities, slugify, buildDonationSuccessUrl, getHappeningNowReel, EVENT_CREATOR, getEventByKey, eventLivePath, eventDisplayTitle } from '../../../data/mockData';
+import { liveActivities, slugify, buildDonationSuccessUrl, EVENT_CREATOR, getEventByKey, eventLivePath, eventDisplayTitle, getEventBanner, getEventBannerFocus, getCommunityPhotos } from '../../../data/mockData';
 import { EventImage, EventImageBanner } from '../../../components/event/EventImage';
 
 const TABS = [
@@ -76,7 +76,8 @@ function AboutModal({ ev, onClose, following, onToggleFollow }) {
 }
 
 function CommunityTab({ ev }) {
-  const reel = getHappeningNowReel(ev).slice(1);
+  const community = getCommunityPhotos(ev);
+  const [featured, ...rest] = community.length ? community : [getEventBanner(ev)].filter(Boolean);
 
   return (
     <div className="dsk-tab-panel">
@@ -85,20 +86,22 @@ function CommunityTab({ ev }) {
         <span className="dsk-live-pill"><span className="live-dot" /> LIVE</span>
       </div>
 
-      <EventImageBanner src={getHappeningNowReel(ev)[0]?.src || ev.photos[1]} alt="" variant="community" className="dsk-community-hero">
-        <div className="dsk-community-hero-play"><Play size={22} fill="white" color="white" /></div>
-        <div className="dsk-community-hero-caption">
-          <div className="dsk-mini-avatar" style={{ background: EVENT_CREATOR.color }}>{EVENT_CREATOR.initials}</div>
-          <span>{EVENT_CREATOR.name} · Just now</span>
-        </div>
-      </EventImageBanner>
+      {featured && (
+        <EventImageBanner src={featured} alt="" variant="community" className="dsk-community-hero">
+          <div className="dsk-community-hero-play"><Play size={22} fill="white" color="white" /></div>
+          <div className="dsk-community-hero-caption">
+            <div className="dsk-mini-avatar" style={{ background: EVENT_CREATOR.color }}>{EVENT_CREATOR.initials}</div>
+            <span>{EVENT_CREATOR.name} · Just now</span>
+          </div>
+        </EventImageBanner>
+      )}
 
       <div className="dsk-community-grid">
-        {reel.map((item, i) => (
-          <EventImageBanner key={`${item.src}-${i}`} src={item.src} alt={`Photo by ${item.user}`} variant="community" className="dsk-community-thumb">
+        {rest.map((src, i) => (
+          <EventImageBanner key={`${src}-${i}`} src={src} alt={`Photo ${i + 2}`} variant="community" className="dsk-community-thumb">
             <div className="dsk-community-hero-caption">
-              <div className="dsk-mini-avatar" style={{ background: item.color }}>{item.initials}</div>
-              <span>{item.user} · {item.time}</span>
+              <div className="dsk-mini-avatar" style={{ background: EVENT_CREATOR.color }}>{EVENT_CREATOR.initials}</div>
+              <span>{EVENT_CREATOR.name} · {(i + 1) * 2}m ago</span>
             </div>
           </EventImageBanner>
         ))}
@@ -270,7 +273,7 @@ export default function DesktopEventDetail({ loggedIn = false }) {
   const navigate = useNavigate();
   const { eventKey } = useParams();
   const ev = getEventByKey(eventKey);
-  const heroImage = ev.photos[1] || ev.cover;
+  const heroImage = getEventBanner(ev);
   const [activeTab, setActiveTab] = useState('community');
   const [liked, setLiked] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
@@ -310,34 +313,39 @@ export default function DesktopEventDetail({ loggedIn = false }) {
     <div className="dsk-page">
       <DesktopHeader active="Discover" loggedIn={loggedIn} homePath={loggedIn ? '/feed' : '/guest/feed'} />
 
-      <EventImageBanner src={heroImage} alt={ev.title} variant="hero" className="dsk-ev-hero">
+      <EventImageBanner src={heroImage} alt={ev.title} variant="hero" className="dsk-ev-hero" objectPosition={getEventBannerFocus(ev)}>
         <div className="dsk-ev-hero-gradient" />
-        <div className="dsk-ev-hero-top">
-          {ev.isLive && (
-            <span className="dsk-ev-hero-live"><span className="live-dot" /> DOORS OPEN · LIVE NOW</span>
-          )}
+        <div className="dsk-ev-hero-overlay">
+          <div className="dsk-ev-hero-copy">
+            {ev.isLive && (
+              <span className="dsk-ev-hero-live"><span className="live-dot" /> DOORS OPEN · LIVE NOW</span>
+            )}
+            <h1 className="dsk-ev-hero-title">{eventDisplayTitle(ev.title)}</h1>
+            <p className="dsk-ev-hero-sub">
+              PRESENTED BY ·{' '}
+              <span
+                role="button"
+                tabIndex={0}
+                aria-label={`View ${ev.organizer}'s profile`}
+                onClick={() => navigate(`/guest/organizer/${slugify(ev.organizer)}`)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate(`/guest/organizer/${slugify(ev.organizer)}`);
+                  }
+                }}
+              >
+                {ev.organizer}
+              </span>
+            </p>
+          </div>
           <div className="dsk-ev-hero-actions">
-            <button className="ev-hero-btn" onClick={() => setShowAbout(true)} aria-label="Event info"><Info size={16} color="white" /></button>
             <button className="ev-hero-btn" onClick={() => setShowShare(true)} aria-label="Share"><Share2 size={16} color="white" /></button>
+            <button className="ev-hero-btn" onClick={() => setShowAbout(true)} aria-label="Event info"><Info size={16} color="white" /></button>
             <button className="ev-hero-btn" onClick={() => setLiked(!liked)} aria-label="Like">
               <Heart size={16} color={liked ? '#FF6B6B' : 'white'} fill={liked ? '#FF6B6B' : 'none'} />
             </button>
           </div>
-        </div>
-        <div className="dsk-ev-hero-bottom">
-          <h1 className="dsk-ev-hero-title">{eventDisplayTitle(ev.title)}</h1>
-          <p className="dsk-ev-hero-sub">PRESENTED BY <span
-            role="button"
-            tabIndex={0}
-            aria-label={`View ${ev.organizer}'s profile`}
-            onClick={() => navigate(`/guest/organizer/${slugify(ev.organizer)}`)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                navigate(`/guest/organizer/${slugify(ev.organizer)}`);
-              }
-            }}
-          >{ev.organizer}</span></p>
         </div>
       </EventImageBanner>
 

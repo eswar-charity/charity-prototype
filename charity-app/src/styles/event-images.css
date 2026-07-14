@@ -24,12 +24,15 @@
   overflow: hidden;
 }
 
-/* Page heroes */
 .event-img-banner--hero > :not(.event-img) {
   position: absolute;
-  z-index: 2;
-  line-height: normal;
+  inset: 0;
+  object-fit: cover;
+  object-position: center top;
+
 }
+
+
 
 .event-img-banner--hero > .ev-hero-gradient,
 .event-img-banner--hero > .dsk-ev-hero-gradient {
@@ -38,11 +41,17 @@
   pointer-events: none;
 }
 
+.event-img-banner--hero > .dsk-ev-hero-overlay {
+  inset: 0;
+  z-index: 2;
+}
+
 .event-img-banner--hero > .dsk-ev-hero-top,
 .event-img-banner--hero > .ev-hero-nav {
   top: 0;
   left: 0;
   right: 0;
+  bottom: auto;
 }
 
 .event-img-banner--hero > .dsk-ev-hero-bottom,
@@ -50,6 +59,7 @@
   bottom: 0;
   left: 0;
   right: 0;
+  top: auto;
 }
 
 /* Feed cards (mobile + desktop) */
@@ -95,8 +105,8 @@
 
 /* Horizontal photo reel */
 .event-img-banner--reel {
-  width: 155px;
-  height: 140px;
+  width: 280px;
+  height: 360px;
   flex-shrink: 0;
   border-radius: 12px;
 }

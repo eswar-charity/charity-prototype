@@ -4,7 +4,7 @@ import { Share2, Bookmark, Calendar, MapPin, Users, ChevronRight } from 'lucide-
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
 import { NonprofitLearnMoreModal, EventBackersModal } from '../../../components/event/EventModals';
-import { slugify, getEventByKey, getNonprofitForEvent, eventDisplayTitle } from '../../../data/mockData';
+import { slugify, getEventByKey, getNonprofitForEvent, eventDisplayTitle, getEventBannerFocus, getCommunityPhotos } from '../../../data/mockData';
 import { EventImageBanner } from '../../../components/event/EventImage';
 
 const BACKER_COLORS = ['var(--primary)', 'var(--primary-hover)', '#5BB8F5', '#1A6EB5', 'var(--secondary-soft)'];
@@ -28,7 +28,7 @@ export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
     <div className="dsk-page">
       <DesktopHeader active="Discover" loggedIn={loggedIn} homePath={loggedIn ? '/feed' : '/guest/feed'} />
 
-      <EventImageBanner src={ev.cover} alt={ev.title} variant="hero" className="dsk-ev-hero">
+      <EventImageBanner src={ev.cover} alt={ev.title} variant="hero" className="dsk-ev-hero" objectPosition={getEventBannerFocus(ev)}>
         <div className="dsk-ev-hero-gradient" />
         <div className="dsk-ev-hero-top">
           <span className="dsk-ev-hero-pill"><Calendar size={12} /> {ev.date} · {ev.startTime}</span>
@@ -116,7 +116,7 @@ export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
               <p className="dsk-modal-section-text" style={{ fontSize: 14 }}>{ev.subtitle}</p>
 
               <div className="dsk-community-grid" style={{ marginTop: 20 }}>
-                {ev.photos.slice(1, 3).map((src) => (
+                {getCommunityPhotos(ev).map((src) => (
                   <EventImageBanner key={src} src={src} alt="" variant="community" className="dsk-community-thumb" />
                 ))}
               </div>

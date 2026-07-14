@@ -1,5 +1,13 @@
 import { BROWSE_CATEGORIES } from './categoryIcons';
-import { buildEvents, buildNonprofits, eventDisplayTitle } from './eventData';
+import {
+  buildEvents,
+  buildNonprofits,
+  eventDisplayTitle,
+  getCommunityPhotos,
+  getEventBanner,
+} from './eventData';
+
+export { eventDisplayTitle, EVENT_CATALOG, getEventBanner, getEventBannerFocus, getCommunityPhotos } from './eventData';
 
 export const SE_ORGANIZER = {
   name: 'Mike Rivera',
@@ -31,11 +39,13 @@ export function getNonprofitProfile(slug) {
 // Event creator — owns the Happening now photo reel (newest content rises to the top).
 export const EVENT_CREATOR = SE_ORGANIZER;
 
-const HAPPENING_NOW_TIMES = ['Just now', '2m ago', '5m ago', '8m ago'];
+const HAPPENING_NOW_TIMES = ['Just now', '2m ago', '5m ago', '8m ago', '12m ago', '15m ago'];
 
+/** Community reel: all unique photos except the cover/banner (which matches story). */
 export function getHappeningNowReel(event = events[0]) {
-  const pool = event.photos.length > 1 ? event.photos.slice(1, 5) : event.photos;
-  return pool.map((src, i) => ({
+  const pool = getCommunityPhotos(event);
+  const fallback = pool.length ? pool : (event?.photos?.length ? [getEventBanner(event)].filter(Boolean) : []);
+  return fallback.map((src, i) => ({
     src,
     user: EVENT_CREATOR.name,
     initials: EVENT_CREATOR.initials,
@@ -89,22 +99,19 @@ export const liveActivities = [
 
 export const eventData = events[0] ? { ...events[0] } : {};
 
-// Story-row items interleaved batch-wise across events (1,2,3,4,5 then repeat)
-// so the reel cycles through every event before showing the next photo round.
+// Story-row items: main cover only per event, cycling 1,2,3,4,5,1,2,3,4,5…
 function buildStoryReel(eventList) {
-  const maxPhotos = Math.max(...eventList.map((ev) => ev.photos.length), 0);
+  const cycles = Math.max(...eventList.map((ev) => ev.photos.length), 1);
   const reel = [];
-  for (let i = 0; i < maxPhotos; i += 1) {
+  for (let c = 0; c < cycles; c += 1) {
     for (const ev of eventList) {
-      if (ev.photos[i]) {
-        reel.push({
-          id: `${ev.key}-${i}`,
-          src: ev.photos[i],
-          title: ev.title,
-          category: ev.category,
-          event: ev,
-        });
-      }
+      reel.push({
+        id: `${ev.key}-${c}`,
+        src: ev.cover,
+        title: ev.title,
+        category: ev.category,
+        event: ev,
+      });
     }
   }
   return reel;
@@ -184,8 +191,6 @@ export function getNonprofitForEvent(ev) {
 export function getEventKeyByTitle(title) {
   return events.find((e) => e.title === title || eventDisplayTitle(e.title) === title)?.key || events[0].key;
 }
-
-export { eventDisplayTitle, EVENT_CATALOG } from './eventData';
 
 export function calcDonationReceipt(amount) {
   const donation = typeof amount === 'number' && amount > 0 ? amount : 25;

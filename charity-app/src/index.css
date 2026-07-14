@@ -2390,7 +2390,7 @@ textarea.input-field {
 /* Photo reel */
 .photo-reel { display: flex; gap: 10px; padding: 0 16px 14px; overflow-x: auto; scrollbar-width: none; }
 .photo-reel::-webkit-scrollbar { display: none; }
-.photo-reel-item { flex-shrink: 0; width: 155px; height: 140px; border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; }
+.photo-reel-item { flex-shrink: 0; width: 280px; height: 360px; border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; }
 .photo-reel-item img { width: 100%; height: 100%; object-fit: cover; }
 .photo-reel-caption {
   position: absolute; bottom: 0; left: 0; right: 0; padding: 6px 8px;
