@@ -4,6 +4,7 @@ import {
   ChevronLeft, Info, Share2, Heart,
   Plus, Camera, ArrowUp, MoreHorizontal,
   Images, MessageCircle, HandHeart, PartyPopper, Check, UserPlus,
+  Calendar, MapPin,
 } from 'lucide-react';
 import { liveActivities, buildDonationSuccessUrl, getHappeningNowReel, EVENT_CREATOR, getEventByKey, eventLivePath, eventDisplayTitle, getEventBanner } from '../../data/mockData';
 import { EventImage, EventImageBanner } from '../../components/event/EventImage';
@@ -499,6 +500,17 @@ export default function EventDetailLive({ loggedIn = false }) {
                     display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
                   }}
                 >✕</button>
+              </div>
+              <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary)', letterSpacing: 0.5, marginBottom: 6 }}>WHEN &amp; WHERE</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <Calendar size={15} color="var(--primary)" style={{ flexShrink: 0 }} />
+                <span style={{ fontSize: 13, color: 'var(--dark)', fontWeight: 600 }}>
+                  {ev.date}{ev.startTime && ev.startTime !== 'TBA' ? ` · ${ev.startTime} – ${ev.endTime}` : ''}
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                <MapPin size={15} color="var(--primary)" style={{ flexShrink: 0 }} />
+                <span style={{ fontSize: 13, color: 'var(--dark)', fontWeight: 600 }}>{ev.location}</span>
               </div>
               <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary)', letterSpacing: 0.5, marginBottom: 6 }}>MISSION</p>
               <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 14 }}>{ev.mission || ev.subtitle}</p>

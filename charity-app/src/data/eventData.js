@@ -28,6 +28,7 @@ export const EVENT_CATALOG = [
     nonprofit: 'Hoboken Homeless Home',
     mission: "Let's throw back to the 80's and party for the people!",
     category: 'Community',
+    date: 'Nov 14, 2026', startTime: '7:00 PM', endTime: '10:00 PM', location: 'Prospect Park, Brooklyn NY',
     backed: 213, joined: 87, chatCount: 212, raised: 14280, updates: 38,
   },
   {
@@ -38,6 +39,7 @@ export const EVENT_CATALOG = [
     nonprofit: 'Windham Mountain Conservatory',
     mission: "Snowboarding + Giving makes for the best Apre'!",
     category: 'Sports',
+    date: 'Dec 12, 2026', startTime: '4:00 PM', endTime: '8:00 PM', location: 'Windham Mountain, NY',
     backed: 89, joined: 44, chatCount: 56, raised: 5400, updates: 12,
   },
   {
@@ -48,6 +50,7 @@ export const EVENT_CATALOG = [
     nonprofit: 'Center For Sight Restoration',
     mission: 'Bring your good times to the course and may the best shooter win.',
     category: 'Sports',
+    date: 'Oct 17, 2026', startTime: '7:00 AM', endTime: '3:00 PM', location: 'Westchester, NY',
     backed: 72, joined: 36, chatCount: 48, raised: 6800, updates: 15,
   },
   {
@@ -58,6 +61,7 @@ export const EVENT_CATALOG = [
     nonprofit: 'Bergen County Rescue Shelter',
     mission: 'Give some street cred to all the Dog Dads who stepped up and rescued a pooch.',
     category: 'Animals',
+    date: 'Nov 21, 2026', startTime: '10:00 AM', endTime: '1:00 PM', location: 'Central Park, New York NY',
     backed: 56, joined: 28, chatCount: 34, raised: 3200, updates: 8,
   },
   {
@@ -68,6 +72,7 @@ export const EVENT_CATALOG = [
     nonprofit: 'Hudson Valley Trail Society',
     mission: "Don't give up and don't break your neck.",
     category: 'Environment',
+    date: 'Oct 24, 2026', startTime: '8:00 AM', endTime: '2:00 PM', location: 'Breakneck Ridge, Hudson Valley NY',
     backed: 145, joined: 62, chatCount: 89, raised: 8920, updates: 24,
   },
 ];
@@ -114,10 +119,10 @@ export function buildEvents(seOrganizer) {
       category: entry.category,
       catColor: style.catColor,
       catBg: style.catBg,
-      date: 'TBA',
-      startTime: 'TBA',
-      endTime: 'TBA',
-      location: 'TBA',
+      date: entry.date ?? 'TBA',
+      startTime: entry.startTime ?? 'TBA',
+      endTime: entry.endTime ?? 'TBA',
+      location: entry.location ?? 'TBA',
       backed: entry.backed ?? 0,
       joined: entry.joined ?? 0,
       updates: entry.updates ?? photos.length,
