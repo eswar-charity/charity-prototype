@@ -175,13 +175,11 @@ export const adminNonprofits = [
    Draft -> Submitted -> Changes Requested -> Approved
         -> Live -> Completed -> Archived / Cancelled / Rejected */
 export const adminEvents = [
-  { id: 1, title: '#NeonNight', nonprofit: 'Hoboken Homeless Home', organizer: 'Mike Rivera', kind: 'SE-led', status: 'Live', joined: 0, raised: 0, flags: 0 },
-  { id: 2, title: "#GiveNowApre'Later", nonprofit: 'Windham Mountain Conservatory', organizer: 'Mike Rivera', kind: 'SE-led', status: 'Live', joined: 0, raised: 0, flags: 0 },
-  { id: 3, title: '#CharityHubGolfOuting', nonprofit: 'Center For Sight Restoration', organizer: 'Mike Rivera', kind: 'SE-led', status: 'Live', joined: 0, raised: 0, flags: 0 },
-  { id: 4, title: '#DogDads', nonprofit: 'Bergen County Rescue Shelter', organizer: 'Mike Rivera', kind: 'SE-led', status: 'Live', joined: 0, raised: 0, flags: 0 },
-  { id: 5, title: '#BreakneckRidgeRun', nonprofit: 'Hudson Valley Trail Society', organizer: 'Mike Rivera', kind: 'SE-led', status: 'Live', joined: 0, raised: 0, flags: 0 },
-  { id: 6, title: 'Books for Bright Minds Gala', nonprofit: 'Books for Communities', organizer: 'Books for Communities', kind: 'Nonprofit-led', status: 'Live', joined: 42, raised: 8920, flags: 1 },
-  { id: 7, title: 'Winter Warmth Drive', nonprofit: 'Food Bank NYC', organizer: 'Food Bank NYC', kind: 'Nonprofit-led', status: 'Changes Requested', joined: 0, raised: 0, flags: 0 },
+  { id: 1, title: '#NeonNight', nonprofit: 'Hoboken Homeless Home', organizer: 'Mike Rivera', kind: 'SE-led', status: 'Live', joined: 87, raised: 14280, flags: 0 },
+  { id: 2, title: "#GiveNowApre'Later", nonprofit: 'Windham Mountain Conservatory', organizer: 'Mike Rivera', kind: 'SE-led', status: 'Live', joined: 44, raised: 5400, flags: 0 },
+  { id: 3, title: '#CharityHubGolfOuting', nonprofit: 'Center For Sight Restoration', organizer: 'Mike Rivera', kind: 'SE-led', status: 'Live', joined: 36, raised: 6800, flags: 0 },
+  { id: 4, title: '#DogDads', nonprofit: 'Bergen County Rescue Shelter', organizer: 'Mike Rivera', kind: 'SE-led', status: 'Live', joined: 28, raised: 3200, flags: 0 },
+  { id: 5, title: '#BreakneckRidgeRun', nonprofit: 'Hudson Valley Trail Society', organizer: 'Mike Rivera', kind: 'SE-led', status: 'Live', joined: 62, raised: 8920, flags: 0 },
 ];
 
 /* Exceptions — payout, donation, dispute, and content edge cases
