@@ -6,8 +6,8 @@ import {
   Images, MessageCircle, HandHeart, PartyPopper, Check, UserPlus,
   Calendar, MapPin,
 } from 'lucide-react';
-import { liveActivities, buildDonationSuccessUrl, getHappeningNowReel, EVENT_CREATOR, getEventByKey, eventLivePath, eventDisplayTitle, getEventBanner } from '../../data/mockData';
-import { EventImage, EventImageBanner } from '../../components/event/EventImage';
+import { buildDonationSuccessUrl, buildCommunityThread, getEventByKey, eventLivePath, eventDisplayTitle, getEventBanner } from '../../data/mockData';
+import { EventImageBanner } from '../../components/event/EventImage';
 import MobileShareModal from '../../components/MobileShareModal';
 import MobileJoinModal from '../../components/MobileJoinModal';
 
@@ -37,8 +37,92 @@ function buildChatSeed(ev) {
 }
 
 /* ── Community Tab ──────────────────────────────────────── */
+function ThreadRow({ post, isLast, showLiveDot, onOpen, variant }) {
+  const isReply = variant === 'reply';
+  const clickable = typeof onOpen === 'function';
+  const mediaClass = isReply
+    ? 'thread-media-reply'
+    : post.mediaSize === 'post' ? 'thread-media-post' : 'thread-media-attachment';
+
+  return (
+    <div
+      className={`thread-post${isReply ? ' thread-post--reply' : ''}${clickable ? ' thread-post--clickable' : ''}`}
+      onClick={clickable ? () => onOpen(post.id) : undefined}
+      role={clickable ? 'button' : undefined}
+      tabIndex={clickable ? 0 : undefined}
+      onKeyDown={clickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(post.id); } } : undefined}
+    >
+      <div className="thread-rail">
+        {showLiveDot && <span className="thread-live-dot" aria-hidden="true" />}
+        <div className="thread-avatar" style={{ background: post.avatarBg }} aria-hidden="true">
+          {post.initials}
+        </div>
+        {!isLast && <span className="thread-rail-line" />}
+      </div>
+
+      <div className="thread-content">
+        <div className="thread-head">
+          <span className="thread-name">
+            {post.name}
+            {post.host && <span className="chat-host-badge">Host</span>}
+            {post.verified && (
+              <span style={{
+                display: 'inline-flex', width: 13, height: 13, borderRadius: '50%',
+                background: 'var(--blue)', color: 'white', fontSize: 8,
+                alignItems: 'center', justifyContent: 'center',
+              }}>✓</span>
+            )}
+          </span>
+          <span className="thread-time">{post.time}</span>
+          {post.showMore && <MoreHorizontal size={14} color="var(--text-light)" aria-hidden="true" />}
+        </div>
+
+        {post.highlight && <p className="thread-highlight">{post.highlight}</p>}
+        {post.text && <p className="thread-text">{post.text}</p>}
+        {post.media && (
+          <EventImageBanner src={post.media} alt={post.mediaAlt} variant="community" className={mediaClass} />
+        )}
+
+        {clickable && post.replies?.length > 0 && (
+          <span className="thread-reply-count">
+            <MessageCircle size={12} aria-hidden="true" />
+            {post.replies.length} {post.replies.length === 1 ? 'reply' : 'replies'}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function CommunityTab({ ev }) {
-  const REEL = getHappeningNowReel(ev);
+  const posts = buildCommunityThread(ev);
+  const [openPostId, setOpenPostId] = useState(null);
+  const openPost = posts.find((p) => p.id === openPostId) || null;
+
+  if (openPost) {
+    return (
+      <>
+        <div className="thread-back-row">
+          <button type="button" className="thread-back-btn" onClick={() => setOpenPostId(null)}>
+            <ChevronLeft size={15} aria-hidden="true" /> 
+          </button>
+        </div>
+
+        <div className="community-thread">
+          <ThreadRow post={openPost} isLast />
+
+          {openPost.replies.length > 0 && (
+            <div className="thread-replies">
+              {openPost.replies.map((reply, i) => (
+                <ThreadRow key={reply.id} post={reply} variant="reply" isLast={i === openPost.replies.length - 1} />
+              ))}
+            </div>
+          )}
+        </div>
+        <div style={{ height: 20 }} />
+      </>
+    );
+  }
 
   return (
     <>
@@ -50,84 +134,11 @@ function CommunityTab({ ev }) {
         </span>
       </div>
 
-      {/* Photo reel */}
-      <div className="photo-reel">
-        {REEL.map((item, i) => (
-          <EventImageBanner key={i} src={item.src} alt={`Photo shared by ${item.user}`} variant="reel" className="photo-reel-item">
-            <div className="photo-reel-caption">
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                <div style={{
-                  width: 20, height: 20, borderRadius: '50%', background: item.color,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 8, fontWeight: 700, color: 'white', flexShrink: 0,
-                }}>{item.initials}</div>
-                <span className="photo-reel-name">
-                  {item.user}
-                  {item.isCreator && (
-                    <span style={{ fontWeight: 500, opacity: 0.9 }}> · Host</span>
-                  )}
-                </span>
-              </div>
-              <span className="photo-reel-time">{item.time}</span>
-            </div>
-          </EventImageBanner>
+      <div className="community-thread">
+        {posts.map((post, i) => (
+          <ThreadRow key={post.id} post={post} isLast={i === posts.length - 1} showLiveDot={i === 0} onOpen={setOpenPostId} />
         ))}
       </div>
-
-      {/* Dot pagination */}
-      <div className="reel-dots">
-        {REEL.map((_, i) => (
-          <div key={i} className={`reel-dot ${i === 0 ? 'active' : ''}`} />
-        ))}
-      </div>
-
-      {/* Donation activity */}
-      <div className="ev-activity-item">
-        <div className="ev-activity-avatar" style={{ background: 'linear-gradient(135deg,#1976D2,#42A5F5)' }}>MK</div>
-        <div style={{ flex: 1 }}>
-          <div className="ev-activity-header">
-            <span className="ev-activity-user">Michael K.</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span className="ev-activity-time">1h ago</span>
-              <MoreHorizontal size={14} color="var(--text-light)" />
-            </div>
-          </div>
-          <p className="ev-activity-text" style={{ color: 'var(--primary)', fontWeight: 600 }}>Just donated $50</p>
-          <p className="ev-activity-text" style={{ marginTop: 3 }}>
-            Such a beautiful event! So happy to support this amazing cause.
-          </p>
-        </div>
-      </div>
-
-      {liveActivities.map((item) => (
-        <div key={item.id} className="ev-activity-item">
-          <div
-            className="ev-activity-avatar"
-            style={{ background: `linear-gradient(135deg, ${item.color}, ${item.color}99)` }}
-          >{item.initials}</div>
-          <div style={{ flex: 1 }}>
-            <div className="ev-activity-header">
-              <span className="ev-activity-user">
-                {item.user}
-                {item.isOrganizer && (
-                  <span style={{
-                    display: 'inline-flex', width: 13, height: 13, borderRadius: '50%',
-                    background: 'var(--blue)', color: 'white', fontSize: 8,
-                    alignItems: 'center', justifyContent: 'center', verticalAlign: 'middle', marginLeft: 4,
-                  }}>✓</span>
-                )}
-              </span>
-              <span className="ev-activity-time">{item.time}</span>
-            </div>
-            <p className="ev-activity-text" style={{ marginTop: 3 }}>{item.text}</p>
-            {item.hasImage && (
-              <div className="event-img-frame event-img-frame--activity" style={{ marginTop: 8 }}>
-                <EventImage src={item.image} alt={`Photo shared by ${item.user}`} fill />
-              </div>
-            )}
-          </div>
-        </div>
-      ))}
       <div style={{ height: 20 }} />
     </>
   );

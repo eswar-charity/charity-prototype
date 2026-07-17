@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  Share2, Heart, X, Calendar, MapPin, Plus, Camera, ArrowUp,
-  MessageCircle, Users, Play, Info, PartyPopper, Check, UserPlus,
+  Share2, Heart, X, Calendar, MapPin, Plus, Camera, ArrowUp, ChevronLeft,
+  MessageCircle, Users, Info, PartyPopper, Check, UserPlus,
 } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
 import DesktopJoinGateModal from '../../../components/desktop/DesktopJoinGateModal';
-import { liveActivities, slugify, buildDonationSuccessUrl, EVENT_CREATOR, getEventByKey, eventLivePath, eventDisplayTitle, getEventBanner, getEventBannerFocus, getCommunityPhotos } from '../../../data/mockData';
-import { EventImage, EventImageBanner } from '../../../components/event/EventImage';
+import { slugify, buildDonationSuccessUrl, buildCommunityThread, getEventByKey, eventLivePath, eventDisplayTitle, getEventBanner, getEventBannerFocus } from '../../../data/mockData';
+import { EventImageBanner } from '../../../components/event/EventImage';
 
 const TABS = [
   { id: 'community', label: 'Community', sub: 'Photos & moments' },
@@ -75,9 +75,84 @@ function AboutModal({ ev, onClose, following, onToggleFollow }) {
   );
 }
 
+function ThreadRow({ post, isLast, showLiveDot, onOpen, variant }) {
+  const isReply = variant === 'reply';
+  const clickable = typeof onOpen === 'function';
+  const mediaClass = isReply
+    ? 'thread-media-reply'
+    : post.mediaSize === 'post' ? 'thread-media-post' : 'thread-media-attachment';
+
+  return (
+    <div
+      className={`thread-post${isReply ? ' thread-post--reply' : ''}${clickable ? ' thread-post--clickable' : ''}`}
+      onClick={clickable ? () => onOpen(post.id) : undefined}
+      role={clickable ? 'button' : undefined}
+      tabIndex={clickable ? 0 : undefined}
+      onKeyDown={clickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(post.id); } } : undefined}
+    >
+      <div className="thread-rail">
+        {showLiveDot && <span className="thread-live-dot" aria-hidden="true" />}
+        <div className="thread-avatar" style={{ background: post.avatarBg }} aria-hidden="true">
+          {post.initials}
+        </div>
+        {!isLast && <span className="thread-rail-line" />}
+      </div>
+
+      <div className="thread-content">
+        <div className="thread-head">
+          <span className="thread-name">
+            {post.name}
+            {post.host && <span className="chat-host-badge">Host</span>}
+            {post.verified && <span className="dsk-verify-dot">✓</span>}
+          </span>
+          <span className="thread-time">{post.time}</span>
+        </div>
+
+        {post.highlight && <p className="thread-highlight">{post.highlight}</p>}
+        {post.text && <p className="thread-text">{post.text}</p>}
+        {post.media && (
+          <EventImageBanner src={post.media} alt={post.mediaAlt} variant="community" className={mediaClass} />
+        )}
+
+        {clickable && post.replies?.length > 0 && (
+          <span className="thread-reply-count">
+            <MessageCircle size={12} aria-hidden="true" />
+            {post.replies.length} {post.replies.length === 1 ? 'reply' : 'replies'}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function CommunityTab({ ev }) {
-  const community = getCommunityPhotos(ev);
-  const [featured, ...rest] = community.length ? community : [getEventBanner(ev)].filter(Boolean);
+  const posts = buildCommunityThread(ev);
+  const [openPostId, setOpenPostId] = useState(null);
+  const openPost = posts.find((p) => p.id === openPostId) || null;
+
+  if (openPost) {
+    return (
+      <div className="dsk-tab-panel">
+        <div className="thread-back-row thread-back-row--panel">
+          <button type="button" className="thread-back-btn" onClick={() => setOpenPostId(null)}>
+            <ChevronLeft size={15} aria-hidden="true" /> Community
+          </button>
+        </div>
+
+        <div className="community-thread community-thread--panel">
+          <ThreadRow post={openPost} isLast />
+
+          {openPost.replies.length > 0 && (
+            <div className="thread-replies">
+              {openPost.replies.map((reply, i) => (
+                <ThreadRow key={reply.id} post={reply} variant="reply" isLast={i === openPost.replies.length - 1} />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="dsk-tab-panel">
@@ -86,44 +161,9 @@ function CommunityTab({ ev }) {
         <span className="dsk-live-pill"><span className="live-dot" /> LIVE</span>
       </div>
 
-      {featured && (
-        <EventImageBanner src={featured} alt="" variant="community" className="dsk-community-hero">
-          <div className="dsk-community-hero-play"><Play size={22} fill="white" color="white" /></div>
-          <div className="dsk-community-hero-caption">
-            <div className="dsk-mini-avatar" style={{ background: EVENT_CREATOR.color }}>{EVENT_CREATOR.initials}</div>
-            <span>{EVENT_CREATOR.name} · Just now</span>
-          </div>
-        </EventImageBanner>
-      )}
-
-      <div className="dsk-community-grid">
-        {rest.map((src, i) => (
-          <EventImageBanner key={`${src}-${i}`} src={src} alt={`Photo ${i + 2}`} variant="community" className="dsk-community-thumb">
-            <div className="dsk-community-hero-caption">
-              <div className="dsk-mini-avatar" style={{ background: EVENT_CREATOR.color }}>{EVENT_CREATOR.initials}</div>
-              <span>{EVENT_CREATOR.name} · {(i + 1) * 2}m ago</span>
-            </div>
-          </EventImageBanner>
-        ))}
-      </div>
-
-      <div className="dsk-activity-list">
-        <div className="dsk-activity-item">
-          <div className="dsk-activity-avatar" style={{ background: 'linear-gradient(135deg,#1976D2,#42A5F5)' }}>MK</div>
-          <div>
-            <div className="dsk-activity-header"><span>Michael K.</span><span className="dsk-activity-time">1h ago</span></div>
-            <p className="dsk-activity-highlight">Just donated $50</p>
-            <p className="dsk-activity-text">Such a beautiful event! So happy to support this amazing cause.</p>
-          </div>
-        </div>
-        {liveActivities.map((item) => (
-          <div key={item.id} className="dsk-activity-item">
-            <div className="dsk-activity-avatar" style={{ background: `linear-gradient(135deg, ${item.color}, ${item.color}99)` }}>{item.initials}</div>
-            <div>
-              <div className="dsk-activity-header"><span>{item.user}{item.isOrganizer && <span className="dsk-verify-dot">✓</span>}</span><span className="dsk-activity-time">{item.time}</span></div>
-              <p className="dsk-activity-text">{item.text}</p>
-            </div>
-          </div>
+      <div className="community-thread community-thread--panel">
+        {posts.map((post, i) => (
+          <ThreadRow key={post.id} post={post} isLast={i === posts.length - 1} showLiveDot={i === 0} onOpen={setOpenPostId} />
         ))}
       </div>
     </div>

@@ -2387,32 +2387,62 @@ textarea.input-field {
   padding: 3px 8px; border-radius: 20px; display: flex; align-items: center; gap: 3px;
 }
 
-/* Photo reel */
-.photo-reel { display: flex; gap: 10px; padding: 0 16px 14px; overflow-x: auto; scrollbar-width: none; }
-.photo-reel::-webkit-scrollbar { display: none; }
-.photo-reel-item { flex-shrink: 0; width: 280px; height: 360px; border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; }
-.photo-reel-item img { width: 100%; height: 100%; object-fit: cover; }
-.photo-reel-caption {
-  position: absolute; bottom: 0; left: 0; right: 0; padding: 6px 8px;
-  background: linear-gradient(to top, rgba(0,0,0,0.52), transparent);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.photo-reel-name { font-size: 11px; color: white; font-weight: 600; }
-.photo-reel-time { font-size: 10px; color: rgba(255,255,255,0.8); }
-.reel-dots { display: flex; gap: 5px; justify-content: center; padding: 0 0 12px; }
-.reel-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
-.reel-dot.active { background: var(--primary); }
+/* Community thread — every post (host photo or member activity) connected
+   by a single rail, so the feed reads top-to-bottom instead of splitting
+   content across a horizontal reel + a separate list. */
+.community-thread { padding: 6px 16px 4px; }
 
-/* Activity items (community tab) */
-.ev-activity-item { display: flex; gap: 10px; padding: 12px 16px; border-top: 1px solid var(--border); }
-.ev-activity-avatar {
-  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white;
+.thread-post { display: flex; gap: 12px; }
+
+.thread-rail { width: 36px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+.thread-live-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--primary);
+  margin-bottom: 5px; flex-shrink: 0; animation: livePulse 1.4s infinite;
 }
-.ev-activity-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; }
-.ev-activity-user { font-size: 13px; font-weight: 700; color: var(--dark); }
-.ev-activity-time { font-size: 11px; color: var(--text-light); }
-.ev-activity-text { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
+.thread-avatar {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: white;
+}
+.thread-rail-line { flex: 1; width: 2px; min-height: 16px; margin: 5px 0; background: var(--border); }
+
+.thread-content { flex: 1; min-width: 0; padding-bottom: 20px; }
+.thread-head { display: flex; align-items: center; gap: 6px; }
+.thread-name { font-size: 13px; font-weight: 700; color: var(--dark); display: flex; align-items: center; gap: 5px; }
+.thread-time { font-size: 11px; color: var(--text-light); margin-left: auto; white-space: nowrap; }
+.thread-highlight {
+  display: inline-block; font-size: 12px; font-weight: 700; color: var(--primary);
+  background: var(--primary-soft); padding: 3px 10px; border-radius: var(--radius-pill);
+  margin: 5px 0 6px;
+}
+.thread-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-top: 3px; }
+.thread-media-post { height: 260px; margin-top: 10px; }
+.thread-media-attachment { height: 170px; margin-top: 10px; }
+
+/* Thread post → detail drill-down (Reddit/Stack-Overflow style) */
+.thread-post--clickable { cursor: pointer; }
+.thread-post--clickable:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; border-radius: var(--radius-sm); }
+
+.thread-reply-count {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 700; color: var(--primary); margin-top: 8px;
+}
+
+.thread-back-row { display: flex; align-items: center; padding: 10px 16px 2px; flex-shrink: 0; }
+.thread-back-row--panel { padding: 0 0 10px; }
+.community-thread--panel { padding: 0; }
+.thread-back-btn {
+  display: inline-flex; align-items: center; gap: 4px; background: none; border: none;
+  padding: 4px 0; font-family: inherit; font-size: 13px; font-weight: 700; color: var(--primary); cursor: pointer;
+}
+
+/* Nested replies: indented, connected by a dashed guide under the parent avatar */
+.thread-replies { margin: 6px 0 4px 18px; padding-left: 18px; border-left: 2px dashed var(--border); }
+.thread-post--reply .thread-rail,
+.thread-post--reply .thread-avatar { width: 28px; height: 28px; }
+.thread-post--reply .thread-avatar { font-size: 10px; }
+.thread-post--reply .thread-content { padding-bottom: 14px; }
+.thread-media-reply { height: 140px; margin-top: 8px; }
 
 /* Chat tab */
 .chat-room-header { padding: 14px 16px 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; }

@@ -589,18 +589,6 @@
 .dsk-upcoming-backers-text { font-size: 14px; font-weight: 600; color: var(--dark); }
 .dsk-upcoming-organiser-row { display: flex; align-items: center; gap: 12px; padding: 16px 4px; border-bottom: 1px solid var(--border); }
 
-.dsk-community-hero { height: 260px; border-radius: var(--radius-sm); position: relative; margin-bottom: 12px; cursor: pointer; overflow: hidden; }
-.dsk-community-hero-play {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  width: 56px; height: 56px; border-radius: 50%; background: rgba(0,0,0,0.4);
-  display: flex; align-items: center; justify-content: center;
-}
-.dsk-community-hero-caption {
-  position: absolute; bottom: 0; left: 0; right: 0; padding: 12px;
-  background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
-  display: flex; align-items: center; gap: 8px; color: white; font-size: 12px; font-weight: 600; border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-}
-.dsk-mini-avatar { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: white; flex-shrink: 0; }
 .dsk-community-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
 .dsk-community-thumb { height: 150px; border-radius: var(--radius-sm); position: relative; cursor: pointer; overflow: hidden; }
 

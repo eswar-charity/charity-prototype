@@ -103,14 +103,6 @@
   left: auto;
 }
 
-/* Horizontal photo reel */
-.event-img-banner--reel {
-  width: 280px;
-  height: 360px;
-  flex-shrink: 0;
-  border-radius: 12px;
-}
-
 /* Photo grid cells */
 .event-img-banner--grid {
   height: 110px;
@@ -212,10 +204,6 @@
   border-radius: var(--radius-sm);
 }
 
-.event-img-banner--community.dsk-community-hero {
-  height: 260px;
-}
-
 .event-img-banner--community.dsk-community-thumb {
   height: 150px;
 }
@@ -224,25 +212,6 @@
   position: absolute;
   z-index: 2;
   line-height: normal;
-}
-
-.event-img-banner--community .dsk-community-hero-play {
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.event-img-banner--community .dsk-community-hero-caption {
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
-/* Photo reel caption overlay */
-.event-img-banner--reel .photo-reel-caption {
-  bottom: 0;
-  left: 0;
-  right: 0;
 }
 
 /* Inline activity / feed images in fixed wrappers */
