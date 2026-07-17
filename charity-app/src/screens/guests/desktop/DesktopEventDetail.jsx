@@ -135,7 +135,7 @@ function CommunityTab({ ev }) {
       <div className="dsk-tab-panel">
         <div className="thread-back-row thread-back-row--panel">
           <button type="button" className="thread-back-btn" onClick={() => setOpenPostId(null)}>
-            <ChevronLeft size={15} aria-hidden="true" /> Community
+            <ChevronLeft size={15} aria-hidden="true" /> 
           </button>
         </div>
 
