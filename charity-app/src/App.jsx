@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import useIsDesktop from './hooks/useIsDesktop';
 import { events } from './data/mockData';
+import AccessGate from './access/AccessGate';
 
 const DEFAULT_EVENT_KEY = events[0].key;
 
@@ -179,6 +180,7 @@ function CausesRoute() {
 export default function App() {
   return (
     <BrowserRouter>
+      <AccessGate>
       <Routes>
         {/* Organiser flow */}
         <Route path="/" element={<CreateAccountRoute />} />
@@ -240,6 +242,7 @@ export default function App() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </AccessGate>
     </BrowserRouter>
   );
 }

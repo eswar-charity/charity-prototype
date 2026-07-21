@@ -2198,15 +2198,13 @@ textarea.input-field {
 .notify-item-time { font-size: 11px; color: var(--text-light); margin-top: 2px; }
 .notify-panel--desktop { right: 0; top: calc(100% + 8px); }
 
-/* Story circles */
+/* Story circles (EmptyFeed causes row) */
 .story-row { display: flex; gap: 14px; padding: 0 18px 14px; overflow-x: auto; scrollbar-width: none; }
 .story-row::-webkit-scrollbar { display: none; }
-.story-item { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; cursor: pointer; }
 .story-circle {
   width: 58px; height: 58px; border-radius: 50%; overflow: hidden;
   background: #EDE7E3; display: flex; align-items: center; justify-content: center;
 }
-.story-circle.yours { background: white; border: 2px dashed var(--primary); }
 .story-label { font-size: 11px; color: var(--dark); font-weight: 500; text-align: center; max-width: 62px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Filter chips */
@@ -2220,19 +2218,20 @@ textarea.input-field {
 }
 .filter-chip.active { background: var(--primary); color: white; }
 
-/* Categories browse row */
-.category-heading { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; padding: 0 18px 6px; }
-.category-row { display: flex; gap: 14px; padding: 0 18px 14px; overflow-x: auto; scrollbar-width: none; }
-.category-row::-webkit-scrollbar { display: none; }
-.category-item { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; cursor: pointer; background: none; border: none; font-family: inherit; }
-.category-circle {
-  width: 52px; height: 52px; border-radius: 50%;
+/* Category rail — the feed's primary navigation. Rounded-square icon tiles
+   (not circular photo avatars) so the top of the feed reads as a cause
+   directory, not an Instagram Stories rail. */
+.category-rail { display: flex; gap: 10px; padding: 2px 18px 16px; overflow-x: auto; scrollbar-width: none; }
+.category-rail::-webkit-scrollbar { display: none; }
+.category-tile { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; cursor: pointer; background: none; border: none; padding: 0; font-family: inherit; }
+.category-tile-icon {
+  width: 52px; height: 52px; border-radius: 16px;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
-.category-item.active .category-circle { box-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--dark); }
-.category-label { font-size: 10.5px; color: var(--dark); font-weight: 500; text-align: center; max-width: 66px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.category-item.active .category-label { color: var(--primary); font-weight: 700; }
+.category-tile-label { font-size: 11px; color: var(--text-secondary); font-weight: 600; text-align: center; max-width: 66px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.category-tile.active .category-tile-label { color: var(--dark); font-weight: 700; }
+.category-tile:focus-visible .category-tile-icon { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
 /* Scene feed card */
 .scene-card {
@@ -3018,4 +3017,74 @@ textarea.input-field {
   font-size: 13px; font-weight: 700;
   font-family: inherit;
   cursor: pointer;
+}
+
+/* ── Prototype access gate ── */
+.access-gate {
+  min-height: 100vh; width: 100%; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(160deg, var(--bg) 0%, var(--tertiary) 100%);
+  padding: 24px;
+}
+.access-gate-card {
+  width: 100%; max-width: 380px; background: var(--white); border-radius: var(--radius-lg);
+  box-shadow: 0 20px 60px rgba(26, 46, 74, 0.14);
+  padding: 36px 28px 30px;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+.access-gate-icon {
+  width: 44px; height: 44px; border-radius: 50%; margin: 20px 0 4px;
+  background: var(--primary-soft); color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+}
+.access-gate-title { font-size: 20px; font-weight: 800; color: var(--dark); margin: 6px 0 8px; }
+.access-gate-copy { font-size: 14px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 22px; }
+.access-gate-form { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+.access-gate-input {
+  width: 100%; padding: 14px 16px; border-radius: var(--radius-md); border: 1.5px solid var(--border);
+  font-size: 15px; font-family: inherit; text-align: center; letter-spacing: 0.5px;
+  color: var(--dark); background: var(--neutral-surface);
+}
+.access-gate-input:focus { outline: none; border-color: var(--primary); background: var(--white); }
+.access-gate-input[aria-invalid="true"] { border-color: #D32F2F; }
+.access-gate-error { font-size: 13px; color: #D32F2F; font-weight: 600; margin: -4px 0 0; }
+.access-gate-footnote { font-size: 12px; color: var(--text-light); margin-top: 20px; }
+
+.access-admin-banner {
+  position: sticky; top: 0; z-index: 500;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+  gap: 10px; padding: 8px 16px; background: var(--dark); color: var(--white);
+  font-size: 12px; font-weight: 600;
+}
+.access-admin-banner strong { font-weight: 800; letter-spacing: 0.3px; }
+.access-admin-banner button {
+  background: rgba(255, 255, 255, 0.15); border: none; color: var(--white); border-radius: var(--radius-pill);
+  padding: 4px 10px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+
+/* Desktop access gate — split panel, brand-only (no live event imagery,
+   since nothing product-specific should render before the code is verified).
+   Carries `.dsk-page` too so it uses the same #root/body break-out-of-the-
+   phone-frame rule (desktop.css) as every other desktop screen; the extra
+   `.dsk-page` class selector below wins the flex-direction conflict with
+   `.dsk-page`'s own column default regardless of stylesheet order. */
+.access-gate-desktop.dsk-page { display: flex; flex-direction: row; min-height: 100vh; }
+.access-gate-desktop-hero {
+  width: 44%; flex-shrink: 0; position: relative; min-height: 100vh; box-sizing: border-box;
+  background: linear-gradient(160deg, var(--dark) 0%, var(--primary-hover) 55%, var(--primary) 100%);
+  display: flex; flex-direction: column; justify-content: center; padding: 56px;
+}
+.access-gate-desktop-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: rgba(255, 255, 255, 0.65); margin-bottom: 14px; }
+.access-gate-desktop-headline { font-size: 40px; font-weight: 800; color: var(--white); letter-spacing: -1px; line-height: 1.1; max-width: 420px; margin-bottom: 16px; }
+.access-gate-desktop-subhead { font-size: 15px; color: rgba(255, 255, 255, 0.8); line-height: 1.6; max-width: 380px; }
+
+.access-gate-desktop-form-side { flex: 1; display: flex; align-items: center; justify-content: center; padding: 48px; }
+.access-gate-desktop-card { width: 100%; max-width: 380px; }
+.access-gate-desktop-card-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--primary); margin: 28px 0 10px; }
+.access-gate-desktop-card-title { font-size: 26px; font-weight: 800; color: var(--dark); letter-spacing: -0.4px; margin: 0 0 10px; }
+.access-gate-desktop-card-copy { font-size: 14px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 24px; }
+.access-gate-desktop-card-foot { font-size: 12px; color: var(--text-light); margin-top: 20px; }
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .access-gate-desktop-hero { width: 38%; padding: 40px; }
+  .access-gate-desktop-headline { font-size: 32px; }
 }

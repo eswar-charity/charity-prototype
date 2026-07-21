@@ -99,14 +99,3 @@ export function EventImageBanner({
     </div>
   );
 }
-
-/** Circular story-ring avatar (cover is required for round masks). */
-export function EventStoryAvatar({ src, alt = '', className = '' }) {
-  if (!src) return null;
-
-  return (
-    <div className={`event-story-avatar${className ? ` ${className}` : ''}`}>
-      <EventImage src={src} alt={alt} variant="avatar" fill />
-    </div>
-  );
-}

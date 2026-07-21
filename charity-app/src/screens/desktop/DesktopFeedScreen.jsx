@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Users, MessageCircle, Camera } from 'lucide-react';
+import { Users, MessageCircle, Camera } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
-import { events, storyReel, SE_FEED_FILTERS, SE_ORGANIZER, eventDetailPath, eventDisplayTitle } from '../../data/mockData';
+import { events, EVENT_CATEGORIES, SE_FEED_FILTERS, SE_ORGANIZER, eventDetailPath, eventDisplayTitle } from '../../data/mockData';
+import { getCategoryIcon } from '../../data/categoryIcons';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
-import { EventImageBanner, EventStoryAvatar } from '../../components/event/EventImage';
+import { EventImageBanner } from '../../components/event/EventImage';
 
 function SceneEventCard({ ev }) {
   const navigate = useNavigate();
@@ -48,7 +49,6 @@ function SceneEventCard({ ev }) {
 }
 
 export default function DesktopFeedScreen() {
-  const navigate = useNavigate();
   const [filter, setFilter] = useState('All');
 
   const filtered = useMemo(() => {
@@ -76,26 +76,29 @@ export default function DesktopFeedScreen() {
             <p className="dsk-page-subtitle">Events happening now — your hub for hosting and backing causes.</p>
           </div>
 
-          <div className="dsk-story-row">
-            <button type="button" className="dsk-story-item" onClick={() => navigate('/event/step-1')}>
-              <div className="dsk-story-circle yours">
-                <Plus size={22} color="var(--primary)" />
-              </div>
-              <span className="dsk-story-label">Your Event</span>
-            </button>
-            {storyReel.map((story) => (
-              <button
-                key={story.id}
-                type="button"
-                className="dsk-story-item"
-                onClick={() => navigate(eventDetailPath(story.event, { loggedIn: true }))}
-              >
-                <div className="dsk-story-circle">
-                  <EventStoryAvatar src={story.src} alt={story.title} />
-                </div>
-                <span className="dsk-story-label">{story.title.split(' ').slice(0, 2).join(' ')}</span>
-              </button>
-            ))}
+          <div className="dsk-category-rail">
+            {['All', ...EVENT_CATEGORIES].map((cat) => {
+              const { Icon, color } = getCategoryIcon(cat);
+              const active = filter === cat;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  className={`dsk-category-tile${active ? ' active' : ''}`}
+                  aria-pressed={active}
+                  aria-label={`Browse ${cat} events`}
+                  onClick={() => setFilter(cat)}
+                >
+                  <span
+                    className="dsk-category-tile-icon"
+                    style={{ background: active ? color : `${color}1A`, color: active ? 'white' : color }}
+                  >
+                    <Icon size={24} aria-hidden="true" />
+                  </span>
+                  <span className="dsk-category-tile-label">{cat}</span>
+                </button>
+              );
+            })}
           </div>
 
           <div className="dsk-feed-controls">

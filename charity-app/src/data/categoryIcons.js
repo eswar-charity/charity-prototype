@@ -1,3 +1,8 @@
+import {
+  Compass, PawPrint, Users, GraduationCap, HeartPulse, Palette, Landmark,
+  Leaf, Trophy, HandHeart, Globe, Gift, UserRound, BookOpen, UtensilsCrossed,
+} from 'lucide-react';
+
 // Full browse taxonomy — shown as text filter chips (All, You, Live now, …).
 export const BROWSE_CATEGORIES = [
   'Animals',
@@ -16,3 +21,30 @@ export const BROWSE_CATEGORIES = [
   'Humanities',
   'Food & Hunger',
 ];
+
+// One icon + accent color per cause category — the primary navigation for
+// the feed's top section, in place of circular story-style photo avatars.
+const CATEGORY_ICONS = {
+  All: { Icon: Compass, color: '#1A6EB5' },
+  Animals: { Icon: PawPrint, color: '#C2410C' },
+  Community: { Icon: Users, color: '#7C3AED' },
+  Education: { Icon: GraduationCap, color: '#0D7377' },
+  Health: { Icon: HeartPulse, color: '#D32F2F' },
+  Arts: { Icon: Palette, color: '#DB2777' },
+  Religion: { Icon: Landmark, color: '#92400E' },
+  Environment: { Icon: Leaf, color: '#15803D' },
+  Sports: { Icon: Trophy, color: '#EA580C' },
+  'Human Services': { Icon: HandHeart, color: '#0369A1' },
+  Culture: { Icon: Globe, color: '#6D28D9' },
+  'Gifts & Foundations': { Icon: Gift, color: '#B45309' },
+  Individuals: { Icon: UserRound, color: '#4338CA' },
+  'Public-Society Benefit': { Icon: Landmark, color: '#334155' },
+  Humanities: { Icon: BookOpen, color: '#78350F' },
+  'Food & Hunger': { Icon: UtensilsCrossed, color: '#CA8A04' },
+};
+
+const DEFAULT_CATEGORY_ICON = { Icon: Compass, color: '#51617A' };
+
+export function getCategoryIcon(category) {
+  return CATEGORY_ICONS[category] || DEFAULT_CATEGORY_ICON;
+}

@@ -182,26 +182,6 @@ export function buildCommunityThread(event = events[0]) {
 
 export const eventData = events[0] ? { ...events[0] } : {};
 
-// Story-row items: main cover only per event, cycling 1,2,3,4,5,1,2,3,4,5…
-function buildStoryReel(eventList) {
-  const cycles = Math.max(...eventList.map((ev) => ev.photos.length), 1);
-  const reel = [];
-  for (let c = 0; c < cycles; c += 1) {
-    for (const ev of eventList) {
-      reel.push({
-        id: `${ev.key}-${c}`,
-        src: ev.cover,
-        title: ev.title,
-        category: ev.category,
-        event: ev,
-      });
-    }
-  }
-  return reel;
-}
-
-export const storyReel = buildStoryReel(events);
-
 // Unique categories from SE event data (Health, Environment, Education, Animals, Food & Hunger)
 export const EVENT_CATEGORIES = [...new Set(events.map((ev) => ev.category))];
 

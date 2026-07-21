@@ -1,12 +1,13 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Megaphone, Building2, Compass, MessageCircle, Camera } from 'lucide-react';
+import { Megaphone, Building2, Compass, MessageCircle, Camera } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 import NotificationBell, { SE_FEED_NOTIFICATIONS } from '../components/NotificationBell';
 import MobileAppHeader from '../components/MobileAppHeader';
-import { events, storyReel, SE_FEED_FILTERS, SE_ORGANIZER, eventDetailPath, eventDisplayTitle } from '../data/mockData';
+import { events, EVENT_CATEGORIES, SE_FEED_FILTERS, SE_ORGANIZER, eventDetailPath, eventDisplayTitle } from '../data/mockData';
+import { getCategoryIcon } from '../data/categoryIcons';
 import useInfiniteScroll from '../hooks/useInfiniteScroll';
-import { EventImageBanner, EventStoryAvatar } from '../components/event/EventImage';
+import { EventImageBanner } from '../components/event/EventImage';
 
 const activateOnKey = (fn) => (e) => {
   if (e.key === 'Enter' || e.key === ' ') {
@@ -57,37 +58,30 @@ export default function FeedScreen() {
             )}
           />
 
-          {/* Story circles */}
-          <div className="story-row">
-            <div
-              className="story-item"
-              role="button"
-              tabIndex={0}
-              aria-label="Create your event"
-              onClick={() => setShowSheet(true)}
-              onKeyDown={activateOnKey(() => setShowSheet(true))}
-            >
-              <div className="story-circle yours">
-                <Plus size={22} color="var(--primary)" />
-              </div>
-              <span className="story-label">Your Event</span>
-            </div>
-            {storyReel.map((story) => (
-              <div
-                key={story.id}
-                className="story-item"
-                role="button"
-                tabIndex={0}
-                aria-label={`Open ${story.title}`}
-                onClick={() => openEvent(story.event)}
-                onKeyDown={activateOnKey(() => openEvent(story.event))}
-              >
-                <div className="story-circle">
-                  <EventStoryAvatar src={story.src} alt={story.title} />
-                </div>
-                <span className="story-label">{story.title.split(' ').slice(0, 2).join(' ')}</span>
-              </div>
-            ))}
+          {/* Category rail — primary navigation by cause, not by story photo */}
+          <div className="category-rail">
+            {['All', ...EVENT_CATEGORIES].map((cat) => {
+              const { Icon, color } = getCategoryIcon(cat);
+              const active = activeFilter === cat;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  className={`category-tile${active ? ' active' : ''}`}
+                  aria-pressed={active}
+                  aria-label={`Browse ${cat} events`}
+                  onClick={() => setActiveFilter(cat)}
+                >
+                  <span
+                    className="category-tile-icon"
+                    style={{ background: active ? color : `${color}1A`, color: active ? 'white' : color }}
+                  >
+                    <Icon size={20} aria-hidden="true" />
+                  </span>
+                  <span className="category-tile-label">{cat}</span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Filter chips */}
