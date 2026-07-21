@@ -1,11 +1,12 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Megaphone, Building2, Compass, MessageCircle, Camera, User } from 'lucide-react';
+import { Megaphone, Building2, Compass, MessageCircle, Camera } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 import NotificationBell, { SE_FEED_NOTIFICATIONS } from '../components/NotificationBell';
 import MobileAppHeader from '../components/MobileAppHeader';
-import { events, ALL_BROWSE_FILTERS, SE_FEED_FILTERS, SE_ORGANIZER, eventDetailPath, eventDisplayTitle } from '../data/mockData';
-import { getCategoryIcon } from '../data/categoryIcons';
+import FilterPillRow from '../components/FilterPillRow';
+import { events, ALL_BROWSE_FILTERS, SE_ORGANIZER, eventDetailPath, eventDisplayTitle } from '../data/mockData';
+import { getCategoryIcon, DISCOVERY_FILTERS } from '../data/categoryIcons';
 import useInfiniteScroll from '../hooks/useInfiniteScroll';
 import { EventImageBanner } from '../components/event/EventImage';
 
@@ -18,15 +19,21 @@ const activateOnKey = (fn) => (e) => {
 
 export default function FeedScreen() {
   const navigate = useNavigate();
-  const [activeFilter, setActiveFilter] = useState('All');
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [activeDiscovery, setActiveDiscovery] = useState('All');
   const [showSheet, setShowSheet] = useState(false);
   const scrollRef = useRef(null);
-  const filteredEvents = events.filter((ev) => {
-    if (activeFilter === 'You') return ev.organizer === SE_ORGANIZER.name;
-    if (activeFilter === 'Live now') return ev.isLive;
-    if (activeFilter !== 'All') return ev.category === activeFilter;
+
+  const isFollowing = activeDiscovery === 'Following';
+  let filteredEvents = events.filter((ev) => {
+    if (activeCategory !== 'All' && ev.category !== activeCategory) return false;
+    if (activeDiscovery === 'Live now') return ev.isLive;
+    if (isFollowing) return false; // no follow graph yet — see the empty state below
     return true;
   });
+  if (activeDiscovery === 'Popular') filteredEvents = [...filteredEvents].sort((a, b) => b.backed - a.backed);
+  if (activeDiscovery === 'New') filteredEvents = [...filteredEvents].reverse();
+
   const { items, sentinelRef, loading, hasMore } = useInfiniteScroll(filteredEvents, {
     rootRef: scrollRef, pageSize: 3, max: 30,
   });
@@ -62,7 +69,7 @@ export default function FeedScreen() {
           <div className="category-rail">
             {['All', ...ALL_BROWSE_FILTERS].map((cat) => {
               const { Icon, color } = getCategoryIcon(cat);
-              const active = activeFilter === cat;
+              const active = activeCategory === cat;
               return (
                 <button
                   key={cat}
@@ -70,7 +77,7 @@ export default function FeedScreen() {
                   className={`category-tile${active ? ' active' : ''}`}
                   aria-pressed={active}
                   aria-label={`Browse ${cat} events`}
-                  onClick={() => setActiveFilter(cat)}
+                  onClick={() => setActiveCategory(cat)}
                 >
                   <span
                     className="category-tile-icon"
@@ -84,45 +91,23 @@ export default function FeedScreen() {
             })}
           </div>
 
-          {/* Filter chips — same list as the rail above, with an icon in each label */}
-          <div className="filter-row">
-            {SE_FEED_FILTERS.map((f) => {
-              const active = activeFilter === f;
-              if (f === 'Live now') {
-                return (
-                  <button
-                    key={f}
-                    className={`filter-chip ${active ? 'active' : ''}`}
-                    onClick={() => setActiveFilter(f)}
-                  >
-                    <span style={{
-                      width: 6, height: 6, borderRadius: '50%',
-                      background: active ? 'white' : 'var(--primary)',
-                      display: 'inline-block', flexShrink: 0,
-                    }} />
-                    Live now
-                  </button>
-                );
-              }
-              const { Icon, color } = f === 'You' ? { Icon: User, color: 'var(--primary)' } : getCategoryIcon(f);
-              return (
-                <button
-                  key={f}
-                  className={`filter-chip ${active ? 'active' : ''}`}
-                  onClick={() => setActiveFilter(f)}
-                >
-                  <Icon size={13} color={active ? 'white' : color} aria-hidden="true" />
-                  {f}
-                </button>
-              );
-            })}
-          </div>
-
+          {/* Discovery row — how to surface events (live, nearby, followed,
+              popular, new), a different axis from the category rail above */}
+          <FilterPillRow filters={DISCOVERY_FILTERS} active={activeDiscovery} onSelect={setActiveDiscovery} />
         </div>
 
         {/* ── Scrollable feed cards ONLY ── */}
         <div className="screen-scroll" ref={scrollRef}>
           <div style={{ padding: '0 16px 16px' }}>
+          {isFollowing ? (
+            <div className="discovery-empty">
+              <p className="discovery-empty-title">You&apos;re not following anyone yet</p>
+              <p className="discovery-empty-copy">
+                Follow organisers and nonprofits from an event page to see their events here.
+              </p>
+            </div>
+          ) : (
+            <>
           {items.map((ev) => (
             <div
               key={ev._key}
@@ -188,6 +173,8 @@ export default function FeedScreen() {
             <div className="feed-loader"><span className="feed-spinner" /> Loading more events…</div>
           )}
           {!hasMore && <p className="feed-end">You’re all caught up</p>}
+            </>
+          )}
           </div>
         </div>{/* end scrollable area */}
 

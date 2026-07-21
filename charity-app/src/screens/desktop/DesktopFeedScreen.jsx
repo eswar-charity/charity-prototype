@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, MessageCircle, Camera, User } from 'lucide-react';
+import { Users, MessageCircle, Camera } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
-import { events, ALL_BROWSE_FILTERS, SE_FEED_FILTERS, SE_ORGANIZER, eventDetailPath, eventDisplayTitle } from '../../data/mockData';
-import { getCategoryIcon } from '../../data/categoryIcons';
+import FilterPillRow from '../../components/FilterPillRow';
+import { events, ALL_BROWSE_FILTERS, eventDetailPath, eventDisplayTitle } from '../../data/mockData';
+import { getCategoryIcon, DISCOVERY_FILTERS } from '../../data/categoryIcons';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
 import { EventImageBanner } from '../../components/event/EventImage';
 
@@ -49,16 +50,21 @@ function SceneEventCard({ ev }) {
 }
 
 export default function DesktopFeedScreen() {
-  const [filter, setFilter] = useState('All');
+  const [category, setCategory] = useState('All');
+  const [discovery, setDiscovery] = useState('All');
+  const isFollowing = discovery === 'Following';
 
   const filtered = useMemo(() => {
-    return events.filter((e) => {
-      if (filter === 'Live now') return e.isLive;
-      if (filter === 'You') return e.organizer === SE_ORGANIZER.name;
-      if (filter !== 'All') return e.category === filter;
+    let list = events.filter((e) => {
+      if (category !== 'All' && e.category !== category) return false;
+      if (discovery === 'Live now') return e.isLive;
+      if (isFollowing) return false; // no follow graph yet — see the empty state below
       return true;
     });
-  }, [filter]);
+    if (discovery === 'Popular') list = [...list].sort((a, b) => b.backed - a.backed);
+    if (discovery === 'New') list = [...list].reverse();
+    return list;
+  }, [category, discovery, isFollowing]);
 
   const { items, sentinelRef, loading, hasMore } = useInfiniteScroll(filtered, {
     pageSize: 6,
@@ -79,7 +85,7 @@ export default function DesktopFeedScreen() {
           <div className="dsk-category-rail">
             {['All', ...ALL_BROWSE_FILTERS].map((cat) => {
               const { Icon, color } = getCategoryIcon(cat);
-              const active = filter === cat;
+              const active = category === cat;
               return (
                 <button
                   key={cat}
@@ -87,7 +93,7 @@ export default function DesktopFeedScreen() {
                   className={`dsk-category-tile${active ? ' active' : ''}`}
                   aria-pressed={active}
                   aria-label={`Browse ${cat} events`}
-                  onClick={() => setFilter(cat)}
+                  onClick={() => setCategory(cat)}
                 >
                   <span
                     className="dsk-category-tile-icon"
@@ -101,47 +107,34 @@ export default function DesktopFeedScreen() {
             })}
           </div>
 
+          {/* Discovery row — how to surface events, a different axis from the category rail above */}
           <div className="dsk-feed-controls">
-            <div className="dsk-filter-row">
-              {SE_FEED_FILTERS.map((f) => {
-                const active = filter === f;
-                if (f === 'Live now') {
-                  return (
-                    <button
-                      key={f}
-                      type="button"
-                      className={`dsk-filter-chip ${active ? 'active' : ''}`}
-                      onClick={() => setFilter(f)}
-                    >
-                      <span className="live-dot" style={{ background: active ? 'white' : 'var(--primary)' }} />
-                      Live now
-                    </button>
-                  );
-                }
-                const { Icon, color } = f === 'You' ? { Icon: User, color: 'var(--primary)' } : getCategoryIcon(f);
-                return (
-                  <button
-                    key={f}
-                    type="button"
-                    className={`dsk-filter-chip ${active ? 'active' : ''}`}
-                    onClick={() => setFilter(f)}
-                  >
-                    <Icon size={13} color={active ? 'white' : color} aria-hidden="true" />
-                    {f}
-                  </button>
-                );
-              })}
-            </div>
+            <FilterPillRow
+              filters={DISCOVERY_FILTERS}
+              active={discovery}
+              onSelect={setDiscovery}
+              rowClassName="dsk-filter-row"
+              chipClassName="dsk-filter-chip"
+            />
           </div>
 
-          <div className="dsk-event-grid">
-            {items.map((ev) => (
-              <SceneEventCard key={ev._key} ev={ev} />
-            ))}
-            {filtered.length === 0 && (
-              <p className="dsk-empty-note">No events match this filter yet.</p>
-            )}
-          </div>
+          {isFollowing ? (
+            <div className="discovery-empty">
+              <p className="discovery-empty-title">You&apos;re not following anyone yet</p>
+              <p className="discovery-empty-copy">
+                Follow organisers and nonprofits from an event page to see their events here.
+              </p>
+            </div>
+          ) : (
+            <div className="dsk-event-grid">
+              {items.map((ev) => (
+                <SceneEventCard key={ev._key} ev={ev} />
+              ))}
+              {filtered.length === 0 && (
+                <p className="dsk-empty-note">No events match this filter yet.</p>
+              )}
+            </div>
+          )}
 
           {hasMore && filtered.length > 0 && (
             <div ref={sentinelRef} style={{ height: 1 }} aria-hidden="true" />

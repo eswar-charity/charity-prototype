@@ -1,6 +1,7 @@
 import {
   Compass, PawPrint, Users, GraduationCap, HeartPulse, Palette, Landmark,
   Leaf, Trophy, HandHeart, Globe, Gift, UserRound, BookOpen, UtensilsCrossed,
+  MapPin, UserCheck, ThumbsUp, Sparkles,
 } from 'lucide-react';
 
 // Full browse taxonomy — shown as text filter chips (All, You, Live now, …).
@@ -48,3 +49,15 @@ const DEFAULT_CATEGORY_ICON = { Icon: Compass, color: '#51617A' };
 export function getCategoryIcon(category) {
   return CATEGORY_ICONS[category] || DEFAULT_CATEGORY_ICON;
 }
+
+// The feed's second row: HOW to surface events, not WHICH cause — a
+// different axis from the category rail above it, so the two rows stop
+// duplicating the same 15 categories in two visual styles.
+export const DISCOVERY_FILTERS = [
+  { key: 'All', label: 'All', Icon: Compass },
+  { key: 'Live now', label: 'Live now', dot: true },
+  { key: 'Near you', label: 'Near you', Icon: MapPin },
+  { key: 'Following', label: 'Following', Icon: UserCheck },
+  { key: 'Popular', label: 'Popular', Icon: ThumbsUp },
+  { key: 'New', label: 'New', Icon: Sparkles },
+];

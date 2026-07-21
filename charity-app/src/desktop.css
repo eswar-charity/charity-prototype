@@ -125,7 +125,8 @@
 .dsk-category-tile.active .dsk-category-tile-label { color: var(--dark); font-weight: 700; }
 
 .dsk-feed-controls { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
-.dsk-feed-controls .dsk-filter-row { flex: 1 1 280px; min-width: 0; }
+.dsk-feed-controls .dsk-filter-row,
+.dsk-feed-controls .pill-filter-wrap { flex: 1 1 280px; min-width: 0; }
 .dsk-filter-row { display: flex; gap: 8px; flex-wrap: wrap; min-width: 0; }
 .dsk-filter-chip {
   display: flex; align-items: center; gap: 6px;

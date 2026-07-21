@@ -2233,6 +2233,38 @@ textarea.input-field {
 .category-tile.active .category-tile-label { color: var(--dark); font-weight: 700; }
 .category-tile:focus-visible .category-tile-icon { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
+/* Discovery filter row — a second, different axis (how to surface events)
+   from the category rail above it (which cause). Large pill chips with
+   edge scroll arrows, not another pass over the same 15 categories. */
+.pill-filter-wrap { position: relative; padding: 2px 0 16px; }
+.pill-filter-row { display: flex; gap: 10px; padding: 0 18px; overflow-x: auto; scrollbar-width: none; scroll-behavior: smooth; }
+.pill-filter-row::-webkit-scrollbar { display: none; }
+.pill-filter-chip {
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+  padding: 13px 20px; border-radius: var(--radius-pill); border: none;
+  background: var(--white); color: var(--dark); font-size: 14px; font-weight: 700;
+  white-space: nowrap; cursor: pointer; font-family: inherit;
+  box-shadow: 0 1px 3px rgba(26, 46, 74, 0.08);
+}
+.pill-filter-chip.active { background: var(--primary); color: var(--white); box-shadow: 0 4px 14px rgba(26, 110, 181, 0.32); }
+.pill-filter-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; animation: livePulse 1.4s infinite; }
+.pill-filter-nav {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+  width: 32px; height: 32px; border-radius: 50%; border: none;
+  background: rgba(20, 26, 36, 0.55); color: var(--white);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+.pill-filter-nav:hover { background: rgba(20, 26, 36, 0.75); }
+.pill-filter-nav:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.pill-filter-nav--prev { left: 6px; }
+.pill-filter-nav--next { right: 6px; }
+
+/* "Following" empty state, shown in place of the card list */
+.discovery-empty { text-align: center; padding: 48px 24px; }
+.discovery-empty-title { font-size: 16px; font-weight: 800; color: var(--dark); margin-bottom: 6px; }
+.discovery-empty-copy { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
 /* Scene feed card */
 .scene-card {
   background: white; border-radius: 16px; overflow: hidden;

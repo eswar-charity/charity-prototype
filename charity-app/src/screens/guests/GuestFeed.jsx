@@ -3,8 +3,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MessageCircle, Camera, Bell } from 'lucide-react';
 import GuestBottomNav from '../../components/GuestBottomNav';
 import MobileAppHeader from '../../components/MobileAppHeader';
-import { events, ALL_BROWSE_FILTERS, GUEST_FEED_FILTERS, eventDetailPath, eventDisplayTitle } from '../../data/mockData';
-import { getCategoryIcon } from '../../data/categoryIcons';
+import FilterPillRow from '../../components/FilterPillRow';
+import { events, ALL_BROWSE_FILTERS, eventDetailPath, eventDisplayTitle } from '../../data/mockData';
+import { getCategoryIcon, DISCOVERY_FILTERS } from '../../data/categoryIcons';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
 import { EventImageBanner } from '../../components/event/EventImage';
 
@@ -19,23 +20,28 @@ export default function GuestFeed() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const causeParam = searchParams.get('cause');
-  const [activeFilter, setActiveFilter] = useState(
-    causeParam && GUEST_FEED_FILTERS.includes(causeParam) ? causeParam : 'All',
+  const [activeCategory, setActiveCategory] = useState(
+    causeParam && ALL_BROWSE_FILTERS.includes(causeParam) ? causeParam : 'All',
   );
+  const [activeDiscovery, setActiveDiscovery] = useState('All');
   const [hasAlerts, setHasAlerts] = useState(true);
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    if (causeParam && GUEST_FEED_FILTERS.includes(causeParam)) {
-      setActiveFilter(causeParam);
+    if (causeParam && ALL_BROWSE_FILTERS.includes(causeParam)) {
+      setActiveCategory(causeParam);
     }
   }, [causeParam]);
 
-  const filtered = events.filter((ev) => {
-    if (activeFilter === 'Live now') return ev.isLive;
-    if (activeFilter !== 'All') return ev.category === activeFilter;
+  const isFollowing = activeDiscovery === 'Following';
+  let filtered = events.filter((ev) => {
+    if (activeCategory !== 'All' && ev.category !== activeCategory) return false;
+    if (activeDiscovery === 'Live now') return ev.isLive;
+    if (isFollowing) return false; // no follow graph yet — see the empty state below
     return true;
   });
+  if (activeDiscovery === 'Popular') filtered = [...filtered].sort((a, b) => b.backed - a.backed);
+  if (activeDiscovery === 'New') filtered = [...filtered].reverse();
 
   const { items, sentinelRef, loading, hasMore } = useInfiniteScroll(filtered, {
     rootRef: scrollRef, pageSize: 3, max: 30,
@@ -76,7 +82,7 @@ export default function GuestFeed() {
           <div className="category-rail">
             {['All', ...ALL_BROWSE_FILTERS].map((cat) => {
               const { Icon, color } = getCategoryIcon(cat);
-              const active = activeFilter === cat;
+              const active = activeCategory === cat;
               return (
                 <button
                   key={cat}
@@ -84,7 +90,7 @@ export default function GuestFeed() {
                   className={`category-tile${active ? ' active' : ''}`}
                   aria-pressed={active}
                   aria-label={`Browse ${cat} events`}
-                  onClick={() => setActiveFilter(cat)}
+                  onClick={() => setActiveCategory(cat)}
                 >
                   <span
                     className="category-tile-icon"
@@ -98,45 +104,21 @@ export default function GuestFeed() {
             })}
           </div>
 
-          {/* Filter chips — same list as the rail above, with an icon in each label */}
-          <div className="filter-row">
-            {GUEST_FEED_FILTERS.map((f) => {
-              const active = activeFilter === f;
-              if (f === 'Live now') {
-                return (
-                  <button
-                    key={f}
-                    type="button"
-                    className={`filter-chip ${active ? 'active' : ''}`}
-                    onClick={() => setActiveFilter(f)}
-                  >
-                    <span style={{
-                      width: 6, height: 6, borderRadius: '50%',
-                      background: active ? 'white' : 'var(--primary)',
-                      display: 'inline-block', flexShrink: 0,
-                    }} />
-                    Live now
-                  </button>
-                );
-              }
-              const { Icon, color } = getCategoryIcon(f);
-              return (
-                <button
-                  key={f}
-                  type="button"
-                  className={`filter-chip ${active ? 'active' : ''}`}
-                  onClick={() => setActiveFilter(f)}
-                >
-                  <Icon size={13} color={active ? 'white' : color} aria-hidden="true" />
-                  {f}
-                </button>
-              );
-            })}
-          </div>
+          {/* Discovery row — how to surface events, a different axis from the category rail above */}
+          <FilterPillRow filters={DISCOVERY_FILTERS} active={activeDiscovery} onSelect={setActiveDiscovery} />
         </div>
 
         <div className="screen-scroll" ref={scrollRef}>
           <div style={{ padding: '0 16px 16px' }}>
+            {isFollowing ? (
+              <div className="discovery-empty">
+                <p className="discovery-empty-title">You&apos;re not following anyone yet</p>
+                <p className="discovery-empty-copy">
+                  Follow organisers and nonprofits from an event page to see their events here.
+                </p>
+              </div>
+            ) : (
+              <>
             {items.map((ev) => (
               <div
                 key={ev._key}
@@ -200,6 +182,8 @@ export default function GuestFeed() {
               <div className="feed-loader"><span className="feed-spinner" /> Loading more events…</div>
             )}
             {!hasMore && <p className="feed-end">You&apos;re all caught up</p>}
+              </>
+            )}
           </div>
         </div>
 
