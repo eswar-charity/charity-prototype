@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, MessageCircle, Camera } from 'lucide-react';
+import { Users, MessageCircle, Camera, User } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
-import { events, EVENT_CATEGORIES, SE_FEED_FILTERS, SE_ORGANIZER, eventDetailPath, eventDisplayTitle } from '../../data/mockData';
+import { events, ALL_BROWSE_FILTERS, SE_FEED_FILTERS, SE_ORGANIZER, eventDetailPath, eventDisplayTitle } from '../../data/mockData';
 import { getCategoryIcon } from '../../data/categoryIcons';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
 import { EventImageBanner } from '../../components/event/EventImage';
@@ -77,7 +77,7 @@ export default function DesktopFeedScreen() {
           </div>
 
           <div className="dsk-category-rail">
-            {['All', ...EVENT_CATEGORIES].map((cat) => {
+            {['All', ...ALL_BROWSE_FILTERS].map((cat) => {
               const { Icon, color } = getCategoryIcon(cat);
               const active = filter === cat;
               return (
@@ -103,19 +103,34 @@ export default function DesktopFeedScreen() {
 
           <div className="dsk-feed-controls">
             <div className="dsk-filter-row">
-              {SE_FEED_FILTERS.map((f) => (
-                <button
-                  key={f}
-                  type="button"
-                  className={`dsk-filter-chip ${filter === f ? 'active' : ''}`}
-                  onClick={() => setFilter(f)}
-                >
-                  {f === 'Live now' && (
-                    <span className="live-dot" style={{ background: filter === f ? 'white' : 'var(--primary)' }} />
-                  )}
-                  {f}
-                </button>
-              ))}
+              {SE_FEED_FILTERS.map((f) => {
+                const active = filter === f;
+                if (f === 'Live now') {
+                  return (
+                    <button
+                      key={f}
+                      type="button"
+                      className={`dsk-filter-chip ${active ? 'active' : ''}`}
+                      onClick={() => setFilter(f)}
+                    >
+                      <span className="live-dot" style={{ background: active ? 'white' : 'var(--primary)' }} />
+                      Live now
+                    </button>
+                  );
+                }
+                const { Icon, color } = f === 'You' ? { Icon: User, color: 'var(--primary)' } : getCategoryIcon(f);
+                return (
+                  <button
+                    key={f}
+                    type="button"
+                    className={`dsk-filter-chip ${active ? 'active' : ''}`}
+                    onClick={() => setFilter(f)}
+                  >
+                    <Icon size={13} color={active ? 'white' : color} aria-hidden="true" />
+                    {f}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

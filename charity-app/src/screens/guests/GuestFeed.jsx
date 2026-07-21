@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MessageCircle, Camera, Bell } from 'lucide-react';
 import GuestBottomNav from '../../components/GuestBottomNav';
 import MobileAppHeader from '../../components/MobileAppHeader';
-import { events, EVENT_CATEGORIES, GUEST_FEED_FILTERS, eventDetailPath, eventDisplayTitle } from '../../data/mockData';
+import { events, ALL_BROWSE_FILTERS, GUEST_FEED_FILTERS, eventDetailPath, eventDisplayTitle } from '../../data/mockData';
 import { getCategoryIcon } from '../../data/categoryIcons';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
 import { EventImageBanner } from '../../components/event/EventImage';
@@ -74,7 +74,7 @@ export default function GuestFeed() {
           />
 
           <div className="category-rail">
-            {['All', ...EVENT_CATEGORIES].map((cat) => {
+            {['All', ...ALL_BROWSE_FILTERS].map((cat) => {
               const { Icon, color } = getCategoryIcon(cat);
               const active = activeFilter === cat;
               return (
@@ -98,26 +98,40 @@ export default function GuestFeed() {
             })}
           </div>
 
+          {/* Filter chips — same list as the rail above, with an icon in each label */}
           <div className="filter-row">
-            {GUEST_FEED_FILTERS.map((f) => (
-              <button
-                key={f}
-                type="button"
-                className={`filter-chip ${activeFilter === f ? 'active' : ''}`}
-                onClick={() => setActiveFilter(f)}
-              >
-                {f === 'Live now' ? (
-                  <>
+            {GUEST_FEED_FILTERS.map((f) => {
+              const active = activeFilter === f;
+              if (f === 'Live now') {
+                return (
+                  <button
+                    key={f}
+                    type="button"
+                    className={`filter-chip ${active ? 'active' : ''}`}
+                    onClick={() => setActiveFilter(f)}
+                  >
                     <span style={{
                       width: 6, height: 6, borderRadius: '50%',
-                      background: activeFilter === f ? 'white' : 'var(--primary)',
+                      background: active ? 'white' : 'var(--primary)',
                       display: 'inline-block', flexShrink: 0,
                     }} />
                     Live now
-                  </>
-                ) : f}
-              </button>
-            ))}
+                  </button>
+                );
+              }
+              const { Icon, color } = getCategoryIcon(f);
+              return (
+                <button
+                  key={f}
+                  type="button"
+                  className={`filter-chip ${active ? 'active' : ''}`}
+                  onClick={() => setActiveFilter(f)}
+                >
+                  <Icon size={13} color={active ? 'white' : color} aria-hidden="true" />
+                  {f}
+                </button>
+              );
+            })}
           </div>
         </div>
 

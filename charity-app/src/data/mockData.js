@@ -186,7 +186,7 @@ export const eventData = events[0] ? { ...events[0] } : {};
 export const EVENT_CATEGORIES = [...new Set(events.map((ev) => ev.category))];
 
 const extraEventCategories = EVENT_CATEGORIES.filter((c) => !BROWSE_CATEGORIES.includes(c));
-const ALL_BROWSE_FILTERS = [...BROWSE_CATEGORIES, ...extraEventCategories];
+export const ALL_BROWSE_FILTERS = [...BROWSE_CATEGORIES, ...extraEventCategories];
 
 export const SE_FEED_FILTERS = ['All', 'You', 'Live now', ...ALL_BROWSE_FILTERS];
 export const GUEST_FEED_FILTERS = ['All', 'Live now', ...ALL_BROWSE_FILTERS];
