@@ -3,36 +3,58 @@
 // Anyone who reads the deployed JS bundle can find these values; the goal is
 // to discourage casual/permanent forwarding, not to stop a determined leak.
 //
-// To add a reviewer: add a { code, label } entry below and redeploy.
-// To revoke a reviewer: delete (or comment out) their entry and redeploy —
+// To add a standing reviewer code: add a { code, label } entry below and
+// redeploy. To revoke one: delete (or comment out) its entry and redeploy —
 // anyone who unlocked with that code is locked out again on their next visit.
 export const ACCESS_CODES = [
   { code: 'CHARITYHUB-PREVIEW', label: 'General preview link' },
 ];
 
-// The shared passphrase rotates automatically every ROTATION_DAYS days, so
-// nobody has to remember to change it by hand. Share today's word; move the
-// rotation forward (or shorten ROTATION_DAYS) whenever you want a clean break
-// from anyone who currently has it.
-const ROTATION_DAYS = 1;
-const WORDS_A = ['amber', 'coral', 'harbor', 'lantern', 'meadow', 'summit', 'willow', 'ember'];
-const WORDS_B = ['anchor', 'beacon', 'canyon', 'drift', 'ferry', 'grove', 'ridge', 'tide'];
-
-function dayIndex(date) {
-  const startOfYear = Date.UTC(date.getUTCFullYear(), 0, 1);
-  const startOfDay = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-  return Math.floor((startOfDay - startOfYear) / 86400000);
-}
-
-/** Deterministic passphrase for a given date — same formula everywhere, no server round-trip needed. */
-export function getRotatingPassword(date = new Date()) {
-  const period = Math.floor(dayIndex(date) / ROTATION_DAYS);
-  const a = WORDS_A[period % WORDS_A.length];
-  const b = WORDS_B[Math.floor(period / WORDS_A.length) % WORDS_B.length];
-  return `${a}-${b}`;
-}
-
-// A longer-lived key, separate from the rotating passphrase and the reviewer
-// codes, so the team can always get back in and see today's/tomorrow's
-// passphrase from the gate itself without reading source.
+// A longer-lived key for the founders themselves — unlocks the app and also
+// reveals the "Generate an access password" panel (see AccessGate.jsx) used
+// to hand investors a password that expires on its own.
 export const FOUNDER_KEY = 'CHARITYHUB-FOUNDER';
+
+const TOKEN_WORDS = [
+  'amber', 'coral', 'harbor', 'lantern', 'meadow', 'summit', 'willow', 'ember',
+  'anchor', 'beacon', 'canyon', 'drift', 'ferry', 'grove', 'ridge', 'tide',
+];
+
+// Not a real cryptographic secret — it ships in the JS bundle like everything
+// else on this page. It only stops someone from hand-editing the expiry
+// inside a password they were legitimately given; it can't stop someone
+// reading the source from minting their own.
+const TOKEN_SALT = 'chub-2026-preview';
+
+function checksum(input) {
+  let hash = 0;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = (Math.imul(31, hash) + input.charCodeAt(i)) | 0;
+  }
+  return (hash >>> 0).toString(36).slice(0, 4).padStart(4, '0');
+}
+
+/**
+ * Generates a password that carries its own expiry, encoded and checksummed
+ * into the string itself — so any browser can validate it on its own, which
+ * is the only way "this expires in 24/48 hours" works with no backend to
+ * keep a shared list of what's currently valid.
+ */
+export function generateAccessPassword(hours) {
+  const expiresAt = Date.now() + hours * 60 * 60 * 1000;
+  const stamp = Math.round(expiresAt / 60000).toString(36); // minute resolution
+  const word = TOKEN_WORDS[Math.floor(Math.random() * TOKEN_WORDS.length)];
+  const password = `${word}-${stamp}-${checksum(`${TOKEN_SALT}:${stamp}`)}`;
+  return { password, expiresAt };
+}
+
+/** Returns { expiresAt } for a well-formed generated password, or null if it's not one. */
+export function decodeGeneratedPassword(rawPassword) {
+  const parts = String(rawPassword || '').trim().toLowerCase().split('-');
+  if (parts.length !== 3) return null;
+  const [, stamp, sum] = parts;
+  if (!stamp || checksum(`${TOKEN_SALT}:${stamp}`) !== sum) return null;
+  const minutes = parseInt(stamp, 36);
+  if (!Number.isFinite(minutes)) return null;
+  return { expiresAt: minutes * 60000 };
+}
