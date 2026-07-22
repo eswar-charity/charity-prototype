@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Share2, Heart, X, Calendar, MapPin, Plus, Camera, ArrowUp, ChevronLeft,
@@ -125,6 +125,8 @@ function ThreadRow({ post, isLast, showLiveDot, onOpen, variant }) {
   );
 }
 
+const PHASE_LABELS = { before: 'Before the event', during: 'Live', after: 'After the event' };
+
 function CommunityTab({ ev }) {
   const posts = buildCommunityThread(ev);
   const [openPostId, setOpenPostId] = useState(null);
@@ -135,7 +137,7 @@ function CommunityTab({ ev }) {
       <div className="dsk-tab-panel">
         <div className="thread-back-row thread-back-row--panel">
           <button type="button" className="thread-back-btn" onClick={() => setOpenPostId(null)}>
-            <ChevronLeft size={15} aria-hidden="true" /> 
+            <ChevronLeft size={15} aria-hidden="true" /> Community
           </button>
         </div>
 
@@ -162,9 +164,17 @@ function CommunityTab({ ev }) {
       </div>
 
       <div className="community-thread community-thread--panel">
-        {posts.map((post, i) => (
-          <ThreadRow key={post.id} post={post} isLast={i === posts.length - 1} showLiveDot={i === 0} onOpen={setOpenPostId} />
-        ))}
+        {posts.map((post, i) => {
+          const prevPhase = posts[i - 1]?.phase;
+          const showDivider = i === 0 || prevPhase !== post.phase;
+          const showLiveDot = post.phase === 'during' && (i === 0 || prevPhase !== 'during');
+          return (
+            <Fragment key={post.id}>
+              {showDivider && <p className="thread-phase-label">{PHASE_LABELS[post.phase] || post.phase}</p>}
+              <ThreadRow post={post} isLast={i === posts.length - 1} showLiveDot={showLiveDot} onOpen={setOpenPostId} />
+            </Fragment>
+          );
+        })}
       </div>
     </div>
   );

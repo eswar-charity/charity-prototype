@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, Bookmark, MapPin, Share2, Heart, Calendar, ChevronRight } from 'lucide-react';
 import { NonprofitLearnMoreModal, EventBackersModal } from '../../components/event/EventModals';
-import { slugify, getEventByKey, getNonprofitForEvent, eventDisplayTitle, getCommunityPhotos, eventUpcomingPath } from '../../data/mockData';
+import { slugify, getEventByKey, getNonprofitForEvent, eventDisplayTitle, getCommunityPhotos, eventUpcomingPath, getEventBannerFocus } from '../../data/mockData';
 import { EventImageBanner } from '../../components/event/EventImage';
 import MobileShareModal from '../../components/MobileShareModal';
 import MobileJoinModal from '../../components/MobileJoinModal';
@@ -29,7 +29,7 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
       <div className="detail-screen">
         <div className="detail-scroll">
           {/* Hero */}
-          <EventImageBanner src={ev.cover} alt={ev.title} variant="hero" className="detail-hero" style={{ height: 240 }}>
+          <EventImageBanner src={ev.cover} alt={ev.title} variant="hero" className="detail-hero" style={{ height: 240 }} objectPosition={getEventBannerFocus(ev)}>
             <div style={{
               position: 'absolute', inset: 0,
               background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.1) 55%, transparent 100%)',

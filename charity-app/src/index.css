@@ -2236,13 +2236,13 @@ textarea.input-field {
 /* Discovery filter row — a second, different axis (how to surface events)
    from the category rail above it (which cause). Large pill chips with
    edge scroll arrows, not another pass over the same 15 categories. */
-.pill-filter-wrap { position: relative; padding: 2px 0 16px; }
+.pill-filter-wrap { position: relative; padding: 2px 0 14px; }
 .pill-filter-row { display: flex; gap: 10px; padding: 0 18px; overflow-x: auto; scrollbar-width: none; scroll-behavior: smooth; }
 .pill-filter-row::-webkit-scrollbar { display: none; }
 .pill-filter-chip {
-  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
-  padding: 13px 20px; border-radius: var(--radius-pill); border: none;
-  background: var(--white); color: var(--dark); font-size: 14px; font-weight: 700;
+  display: flex; align-items: center; gap: 7px; flex-shrink: 0;
+  padding: 9px 16px; border-radius: var(--radius-pill); border: none;
+  background: var(--white); color: var(--dark); font-size: 13px; font-weight: 700;
   white-space: nowrap; cursor: pointer; font-family: inherit;
   box-shadow: 0 1px 3px rgba(26, 46, 74, 0.08);
 }
@@ -2449,6 +2449,13 @@ textarea.input-field {
 .thread-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-top: 3px; }
 .thread-media-post { height: 260px; margin-top: 10px; }
 .thread-media-attachment { height: 170px; margin-top: 10px; }
+
+/* Phase divider — marks the before/during/after boundary in the timeline */
+.thread-phase-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
+  color: var(--text-light); padding: 16px 0 8px 2px;
+}
+.thread-phase-label:first-child { padding-top: 2px; }
 
 /* Thread post → detail drill-down (Reddit/Stack-Overflow style) */
 .thread-post--clickable { cursor: pointer; }

@@ -4,7 +4,7 @@ import { Users, MessageCircle, Camera } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
 import FilterPillRow from '../../components/FilterPillRow';
-import { events, ALL_BROWSE_FILTERS, eventDetailPath, eventDisplayTitle } from '../../data/mockData';
+import { events, ALL_BROWSE_FILTERS, eventDetailPath, eventDisplayTitle, getEventBannerFocus } from '../../data/mockData';
 import { getCategoryIcon, DISCOVERY_FILTERS } from '../../data/categoryIcons';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
 import { EventImageBanner } from '../../components/event/EventImage';
@@ -14,7 +14,7 @@ function SceneEventCard({ ev }) {
 
   return (
     <div className="dsk-event-card" onClick={() => navigate(eventDetailPath(ev, { loggedIn: true }))}>
-      <EventImageBanner src={ev.cover} alt={ev.title} variant="card" className="dsk-event-card-hero">
+      <EventImageBanner src={ev.cover} alt={ev.title} variant="card" className="dsk-event-card-hero" objectPosition={getEventBannerFocus(ev)}>
         <div className="dsk-event-card-badges">
           {ev.isLive ? (
             <span className="dsk-badge-live"><span className="live-dot" /> LIVE NOW</span>

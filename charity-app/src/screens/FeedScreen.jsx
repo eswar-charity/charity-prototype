@@ -5,7 +5,7 @@ import BottomNav from '../components/BottomNav';
 import NotificationBell, { SE_FEED_NOTIFICATIONS } from '../components/NotificationBell';
 import MobileAppHeader from '../components/MobileAppHeader';
 import FilterPillRow from '../components/FilterPillRow';
-import { events, ALL_BROWSE_FILTERS, SE_ORGANIZER, eventDetailPath, eventDisplayTitle } from '../data/mockData';
+import { events, ALL_BROWSE_FILTERS, SE_ORGANIZER, eventDetailPath, eventDisplayTitle, getEventBannerFocus } from '../data/mockData';
 import { getCategoryIcon, DISCOVERY_FILTERS } from '../data/categoryIcons';
 import useInfiniteScroll from '../hooks/useInfiniteScroll';
 import { EventImageBanner } from '../components/event/EventImage';
@@ -119,7 +119,7 @@ export default function FeedScreen() {
               onKeyDown={activateOnKey(() => openEvent(ev))}
             >
               {/* Hero image */}
-              <EventImageBanner src={ev.cover} alt={ev.title} variant="card" className="scene-card-hero">
+              <EventImageBanner src={ev.cover} alt={ev.title} variant="card" className="scene-card-hero" objectPosition={getEventBannerFocus(ev)}>
                 <div className="scene-card-badges">
                   {ev.isLive ? (
                     <span className="scene-badge-live"><span className="live-dot" /> LIVE NOW</span>

@@ -4,7 +4,7 @@ import { MessageCircle, Camera, Bell } from 'lucide-react';
 import GuestBottomNav from '../../components/GuestBottomNav';
 import MobileAppHeader from '../../components/MobileAppHeader';
 import FilterPillRow from '../../components/FilterPillRow';
-import { events, ALL_BROWSE_FILTERS, eventDetailPath, eventDisplayTitle } from '../../data/mockData';
+import { events, ALL_BROWSE_FILTERS, eventDetailPath, eventDisplayTitle, getEventBannerFocus } from '../../data/mockData';
 import { getCategoryIcon, DISCOVERY_FILTERS } from '../../data/categoryIcons';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
 import { EventImageBanner } from '../../components/event/EventImage';
@@ -129,7 +129,7 @@ export default function GuestFeed() {
                 onClick={() => openEvent(ev)}
                 onKeyDown={activateOnKey(() => openEvent(ev))}
               >
-                <EventImageBanner src={ev.cover} alt={ev.title} variant="card" className="scene-card-hero">
+                <EventImageBanner src={ev.cover} alt={ev.title} variant="card" className="scene-card-hero" objectPosition={getEventBannerFocus(ev)}>
                   <div className="scene-card-badges">
                     {ev.isLive ? (
                       <span className="scene-badge-live"><span className="live-dot" /> LIVE NOW</span>

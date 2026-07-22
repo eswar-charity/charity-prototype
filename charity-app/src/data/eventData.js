@@ -173,11 +173,11 @@ export function getEventBanner(event) {
  * high). These per-cover values keep each event's subject in view.
  */
 const BANNER_FOCUS = {
-  'neon-night': 'center 42%',
+  'neon-night': 'center 18%',
   'golf-outing': 'center 50%',
   'dog-dad': 'center 30%',
-  'give-now': 'center 60%',
-  'breakneck-ridge-run': 'center 68%',
+  'give-now': 'center 25%',
+  'breakneck-ridge-run': 'center 25%',
 };
 
 export function getEventBannerFocus(event) {

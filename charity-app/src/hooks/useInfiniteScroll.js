@@ -46,11 +46,13 @@ export default function useInfiniteScroll(source, { pageSize = 3, max = 24, root
   }, [count, max, pageSize, rootRef]);
 
   const items = [];
-  for (let i = 0; i < count; i += 1) {
-    const base = source[i % source.length];
-    const baseId = base.id != null ? base.id : (base.key != null ? base.key : 'item');
-    items.push({ ...base, _key: `${baseId}-${i}` });
+  if (source.length > 0) {
+    for (let i = 0; i < count; i += 1) {
+      const base = source[i % source.length];
+      const baseId = base.id != null ? base.id : (base.key != null ? base.key : 'item');
+      items.push({ ...base, _key: `${baseId}-${i}` });
+    }
   }
 
-  return { items, sentinelRef, loading, hasMore: count < max };
+  return { items, sentinelRef, loading, hasMore: source.length > 0 && count < max };
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ChevronLeft, Info, Share2, Heart,
@@ -6,7 +6,7 @@ import {
   Images, MessageCircle, HandHeart, PartyPopper, Check, UserPlus,
   Calendar, MapPin,
 } from 'lucide-react';
-import { buildDonationSuccessUrl, buildCommunityThread, getEventByKey, eventLivePath, eventDisplayTitle, getEventBanner } from '../../data/mockData';
+import { buildDonationSuccessUrl, buildCommunityThread, getEventByKey, eventLivePath, eventDisplayTitle, getEventBanner, getEventBannerFocus } from '../../data/mockData';
 import { EventImageBanner } from '../../components/event/EventImage';
 import MobileShareModal from '../../components/MobileShareModal';
 import MobileJoinModal from '../../components/MobileJoinModal';
@@ -94,6 +94,8 @@ function ThreadRow({ post, isLast, showLiveDot, onOpen, variant }) {
   );
 }
 
+const PHASE_LABELS = { before: 'Before the event', during: 'Live', after: 'After the event' };
+
 function CommunityTab({ ev }) {
   const posts = buildCommunityThread(ev);
   const [openPostId, setOpenPostId] = useState(null);
@@ -104,7 +106,7 @@ function CommunityTab({ ev }) {
       <>
         <div className="thread-back-row">
           <button type="button" className="thread-back-btn" onClick={() => setOpenPostId(null)}>
-            <ChevronLeft size={15} aria-hidden="true" /> 
+            <ChevronLeft size={15} aria-hidden="true" /> Community
           </button>
         </div>
 
@@ -135,9 +137,17 @@ function CommunityTab({ ev }) {
       </div>
 
       <div className="community-thread">
-        {posts.map((post, i) => (
-          <ThreadRow key={post.id} post={post} isLast={i === posts.length - 1} showLiveDot={i === 0} onOpen={setOpenPostId} />
-        ))}
+        {posts.map((post, i) => {
+          const prevPhase = posts[i - 1]?.phase;
+          const showDivider = i === 0 || prevPhase !== post.phase;
+          const showLiveDot = post.phase === 'during' && (i === 0 || prevPhase !== 'during');
+          return (
+            <Fragment key={post.id}>
+              {showDivider && <p className="thread-phase-label">{PHASE_LABELS[post.phase] || post.phase}</p>}
+              <ThreadRow post={post} isLast={i === posts.length - 1} showLiveDot={showLiveDot} onOpen={setOpenPostId} />
+            </Fragment>
+          );
+        })}
       </div>
       <div style={{ height: 20 }} />
     </>
@@ -383,7 +393,7 @@ export default function EventDetailLive({ loggedIn = false }) {
       <div className="detail-screen">
 
         {/* ── Hero ── */}
-        <EventImageBanner src={heroImage} alt={ev.title} variant="hero" className="ev-hero">
+        <EventImageBanner src={heroImage} alt={ev.title} variant="hero" className="ev-hero" objectPosition={getEventBannerFocus(ev)}>
           <div className="ev-hero-gradient" />
 
           {/* Top nav */}
