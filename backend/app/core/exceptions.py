@@ -41,9 +41,33 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(RequestValidationError)
     async def _validation_error(_: Request, exc: RequestValidationError):
+        # Convert errors to serializable format
+        errors = []
+        for error in exc.errors():
+            err_dict = {
+                "loc": error.get("loc"),
+                "msg": error.get("msg"),
+                "type": error.get("type"),
+            }
+            # Only include ctx if it's present and serializable
+            if "ctx" in error and error["ctx"]:
+                ctx = error["ctx"]
+                # Filter out non-serializable values from ctx
+                serializable_ctx = {}
+                for k, v in ctx.items():
+                    try:
+                        import json
+                        json.dumps(v)
+                        serializable_ctx[k] = v
+                    except (TypeError, ValueError):
+                        # Skip non-serializable values
+                        pass
+                if serializable_ctx:
+                    err_dict["ctx"] = serializable_ctx
+            errors.append(err_dict)
         return JSONResponse(
             status_code=422,
-            content=_envelope("validation_error", "Invalid request", exc.errors()),
+            content=_envelope("validation_error", "Invalid request", errors),
         )
 
     @app.exception_handler(Exception)
