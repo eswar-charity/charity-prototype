@@ -6,7 +6,7 @@ alembic==1.14.0
 pydantic==2.10.4
 pydantic-settings==2.7.0
 PyJWT==2.10.1
-passlib[bcrypt]==1.7.4
+bcrypt==5.0.0
 cloudinary==1.41.0
 python-multipart==0.0.20
 qrcode[pil]==8.0
