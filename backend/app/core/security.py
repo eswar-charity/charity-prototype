@@ -8,14 +8,20 @@ from app.core.exceptions import AppError
 
 
 def hash_password(password: str) -> str:
-    """Hash a password using bcrypt."""
-    salt = bcrypt.gensalt()
-    return bcrypt.hashpw(password.encode(), salt).decode()
+    """Hash a password using bcrypt.
+
+    bcrypt only considers the first 72 bytes of the input; the raw bcrypt
+    library (unlike passlib) raises ValueError beyond that instead of
+    silently truncating, so we truncate explicitly and identically in both
+    hash_password and verify_password to keep register/login consistent.
+    """
+    pw = password.encode()[:72]
+    return bcrypt.hashpw(pw, bcrypt.gensalt()).decode()
 
 
 def verify_password(password: str, password_hash: str) -> bool:
     """Verify a password against its bcrypt hash."""
-    return bcrypt.checkpw(password.encode(), password_hash.encode())
+    return bcrypt.checkpw(password.encode()[:72], password_hash.encode())
 
 
 def _create_token(

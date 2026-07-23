@@ -1,11 +1,23 @@
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 
+def _normalize_email(value):
+    """Strip whitespace and lowercase email strings; pass through other values unchanged."""
+    if isinstance(value, str) and value:
+        return value.strip().lower()
+    return value
+
+
 class RegisterRequest(BaseModel):
     name: str
     email: str
     password: str = Field(min_length=8)
     role: str = "se"
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def _lowercase_email(cls, v):
+        return _normalize_email(v)
 
     @field_validator("role")
     @classmethod
@@ -19,6 +31,11 @@ class LoginRequest(BaseModel):
     email: str
     password: str
 
+    @field_validator("email", mode="before")
+    @classmethod
+    def _lowercase_email(cls, v):
+        return _normalize_email(v)
+
 
 class RefreshRequest(BaseModel):
     refresh_token: str
@@ -28,6 +45,11 @@ class IdentityGateRequest(BaseModel):
     email: str | None = None
     phone: str | None = None
     name: str | None = None
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def _lowercase_email(cls, v):
+        return _normalize_email(v)
 
     @model_validator(mode="after")
     def _require_email_or_phone(self):
@@ -39,6 +61,11 @@ class IdentityGateRequest(BaseModel):
 class GoogleMockRequest(BaseModel):
     email: str | None = None
     name: str | None = None
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def _lowercase_email(cls, v):
+        return _normalize_email(v)
 
 
 class TokenResponse(BaseModel):

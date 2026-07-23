@@ -1,7 +1,8 @@
 import pytest
 
 from app.core.exceptions import AppError
-from app.core.security import decode_token
+from app.core.security import decode_token, hash_password, verify_password
+from app.repositories import user_repository
 from app.schemas.auth import IdentityGateRequest, RegisterRequest
 from app.schemas.user import UserRead
 from app.services import auth_service
@@ -105,3 +106,75 @@ async def test_google_mock_creates_se(db_session):
     user, tokens = await auth_service.google_mock(db_session, email="mike.rivera@demo.charityhub.com", name="Mike Rivera")
     assert user.role == "se"
     assert tokens["token_type"] == "bearer"
+
+
+@pytest.mark.asyncio
+async def test_identity_gate_creates_then_reuses_guest_lead_by_email(db_session):
+    user1, tokens1 = await auth_service.identity_gate(
+        db_session, email="guest@e.com", phone=None, name=None
+    )
+    assert user1.role == "guest_lead"
+    assert tokens1["access_token"]
+    user2, _ = await auth_service.identity_gate(
+        db_session, email="guest@e.com", phone=None, name=None
+    )
+    assert user2.id == user1.id
+
+
+@pytest.mark.asyncio
+async def test_identity_gate_rejects_credentialed_account_by_email(db_session):
+    registered = await auth_service.register(
+        db_session, name="Real User", email="realuser@e.com", password="Passw0rd!", role="se"
+    )
+    assert registered.password_hash is not None
+
+    with pytest.raises(AppError) as exc:
+        await auth_service.identity_gate(
+            db_session, email="realuser@e.com", phone=None, name=None
+        )
+    assert exc.value.status_code == 409
+    assert exc.value.code == "conflict"
+
+
+@pytest.mark.asyncio
+async def test_identity_gate_rejects_credentialed_account_by_phone(db_session):
+    registered = await auth_service.register(
+        db_session, name="Real Phone User", email="realphone@e.com", password="Passw0rd!", role="se"
+    )
+    await user_repository.update(db_session, registered, phone="+15559999")
+
+    with pytest.raises(AppError) as exc:
+        await auth_service.identity_gate(
+            db_session, email=None, phone="+15559999", name=None
+        )
+    assert exc.value.status_code == 409
+    assert exc.value.code == "conflict"
+
+
+@pytest.mark.asyncio
+async def test_google_mock_rejects_credentialed_account(db_session):
+    await auth_service.register(
+        db_session, name="Real Google User", email="realgoogle@e.com", password="Passw0rd!", role="se"
+    )
+
+    with pytest.raises(AppError) as exc:
+        await auth_service.google_mock(db_session, email="realgoogle@e.com", name=None)
+    assert exc.value.status_code == 409
+    assert exc.value.code == "conflict"
+
+
+@pytest.mark.asyncio
+async def test_google_mock_creates_se_for_new_email(db_session):
+    user, tokens = await auth_service.google_mock(
+        db_session, email="brandnew@e.com", name="Brand New"
+    )
+    assert user.role == "se"
+    assert user.password_hash is None
+    assert tokens["access_token"]
+
+
+def test_hash_and_verify_password_handles_long_password():
+    long_password = "x" * 100
+    password_hash = hash_password(long_password)
+    assert verify_password(long_password, password_hash) is True
+    assert verify_password("y" * 100, password_hash) is False

@@ -76,9 +76,23 @@ async def identity_gate(
 ) -> tuple[User, dict]:
     user = None
     if email:
-        user = await user_repository.get_by_email(db, email)
+        existing = await user_repository.get_by_email(db, email)
+        if existing is not None and existing.password_hash is not None:
+            raise AppError(
+                "conflict",
+                "An account with this email already exists — please log in",
+                status_code=409,
+            )
+        user = existing
     if not user and phone:
-        user = await user_repository.get_by_phone(db, phone)
+        existing = await user_repository.get_by_phone(db, phone)
+        if existing is not None and existing.password_hash is not None:
+            raise AppError(
+                "conflict",
+                "An account with this email already exists — please log in",
+                status_code=409,
+            )
+        user = existing
     if not user:
         display = name or (email.split("@")[0] if email else "Guest")
         user = await user_repository.create(
@@ -100,6 +114,12 @@ async def google_mock(
 ) -> tuple[User, dict]:
     email = email or "mike.rivera@demo.charityhub.com"
     user = await user_repository.get_by_email(db, email)
+    if user is not None and user.password_hash is not None:
+        raise AppError(
+            "conflict",
+            "An account with this email already exists — please log in",
+            status_code=409,
+        )
     if not user:
         display = name or "Mike Rivera"
         user = await user_repository.create(

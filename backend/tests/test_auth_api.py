@@ -111,3 +111,47 @@ async def test_logout_ok(client):
     resp = await client.post("/api/v1/auth/logout")
     assert resp.status_code == 200
     assert resp.json() == {"status": "ok"}
+
+
+@pytest.mark.asyncio
+async def test_identity_gate_rejects_registered_credentialed_email_409(client):
+    await client.post(
+        "/api/v1/auth/register",
+        json={"name": "Real User", "email": "realuser2@e.com", "password": "Passw0rd!", "role": "se"},
+    )
+    resp = await client.post(
+        "/api/v1/auth/identity-gate", json={"email": "realuser2@e.com"}
+    )
+    assert resp.status_code == 409
+    body = resp.json()
+    assert body["error"]["code"] == "conflict"
+    assert "access_token" not in body
+
+
+@pytest.mark.asyncio
+async def test_login_email_case_insensitive(client):
+    await client.post(
+        "/api/v1/auth/register",
+        json={"name": "Mixed Case", "email": "Mixed@Case.Com", "password": "Passw0rd!", "role": "se"},
+    )
+    resp = await client.post(
+        "/api/v1/auth/login", json={"email": "mixed@case.com", "password": "Passw0rd!"}
+    )
+    assert resp.status_code == 200
+    assert resp.json()["token_type"] == "bearer"
+
+
+@pytest.mark.asyncio
+async def test_register_and_login_with_long_password(client):
+    long_password = "P" * 99 + "!"
+    reg = await client.post(
+        "/api/v1/auth/register",
+        json={"name": "Long Pw", "email": "longpw@e.com", "password": long_password, "role": "se"},
+    )
+    assert reg.status_code == 201
+
+    login = await client.post(
+        "/api/v1/auth/login", json={"email": "longpw@e.com", "password": long_password}
+    )
+    assert login.status_code == 200
+    assert login.json()["token_type"] == "bearer"
