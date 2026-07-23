@@ -6,7 +6,7 @@ FastAPI backend for the Charity Hub prototype.
 
 ```bash
 cd backend
-python -m venv .venv && . .venv/Scripts/activate   # Windows
+python -m venv .venv && .venv\Scripts\Activate.ps1   # Windows PowerShell
 pip install -r requirements.txt
 cp .env.example .env   # then fill in Supabase + Cloudinary values
 ```

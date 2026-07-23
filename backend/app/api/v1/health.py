@@ -10,7 +10,7 @@ async def health():
     return {"status": "ok"}
 
 
-@router.get("/boom")
+@router.get("/boom", include_in_schema=False)
 async def boom():
     # Test-only route exercising the AppError envelope.
     raise AppError(code="teapot", message="I'm a teapot", status_code=418)

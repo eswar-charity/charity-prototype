@@ -19,6 +19,11 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 DB_URL = get_settings().database_url
+if not DB_URL:
+    raise SystemExit(
+        "DATABASE_URL is not set — copy backend/.env.example to backend/.env "
+        "and set it before running migrations"
+    )
 
 
 def run_migrations_offline() -> None:
