@@ -129,7 +129,9 @@ Denormalized counters on `events` (`backed, joined, updates, chat_count, raised`
 
 ## 8. Testing
 
-pytest + httpx against a dedicated test database. One suite per domain, written with each phase's implementation (TDD). Cover: auth/RBAC gates, lifecycle transitions, donation receipt math + mock charge branches, pagination/filter helpers, media validation, and admin state machines.
+pytest + httpx. One suite per domain, written with each phase's implementation (TDD). Cover: auth/RBAC gates, lifecycle transitions, donation receipt math + mock charge branches, pagination/filter helpers, media validation, and admin state machines.
+
+**Test database (decided 2026-07-23):** the automated suite runs on **SQLite (aiosqlite)** — the environment has no Docker/local Postgres, and coupling every test run to live Supabase is undesirable. Models are therefore kept **dialect-portable** (integer PKs, generic `JSON`, no Postgres-only `ARRAY`/native `ENUM`/`UUID` columns). The test suite builds schema via `Base.metadata.create_all` on an aiosqlite engine with a `get_db` override. The **real app and Alembic migrations still target Supabase Postgres**; migrations are authored per phase and validated against Supabase once credentials are provided. Cloudinary and Stripe are mocked in tests (their real keys are needed only for runtime/manual verification).
 
 ## 9. Seed data
 
