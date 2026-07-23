@@ -1,3 +1,4 @@
+import json
 import logging
 
 from fastapi import FastAPI, Request
@@ -56,7 +57,6 @@ def register_exception_handlers(app: FastAPI) -> None:
                 serializable_ctx = {}
                 for k, v in ctx.items():
                     try:
-                        import json
                         json.dumps(v)
                         serializable_ctx[k] = v
                     except (TypeError, ValueError):
