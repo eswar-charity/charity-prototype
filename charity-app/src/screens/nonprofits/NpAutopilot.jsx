@@ -2,24 +2,74 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Check, Settings, Info } from 'lucide-react';
 import MobileAppHeader from '../../components/MobileAppHeader';
+import { useNpAutopilot } from '../../hooks/useNpAutopilot';
 
-const CHECKS = [
-  'SE must be verified and in good standing',
-  'Event must have media and story text',
-  'No policy-sensitive keywords flagged',
-  'Date range must be valid (future)',
-];
-
-const TRUSTED_SES = [
-  { id: 1, name: 'Mike Rivera', events: 5, avatar: '/events/breakneck-ridge-run/img4.jpg' },
-];
+const TOAST_STYLE = {
+  position: 'fixed', bottom: 96, left: '50%', transform: 'translateX(-50%)',
+  background: 'var(--dark)', color: '#fff', padding: '11px 20px',
+  borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 600,
+  zIndex: 100, boxShadow: '0 6px 24px rgba(0,0,0,0.28)', maxWidth: '80%', textAlign: 'center',
+};
 
 export default function NpAutopilot() {
   const navigate = useNavigate();
-  const [enabled, setEnabled] = useState(true);
-  const [trusted, setTrusted] = useState(TRUSTED_SES);
+  const {
+    enabled,
+    checks,
+    trusted,
+    loading,
+    error,
+    toggleEnabled,
+    setAutopilotEnabled,
+    removeTrusted,
+  } = useNpAutopilot();
+  const [toast, setToast] = useState('');
+  const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
 
-  const removeTrusted = (id) => setTrusted((prev) => prev.filter((s) => s.id !== id));
+  const handleToggle = async () => {
+    try {
+      await toggleEnabled();
+      notify(enabled ? 'Autopilot turned off' : 'Autopilot turned on');
+    } catch {
+      notify('Could not update autopilot');
+    }
+  };
+
+  const handleRemove = async (se) => {
+    try {
+      await removeTrusted(se.seUserId);
+      notify(`${se.name} removed from trusted SEs`);
+    } catch {
+      notify('Could not remove trusted SE');
+    }
+  };
+
+  const handleDisable = async () => {
+    try {
+      await setAutopilotEnabled(false);
+      notify('Autopilot disabled');
+    } catch {
+      notify('Could not disable autopilot');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="phone-shell">
+        <div className="screen" style={{ padding: 24, textAlign: 'center', color: 'var(--text-secondary)' }}>Loading…</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="phone-shell">
+        <div className="screen" style={{ padding: 24, textAlign: 'center', color: 'var(--text-secondary)' }}>
+          {error?.message || 'Could not load autopilot settings'}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="phone-shell">
@@ -70,7 +120,7 @@ export default function NpAutopilot() {
                 <button
                   type="button"
                   className={`toggle ${enabled ? 'on' : ''}`}
-                  onClick={() => setEnabled(!enabled)}
+                  onClick={handleToggle}
                   aria-label="Toggle autopilot"
                 >
                   <div className="toggle-thumb" />
@@ -82,7 +132,7 @@ export default function NpAutopilot() {
               <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)', marginBottom: 12 }}>
                 Autopilot checks before auto-approving
               </p>
-              {CHECKS.map((c) => (
+              {checks.map((c) => (
                 <div key={c} className="auto-check">
                   <div className="blue-check-circle">
                     <Check size={11} color="white" strokeWidth={3} />
@@ -100,6 +150,9 @@ export default function NpAutopilot() {
               <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)', marginBottom: 4 }}>
                 Trusted social entrepreneurs ({trusted.length})
               </p>
+              {trusted.length === 0 && (
+                <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>No trusted SEs yet.</p>
+              )}
               {trusted.map((se) => (
                 <div key={se.id} className="trusted-row">
                   <img
@@ -117,7 +170,7 @@ export default function NpAutopilot() {
                       background: 'none', border: 'none', color: 'var(--primary)',
                       fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
                     }}
-                    onClick={() => removeTrusted(se.id)}
+                    onClick={() => handleRemove(se)}
                   >
                     Remove
                   </button>
@@ -132,7 +185,7 @@ export default function NpAutopilot() {
                   background: 'none', border: 'none', color: 'var(--primary)',
                   fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
                 }}
-                onClick={() => setEnabled(false)}
+                onClick={handleDisable}
               >
                 Disable Autopilot
               </button>
@@ -142,6 +195,7 @@ export default function NpAutopilot() {
             </div>
           </div>
         </div>
+        {toast && <div style={TOAST_STYLE}>{toast}</div>}
       </div>
     </div>
   );

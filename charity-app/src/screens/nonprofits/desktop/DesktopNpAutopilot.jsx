@@ -1,31 +1,88 @@
 import { useState } from 'react';
 import { Check, Settings, Info } from 'lucide-react';
 import { DesktopNpLayout } from '../../../components/desktop/DesktopNpLayout';
+import { useNpAutopilot } from '../../../hooks/useNpAutopilot';
 
-const CHECKS = [
-  'SE verified & in good standing',
-  'Event has media + story',
-  'No policy-sensitive keywords',
-  'Valid future date range',
-];
-
-const TRUSTED_SES = [
-  { id: 1, name: 'Mike Rivera', events: 5, avatar: '/events/breakneck-ridge-run/img4.jpg' },
-];
-
-const CANDIDATE_SES = [
-  { name: 'Jordan P.', avatar: '/events/give-now/img3.jpg' },
-  { name: 'Sofia L.', avatar: '/events/neon-night/img2.jpg' },
-];
+const TOAST_STYLE = {
+  position: 'fixed', bottom: 28, left: '50%', transform: 'translateX(-50%)',
+  background: 'var(--dark)', color: '#fff', padding: '12px 22px',
+  borderRadius: 'var(--radius-pill)', fontSize: 14, fontWeight: 600,
+  zIndex: 100, boxShadow: '0 6px 24px rgba(0,0,0,0.28)',
+};
 
 export default function DesktopNpAutopilot() {
-  const [enabled, setEnabled] = useState(true);
-  const [trusted, setTrusted] = useState(TRUSTED_SES);
+  const {
+    enabled,
+    checks,
+    trusted,
+    candidateSeId,
+    loading,
+    error,
+    toggleEnabled,
+    setAutopilotEnabled,
+    removeTrusted,
+    addTrusted,
+  } = useNpAutopilot();
+  const [toast, setToast] = useState('');
+  const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
 
-  const addTrusted = () => {
-    const c = CANDIDATE_SES[trusted.length % CANDIDATE_SES.length];
-    setTrusted((prev) => [...prev, { id: Date.now(), name: c.name, events: 0, avatar: c.avatar }]);
+  const handleToggle = async () => {
+    try {
+      await toggleEnabled();
+      notify(enabled ? 'Autopilot turned off' : 'Autopilot turned on');
+    } catch {
+      notify('Could not update autopilot');
+    }
   };
+
+  const handleRemove = async (se) => {
+    try {
+      await removeTrusted(se.seUserId);
+      notify(`${se.name} removed from trusted SEs`);
+    } catch {
+      notify('Could not remove trusted SE');
+    }
+  };
+
+  const handleAdd = async () => {
+    if (!candidateSeId) {
+      notify('No pending SE available to trust');
+      return;
+    }
+    try {
+      await addTrusted();
+      notify('Trusted SE added');
+    } catch {
+      notify('Could not add trusted SE');
+    }
+  };
+
+  const handleDisable = async () => {
+    try {
+      await setAutopilotEnabled(false);
+      notify('Autopilot disabled');
+    } catch {
+      notify('Could not disable autopilot');
+    }
+  };
+
+  if (loading) {
+    return (
+      <DesktopNpLayout active="approvals" title="Autopilot Settings">
+        <div style={{ padding: 24, color: 'var(--text-secondary)' }}>Loading…</div>
+      </DesktopNpLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <DesktopNpLayout active="approvals" title="Autopilot Settings">
+        <div style={{ padding: 24, color: 'var(--text-secondary)' }}>
+          {error?.message || 'Could not load autopilot settings'}
+        </div>
+      </DesktopNpLayout>
+    );
+  }
 
   return (
     <DesktopNpLayout active="approvals" title="Autopilot Settings">
@@ -44,7 +101,7 @@ export default function DesktopNpAutopilot() {
           <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)', marginBottom: 3 }}>Enable Autopilot</p>
           <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{enabled ? 'Active — events from trusted SEs auto-publish' : 'Off — all events go to manual review'}</p>
         </div>
-        <button className={`toggle ${enabled ? 'on' : ''}`} onClick={() => setEnabled(!enabled)} aria-label="Toggle autopilot">
+        <button className={`toggle ${enabled ? 'on' : ''}`} onClick={handleToggle} aria-label="Toggle autopilot">
           <div className="toggle-thumb" />
         </button>
       </div>
@@ -52,7 +109,7 @@ export default function DesktopNpAutopilot() {
       <div className="dsk-np-two-col">
         <div className="dsk-np-panel">
           <p className="dsk-np-panel-title" style={{ marginBottom: 12 }}>Autopilot checks before auto-approving</p>
-          {CHECKS.map((c) => (
+          {checks.map((c) => (
             <div key={c} className="auto-check">
               <div className="blue-check-circle"><Check size={11} color="white" strokeWidth={3} /></div>
               <p style={{ fontSize: 13, color: 'var(--dark)', lineHeight: 1.4 }}>{c}</p>
@@ -66,6 +123,9 @@ export default function DesktopNpAutopilot() {
 
         <div className="dsk-np-panel">
           <p className="dsk-np-panel-title" style={{ marginBottom: 12 }}>Trusted social entrepreneurs ({trusted.length})</p>
+          {trusted.length === 0 && (
+            <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>No trusted SEs yet.</p>
+          )}
           {trusted.map((se) => (
             <div key={se.id} className="trusted-row">
               <img src={se.avatar} alt={se.name} style={{ width: 38, height: 38, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
@@ -73,10 +133,10 @@ export default function DesktopNpAutopilot() {
                 <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>{se.name}</p>
                 <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{se.events} events approved</p>
               </div>
-              <button className="np-link-btn" style={{ color: 'var(--primary)' }} onClick={() => setTrusted((prev) => prev.filter((s) => s.id !== se.id))}>Remove</button>
+              <button className="np-link-btn" style={{ color: 'var(--primary)' }} onClick={() => handleRemove(se)}>Remove</button>
             </div>
           ))}
-          <button type="button" className="np-link-btn" style={{ marginTop: 8 }} onClick={addTrusted}>+ Add trusted SE</button>
+          <button type="button" className="np-link-btn" style={{ marginTop: 8 }} onClick={handleAdd}>+ Add trusted SE</button>
         </div>
       </div>
 
@@ -85,8 +145,9 @@ export default function DesktopNpAutopilot() {
           <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>Disable Autopilot entirely</p>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Returns all SE events to manual review. This cannot be undone automatically.</p>
         </div>
-        <button className="ap-btn-reject" style={{ padding: '10px 20px', borderRadius: 'var(--radius-pill)' }} onClick={() => setEnabled(false)}>Disable Autopilot</button>
+        <button className="ap-btn-reject" style={{ padding: '10px 20px', borderRadius: 'var(--radius-pill)' }} onClick={handleDisable}>Disable Autopilot</button>
       </div>
+      {toast && <div style={TOAST_STYLE}>{toast}</div>}
     </DesktopNpLayout>
   );
 }
