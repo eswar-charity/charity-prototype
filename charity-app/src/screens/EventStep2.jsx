@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Search, Check } from 'lucide-react';
 import { useCreateEventDraft, updateDraft } from '../hooks/useCreateEventDraft';
-import { nonprofits, NP_CATEGORY_FILTERS } from '../data/mockData';
+import { useNonprofitList } from '../hooks/useNonprofitList';
+import { NP_CATEGORY_FILTERS } from '../data/mockData';
 import MobileAppHeader from '../components/MobileAppHeader';
 
 export default function EventStep2() {
@@ -10,12 +11,7 @@ export default function EventStep2() {
   const draft = useCreateEventDraft();
   const [activeFilter, setActiveFilter] = useState('All');
   const [query, setQuery] = useState('');
-
-  const filtered = nonprofits.filter((np) => {
-    const matchFilter = activeFilter === 'All' || np.category === activeFilter || np.category.includes(activeFilter);
-    const matchQuery = np.name.toLowerCase().includes(query.toLowerCase()) || np.category.toLowerCase().includes(query.toLowerCase());
-    return matchFilter && matchQuery;
-  });
+  const { nonprofits: filtered } = useNonprofitList({ q: query, category: activeFilter });
 
   return (
     <div className="phone-shell">

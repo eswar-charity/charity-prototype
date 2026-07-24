@@ -1,27 +1,19 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Info, Users, MessageCircle, Heart } from 'lucide-react';
+import { Info, Users, MessageCircle, Heart } from 'lucide-react';
 import DesktopCreateEventLayout from '../../components/desktop/DesktopCreateEventLayout';
 import SubmitChecklist from '../../components/SubmitChecklist';
-import { useCreateEventDraft, resetDraft, updateDraft } from '../../hooks/useCreateEventDraft';
-import { nonprofits } from '../../data/mockData';
+import { useCreateEventDraft, updateDraft } from '../../hooks/useCreateEventDraft';
+import { useSelectedNonprofit } from '../../hooks/useNonprofitList';
+import { useEventWizardMutations } from '../../hooks/useEventWizardMutations';
+import { useAppToast, ToastHost } from '../../components/Toast';
 import { previewHashtag } from '../../utils/eventWizard';
 
 export default function DesktopEventStep4() {
   const navigate = useNavigate();
   const draft = useCreateEventDraft();
-  const nonprofit = nonprofits.find((n) => n.id === draft.nonprofitId);
-  const [saved, setSaved] = useState(false);
-
-  const submit = () => {
-    resetDraft();
-    navigate('/approval');
-  };
-
-  const saveDraft = () => {
-    setSaved(true);
-    setTimeout(() => navigate('/feed'), 900);
-  };
+  const { nonprofit } = useSelectedNonprofit(draft.nonprofitId);
+  const { toast, show } = useAppToast();
+  const { handleSaveDraft, handleSubmit, pending, saved } = useEventWizardMutations(show);
 
   const backingCount = draft.previewLiked ? 1 : 0;
 
@@ -77,12 +69,13 @@ export default function DesktopEventStep4() {
       <div className="dsk-wizard-footer">
         <button type="button" className="dsk-wizard-back-link" onClick={() => navigate('/event/step-3')}>← Back</button>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button type="button" className="btn-outline" style={{ width: 'auto', padding: '12px 20px' }} onClick={saveDraft}>
+          <button type="button" className="btn-outline" style={{ width: 'auto', padding: '12px 20px' }} onClick={handleSaveDraft} disabled={pending}>
             {saved ? 'Draft saved ✓' : 'Save as draft'}
           </button>
-          <button type="button" className="dsk-cta-btn" onClick={submit}>Submit for approval →</button>
+          <button type="button" className="dsk-cta-btn" onClick={handleSubmit} disabled={pending}>Submit for approval →</button>
         </div>
       </div>
+      <ToastHost toast={toast} />
     </DesktopCreateEventLayout>
   );
 }

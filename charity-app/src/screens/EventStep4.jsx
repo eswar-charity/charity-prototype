@@ -1,8 +1,9 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Info, Heart } from 'lucide-react';
-import { useCreateEventDraft, resetDraft, updateDraft } from '../hooks/useCreateEventDraft';
-import { nonprofits } from '../data/mockData';
+import { useCreateEventDraft, updateDraft } from '../hooks/useCreateEventDraft';
+import { useSelectedNonprofit } from '../hooks/useNonprofitList';
+import { useEventWizardMutations } from '../hooks/useEventWizardMutations';
+import { useAppToast, ToastHost } from '../components/Toast';
 import { previewHashtag } from '../utils/eventWizard';
 import MobileAppHeader from '../components/MobileAppHeader';
 import SubmitChecklist from '../components/SubmitChecklist';
@@ -10,18 +11,9 @@ import SubmitChecklist from '../components/SubmitChecklist';
 export default function EventStep4() {
   const navigate = useNavigate();
   const draft = useCreateEventDraft();
-  const nonprofit = nonprofits.find((n) => n.id === draft.nonprofitId);
-  const [saved, setSaved] = useState(false);
-
-  const saveDraft = () => {
-    setSaved(true);
-    setTimeout(() => navigate('/feed'), 900);
-  };
-
-  const submit = () => {
-    resetDraft();
-    navigate('/approval');
-  };
+  const { nonprofit } = useSelectedNonprofit(draft.nonprofitId);
+  const { toast, show } = useAppToast();
+  const { handleSaveDraft, handleSubmit, pending, saved } = useEventWizardMutations(show);
 
   const backingCount = draft.previewLiked ? 1 : 0;
   const joinedCount = 0;
@@ -118,15 +110,16 @@ export default function EventStep4() {
           </div>
 
           <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <button type="button" className="btn-primary" onClick={submit}>
+            <button type="button" className="btn-primary" onClick={handleSubmit} disabled={pending}>
               Submit for approval
             </button>
-            <button type="button" className="btn-outline" onClick={saveDraft}>
+            <button type="button" className="btn-outline" onClick={handleSaveDraft} disabled={pending}>
               {saved ? 'Draft saved ✓' : 'Save as draft'}
             </button>
           </div>
         </div>
       </div>
+      <ToastHost toast={toast} />
     </div>
   );
 }
