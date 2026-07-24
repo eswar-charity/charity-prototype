@@ -1,8 +1,9 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Heart, Calendar, MapPin } from 'lucide-react';
 import { useCreateEventDraft, updateDraft } from '../../hooks/useCreateEventDraft';
-import { nonprofits } from '../../data/mockData';
+import { useSelectedNonprofit } from '../../hooks/useNonprofitList';
+import { useEventWizardMutations } from '../../hooks/useEventWizardMutations';
+import { useAppToast, ToastHost } from '../Toast';
 import { previewHashtag } from '../../utils/eventWizard';
 import Logo from '../Logo';
 
@@ -15,7 +16,7 @@ const STEPS = [
 
 function LivePreviewCard() {
   const draft = useCreateEventDraft();
-  const nonprofit = nonprofits.find((n) => n.id === draft.nonprofitId);
+  const { nonprofit } = useSelectedNonprofit(draft.nonprofitId);
   const hasLocation = Boolean(draft.location);
   const backingLabel = draft.previewLiked ? '1 backing' : '0 backing';
 
@@ -64,12 +65,8 @@ function LivePreviewCard() {
 
 export default function DesktopCreateEventLayout({ step, children, hidePreview = false }) {
   const navigate = useNavigate();
-  const [draftSaved, setDraftSaved] = useState(false);
-
-  const saveDraft = () => {
-    setDraftSaved(true);
-    setTimeout(() => setDraftSaved(false), 2200);
-  };
+  const { toast, show } = useAppToast();
+  const { handleSaveDraft, pending, saved } = useEventWizardMutations(show);
 
   return (
     <div className="dsk-page dsk-wizard-page">
@@ -77,8 +74,8 @@ export default function DesktopCreateEventLayout({ step, children, hidePreview =
         <Logo height={24} tone="dark" style={{ cursor: 'pointer' }} />
         <h2 className="dsk-wizard-topbar-title">Create an event</h2>
         <div className="dsk-wizard-topbar-actions">
-          <button type="button" className="dsk-wizard-save-btn" onClick={saveDraft}>
-            {draftSaved ? 'Draft saved ✓' : 'Save draft'}
+          <button type="button" className="dsk-wizard-save-btn" onClick={handleSaveDraft} disabled={pending}>
+            {saved ? 'Draft saved ✓' : 'Save draft'}
           </button>
           <button className="dsk-wizard-close-btn" onClick={() => navigate('/feed')} aria-label="Close"><X size={18} /></button>
         </div>
@@ -107,6 +104,7 @@ export default function DesktopCreateEventLayout({ step, children, hidePreview =
           </aside>
         )}
       </div>
+      <ToastHost toast={toast} />
     </div>
   );
 }
