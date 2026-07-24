@@ -86,7 +86,7 @@ export function joinEvent(eventId) {
 }
 ```
 
-Verify query param names against `event_service.feed` (cause / discovery). Map UI discovery labels to API values if they differ (e.g. `'Live now'` → `live`). Read `backend/app/services/event_service.py` feed() and match exactly.
+Query params: `cause` (category string) and `discovery`. Map UI discovery labels to API values used by `event_repository.list_feed`: `'Live now'` → `live`, `'Popular'` → `popular`, `'New'` → `new`, `'Following'` → omit or empty (API has no following filter — show empty client-side). `'All'` → omit param.
 
 - [ ] **Step 2: Implement nonprofits.js**
 
