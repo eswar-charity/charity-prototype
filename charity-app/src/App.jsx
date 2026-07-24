@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-
 import useIsDesktop from './hooks/useIsDesktop';
 import { events } from './data/mockData';
 import AccessGate from './access/AccessGate';
+import { AuthProvider } from './auth/AuthContext';
 
 const DEFAULT_EVENT_KEY = events[0].key;
 
@@ -61,6 +62,7 @@ import Causes from './screens/guests/Causes';
 import NpLaunchpad from './screens/nonprofits/NpLaunchpad';
 import NpProfile from './screens/nonprofits/NpProfile';
 import NpActivity from './screens/nonprofits/NpActivity';
+import NpFinancials from './screens/nonprofits/NpFinancials';
 import NpApprovals from './screens/nonprofits/NpApprovals';
 import NpReviewDetail from './screens/nonprofits/NpReviewDetail';
 import NpRequestChanges from './screens/nonprofits/NpRequestChanges';
@@ -71,6 +73,7 @@ import DesktopNpLaunchpad from './screens/nonprofits/desktop/DesktopNpLaunchpad'
 import DesktopNpApprovals from './screens/nonprofits/desktop/DesktopNpApprovals';
 import DesktopNpReviewDetail from './screens/nonprofits/desktop/DesktopNpReviewDetail';
 import DesktopNpActivity from './screens/nonprofits/desktop/DesktopNpActivity';
+import DesktopNpFinancials from './screens/nonprofits/desktop/DesktopNpFinancials';
 import DesktopNpAutopilot from './screens/nonprofits/desktop/DesktopNpAutopilot';
 
 // Charity Hub Platform Admin — the internal Admin Portal (Blueprint journey #9).
@@ -158,6 +161,9 @@ function NpReviewDetailRoute() {
 function NpActivityRoute() {
   return useIsDesktop() ? <DesktopNpActivity /> : <NpActivity />;
 }
+function NpFinancialsRoute() {
+  return useIsDesktop() ? <DesktopNpFinancials /> : <NpFinancials />;
+}
 function NpAutopilotRoute() {
   return useIsDesktop() ? <DesktopNpAutopilot /> : <NpAutopilot />;
 }
@@ -181,6 +187,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AccessGate>
+      <AuthProvider>
       <Routes>
         {/* Organiser flow */}
         <Route path="/" element={<CreateAccountRoute />} />
@@ -223,7 +230,7 @@ export default function App() {
         <Route path="/np/home" element={<NpHomeRoute />} />
         <Route path="/np/profile" element={<NpProfile />} />
         <Route path="/np/activity" element={<NpActivityRoute />} />
-        <Route path="/np/financials" element={<Navigate to="/np/activity" replace />} />
+        <Route path="/np/financials" element={<NpFinancialsRoute />} />
         <Route path="/np/approvals" element={<NpApprovalsRoute />} />
         <Route path="/np/approvals/review" element={<NpReviewDetailRoute />} />
         <Route path="/np/approvals/request-changes" element={<NpRequestChanges />} />
@@ -242,6 +249,7 @@ export default function App() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </AuthProvider>
       </AccessGate>
     </BrowserRouter>
   );

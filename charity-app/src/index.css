@@ -3166,3 +3166,16 @@ textarea.input-field {
   .access-gate-desktop-hero { width: 38%; padding: 40px; }
   .access-gate-desktop-headline { font-size: 32px; }
 }
+
+/* Shared app toast (success reuses .adm-toast; error uses red variant) */
+.app-toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  padding: 12px 20px; border-radius: 6px;
+  font-size: 13px; font-weight: 600; z-index: 100;
+  display: flex; align-items: center; gap: 8px;
+}
+.app-toast--error {
+  background: #B42318; color: #fff;
+  box-shadow: 0 4px 16px rgba(180, 35, 24, 0.35);
+}
+.app-toast--error .app-toast-ico { color: #fff; }
