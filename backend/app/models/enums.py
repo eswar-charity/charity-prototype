@@ -53,6 +53,12 @@ class Visibility(StrEnum):
     private = "private"
 
 
+class PostPhase(StrEnum):
+    before = "before"
+    during = "during"
+    after = "after"
+
+
 class DonationStatus(StrEnum):
     initiated = "Initiated"
     pending = "Pending"
