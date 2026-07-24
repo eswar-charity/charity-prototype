@@ -3,26 +3,73 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Share2, Bookmark, Calendar, MapPin, Users, ChevronRight } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
+import DesktopJoinGateModal from '../../../components/desktop/DesktopJoinGateModal';
 import { NonprofitLearnMoreModal, EventBackersModal } from '../../../components/event/EventModals';
-import { slugify, getEventByKey, getNonprofitForEvent, eventDisplayTitle, getEventBannerFocus, getCommunityPhotos } from '../../../data/mockData';
+import { slugify, eventDisplayTitle, getEventBannerFocus, getCommunityPhotos } from '../../../data/mockData';
 import { EventImageBanner } from '../../../components/event/EventImage';
+import { useAuth } from '../../../auth/AuthContext';
+import { useEventDetail, useEventBackers, useEventActions } from '../../../hooks/useEventDetail';
 
 const BACKER_COLORS = ['var(--primary)', 'var(--primary-hover)', '#5BB8F5', '#1A6EB5', 'var(--secondary-soft)'];
 
 export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
   const navigate = useNavigate();
   const { eventKey } = useParams();
-  const ev = getEventByKey(eventKey);
-  const np = getNonprofitForEvent(ev);
-  const npDescription = np?.mission || ev.subtitle;
-  const [saved, setSaved] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const { ev, loading, error } = useEventDetail(eventKey);
   const [following, setFollowing] = useState(false);
   const [backed, setBacked] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showNpModal, setShowNpModal] = useState(false);
   const [showBackersModal, setShowBackersModal] = useState(false);
+  const [showJoinGate, setShowJoinGate] = useState(false);
+  const [toast, setToast] = useState('');
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 1800);
+  };
+
+  const { saved, handleSave } = useEventActions({
+    ev,
+    loggedIn,
+    isAuthenticated,
+    onNeedAuth: () => setShowJoinGate(true),
+    showToast,
+  });
+
+  const { backers, loading: backersLoading } = useEventBackers(eventKey, showBackersModal);
+
+  if (loading) {
+    return (
+      <div className="dsk-page">
+        <DesktopHeader active="Discover" loggedIn={loggedIn} homePath={loggedIn ? '/feed' : '/guest/feed'} />
+        <main className="dsk-main">
+          <div className="dsk-container" style={{ padding: '48px 0' }}>
+            <p style={{ color: 'var(--text-secondary)' }}>Loading event…</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error || !ev) {
+    return (
+      <div className="dsk-page">
+        <DesktopHeader active="Discover" loggedIn={loggedIn} homePath={loggedIn ? '/feed' : '/guest/feed'} />
+        <main className="dsk-main">
+          <div className="dsk-container" style={{ padding: '48px 0' }}>
+            <p style={{ fontWeight: 700, color: 'var(--dark)' }}>Couldn&apos;t load event</p>
+            <p style={{ marginTop: 8, color: 'var(--text-secondary)' }}>{error?.message || 'Not found'}</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   const shareUrl = `https://charity.hub/event/${ev.key}`;
+  const npDescription = ev.nonprofitBrief?.mission || ev.mission || ev.subtitle;
+  const npProfilePath = ev.nonprofitSlug ? `/guest/np/${ev.nonprofitSlug}` : '/np/profile';
 
   return (
     <div className="dsk-page">
@@ -33,7 +80,7 @@ export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
         <div className="dsk-ev-hero-top">
           <span className="dsk-ev-hero-pill"><Calendar size={12} /> {ev.date} · {ev.startTime}</span>
           <div className="dsk-ev-hero-actions">
-            <button className="ev-hero-btn" onClick={() => setSaved(!saved)} aria-label="Save event">
+            <button className="ev-hero-btn" onClick={handleSave} aria-label="Save event">
               <Bookmark size={16} color="white" fill={saved ? 'white' : 'none'} />
             </button>
             <button className="ev-hero-btn" onClick={() => setShowShare(true)} aria-label="Share"><Share2 size={16} color="white" /></button>
@@ -135,7 +182,13 @@ export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
               <button
                 className="dsk-sidebar-back-btn"
                 style={backed ? { background: 'var(--green)' } : {}}
-                onClick={() => setBacked(!backed)}
+                onClick={() => {
+                  if (isAuthenticated || loggedIn) {
+                    setBacked(!backed);
+                    return;
+                  }
+                  setShowJoinGate(true);
+                }}
               >
                 {backed ? 'Backed ✓' : 'Back this event'}
               </button>
@@ -168,7 +221,7 @@ export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
         avatarStyle={{ background: ev.npBg }}
         category={ev.category}
         description={npDescription}
-        onViewProfile={() => { setShowNpModal(false); navigate('/np/profile'); }}
+        onViewProfile={() => { setShowNpModal(false); navigate(npProfilePath); }}
       />
 
       <EventBackersModal
@@ -177,7 +230,22 @@ export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
         count={ev.backed}
         eventTitle={ev.title}
         raised={ev.raised}
+        backers={backers}
+        loading={backersLoading}
       />
+
+      {showJoinGate && (
+        <DesktopJoinGateModal
+          open={showJoinGate}
+          onClose={() => setShowJoinGate(false)}
+          eventTitle={ev.title}
+          nonprofit={ev.nonprofit}
+          npInitials={ev.npInitials}
+          npBg={ev.npBg}
+        />
+      )}
+
+      {toast && <div className="dsk-live-toast">{toast}</div>}
     </div>
   );
 }

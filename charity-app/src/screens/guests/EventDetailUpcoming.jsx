@@ -2,27 +2,69 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, Bookmark, MapPin, Share2, Heart, Calendar, ChevronRight } from 'lucide-react';
 import { NonprofitLearnMoreModal, EventBackersModal } from '../../components/event/EventModals';
-import { slugify, getEventByKey, getNonprofitForEvent, eventDisplayTitle, getCommunityPhotos, eventUpcomingPath, getEventBannerFocus } from '../../data/mockData';
+import { slugify, eventDisplayTitle, getCommunityPhotos, eventUpcomingPath, getEventBannerFocus } from '../../data/mockData';
 import { EventImageBanner } from '../../components/event/EventImage';
 import MobileShareModal from '../../components/MobileShareModal';
 import MobileJoinModal from '../../components/MobileJoinModal';
+import { useAuth } from '../../auth/AuthContext';
+import { useEventDetail, useEventBackers, useEventActions } from '../../hooks/useEventDetail';
 
 const BACKER_COLORS = ['var(--primary)', 'var(--primary-hover)', '#5BB8F5', '#1A6EB5', 'var(--secondary-soft)'];
 
 export default function EventDetailUpcoming({ loggedIn = false }) {
   const navigate = useNavigate();
   const { eventKey } = useParams();
-  const ev = getEventByKey(eventKey);
-  const np = getNonprofitForEvent(ev);
-  const npDescription = np?.mission || ev.subtitle;
-  const [saved, setSaved] = useState(false);
-  const [liked, setLiked] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const { ev, loading, error } = useEventDetail(eventKey);
   const [following, setFollowing] = useState(false);
   const [backed, setBacked] = useState(false);
   const [showNpModal, setShowNpModal] = useState(false);
   const [showBackersModal, setShowBackersModal] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
+  const [toast, setToast] = useState('');
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 1800);
+  };
+
+  const { liked, saved, handleLike, handleSave } = useEventActions({
+    ev,
+    loggedIn,
+    isAuthenticated,
+    onNeedAuth: () => setShowJoin(true),
+    showToast,
+  });
+
+  const { backers, loading: backersLoading } = useEventBackers(eventKey, showBackersModal);
+
+  if (loading) {
+    return (
+      <div className="phone-shell">
+        <div className="detail-screen" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Loading event…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !ev) {
+    return (
+      <div className="phone-shell">
+        <div className="detail-screen" style={{ padding: 24 }}>
+          <button type="button" className="back-btn" onClick={() => navigate('/guest/feed')} aria-label="Back to feed">
+            <ChevronLeft size={18} />
+          </button>
+          <p style={{ marginTop: 24, fontWeight: 700, color: 'var(--dark)' }}>Couldn&apos;t load event</p>
+          <p style={{ marginTop: 8, color: 'var(--text-secondary)', fontSize: 14 }}>{error?.message || 'Not found'}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const npDescription = ev.nonprofitBrief?.mission || ev.mission || ev.subtitle;
+  const npProfilePath = ev.nonprofitSlug ? `/guest/np/${ev.nonprofitSlug}` : '/np/profile';
 
   return (
     <div className="phone-shell">
@@ -50,7 +92,7 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
                 <ChevronLeft size={18} color="white" />
               </button>
               <button
-                onClick={() => setSaved(!saved)}
+                onClick={handleSave}
                 aria-label={saved ? 'Remove bookmark' : 'Save event'}
                 style={{
                   width: 38, height: 38, borderRadius: '50%',
@@ -68,11 +110,11 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
             }}>
               <span className="hero-pill coral">
                 <Calendar size={10} />
-                {ev.date.split(',')[0]} · {ev.startTime.replace(':00', '')}
+                {(ev.date || 'TBA').split(',')[0]} · {(ev.startTime || 'TBA').replace(':00', '')}
               </span>
               <span className="hero-pill coral">
                 <MapPin size={10} />
-                {ev.location.split(',')[0]}
+                {(ev.location || 'TBA').split(',')[0]}
               </span>
             </div>
           </EventImageBanner>
@@ -214,7 +256,7 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
           <button
             className="event-bar-btn"
             onClick={() => {
-              if (loggedIn) {
+              if (isAuthenticated || loggedIn) {
                 setBacked((prev) => !prev);
                 return;
               }
@@ -223,7 +265,7 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
           >
             {backed ? 'Backed ✓' : 'Back this event'}
           </button>
-          <button className="event-bar-icon" onClick={() => setLiked(!liked)} aria-label={liked ? 'Unlike event' : 'Like event'}>
+          <button className="event-bar-icon" onClick={handleLike} aria-label={liked ? 'Unlike event' : 'Like event'}>
             <Heart size={18} color={liked ? 'var(--primary)' : 'var(--dark)'} fill={liked ? 'var(--primary)' : 'none'} />
           </button>
         </div>
@@ -236,7 +278,7 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
           avatarStyle={{ background: ev.npBg }}
           category={ev.category}
           description={npDescription}
-          onViewProfile={() => { setShowNpModal(false); navigate('/np/profile'); }}
+          onViewProfile={() => { setShowNpModal(false); navigate(npProfilePath); }}
         />
 
         <EventBackersModal
@@ -245,6 +287,8 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
           count={ev.backed}
           eventTitle={ev.title}
           raised={ev.raised}
+          backers={backers}
+          loading={backersLoading}
         />
 
         {showShare && (
@@ -262,6 +306,15 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
             subtitle={ev.nonprofit}
             onClose={() => setShowJoin(false)}
           />
+        )}
+
+        {toast && (
+          <div style={{
+            position: 'absolute', bottom: 100, left: '50%', transform: 'translateX(-50%)',
+            background: 'var(--dark)', color: 'white', padding: '10px 18px',
+            borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 600,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.2)', zIndex: 100, maxWidth: '80%', textAlign: 'center',
+          }}>{toast}</div>
         )}
       </div>
     </div>

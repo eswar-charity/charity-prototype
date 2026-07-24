@@ -117,43 +117,55 @@ export function EventBackersModal({
   count,
   eventTitle,
   raised,
+  backers: backersProp,
+  loading = false,
 }) {
   if (!open) return null;
 
-  const backers = BACKER_POOL.slice(0, Math.min(6, Math.max(4, Math.round(count / 25))));
+  const fromApi = Array.isArray(backersProp);
+  const backers = fromApi
+    ? backersProp
+    : BACKER_POOL.slice(0, Math.min(6, Math.max(4, Math.round((count || 0) / 25))));
+  const displayCount = count ?? backers.length;
 
   return (
     <ModalShell title="People backing this event" onClose={onClose} wide>
       <p className="backers-modal-intro">
-        <strong>{count} people</strong> are backing{' '}
+        <strong>{displayCount} people</strong> are backing{' '}
         <strong>{eventTitle}</strong>. Every backer helps the organiser grow participation before doors open.
       </p>
 
       <div className="backers-modal-summary">
         <Users size={16} color="var(--primary)" />
-        <span>{count} backers</span>
+        <span>{displayCount} backers</span>
         {raised != null && (
           <>
             <span className="backers-modal-summary-sep">·</span>
-            <span>${raised.toLocaleString()} raised so far</span>
+            <span>${Number(raised).toLocaleString()} raised so far</span>
           </>
         )}
       </div>
 
-      <ul className="backers-modal-list">
-        {backers.map((b) => (
-          <li key={b.name} className="backers-modal-row">
-            <div className="backers-modal-avatar" style={{ background: b.color }}>{b.initials}</div>
-            <div className="backers-modal-body">
-              <p className="backers-modal-name">{b.name}</p>
-              <p className="backers-modal-action">Backed ${b.amount}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
+      {loading && !fromApi ? (
+        <p className="backers-modal-more">Loading backers…</p>
+      ) : backers.length === 0 ? (
+        <p className="backers-modal-more">No backers yet — be the first.</p>
+      ) : (
+        <ul className="backers-modal-list">
+          {backers.map((b) => (
+            <li key={b.name + String(b.amount)} className="backers-modal-row">
+              <div className="backers-modal-avatar" style={{ background: b.color }}>{b.initials}</div>
+              <div className="backers-modal-body">
+                <p className="backers-modal-name">{b.name}</p>
+                <p className="backers-modal-action">Backed ${b.amount}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
 
-      {count > backers.length && (
-        <p className="backers-modal-more">+ {count - backers.length} more supporters</p>
+      {displayCount > backers.length && (
+        <p className="backers-modal-more">+ {displayCount - backers.length} more supporters</p>
       )}
     </ModalShell>
   );

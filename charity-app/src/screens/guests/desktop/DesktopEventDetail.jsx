@@ -7,8 +7,10 @@ import {
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
 import DesktopJoinGateModal from '../../../components/desktop/DesktopJoinGateModal';
-import { slugify, buildDonationSuccessUrl, buildCommunityThread, getEventByKey, eventLivePath, eventDisplayTitle, getEventBanner, getEventBannerFocus } from '../../../data/mockData';
+import { slugify, buildDonationSuccessUrl, buildCommunityThread, eventLivePath, eventDisplayTitle, getEventBanner, getEventBannerFocus } from '../../../data/mockData';
 import { EventImageBanner } from '../../../components/event/EventImage';
+import { useAuth } from '../../../auth/AuthContext';
+import { useEventDetail, useEventActions } from '../../../hooks/useEventDetail';
 
 const TABS = [
   { id: 'community', label: 'Community', sub: 'Photos & moments' },
@@ -288,7 +290,7 @@ function SupportTab({ ev, onDonate }) {
 
       <div className="support-raised-row">
         <span className="support-raised-label">Raised so far</span>
-        <span className="support-raised-amount">${ev.raised.toLocaleString()}</span>
+        <span className="support-raised-amount">${Number(ev.raised || 0).toLocaleString()}</span>
       </div>
       <div className="support-progress-track"><div className="support-progress-fill" style={{ width: '57%' }} /></div>
 
@@ -322,33 +324,28 @@ function SupportTab({ ev, onDonate }) {
 export default function DesktopEventDetail({ loggedIn = false }) {
   const navigate = useNavigate();
   const { eventKey } = useParams();
-  const ev = getEventByKey(eventKey);
+  const { isAuthenticated } = useAuth();
+  const { ev, loading, error } = useEventDetail(eventKey);
   const heroImage = getEventBanner(ev);
   const [activeTab, setActiveTab] = useState('community');
-  const [liked, setLiked] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [following, setFollowing] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showJoinGate, setShowJoinGate] = useState(false);
-  const [joined, setJoined] = useState(false);
   const [toast, setToast] = useState('');
 
-  const shareUrl = `https://charity.hub/event/${ev.key}`;
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(''), 1800);
   };
 
-  // Join / Participate (Blueprint §5): identity required — guests hit the
-  // join gate, a logged-in SE joins immediately.
-  const handleJoin = () => {
-    if (!loggedIn) {
-      setShowJoinGate(true);
-      return;
-    }
-    setJoined(true);
-    showToast("You're in! See you there.");
-  };
+  const { liked, joined, handleLike, handleJoin } = useEventActions({
+    ev,
+    loggedIn,
+    isAuthenticated,
+    onNeedAuth: () => setShowJoinGate(true),
+    showToast,
+  });
 
   const handleDonate = (amt) => {
     const amount = amt === 'other' ? 25 : amt;
@@ -358,6 +355,35 @@ export default function DesktopEventDetail({ loggedIn = false }) {
       returnTo: eventLivePath(ev.key, { loggedIn }),
     }));
   };
+
+  if (loading) {
+    return (
+      <div className="dsk-page">
+        <DesktopHeader active="Discover" loggedIn={loggedIn} homePath={loggedIn ? '/feed' : '/guest/feed'} />
+        <main className="dsk-main">
+          <div className="dsk-container" style={{ padding: '48px 0' }}>
+            <p style={{ color: 'var(--text-secondary)' }}>Loading event…</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error || !ev) {
+    return (
+      <div className="dsk-page">
+        <DesktopHeader active="Discover" loggedIn={loggedIn} homePath={loggedIn ? '/feed' : '/guest/feed'} />
+        <main className="dsk-main">
+          <div className="dsk-container" style={{ padding: '48px 0' }}>
+            <p style={{ fontWeight: 700, color: 'var(--dark)' }}>Couldn&apos;t load event</p>
+            <p style={{ marginTop: 8, color: 'var(--text-secondary)' }}>{error?.message || 'Not found'}</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  const shareUrl = `https://charity.hub/event/${ev.key}`;
 
   return (
     <div className="dsk-page">
@@ -392,7 +418,7 @@ export default function DesktopEventDetail({ loggedIn = false }) {
           <div className="dsk-ev-hero-actions">
             <button className="ev-hero-btn" onClick={() => setShowShare(true)} aria-label="Share"><Share2 size={16} color="white" /></button>
             <button className="ev-hero-btn" onClick={() => setShowAbout(true)} aria-label="Event info"><Info size={16} color="white" /></button>
-            <button className="ev-hero-btn" onClick={() => setLiked(!liked)} aria-label="Like">
+            <button className="ev-hero-btn" onClick={handleLike} aria-label="Like">
               <Heart size={16} color={liked ? '#FF6B6B' : 'white'} fill={liked ? '#FF6B6B' : 'none'} />
             </button>
           </div>
@@ -415,7 +441,7 @@ export default function DesktopEventDetail({ loggedIn = false }) {
             {activeTab === 'chat' && (
               <ChatTab
                 ev={ev}
-                loggedIn={loggedIn}
+                loggedIn={loggedIn || isAuthenticated}
                 onNeedJoin={() => setShowJoinGate(true)}
               />
             )}

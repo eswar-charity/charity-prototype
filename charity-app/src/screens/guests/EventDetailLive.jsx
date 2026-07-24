@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ChevronLeft, Info, Share2, Heart,
@@ -6,10 +6,12 @@ import {
   Images, MessageCircle, HandHeart, PartyPopper, Check, UserPlus,
   Calendar, MapPin,
 } from 'lucide-react';
-import { buildDonationSuccessUrl, buildCommunityThread, getEventByKey, eventLivePath, eventDisplayTitle, getEventBanner, getEventBannerFocus } from '../../data/mockData';
+import { buildDonationSuccessUrl, buildCommunityThread, eventLivePath, eventDisplayTitle, getEventBanner, getEventBannerFocus } from '../../data/mockData';
 import { EventImageBanner } from '../../components/event/EventImage';
 import MobileShareModal from '../../components/MobileShareModal';
 import MobileJoinModal from '../../components/MobileJoinModal';
+import { useAuth } from '../../auth/AuthContext';
+import { useEventDetail, useEventActions } from '../../hooks/useEventDetail';
 
 function buildChatSeed(ev) {
   return [
@@ -253,7 +255,7 @@ function SupportTab({ ev, selectedAmount, onSelectAmount, onDonate, onViewStruct
       {/* Raised */}
       <div className="support-raised-row">
         <span className="support-raised-label">Raised so far</span>
-        <span className="support-raised-amount">${ev.raised.toLocaleString()}</span>
+        <span className="support-raised-amount">${Number(ev.raised || 0).toLocaleString()}</span>
       </div>
       <div className="support-progress-track">
         <div className="support-progress-fill" style={{ width: '57%' }} />
@@ -329,17 +331,16 @@ const TABS = [
 export default function EventDetailLive({ loggedIn = false }) {
   const navigate = useNavigate();
   const { eventKey } = useParams();
-  const ev = getEventByKey(eventKey);
+  const { isAuthenticated } = useAuth();
+  const { ev, loading, error } = useEventDetail(eventKey);
   const heroImage = getEventBanner(ev);
   const [activeTab, setActiveTab]         = useState('community');
-  const [liked, setLiked]                 = useState(false);
   const [selectedAmount, setSelectedAmount] = useState(25);
   const [chatInput, setChatInput]         = useState('');
-  const [messages, setMessages]           = useState(() => buildChatSeed(ev));
+  const [messages, setMessages]           = useState([]);
   const [showAbout, setShowAbout]         = useState(false);
   const [showShare, setShowShare]         = useState(false);
   const [showJoin, setShowJoin]           = useState(false);
-  const [joined, setJoined]               = useState(false);
   const [toast, setToast]                 = useState('');
 
   const showToast = (msg) => {
@@ -347,25 +348,24 @@ export default function EventDetailLive({ loggedIn = false }) {
     setTimeout(() => setToast(''), 1800);
   };
 
-  // Per the Identity Gate model: viewing/liking is open to anyone, but
-  // commenting requires identity — guests are routed to the join gate,
-  // while a logged-in SE can chat freely.
+  const { liked, joined, handleLike, handleJoin } = useEventActions({
+    ev,
+    loggedIn,
+    isAuthenticated,
+    onNeedAuth: () => setShowJoin(true),
+    showToast,
+  });
+
+  useEffect(() => {
+    if (ev) setMessages(buildChatSeed(ev));
+  }, [ev?.key]);
+
+  // Per the Identity Gate model: viewing is open, but commenting requires
+  // identity — guests hit the join gate; SE / authed users can chat.
   const requireJoin = () => {
-    if (loggedIn) return false;
+    if (loggedIn || isAuthenticated) return false;
     setShowJoin(true);
     return true;
-  };
-
-  // Join / Participate (Blueprint §5 business functions): identity is
-  // required to join — guests hit the identity gate, an SE (already
-  // identified) joins immediately.
-  const handleJoin = () => {
-    if (!loggedIn) {
-      setShowJoin(true);
-      return;
-    }
-    setJoined(true);
-    showToast("You're in! See you there.");
   };
 
   const handleDonate = () => {
@@ -387,6 +387,32 @@ export default function EventDetailLive({ loggedIn = false }) {
     ]);
     setChatInput('');
   };
+
+  if (loading) {
+    return (
+      <div className="phone-shell">
+        <div className="detail-screen" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Loading event…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !ev) {
+    return (
+      <div className="phone-shell">
+        <div className="detail-screen" style={{ padding: 24 }}>
+          <button type="button" className="ev-hero-btn" onClick={() => navigate(-1)} aria-label="Go back" style={{ background: 'var(--border)' }}>
+            <ChevronLeft size={18} />
+          </button>
+          <p style={{ marginTop: 24, fontWeight: 700, color: 'var(--dark)' }}>Couldn&apos;t load event</p>
+          <p style={{ marginTop: 8, color: 'var(--text-secondary)', fontSize: 14 }}>{error?.message || 'Not found'}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const subtitleLead = (ev.subtitle || ev.mission || '').split('.')[0];
 
   return (
     <div className="phone-shell">
@@ -418,7 +444,7 @@ export default function EventDetailLive({ loggedIn = false }) {
               DOORS OPEN · LIVE NOW
             </div>
             <h1 className="ev-hero-title">{eventDisplayTitle(ev.title)}</h1>
-            <p className="ev-hero-subtitle">{ev.subtitle.split('.')[0]}.</p>
+            <p className="ev-hero-subtitle">{subtitleLead}{subtitleLead ? '.' : ''}</p>
             <div className="ev-hero-meta">
               <div>
                 <p className="ev-presented">PRESENTED BY</p>
@@ -438,7 +464,7 @@ export default function EventDetailLive({ loggedIn = false }) {
                   {joined ? <Check size={15} strokeWidth={3} /> : <UserPlus size={15} />}
                   {joined ? 'Joined' : 'Join event'}
                 </button>
-                <button className="ev-heart-btn" onClick={() => setLiked(!liked)} aria-label={liked ? 'Unlike event' : 'Like event'}>
+                <button className="ev-heart-btn" onClick={handleLike} aria-label={liked ? 'Unlike event' : 'Like event'}>
                   <Heart
                     size={18}
                     color={liked ? '#FF6B6B' : 'white'}
