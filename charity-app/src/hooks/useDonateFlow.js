@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { createDonation } from '../api/donations.js';
 import { buildDonationSuccessUrl } from '../utils/donationReceipt.js';
+import { STRIPE_TEST_SUCCESS } from '../utils/staticStripe.js';
 
 export function useDonateFlow({ showToast, onNeedAuth } = {}) {
   const { isAuthenticated, user } = useAuth();
@@ -30,14 +31,15 @@ export function useDonateFlow({ showToast, onNeedAuth } = {}) {
     setPending(true);
     setError(null);
     try {
+      const digits = String(cardNumber || '').replace(/\D/g, '') || STRIPE_TEST_SUCCESS;
       const donation = await createDonation({
         eventId: ev.id,
         amount: amt,
         publicName: publicName || user?.name || null,
-        cardNumber: cardNumber || null,
+        cardNumber: digits,
       });
       if (donation.status === 'Failed') {
-        const msg = 'Payment declined. Try another card (cards ending in 0002 fail).';
+        const msg = 'Payment declined (static Stripe). Use 4242…4242 to succeed, or a card ending in 0002 to test failure.';
         setError(msg);
         showToast?.(msg);
         return false;

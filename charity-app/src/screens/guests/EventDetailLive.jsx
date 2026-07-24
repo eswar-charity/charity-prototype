@@ -15,6 +15,7 @@ import { useEventDetail, useEventActions } from '../../hooks/useEventDetail';
 import { useDonateFlow } from '../../hooks/useDonateFlow';
 import { useEventCommunity } from '../../hooks/useEventCommunity';
 import { useEventChat } from '../../hooks/useEventChat';
+import StaticStripePaymentForm, { STRIPE_TEST_SUCCESS } from '../../components/StaticStripePaymentForm';
 
 /* ── Community Tab ──────────────────────────────────────── */
 function ThreadRow({ post, isLast, showLiveDot, onOpen, variant }) {
@@ -229,7 +230,8 @@ function ChatInputBar({ value, onChange, onSend, onAttach, onFocus, disabled }) 
 
 /* ── Support Tab ─────────────────────────────────────────── */
 function SupportTab({ ev, selectedAmount, onSelectAmount, onDonate, onViewStructure, donatePending }) {
-  const [cardNumber, setCardNumber] = useState('');
+  const [cardDigits, setCardDigits] = useState(STRIPE_TEST_SUCCESS);
+  const donateAmount = typeof selectedAmount === 'number' ? selectedAmount : 25;
 
   return (
     <div className="support-content">
@@ -280,30 +282,14 @@ function SupportTab({ ev, selectedAmount, onSelectAmount, onDonate, onViewStruct
         </button>
       </div>
 
-      {/* Card fields */}
-      <div className="support-card-fields">
-        <div style={{ position: 'relative' }}>
-          <input
-            className="support-field"
-            style={{ width: '100%' }}
-            placeholder="Card number"
-            value={cardNumber}
-            onChange={(e) => setCardNumber(e.target.value)}
-          />
-          <span style={{
-            position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
-            fontSize: 12, color: 'var(--blue)', fontWeight: 700, pointerEvents: 'none',
-          }}>VISA</span>
-        </div>
-        <div className="support-card-row">
-          <input className="support-field" placeholder="MM / YY" />
-          <input className="support-field" placeholder="CVV" />
-        </div>
-        <input className="support-field" style={{ width: '100%' }} placeholder="Name on card" />
-      </div>
+      <StaticStripePaymentForm
+        amount={donateAmount}
+        disabled={donatePending}
+        onCardChange={setCardDigits}
+      />
 
-      <button className="btn-primary" onClick={() => onDonate(cardNumber)} disabled={donatePending}>
-        Donate {typeof selectedAmount === 'number' ? `$${selectedAmount}` : 'Amount'}
+      <button className="btn-primary" onClick={() => onDonate(cardDigits)} disabled={donatePending}>
+        {donatePending ? 'Processing…' : `Donate $${donateAmount}`}
       </button>
     </div>
   );

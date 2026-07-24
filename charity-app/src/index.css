@@ -2612,6 +2612,72 @@ textarea.input-field {
 }
 .support-field:focus { border-color: var(--primary); }
 
+/* ── Static Stripe (mock) payment panel ───────────────────── */
+.static-stripe { margin-bottom: 14px; }
+.static-stripe-quote {
+  background: var(--primary-soft, #F3F0FF);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.static-stripe-quote-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.static-stripe-quote-row span:last-child { color: var(--dark); font-weight: 600; }
+.static-stripe-quote-total {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  font-weight: 700;
+  color: var(--dark);
+  font-size: 14px;
+}
+.static-stripe-quote-total span:last-child { font-weight: 800; }
+.static-stripe-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0 0 8px;
+}
+.static-stripe-fields { margin-bottom: 8px; }
+.static-stripe-card-wrap { position: relative; }
+.static-stripe-brand {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: var(--blue);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+}
+.static-stripe-hint {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  margin: 0 0 4px;
+}
+.static-stripe-hint code {
+  font-size: 10px;
+  background: rgba(0,0,0,0.05);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+.static-stripe-powered {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-light);
+  margin: 0 0 12px;
+  letter-spacing: 0.02em;
+}
+
 /* ── Infinite-scroll loader (event feeds) ─────────────────── */
 .feed-loader { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 18px 0 28px; color: var(--text-secondary); font-size: 13px; font-weight: 600; }
 .feed-spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--primary); animation: feed-spin 0.7s linear infinite; }
