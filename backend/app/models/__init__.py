@@ -1,4 +1,5 @@
 from app.models.approval import AutopilotSettings, EventReview, TrustedSE
+from app.models.attendee import Attendee
 from app.models.donation import Donation
 from app.models.event import (
     Event,
@@ -30,4 +31,5 @@ __all__ = [
     "Post",
     "PostReply",
     "ChatMessage",
+    "Attendee",
 ]

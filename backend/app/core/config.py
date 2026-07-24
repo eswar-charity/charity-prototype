@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 30
     refresh_token_expire_minutes: int = 10080
     cors_origins: Annotated[list[str], NoDecode] = ["http://localhost:5173"]
+    public_base_url: str = "http://localhost:5173"
     cloudinary_cloud_name: str = ""
     cloudinary_api_key: str = ""
     cloudinary_api_secret: str = ""

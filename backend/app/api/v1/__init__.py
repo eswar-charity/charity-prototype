@@ -8,6 +8,7 @@ from app.api.v1.feed import router as feed_router
 from app.api.v1.health import router as health_router
 from app.api.v1.media import router as media_router
 from app.api.v1.nonprofits import router as nonprofits_router
+from app.api.v1.qr import router as qr_router
 from app.api.v1.users import router as users_router
 
 api_router = APIRouter(prefix="/api/v1")
@@ -20,3 +21,4 @@ api_router.include_router(events_router)
 api_router.include_router(approvals_router)
 api_router.include_router(donations_router)
 api_router.include_router(feed_router)
+api_router.include_router(qr_router)
