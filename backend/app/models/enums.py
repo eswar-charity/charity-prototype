@@ -31,6 +31,28 @@ class SettlementStatus(StrEnum):
     frozen = "Frozen"
 
 
+class EventStatus(StrEnum):
+    draft = "Draft"
+    submitted = "Submitted"
+    changes_requested = "Changes Requested"
+    approved = "Approved"
+    live = "Live"
+    completed = "Completed"
+    archived = "Archived"
+    cancelled = "Cancelled"
+    rejected = "Rejected"
+
+
+class EventKind(StrEnum):
+    se_led = "SE-led"
+    np_led = "NP-led"
+
+
+class Visibility(StrEnum):
+    public = "public"
+    private = "private"
+
+
 class ResourceType(StrEnum):
     image = "image"
     video = "video"
