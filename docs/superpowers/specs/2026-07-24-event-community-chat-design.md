@@ -68,7 +68,7 @@ Event detail (live)
 
 ### 4.1 API modules
 
-- `api/feed.js` — `listPosts(key)`, `listMessages(key)`, `sendMessage(eventId, text)` (+ createPost later if needed)
+- `api/feed.js` — `listPosts(key)`, `listMessages(key)`, `sendMessage(eventId, text)`
 - Adapters: `adaptCommunityPost`, `adaptChatMessage` → existing UI field names (`media`, `avatarBg`, `mine`, etc.)
 
 ### 4.2 Gallery URL sources (priority)
