@@ -6,12 +6,13 @@ import {
   Images, MessageCircle, HandHeart, PartyPopper, Check, UserPlus,
   Calendar, MapPin,
 } from 'lucide-react';
-import { buildDonationSuccessUrl, buildCommunityThread, eventLivePath, eventDisplayTitle, getEventBanner, getEventBannerFocus } from '../../data/mockData';
+import { buildCommunityThread, eventLivePath, eventDisplayTitle, getEventBanner, getEventBannerFocus } from '../../data/mockData';
 import { EventImageBanner } from '../../components/event/EventImage';
 import MobileShareModal from '../../components/MobileShareModal';
 import MobileJoinModal from '../../components/MobileJoinModal';
 import { useAuth } from '../../auth/AuthContext';
 import { useEventDetail, useEventActions } from '../../hooks/useEventDetail';
+import { useDonateFlow } from '../../hooks/useDonateFlow';
 
 function buildChatSeed(ev) {
   return [
@@ -231,7 +232,9 @@ function ChatInputBar({ value, onChange, onSend, onAttach, onFocus }) {
 }
 
 /* ── Support Tab ─────────────────────────────────────────── */
-function SupportTab({ ev, selectedAmount, onSelectAmount, onDonate, onViewStructure }) {
+function SupportTab({ ev, selectedAmount, onSelectAmount, onDonate, onViewStructure, donatePending }) {
+  const [cardNumber, setCardNumber] = useState('');
+
   return (
     <div className="support-content">
       {/* Charity hierarchy */}
@@ -284,7 +287,13 @@ function SupportTab({ ev, selectedAmount, onSelectAmount, onDonate, onViewStruct
       {/* Card fields */}
       <div className="support-card-fields">
         <div style={{ position: 'relative' }}>
-          <input className="support-field" style={{ width: '100%' }} placeholder="Card number" />
+          <input
+            className="support-field"
+            style={{ width: '100%' }}
+            placeholder="Card number"
+            value={cardNumber}
+            onChange={(e) => setCardNumber(e.target.value)}
+          />
           <span style={{
             position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
             fontSize: 12, color: 'var(--blue)', fontWeight: 700, pointerEvents: 'none',
@@ -297,7 +306,7 @@ function SupportTab({ ev, selectedAmount, onSelectAmount, onDonate, onViewStruct
         <input className="support-field" style={{ width: '100%' }} placeholder="Name on card" />
       </div>
 
-      <button className="btn-primary" onClick={onDonate}>
+      <button className="btn-primary" onClick={() => onDonate(cardNumber)} disabled={donatePending}>
         Donate {typeof selectedAmount === 'number' ? `$${selectedAmount}` : 'Amount'}
       </button>
     </div>
@@ -356,6 +365,11 @@ export default function EventDetailLive({ loggedIn = false }) {
     showToast,
   });
 
+  const { donate, pending: donatePending } = useDonateFlow({
+    showToast,
+    onNeedAuth: () => setShowJoin(true),
+  });
+
   useEffect(() => {
     if (ev) setMessages(buildChatSeed(ev));
   }, [ev?.key]);
@@ -368,13 +382,13 @@ export default function EventDetailLive({ loggedIn = false }) {
     return true;
   };
 
-  const handleDonate = () => {
-    const amount = selectedAmount === 'other' ? 25 : selectedAmount;
-    navigate(buildDonationSuccessUrl({
-      amount,
-      eventKey: ev.key,
+  const handleDonate = async (cardNumber) => {
+    await donate({
+      ev,
+      amount: selectedAmount === 'other' ? 25 : selectedAmount,
+      cardNumber,
       returnTo: eventLivePath(ev.key, { loggedIn }),
-    }));
+    });
   };
 
   const sendMessage = () => {
@@ -524,6 +538,7 @@ export default function EventDetailLive({ loggedIn = false }) {
                   selectedAmount={selectedAmount}
                   onSelectAmount={setSelectedAmount}
                   onDonate={handleDonate}
+                  donatePending={donatePending}
                   onViewStructure={() => showToast(`Funds go to ${ev.nonprofit} (verified 501c3)`)}
                 />
               )}
