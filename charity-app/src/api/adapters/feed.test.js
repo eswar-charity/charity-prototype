@@ -1,0 +1,126 @@
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+import {
+  adaptCommunityPosts,
+  adaptChatMessage,
+  galleryUrlsForEvent,
+  synthesizeGalleryThread,
+} from './feed.js';
+
+const ev = {
+  key: 'neon-night',
+  organizer: 'Mike Rivera',
+  initials: 'MR',
+  photos: ['/events/neon-night/img1.jpg', '/events/neon-night/img2.jpg', '/events/neon-night/img3.jpg'],
+};
+
+describe('galleryUrlsForEvent', () => {
+  it('prefers event photos when present', () => {
+    const urls = galleryUrlsForEvent(ev);
+    assert.ok(urls.length >= 2);
+    assert.equal(urls[0], '/events/neon-night/img1.jpg');
+  });
+
+  it('falls back to catalog photos by key', () => {
+    const urls = galleryUrlsForEvent({ key: 'neon-night', photos: [] });
+    assert.ok(urls.length > 0);
+    assert.match(urls[0], /\/events\/neon-night\//);
+  });
+});
+
+describe('adaptCommunityPosts', () => {
+  it('synthesizes gallery thread when items empty', () => {
+    const gallery = ['/events/neon-night/img2.jpg', '/events/neon-night/img3.jpg'];
+    const posts = adaptCommunityPosts([], gallery, ev);
+    assert.equal(posts.length, 2);
+    assert.equal(posts[0].id, 'gallery-neon-night-0');
+    assert.equal(posts[0].media, gallery[0]);
+    assert.equal(posts[0].host, true);
+    assert.equal(posts[0].text, 'Moments from this event');
+  });
+
+  it('prefers media_url over gallery pool', () => {
+    const gallery = ['/events/neon-night/img2.jpg', '/events/neon-night/img3.jpg'];
+    const items = [{
+      id: 1,
+      phase: 'during',
+      text: 'Live now!',
+      media_url: 'https://cdn.example.com/live.jpg',
+      author: { name: 'Mike Rivera', initials: 'MR', color: '#C62828' },
+      host: true,
+      verified: true,
+      created_at: '2026-07-24T12:00:00Z',
+      replies: [],
+    }];
+    const posts = adaptCommunityPosts(items, gallery, ev);
+    assert.equal(posts[0].media, 'https://cdn.example.com/live.jpg');
+    assert.equal(gallery.length, 2);
+  });
+
+  it('fills missing media from gallery pool', () => {
+    const gallery = ['/events/neon-night/img2.jpg', '/events/neon-night/img3.jpg'];
+    const items = [
+      {
+        id: 1,
+        phase: 'before',
+        text: 'No image post',
+        media_url: null,
+        author: { name: 'Mike Rivera', initials: 'MR', color: '#C62828' },
+        host: true,
+        created_at: '2026-07-24T11:00:00Z',
+        replies: [],
+      },
+      {
+        id: 2,
+        phase: 'during',
+        text: 'Second post',
+        media_url: null,
+        author: { name: 'Guest', initials: 'G', color: '#1976D2' },
+        created_at: '2026-07-24T12:00:00Z',
+        replies: [],
+      },
+    ];
+    const posts = adaptCommunityPosts(items, gallery, ev);
+    assert.equal(posts[0].media, '/events/neon-night/img2.jpg');
+    assert.equal(posts[1].media, '/events/neon-night/img3.jpg');
+  });
+});
+
+describe('synthesizeGalleryThread', () => {
+  it('maps gallery urls to host posts', () => {
+    const thread = synthesizeGalleryThread(['/a.jpg', '/b.jpg'], ev);
+    assert.equal(thread.length, 2);
+    assert.equal(thread[1].phase, 'during');
+    assert.equal(thread[1].text, null);
+  });
+});
+
+describe('adaptChatMessage', () => {
+  it('marks current user messages as mine', () => {
+    const ui = adaptChatMessage({
+      id: 9,
+      text: 'Hello',
+      host: false,
+      verified: false,
+      author: { id: 42, name: 'You', initials: 'YO', color: '#7B1FA2' },
+    }, 42);
+    assert.equal(ui.mine, true);
+    assert.equal(ui.initials, 'ME');
+    assert.equal(ui.sent, 'Sent');
+  });
+
+  it('maps other authors without mine flag', () => {
+    const ui = adaptChatMessage({
+      id: 1,
+      text: 'Hi',
+      host: true,
+      verified: true,
+      reaction: 3,
+      author: { id: 2, name: 'Mike Rivera', initials: 'MR', color: '#C62828' },
+    }, 42);
+    assert.equal(ui.mine, false);
+    assert.equal(ui.initials, 'MR');
+    assert.equal(ui.host, true);
+    assert.equal(ui.reaction, 3);
+  });
+});
