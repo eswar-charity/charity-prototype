@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     test_database_url: str = ""
     jwt_secret: str = "change-me"
     jwt_algorithm: str = "HS256"
+    bcrypt_rounds: int = 12
     access_token_expire_minutes: int = 30
     refresh_token_expire_minutes: int = 10080
     cors_origins: Annotated[list[str], NoDecode] = ["http://localhost:5173"]

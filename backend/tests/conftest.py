@@ -1,3 +1,9 @@
+import os
+
+# Speed up the suite: use minimal bcrypt cost in tests (set before app import
+# so the cached Settings picks it up). Never affects production defaults.
+os.environ.setdefault("BCRYPT_ROUNDS", "4")
+
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient

@@ -16,7 +16,7 @@ def hash_password(password: str) -> str:
     hash_password and verify_password to keep register/login consistent.
     """
     pw = password.encode()[:72]
-    return bcrypt.hashpw(pw, bcrypt.gensalt()).decode()
+    return bcrypt.hashpw(pw, bcrypt.gensalt(rounds=get_settings().bcrypt_rounds)).decode()
 
 
 def verify_password(password: str, password_hash: str) -> bool:
