@@ -37,7 +37,7 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
     showToast,
   });
 
-  const { backers, loading: backersLoading } = useEventBackers(eventKey, showBackersModal);
+  const { backers, loading: backersLoading } = useEventBackers(eventKey, showBackersModal, showToast);
 
   if (loading) {
     return (

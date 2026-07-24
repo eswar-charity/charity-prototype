@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { getEvent, getBackers, likeEvent, saveEvent, joinEvent } from '../api/events';
 import { adaptEvent } from '../api/adapters/event';
 
@@ -89,20 +89,30 @@ export function adaptBackers(list) {
   });
 }
 
-export function useEventBackers(eventKey, enabled) {
+export function useEventBackers(eventKey, enabled, showToast) {
   const [backers, setBackers] = useState(null);
   const [loading, setLoading] = useState(false);
+  const showToastRef = useRef(showToast);
+  showToastRef.current = showToast;
 
   useEffect(() => {
-    if (!enabled || !eventKey) return undefined;
+    if (!enabled || !eventKey) {
+      setBackers(null);
+      setLoading(false);
+      return undefined;
+    }
     let cancelled = false;
+    setBackers(null);
     setLoading(true);
     getBackers(eventKey)
       .then((list) => {
         if (!cancelled) setBackers(adaptBackers(list));
       })
-      .catch(() => {
-        if (!cancelled) setBackers([]);
+      .catch((err) => {
+        if (!cancelled) {
+          setBackers([]);
+          showToastRef.current?.(err?.message || 'Could not load backers');
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -112,7 +122,8 @@ export function useEventBackers(eventKey, enabled) {
     };
   }, [eventKey, enabled]);
 
-  return { backers, loading };
+  const pending = Boolean(enabled && eventKey && (loading || backers === null));
+  return { backers, loading: pending };
 }
 
 /**

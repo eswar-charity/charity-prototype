@@ -122,11 +122,12 @@ export function EventBackersModal({
 }) {
   if (!open) return null;
 
-  const fromApi = Array.isArray(backersProp);
-  const backers = fromApi
-    ? backersProp
+  const apiMode = backersProp !== undefined;
+  const pending = apiMode && (loading || backersProp === null);
+  const backers = apiMode
+    ? (Array.isArray(backersProp) ? backersProp : [])
     : BACKER_POOL.slice(0, Math.min(6, Math.max(4, Math.round((count || 0) / 25))));
-  const displayCount = count ?? backers.length;
+  const displayCount = count ?? (pending ? 0 : backers.length);
 
   return (
     <ModalShell title="People backing this event" onClose={onClose} wide>
@@ -146,7 +147,7 @@ export function EventBackersModal({
         )}
       </div>
 
-      {loading && !fromApi ? (
+      {pending ? (
         <p className="backers-modal-more">Loading backers…</p>
       ) : backers.length === 0 ? (
         <p className="backers-modal-more">No backers yet — be the first.</p>
@@ -164,7 +165,7 @@ export function EventBackersModal({
         </ul>
       )}
 
-      {displayCount > backers.length && (
+      {!pending && displayCount > backers.length && (
         <p className="backers-modal-more">+ {displayCount - backers.length} more supporters</p>
       )}
     </ModalShell>
