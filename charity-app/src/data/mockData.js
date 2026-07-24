@@ -314,21 +314,7 @@ export function getEventByKey(key) {
   return events.find((e) => e.key === key) || events[0];
 }
 
-export function eventLivePath(eventKey, { loggedIn = false } = {}) {
-  const prefix = loggedIn ? '/event' : '/guest/event';
-  return `${prefix}/live/${eventKey}`;
-}
-
-export function eventUpcomingPath(eventKey, { loggedIn = false } = {}) {
-  const prefix = loggedIn ? '/event' : '/guest/event';
-  return `${prefix}/upcoming/${eventKey}`;
-}
-
-export function eventDetailPath(ev, { loggedIn = false } = {}) {
-  return ev.isLive
-    ? eventLivePath(ev.key, { loggedIn })
-    : eventUpcomingPath(ev.key, { loggedIn });
-}
+export { eventDetailPath, eventLivePath, eventUpcomingPath } from '../utils/eventPaths.js';
 
 export function getNonprofitForEvent(ev) {
   return nonprofits.find((n) => n.name === ev.nonprofit);
