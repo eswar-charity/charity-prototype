@@ -81,14 +81,86 @@ export function adaptReviewItem(r) {
 export function adaptExceptionItem(e) {
   if (!e) return null;
   return {
-    id: e.id,
+    id: e.code ?? String(e.id),
+    rawId: e.id,
     code: e.code,
     type: e.type,
     title: e.title,
     entity: e.entity,
     severity: e.severity,
     status: e.status,
-    amount: e.amount,
+    amount: e.amount ?? 0,
+  };
+}
+
+function initialsFromName(name) {
+  const parts = String(name ?? '').split(/\s+/).filter(Boolean);
+  return parts.slice(0, 2).map((w) => w[0]?.toUpperCase() ?? '').join('') || '—';
+}
+
+function formatAuditAt(iso) {
+  if (!iso) return '—';
+  try {
+    const d = new Date(iso);
+    const diffMs = Date.now() - d.getTime();
+    const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    if (diffMs < 86400000) return `Today, ${time}`;
+    if (diffMs < 172800000) return `Yesterday, ${time}`;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  } catch {
+    return String(iso);
+  }
+}
+
+/** Map admin_service nonprofit row → UI-friendly shape. */
+export function adaptAdminNonprofit(n) {
+  if (!n) return null;
+  return {
+    id: n.id,
+    name: n.name,
+    slug: n.slug,
+    initials: n.initials ?? initialsFromName(n.name),
+    ein: n.ein ?? '—',
+    category: n.category,
+    status: n.status,
+    settlement: n.settlement_status ?? 'Not ready',
+    verified: n.verified,
+    source: n.source ?? '—',
+    events: n.events ?? 0,
+    raised: n.raised ?? 0,
+    submittedAt: n.submitted_at ?? n.created_at ?? '—',
+  };
+}
+
+/** Map admin_service event row → UI-friendly shape. */
+export function adaptAdminEvent(e) {
+  if (!e) return null;
+  return {
+    id: e.id,
+    key: e.key,
+    title: e.title,
+    nonprofit: e.nonprofit ?? e.nonprofit_name ?? '—',
+    organizer: e.organizer ?? e.organizer_name ?? '—',
+    kind: e.kind ?? 'SE-led',
+    status: e.status,
+    joined: e.joined ?? 0,
+    raised: e.raised ?? 0,
+    flags: e.flags ?? 0,
+    nonprofitId: e.nonprofit_id ?? null,
+  };
+}
+
+/** Map admin_service audit row → UI-friendly shape. */
+export function adaptAuditEntry(a) {
+  if (!a) return null;
+  return {
+    id: a.id,
+    actor: a.actor,
+    role: a.role ?? '—',
+    action: a.action,
+    target: a.target ?? '—',
+    category: a.category ?? 'Governance',
+    at: formatAuditAt(a.at),
   };
 }
 
