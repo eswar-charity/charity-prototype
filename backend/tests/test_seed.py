@@ -23,7 +23,7 @@ async def test_seed_creates_demo_data(db_session):
     users = (
         await db_session.execute(select(func.count()).select_from(User))
     ).scalar_one()
-    assert users >= 3
+    assert users >= 22
 
     nps = (await db_session.execute(select(Nonprofit))).scalars().all()
     assert len(nps) == 20
@@ -47,17 +47,42 @@ async def test_seed_creates_demo_data(db_session):
     assert neon.raised == 14280
     assert neon.status == "Live"
 
-    np_admin = (
+    from seed.np_accounts import LEGACY_NP_EMAIL, NP_ACCOUNT_ALIASES, NP_DEMO_PASSWORD
+
+    legacy = (
         await db_session.execute(
-            select(User).where(User.email == "np@charityhub.com")
+            select(User).where(User.email == LEGACY_NP_EMAIL)
+        )
+    ).scalar_one_or_none()
+    assert legacy is None
+
+    for alias in NP_ACCOUNT_ALIASES:
+        u = (
+            await db_session.execute(
+                select(User).where(User.email == alias["email"])
+            )
+        ).scalar_one()
+        assert u.role == "np_admin"
+        assert verify_password(NP_DEMO_PASSWORD, u.password_hash)
+        link = (
+            await db_session.execute(
+                select(NonprofitAdmin).where(NonprofitAdmin.user_id == u.id)
+            )
+        ).scalar_one()
+        assert link.nonprofit_id == by_name[alias["nonprofit_name"]].id
+
+    # Spot-check: St. Jude admin sees golf outing org
+    stjude_user = (
+        await db_session.execute(
+            select(User).where(User.email == "stjude@charityhub.com")
         )
     ).scalar_one()
-    link = (
+    stjude_link = (
         await db_session.execute(
-            select(NonprofitAdmin).where(NonprofitAdmin.user_id == np_admin.id)
+            select(NonprofitAdmin).where(NonprofitAdmin.user_id == stjude_user.id)
         )
     ).scalar_one()
-    assert link.nonprofit_id == by_name["American Red Cross"].id
+    assert stjude_link.nonprofit_id == by_name["St. Jude Children's Research Hospital"].id
 
     mike = (
         await db_session.execute(
@@ -88,3 +113,9 @@ async def test_seed_is_idempotent(db_session):
         await db_session.execute(select(func.count()).select_from(Nonprofit))
     ).scalar_one()
     assert nps == 20
+    np_admins = (
+        await db_session.execute(
+            select(func.count()).select_from(User).where(User.role == "np_admin")
+        )
+    ).scalar_one()
+    assert np_admins == 20

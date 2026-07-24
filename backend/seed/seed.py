@@ -14,6 +14,7 @@ from app.models.post import ChatMessage, Post
 from app.models.user import User
 from app.utils.identity import derive_initials, pick_color
 from seed.import_nonprofits import import_nonprofits
+from seed.np_accounts import ensure_np_accounts, remove_legacy_np_user
 
 # (key, title, np_common_name, category, mission, date, start, end, loc,
 #  backed, joined, chat, raised, updates)
@@ -70,27 +71,15 @@ async def seed(session: AsyncSession) -> None:
     mike = await get_or_create_user(
         "se", "mike.rivera@demo.charityhub.com", "Mike Rivera", "Passw0rd!"
     )
-    np_admin = await get_or_create_user(
-        "np_admin", "np@charityhub.com", "Nonprofit Admin", "Passw0rd!"
-    )
 
     # 2) Upsert 20 real nonprofits
     nps = await import_nonprofits(session)
     by_name = {n.name: n for n in nps}
 
-    # 3) Link NP admin → American Red Cross
-    red_cross = by_name["American Red Cross"]
-    link = (
-        await session.execute(
-            select(NonprofitAdmin).where(NonprofitAdmin.user_id == np_admin.id)
-        )
-    ).scalar_one_or_none()
-    if link is None:
-        session.add(NonprofitAdmin(user_id=np_admin.id, nonprofit_id=red_cross.id))
-    else:
-        link.nonprofit_id = red_cross.id
+    await ensure_np_accounts(session, by_name)
+    await remove_legacy_np_user(session)
 
-    # 4) Events create-or-relink
+    # 3) Events create-or-relink
     events: list[Event] = []
     for (key, title, np_name, category, mission, date, start, end, loc,
          backed, joined, chat, raised, updates) in EVENTS:
