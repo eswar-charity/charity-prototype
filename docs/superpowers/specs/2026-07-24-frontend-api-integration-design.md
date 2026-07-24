@@ -102,7 +102,7 @@ As seeded by backend `seed.seed` / live DB (confirm passwords against seed when 
 | Role | Email | Notes |
 |------|-------|--------|
 | SE | `mike.rivera@demo.charityhub.com` | Organizer of catalog events — **may lack password in seed today**; B0 may set a documented demo password |
-| NP admin | `np@charityhub.com` | Password `Passw0rd!`; linked to American Red Cross |
+| NP admin | `redcross@charityhub.com` (20 short aliases; see C1 NP accounts spec) | Password `Passw0rd!`; each linked to its USA_20 org |
 | Platform admin | `alex.mercer@charityhub.com` | Admin portal — **may lack password in seed today**; B0 may set a documented demo password |
 | Guest | identity-gate email/phone | Creates `guest_lead` |
 
