@@ -1,7 +1,7 @@
 # Event Community Thread + Polled Chat — Design
 
 **Date:** 2026-07-24  
-**Status:** Approved in conversation — pending user review of this written spec  
+**Status:** Approved — ready for implementation  
 **Branch:** `thread-test` (no new branch)  
 **Depends on:** Existing FastAPI feed routes (`/events/{key}/posts`, `/events/{key}/messages`) and B1 live event detail
 
