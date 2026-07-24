@@ -1,8 +1,8 @@
 # Nonprofit XLSX Import + Reseed — Design (Sub-project A)
 
 **Date:** 2026-07-24
-**Status:** Approved — proceeding to implementation plan
-**Parent effort:** "Import XLSX nonprofits + integrate frontend with live APIs" (decomposed; this is sub-project A — backend data import. Frontend integration is a separate later sub-project.)
+**Status:** Approved — decisions locked 2026-07-24; ready for implementation plan
+**Parent effort:** "Import XLSX nonprofits + integrate frontend with live APIs" (decomposed; **A then B**. This is sub-project A — backend data import. Frontend integration is sub-project B, separate later spec.)
 
 ---
 
@@ -88,19 +88,24 @@ Unknown causes fall back to `Community`.
 2. `execute_sql`: upsert 20 nonprofits (generated from the parsed XLSX), relink events + nonprofit_admin, delete demo NPs, `UPDATE alembic_version SET version_num='0011_nonprofit_import_fields'`.
 3. Verify with `execute_sql` counts (nonprofits = 20, events still 5 and pointing at real NPs).
 
-## 9. Row Level Security (optional hardening — user decision)
+## 9. Row Level Security
 
-Supabase flags RLS disabled on all tables. The app is safe in practice (frontend → FastAPI/JWT; FastAPI uses the direct Postgres role which bypasses RLS). Enabling RLS would close the anon-key exposure without breaking FastAPI. Not auto-applied — offered as an optional `ALTER TABLE … ENABLE ROW LEVEL SECURITY` step for all 23 tables, pending user approval.
+**Decision (2026-07-24): Do not enable RLS as part of A.** Supabase tables remain without RLS. The app stays safe in practice (frontend → FastAPI/JWT; FastAPI uses the direct Postgres role). RLS can be revisited later as optional hardening; it is out of scope for A and for the immediate B frontend integration.
 
 ## 10. Testing
 
 SQLite unit tests: `xlsx_reader` (20 rows, header mapping, the UTF-8 row parses correctly), `parse_records` (category mapping incl. fallback, `founded_year` coercion), and `import_nonprofits` idempotency (re-run count stays 20; fields populated). Full suite stays green.
 
-## 11. Out of scope (later sub-project)
+## 11. Out of scope (later sub-project B)
 
-Frontend integration (API client, auth/session, wiring screens to live APIs, loading/empty/error states). Covered by a separate spec.
+Frontend integration (API client, auth/session, wiring screens to live APIs, loading/empty/error states, toasts). Covered by a separate spec after A lands.
 
-## 12. Open items
+## 12. Closed decisions / remaining notes
 
-- Confirm whether to enable RLS (§9).
-- Rotation of the Supabase DB password / Cloudinary secret that were shared in plaintext (recommended, user's call).
+| Item | Decision |
+|------|----------|
+| Execution order | **A then B** |
+| RLS (§9) | **No** — skip for A (and not required before B) |
+| Secret rotation (Supabase DB password / Cloudinary) | Out of scope for A; user's call separately — not blocking |
+
+No open design items remain for A.
