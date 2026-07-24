@@ -1,13 +1,16 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MessageCircle, Camera, Bell } from 'lucide-react';
 import GuestBottomNav from '../../components/GuestBottomNav';
 import MobileAppHeader from '../../components/MobileAppHeader';
 import FilterPillRow from '../../components/FilterPillRow';
-import { events, ALL_BROWSE_FILTERS, eventDetailPath, eventDisplayTitle, getEventBannerFocus } from '../../data/mockData';
+import { ALL_BROWSE_FILTERS, eventDisplayTitle, getEventBannerFocus } from '../../data/mockData';
 import { getCategoryIcon, DISCOVERY_FILTERS } from '../../data/categoryIcons';
-import useInfiniteScroll from '../../hooks/useInfiniteScroll';
+import usePagedFeed from '../../hooks/usePagedFeed';
 import { EventImageBanner } from '../../components/event/EventImage';
+import { listEvents } from '../../api/events';
+import { adaptEvent } from '../../api/adapters/event';
+import { eventDetailPath } from '../../utils/eventPaths';
 
 const activateOnKey = (fn) => (e) => {
   if (e.key === 'Enter' || e.key === ' ') {
@@ -15,6 +18,25 @@ const activateOnKey = (fn) => (e) => {
     fn();
   }
 };
+
+/** Map Scene discovery pills → API `discovery` query values. */
+function mapDiscovery(label) {
+  if (label === 'Live now') return 'live';
+  if (label === 'Popular') return 'popular';
+  if (label === 'New') return 'new';
+  return undefined;
+}
+
+function enrichFeedEvent(ev) {
+  const np = ev.nonprofitBrief;
+  return {
+    ...ev,
+    cover: ev.photos?.[0] || (ev.key ? `/events/${ev.key}/img1.jpg` : undefined),
+    chatCount: ev.chat ?? 0,
+    npInitials: np?.initials || (ev.nonprofit ? ev.nonprofit.slice(0, 2).toUpperCase() : 'NP'),
+    npBg: np?.color || '#1A6EB5',
+  };
+}
 
 export default function GuestFeed() {
   const navigate = useNavigate();
@@ -34,17 +56,28 @@ export default function GuestFeed() {
   }, [causeParam]);
 
   const isFollowing = activeDiscovery === 'Following';
-  let filtered = events.filter((ev) => {
-    if (activeCategory !== 'All' && ev.category !== activeCategory) return false;
-    if (activeDiscovery === 'Live now') return ev.isLive;
-    if (isFollowing) return false; // no follow graph yet — see the empty state below
-    return true;
-  });
-  if (activeDiscovery === 'Popular') filtered = [...filtered].sort((a, b) => b.backed - a.backed);
-  if (activeDiscovery === 'New') filtered = [...filtered].reverse();
 
-  const { items, sentinelRef, loading, hasMore } = useInfiniteScroll(filtered, {
-    rootRef: scrollRef, pageSize: 3, max: 30,
+  const fetcher = useCallback(async ({ page, limit }) => {
+    // No following graph / API filter — keep empty client-side.
+    if (activeDiscovery === 'Following') {
+      return { items: [], total: 0, has_more: false };
+    }
+    const res = await listEvents({
+      cause: activeCategory !== 'All' ? activeCategory : undefined,
+      discovery: mapDiscovery(activeDiscovery),
+      page,
+      limit,
+    });
+    return {
+      items: (res.items ?? []).map((raw) => enrichFeedEvent(adaptEvent(raw))),
+      total: res.total,
+      has_more: res.has_more,
+    };
+  }, [activeCategory, activeDiscovery]);
+
+  const { items, sentinelRef, loading, error, hasMore, reload } = usePagedFeed(fetcher, {
+    pageSize: 10,
+    deps: [activeCategory, activeDiscovery],
   });
 
   const openEvent = (ev) => navigate(eventDetailPath(ev, { loggedIn: false }));
@@ -117,11 +150,28 @@ export default function GuestFeed() {
                   Follow organisers and nonprofits from an event page to see their events here.
                 </p>
               </div>
+            ) : error && items.length === 0 ? (
+              <div className="discovery-empty" role="alert">
+                <p className="discovery-empty-title">Couldn&apos;t load events</p>
+                <p className="discovery-empty-copy">{error.message || 'Something went wrong.'}</p>
+                <button type="button" className="guest-signup-btn" style={{ marginTop: 12 }} onClick={reload}>
+                  Try again
+                </button>
+              </div>
             ) : (
               <>
+            {loading && items.length === 0 && (
+              <div className="feed-loader"><span className="feed-spinner" /> Loading events…</div>
+            )}
+            {!loading && items.length === 0 && (
+              <div className="discovery-empty">
+                <p className="discovery-empty-title">No events match this filter yet</p>
+                <p className="discovery-empty-copy">Try another category or discovery filter.</p>
+              </div>
+            )}
             {items.map((ev) => (
               <div
-                key={ev._key}
+                key={ev.id ?? ev.key}
                 className="scene-card"
                 role="button"
                 tabIndex={0}
@@ -178,10 +228,12 @@ export default function GuestFeed() {
               </div>
             ))}
             {hasMore && <div ref={sentinelRef} style={{ height: 1 }} aria-hidden="true" />}
-            {loading && (
+            {loading && items.length > 0 && (
               <div className="feed-loader"><span className="feed-spinner" /> Loading more events…</div>
             )}
-            {!hasMore && <p className="feed-end">You&apos;re all caught up</p>}
+            {!loading && !hasMore && items.length > 0 && (
+              <p className="feed-end">You&apos;re all caught up</p>
+            )}
               </>
             )}
           </div>
