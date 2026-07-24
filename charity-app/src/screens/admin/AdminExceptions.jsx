@@ -1,20 +1,52 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { RotateCcw, ArrowUpRight, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout, { Badge } from '../../components/admin/AdminLayout';
 import { Toast, useToast } from '../../components/admin/useToast';
-import { exceptions as seed, statusTone } from '../../data/adminData';
+import { listAdminExceptions, adminExceptionAction, adaptExceptionItem } from '../../api/admin';
+import { statusTone } from '../../data/adminData';
 
 const money = (n) => '$' + n.toLocaleString('en-US');
+
+const ACTION_MAP = {
+  escalate: (code) => `${code} escalated to Founder / Operator`,
+  resolve: (code) => `${code} marked resolved`,
+  reopen: (code) => `${code} reopened`,
+};
 
 export default function AdminExceptions() {
   const navigate = useNavigate();
   const { msg, show } = useToast();
-  const [rows, setRows] = useState(seed);
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [pendingId, setPendingId] = useState(null);
 
-  const update = (id, status, label) => {
-    setRows((r) => r.map((x) => (x.id === id ? { ...x, status } : x)));
-    show(label);
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await listAdminExceptions();
+      setRows((data ?? []).map(adaptExceptionItem));
+    } catch {
+      setRows([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const act = async (ex, actionKey) => {
+    if (pendingId) return;
+    setPendingId(ex.rawId);
+    try {
+      const updated = await adminExceptionAction(ex.rawId, actionKey);
+      setRows((r) => r.map((x) => (x.rawId === ex.rawId ? adaptExceptionItem(updated) : x)));
+      show(ACTION_MAP[actionKey]?.(ex.id) ?? 'Exception updated');
+    } catch (err) {
+      show(err?.message || 'Action failed', { variant: 'error' });
+    } finally {
+      setPendingId(null);
+    }
   };
 
   return (
@@ -31,36 +63,43 @@ export default function AdminExceptions() {
               <tr><th>ID</th><th>Issue</th><th>Type</th><th>Entity</th><th>Severity</th><th>Amount</th><th>Status</th><th></th></tr>
             </thead>
             <tbody>
-              {rows.map((ex) => {
-                const resolved = ex.status === 'Resolved';
-                return (
-                  <tr key={ex.id}>
-                    <td className="adm-td-muted">{ex.id}</td>
-                    <td className="adm-td-strong">{ex.title}</td>
-                    <td className="adm-td-muted">{ex.type}</td>
-                    <td className="adm-td-muted">{ex.entity}</td>
-                    <td><Badge tone={ex.severity === 'High' ? 'danger' : ex.severity === 'Medium' ? 'warn' : 'muted'}>{ex.severity}</Badge></td>
-                    <td>{ex.amount > 0 ? money(ex.amount) : '—'}</td>
-                    <td><Badge tone={statusTone(ex.status)} dot>{ex.status}</Badge></td>
-                    <td className="adm-td-actions">
-                      {!resolved ? (
-                        <>
-                          <button className="adm-btn adm-btn-ghost adm-btn-sm" onClick={() => update(ex.id, 'Escalated', `${ex.id} escalated to Founder / Operator`)}>
-                            <ArrowUpRight size={13} /> Escalate
+              {loading ? (
+                <tr><td colSpan={8} className="adm-td-muted">Loading exceptions…</td></tr>
+              ) : rows.length === 0 ? (
+                <tr><td colSpan={8} className="adm-td-muted">No open exceptions.</td></tr>
+              ) : (
+                rows.map((ex) => {
+                  const resolved = ex.status === 'Resolved';
+                  const busy = pendingId === ex.rawId;
+                  return (
+                    <tr key={ex.rawId}>
+                      <td className="adm-td-muted">{ex.id}</td>
+                      <td className="adm-td-strong">{ex.title}</td>
+                      <td className="adm-td-muted">{ex.type}</td>
+                      <td className="adm-td-muted">{ex.entity}</td>
+                      <td><Badge tone={ex.severity === 'High' ? 'danger' : ex.severity === 'Medium' ? 'warn' : 'muted'}>{ex.severity}</Badge></td>
+                      <td>{ex.amount > 0 ? money(ex.amount) : '—'}</td>
+                      <td><Badge tone={statusTone(ex.status)} dot>{ex.status}</Badge></td>
+                      <td className="adm-td-actions">
+                        {!resolved ? (
+                          <>
+                            <button className="adm-btn adm-btn-ghost adm-btn-sm" disabled={busy} onClick={() => act(ex, 'escalate')}>
+                              <ArrowUpRight size={13} /> Escalate
+                            </button>
+                            <button className="adm-btn adm-btn-primary adm-btn-sm" disabled={busy} onClick={() => act(ex, 'resolve')}>
+                              <Check size={13} /> Resolve
+                            </button>
+                          </>
+                        ) : (
+                          <button className="adm-btn adm-btn-ghost adm-btn-sm" disabled={busy} onClick={() => act(ex, 'reopen')}>
+                            <RotateCcw size={13} /> Reopen
                           </button>
-                          <button className="adm-btn adm-btn-primary adm-btn-sm" onClick={() => update(ex.id, 'Resolved', `${ex.id} marked resolved`)}>
-                            <Check size={13} /> Resolve
-                          </button>
-                        </>
-                      ) : (
-                        <button className="adm-btn adm-btn-ghost adm-btn-sm" onClick={() => update(ex.id, 'In Review', `${ex.id} reopened`)}>
-                          <RotateCcw size={13} /> Reopen
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
