@@ -50,6 +50,20 @@ async def test_patch_profile_updates_fields_and_causes(client):
 
 
 @pytest.mark.asyncio
+async def test_patch_profile_updates_initials_when_name_changes(client):
+    headers = await _register_and_login(client, email="p4@e.com")
+    resp = await client.patch(
+        "/api/v1/me/profile",
+        headers=headers,
+        json={"name": "Jane Doe"},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["name"] == "Jane Doe"
+    assert body["initials"] == "JD"
+
+
+@pytest.mark.asyncio
 async def test_patch_profile_replaces_causes(client):
     headers = await _register_and_login(client, email="p3@e.com")
     await client.patch(

@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User
 from app.repositories import user_repository
+from app.utils.identity import derive_initials
 
 
 async def get_profile(db: AsyncSession, user: User) -> User:
@@ -20,6 +21,7 @@ async def update_profile(
     fields: dict = {}
     if name is not None:
         fields["name"] = name
+        fields["initials"] = derive_initials(name)
     if bio is not None:
         fields["bio"] = bio
     if city is not None:

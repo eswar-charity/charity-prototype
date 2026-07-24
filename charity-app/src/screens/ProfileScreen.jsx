@@ -7,6 +7,7 @@ import MobileShareModal from '../components/MobileShareModal';
 import { eventDetailPath } from '../utils/eventPaths';
 import { EventImageBanner } from '../components/event/EventImage';
 import { useSeProfile } from '../hooks/useSeProfile';
+import { initialsFromName } from '../utils/initials';
 
 const DEFAULT_BIO = 'Creating events that bring communities together for causes that matter.';
 
@@ -16,7 +17,7 @@ export default function ProfileScreen() {
   const { profile, hostedEvents, stats, loading, error, reload } = useSeProfile();
 
   const name = profile?.name ?? 'Profile';
-  const initials = profile?.initials ?? '?';
+  const initials = initialsFromName(name, profile?.initials ?? '?');
   const city = profile?.city;
   const bio = profile?.bio || DEFAULT_BIO;
 
