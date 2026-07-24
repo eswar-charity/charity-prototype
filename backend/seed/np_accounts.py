@@ -1,6 +1,14 @@
 """Curated short-alias NP admin accounts for USA_20 nonprofits."""
 from __future__ import annotations
 
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.security import hash_password
+from app.models.nonprofit import Nonprofit, NonprofitAdmin
+from app.models.user import User
+from app.utils.identity import derive_initials, pick_color
+
 LEGACY_NP_EMAIL = "np@charityhub.com"
 NP_DEMO_PASSWORD = "Passw0rd!"
 
@@ -27,3 +35,67 @@ NP_ACCOUNT_ALIASES: list[dict[str, str]] = [
     {"email": "aspca@charityhub.com", "nonprofit_name": "ASPCA", "display_name": "ASPCA Admin"},
     {"email": "msf@charityhub.com", "nonprofit_name": "Doctors Without Borders USA", "display_name": "Doctors Without Borders USA Admin"},
 ]
+
+
+def _make_user(email: str, display_name: str) -> User:
+    return User(
+        role="np_admin",
+        email=email,
+        name=display_name,
+        password_hash=hash_password(NP_DEMO_PASSWORD),
+        initials=derive_initials(display_name),
+        color=pick_color(display_name),
+        status="active",
+    )
+
+
+async def ensure_np_accounts(
+    session: AsyncSession, by_name: dict[str, Nonprofit]
+) -> list[User]:
+    users: list[User] = []
+    for alias in NP_ACCOUNT_ALIASES:
+        np = by_name[alias["nonprofit_name"]]  # KeyError if missing
+        u = (
+            await session.execute(select(User).where(User.email == alias["email"]))
+        ).scalar_one_or_none()
+        if u is None:
+            u = _make_user(alias["email"], alias["display_name"])
+            session.add(u)
+            await session.flush()
+        else:
+            u.role = "np_admin"
+            u.name = alias["display_name"]
+            u.password_hash = hash_password(NP_DEMO_PASSWORD)
+            u.initials = derive_initials(alias["display_name"])
+            u.color = pick_color(alias["display_name"])
+            u.status = "active"
+
+        link = (
+            await session.execute(
+                select(NonprofitAdmin).where(NonprofitAdmin.user_id == u.id)
+            )
+        ).scalar_one_or_none()
+        if link is None:
+            session.add(NonprofitAdmin(user_id=u.id, nonprofit_id=np.id))
+        else:
+            link.nonprofit_id = np.id
+        users.append(u)
+    await session.flush()
+    return users
+
+
+async def remove_legacy_np_user(session: AsyncSession) -> None:
+    u = (
+        await session.execute(select(User).where(User.email == LEGACY_NP_EMAIL))
+    ).scalar_one_or_none()
+    if u is None:
+        return
+    links = (
+        await session.execute(
+            select(NonprofitAdmin).where(NonprofitAdmin.user_id == u.id)
+        )
+    ).scalars().all()
+    for link in links:
+        await session.delete(link)
+    await session.delete(u)
+    await session.flush()
