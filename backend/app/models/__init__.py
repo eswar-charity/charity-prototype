@@ -1,3 +1,4 @@
+from app.models.approval import AutopilotSettings, EventReview, TrustedSE
 from app.models.event import (
     Event,
     EventLike,
@@ -20,4 +21,7 @@ __all__ = [
     "Participation",
     "EventLike",
     "EventSave",
+    "AutopilotSettings",
+    "TrustedSE",
+    "EventReview",
 ]
