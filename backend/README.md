@@ -65,12 +65,20 @@ Migrations are handwritten under `alembic/versions/` and target Postgres.
 ## Seed demo data
 
 Reproduces the prototype's demo content (SE *Mike Rivera*, admin *Alex Mercer*,
-the 5 catalog events with their nonprofits, sample donations/posts, and admin
-review/exception/audit rows):
+the 5 catalog events, sample donations/posts, and admin review/exception/audit
+rows):
 
 ```powershell
 python -m seed.seed
 ```
+
+## Nonprofit directory (XLSX)
+
+Canonical directory: `backend/data/USA_20_Well_Known_Nonprofits_with_EIN.xlsx` (20 orgs).
+`python -m seed.seed` upserts these nonprofits, links demo events to United Way /
+Nature Conservancy / St. Jude / ASPCA / Sierra Club Foundation, and attaches the
+demo NP admin to American Red Cross. Migration `0011_nonprofit_import_fields`
+adds `legal_name`, `headquarters`, `founded_year`, `source_url`, `raw_cause`.
 
 ## Tests
 
