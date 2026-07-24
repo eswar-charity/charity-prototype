@@ -1,13 +1,35 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, MessageCircle, Camera } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
 import FilterPillRow from '../../components/FilterPillRow';
-import { events, ALL_BROWSE_FILTERS, eventDetailPath, eventDisplayTitle, getEventBannerFocus } from '../../data/mockData';
+import { ALL_BROWSE_FILTERS, eventDisplayTitle, getEventBannerFocus } from '../../data/mockData';
 import { getCategoryIcon, DISCOVERY_FILTERS } from '../../data/categoryIcons';
-import useInfiniteScroll from '../../hooks/useInfiniteScroll';
+import usePagedFeed from '../../hooks/usePagedFeed';
 import { EventImageBanner } from '../../components/event/EventImage';
+import { listEvents } from '../../api/events';
+import { adaptEvent } from '../../api/adapters/event';
+import { eventDetailPath } from '../../utils/eventPaths';
+
+/** Map Scene discovery pills → API `discovery` query values. */
+function mapDiscovery(label) {
+  if (label === 'Live now') return 'live';
+  if (label === 'Popular') return 'popular';
+  if (label === 'New') return 'new';
+  return undefined;
+}
+
+function enrichFeedEvent(ev) {
+  const np = ev.nonprofitBrief;
+  return {
+    ...ev,
+    cover: ev.photos?.[0] || (ev.key ? `/events/${ev.key}/img1.jpg` : undefined),
+    chatCount: ev.chat ?? 0,
+    npInitials: np?.initials || (ev.nonprofit ? ev.nonprofit.slice(0, 2).toUpperCase() : 'NP'),
+    npBg: np?.color || '#1A6EB5',
+  };
+}
 
 function SceneEventCard({ ev }) {
   const navigate = useNavigate();
@@ -54,21 +76,26 @@ export default function DesktopFeedScreen() {
   const [discovery, setDiscovery] = useState('All');
   const isFollowing = discovery === 'Following';
 
-  const filtered = useMemo(() => {
-    let list = events.filter((e) => {
-      if (category !== 'All' && e.category !== category) return false;
-      if (discovery === 'Live now') return e.isLive;
-      if (isFollowing) return false; // no follow graph yet — see the empty state below
-      return true;
+  const fetcher = useCallback(async ({ page, limit }) => {
+    if (discovery === 'Following') {
+      return { items: [], total: 0, has_more: false };
+    }
+    const res = await listEvents({
+      cause: category !== 'All' ? category : undefined,
+      discovery: mapDiscovery(discovery),
+      page,
+      limit,
     });
-    if (discovery === 'Popular') list = [...list].sort((a, b) => b.backed - a.backed);
-    if (discovery === 'New') list = [...list].reverse();
-    return list;
-  }, [category, discovery, isFollowing]);
+    return {
+      items: (res.items ?? []).map((raw) => enrichFeedEvent(adaptEvent(raw))),
+      total: res.total,
+      has_more: res.has_more,
+    };
+  }, [category, discovery]);
 
-  const { items, sentinelRef, loading, hasMore } = useInfiniteScroll(filtered, {
-    pageSize: 6,
-    max: 36,
+  const { items, sentinelRef, loading, error, hasMore, reload } = usePagedFeed(fetcher, {
+    pageSize: 12,
+    deps: [category, discovery],
   });
 
   return (
@@ -125,24 +152,37 @@ export default function DesktopFeedScreen() {
                 Follow organisers and nonprofits from an event page to see their events here.
               </p>
             </div>
-          ) : (
-            <div className="dsk-event-grid">
-              {items.map((ev) => (
-                <SceneEventCard key={ev._key} ev={ev} />
-              ))}
-              {filtered.length === 0 && (
-                <p className="dsk-empty-note">No events match this filter yet.</p>
-              )}
+          ) : error && items.length === 0 ? (
+            <div className="discovery-empty" role="alert">
+              <p className="discovery-empty-title">Couldn&apos;t load events</p>
+              <p className="discovery-empty-copy">{error.message || 'Something went wrong.'}</p>
+              <button type="button" className="dsk-btn-primary" style={{ marginTop: 12 }} onClick={reload}>
+                Try again
+              </button>
             </div>
+          ) : (
+            <>
+              {loading && items.length === 0 && (
+                <div className="feed-loader"><span className="feed-spinner" /> Loading events…</div>
+              )}
+              <div className="dsk-event-grid">
+                {items.map((ev) => (
+                  <SceneEventCard key={ev.id ?? ev.key} ev={ev} />
+                ))}
+                {!loading && items.length === 0 && (
+                  <p className="dsk-empty-note">No events match this filter yet.</p>
+                )}
+              </div>
+            </>
           )}
 
-          {hasMore && filtered.length > 0 && (
+          {hasMore && !isFollowing && items.length > 0 && (
             <div ref={sentinelRef} style={{ height: 1 }} aria-hidden="true" />
           )}
-          {loading && (
+          {loading && items.length > 0 && (
             <div className="feed-loader"><span className="feed-spinner" /> Loading more events…</div>
           )}
-          {!hasMore && filtered.length > 0 && (
+          {!loading && !hasMore && items.length > 0 && !isFollowing && (
             <p className="feed-end">You&apos;re all caught up</p>
           )}
         </div>
