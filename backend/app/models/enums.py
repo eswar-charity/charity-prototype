@@ -53,6 +53,15 @@ class Visibility(StrEnum):
     private = "private"
 
 
+class DonationStatus(StrEnum):
+    initiated = "Initiated"
+    pending = "Pending"
+    successful = "Successful"
+    failed = "Failed"
+    refunded = "Refunded"
+    disputed = "Disputed"
+
+
 class ResourceType(StrEnum):
     image = "image"
     video = "video"

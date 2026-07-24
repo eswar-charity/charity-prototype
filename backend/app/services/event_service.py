@@ -4,6 +4,7 @@ from app.core.exceptions import AppError
 from app.models.event import Event
 from app.models.user import User
 from app.repositories import (
+    donation_repository,
     event_repository as repo,
     media_repository,
     nonprofit_repository,
@@ -209,5 +210,12 @@ async def backers(db: AsyncSession, key: str) -> list:
     event = await repo.get_by_key(db, key)
     if not event:
         raise AppError("not_found", "Event not found", status_code=404)
-    # Backers are donors; wired in the donations phase. Empty for now.
-    return []
+    donations = await donation_repository.list_successful_by_event(db, event.id)
+    return [
+        {
+            "id": d.id,
+            "public_name": d.public_name,
+            "amount": round(d.donation_cents / 100, 2),
+        }
+        for d in donations
+    ]

@@ -1,4 +1,5 @@
 from app.models.approval import AutopilotSettings, EventReview, TrustedSE
+from app.models.donation import Donation
 from app.models.event import (
     Event,
     EventLike,
@@ -24,4 +25,5 @@ __all__ = [
     "AutopilotSettings",
     "TrustedSE",
     "EventReview",
+    "Donation",
 ]
