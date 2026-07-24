@@ -10,7 +10,7 @@ from app.models.admin import AdminReviewItem, AuditLogEntry, Exception_
 from app.models.donation import Donation
 from app.models.event import Event
 from app.models.nonprofit import Nonprofit, NonprofitAdmin
-from app.models.post import Post
+from app.models.post import ChatMessage, Post
 from app.models.user import User
 from app.utils.identity import derive_initials, pick_color
 from seed.import_nonprofits import import_nonprofits
@@ -222,6 +222,53 @@ async def seed(session: AsyncSession) -> None:
             ).scalars().all()
         for entry in stale_audits:
             entry.target = "American Red Cross"
+
+    # 7) Demo chat messages per catalog event (if none yet)
+    marcus = await get_or_create_user(
+        "guest_lead", "marcus.l@demo.charityhub.com", "Marcus L."
+    )
+    emma = await get_or_create_user(
+        "guest_lead", "emma.j@demo.charityhub.com", "Emma J."
+    )
+    for ev in events:
+        msg_count = (
+            await session.execute(
+                select(func.count())
+                .select_from(ChatMessage)
+                .where(ChatMessage.event_id == ev.id)
+            )
+        ).scalar_one()
+        if msg_count == 0:
+            session.add_all([
+                ChatMessage(
+                    event_id=ev.id,
+                    user_id=mike.id,
+                    text=(
+                        "Welcome everyone! We're starting the main presentation "
+                        "in about 5 minutes. Feel free to grab a virtual seat and say hi!"
+                    ),
+                    host=True,
+                    verified=True,
+                ),
+                ChatMessage(
+                    event_id=ev.id,
+                    user_id=marcus.id,
+                    text="So excited for this! Tuning in from Chicago.",
+                    reaction=12,
+                ),
+                ChatMessage(
+                    event_id=ev.id,
+                    user_id=mike.id,
+                    text="Thanks for joining — the main segment starts in just a few minutes.",
+                    host=True,
+                    verified=True,
+                ),
+                ChatMessage(
+                    event_id=ev.id,
+                    user_id=emma.id,
+                    text="This is incredible! First time attending a Charity Hub event.",
+                ),
+            ])
 
     await session.commit()
 
