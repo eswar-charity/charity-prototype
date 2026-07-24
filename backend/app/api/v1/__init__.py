@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.api.v1.admin import router as admin_router
 from app.api.v1.approvals import router as approvals_router
 from app.api.v1.auth import router as auth_router
 from app.api.v1.dashboards import router as dashboards_router
@@ -24,3 +25,4 @@ api_router.include_router(donations_router)
 api_router.include_router(feed_router)
 api_router.include_router(qr_router)
 api_router.include_router(dashboards_router)
+api_router.include_router(admin_router)

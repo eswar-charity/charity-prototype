@@ -1,3 +1,4 @@
+from app.models.admin import AdminReviewItem, AuditLogEntry, Exception_
 from app.models.approval import AutopilotSettings, EventReview, TrustedSE
 from app.models.attendee import Attendee
 from app.models.donation import Donation
@@ -34,4 +35,7 @@ __all__ = [
     "ChatMessage",
     "Attendee",
     "Notification",
+    "AdminReviewItem",
+    "Exception_",
+    "AuditLogEntry",
 ]

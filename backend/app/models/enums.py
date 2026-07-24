@@ -68,6 +68,22 @@ class DonationStatus(StrEnum):
     disputed = "Disputed"
 
 
+class ReviewStatus(StrEnum):
+    new = "New"
+    in_review = "In Review"
+    escalated = "Escalated"
+    approved = "Approved"
+    rejected = "Rejected"
+    closed = "Closed"
+
+
+class ExceptionStatus(StrEnum):
+    open = "Open"
+    in_review = "In Review"
+    escalated = "Escalated"
+    resolved = "Resolved"
+
+
 class ResourceType(StrEnum):
     image = "image"
     video = "video"
