@@ -223,13 +223,41 @@ async def seed(session: AsyncSession) -> None:
         for entry in stale_audits:
             entry.target = "American Red Cross"
 
-    # 7) Demo chat messages per catalog event (if none yet)
+    # 7) Demo community posts per catalog event (if none yet)
     marcus = await get_or_create_user(
         "guest_lead", "marcus.l@demo.charityhub.com", "Marcus L."
     )
     emma = await get_or_create_user(
         "guest_lead", "emma.j@demo.charityhub.com", "Emma J."
     )
+    for ev in events:
+        post_count = (
+            await session.execute(
+                select(func.count()).select_from(Post).where(Post.event_id == ev.id)
+            )
+        ).scalar_one()
+        if post_count == 0:
+            session.add_all([
+                Post(
+                    event_id=ev.id, author_id=mike.id, phase="before", host=True, verified=True,
+                    text=f"Registration is open for {ev.title} — join us!",
+                    highlight="Announcement",
+                ),
+                Post(
+                    event_id=ev.id, author_id=marcus.id, phase="before", host=False, verified=False,
+                    text="Counting down the days. Who else is coming?",
+                ),
+                Post(
+                    event_id=ev.id, author_id=mike.id, phase="during", host=True, verified=True,
+                    text="We're live! Thanks for showing up for the cause.",
+                ),
+                Post(
+                    event_id=ev.id, author_id=emma.id, phase="during", host=False, verified=False,
+                    text="This community is amazing — first Charity Hub event and I'm hooked.",
+                ),
+            ])
+
+    # 8) Demo chat messages per catalog event (if none yet)
     for ev in events:
         msg_count = (
             await session.execute(

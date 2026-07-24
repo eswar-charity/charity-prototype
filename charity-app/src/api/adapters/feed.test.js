@@ -32,11 +32,10 @@ describe('adaptCommunityPosts', () => {
   it('synthesizes gallery thread when items empty', () => {
     const gallery = ['/events/neon-night/img2.jpg', '/events/neon-night/img3.jpg'];
     const posts = adaptCommunityPosts([], gallery, ev);
-    assert.equal(posts.length, 2);
-    assert.equal(posts[0].id, 'gallery-neon-night-0');
-    assert.equal(posts[0].media, gallery[0]);
-    assert.equal(posts[0].host, true);
-    assert.equal(posts[0].text, 'Moments from this event');
+    assert.ok(posts.length >= 4);
+    assert.ok(posts.some((p) => p.text && !p.media), 'includes text-only posts');
+    assert.ok(posts.some((p) => p.media), 'includes photo posts');
+    assert.equal(posts.find((p) => p.media === gallery[0]).text, 'Setting up — the energy is already here.');
   });
 
   it('prefers media_url over gallery pool', () => {
@@ -54,10 +53,9 @@ describe('adaptCommunityPosts', () => {
     }];
     const posts = adaptCommunityPosts(items, gallery, ev);
     assert.equal(posts[0].media, 'https://cdn.example.com/live.jpg');
-    assert.equal(gallery.length, 2);
   });
 
-  it('fills missing media from gallery pool', () => {
+  it('fills gallery on every other post so some stay text-only', () => {
     const gallery = ['/events/neon-night/img2.jpg', '/events/neon-night/img3.jpg'];
     const items = [
       {
@@ -73,7 +71,7 @@ describe('adaptCommunityPosts', () => {
       {
         id: 2,
         phase: 'during',
-        text: 'Second post',
+        text: 'Second post stays text-only',
         media_url: null,
         author: { name: 'Guest', initials: 'G', color: '#1976D2' },
         created_at: '2026-07-24T12:00:00Z',
@@ -82,16 +80,18 @@ describe('adaptCommunityPosts', () => {
     ];
     const posts = adaptCommunityPosts(items, gallery, ev);
     assert.equal(posts[0].media, '/events/neon-night/img2.jpg');
-    assert.equal(posts[1].media, '/events/neon-night/img3.jpg');
+    assert.equal(posts[1].media, null);
+    assert.equal(posts[1].text, 'Second post stays text-only');
   });
 });
 
 describe('synthesizeGalleryThread', () => {
-  it('maps gallery urls to host posts', () => {
+  it('mixes captioned photos with text-only posts', () => {
     const thread = synthesizeGalleryThread(['/a.jpg', '/b.jpg'], ev);
-    assert.equal(thread.length, 2);
-    assert.equal(thread[1].phase, 'during');
-    assert.equal(thread[1].text, null);
+    assert.ok(thread.length >= 4);
+    assert.ok(thread.every((p) => p.text), 'every post has text');
+    assert.equal(thread.filter((p) => p.media).length, 2);
+    assert.ok(thread.filter((p) => !p.media).length >= 2);
   });
 });
 
