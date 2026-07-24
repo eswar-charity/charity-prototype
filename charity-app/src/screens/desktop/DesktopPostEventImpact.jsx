@@ -5,19 +5,58 @@ import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
 import DesktopShareModal from '../../components/desktop/DesktopShareModal';
 import Logo from '../../components/Logo';
-import { SE_ORGANIZER, events, eventDisplayTitle } from '../../data/mockData';
+import { eventDisplayTitle } from '../../data/mockData';
+import { useAuth } from '../../auth/AuthContext';
+import { useSePostEvent } from '../../hooks/useSeDashboard';
 
-const FEATURED_EVENT = events[0];
+function initialsFrom(name) {
+  if (!name) return '?';
+  return name
+    .split(/\s+/)
+    .map((p) => p[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
 
 export default function DesktopPostEventImpact() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { data, loading, error } = useSePostEvent();
   const [toast, setToast] = useState('');
   const [showShare, setShowShare] = useState(false);
+
+  const ev = data?.event;
+  const impact = data?.impact ?? {};
+  const organizerName = user?.name ?? 'Organizer';
+  const organizerInitials = user?.initials ?? initialsFrom(user?.name);
 
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(''), 2200);
   };
+
+  if (loading) {
+    return (
+      <div className="dsk-page">
+        <DesktopHeader active="Discover" loggedIn homePath="/feed" />
+        <main className="dsk-main"><div className="dsk-container" style={{ padding: 48, textAlign: 'center' }}>Loading…</div></main>
+      </div>
+    );
+  }
+
+  if (error || !ev) {
+    return (
+      <div className="dsk-page">
+        <DesktopHeader active="Discover" loggedIn homePath="/feed" />
+        <main className="dsk-main">
+          <div className="dsk-container" style={{ padding: 48, textAlign: 'center', color: 'var(--text-secondary)' }}>
+            {error?.message || 'Could not load impact recap'}
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="dsk-page">
@@ -27,21 +66,21 @@ export default function DesktopPostEventImpact() {
         <div className="dsk-container dsk-post-event-wrap">
           <div className="dsk-post-event-head">
             <p className="dsk-post-event-eyebrow">You made this happen</p>
-            <h1 className="dsk-post-event-title">{eventDisplayTitle(FEATURED_EVENT?.title)}</h1>
-            <p className="dsk-post-event-subtitle">{FEATURED_EVENT?.date} · {FEATURED_EVENT?.nonprofit}</p>
+            <h1 className="dsk-post-event-title">{eventDisplayTitle(ev.title)}</h1>
+            <p className="dsk-post-event-subtitle">{ev.date} · {ev.nonprofit}</p>
           </div>
 
           <div className="dsk-post-event-stats">
             <div className="stat-box">
-              <div className="stat-num">{FEATURED_EVENT?.backed ?? 0}</div>
+              <div className="stat-num">{impact.backers ?? 0}</div>
               <div className="stat-lbl">People backed</div>
             </div>
             <div className="stat-box">
-              <div className="stat-num">{FEATURED_EVENT?.joined ?? 0}</div>
+              <div className="stat-num">{impact.participants ?? 0}</div>
               <div className="stat-lbl">Joined in person</div>
             </div>
             <div className="stat-box">
-              <div className="stat-num">{FEATURED_EVENT?.updates ?? 0}</div>
+              <div className="stat-num">{impact.updates ?? 0}</div>
               <div className="stat-lbl">Live updates</div>
             </div>
           </div>
@@ -54,14 +93,14 @@ export default function DesktopPostEventImpact() {
               </div>
 
               <div className="dsk-post-event-credential-user">
-                <div className="dsk-post-event-credential-avatar">{SE_ORGANIZER.initials}</div>
+                <div className="dsk-post-event-credential-avatar">{organizerInitials}</div>
                 <div>
-                  <p className="dsk-post-event-credential-name">{SE_ORGANIZER.name}</p>
-                  <p className="dsk-post-event-credential-event">{eventDisplayTitle(FEATURED_EVENT?.title)}</p>
+                  <p className="dsk-post-event-credential-name">{organizerName}</p>
+                  <p className="dsk-post-event-credential-event">{eventDisplayTitle(ev.title)}</p>
                 </div>
               </div>
 
-              <p className="dsk-post-event-credential-meta">{FEATURED_EVENT?.backed ?? 0} participants · {FEATURED_EVENT?.nonprofit} · {FEATURED_EVENT?.date}</p>
+              <p className="dsk-post-event-credential-meta">{impact.backers ?? 0} participants · {ev.nonprofit} · {ev.date}</p>
 
               <div className="dsk-post-event-credential-actions">
                 <button type="button" className="dsk-post-event-share-btn" onClick={() => setShowShare(true)}>
@@ -83,7 +122,7 @@ export default function DesktopPostEventImpact() {
                 <div className="dsk-post-event-thanks-icon"><Award size={24} color="var(--primary)" /></div>
                 <div>
                   <p className="dsk-post-event-thanks-title">
-                    Thank you, {SE_ORGANIZER.name.split(' ')[0]}! <span className="dsk-verify-dot">✓</span>
+                    Thank you, {organizerName.split(' ')[0]}! <span className="dsk-verify-dot">✓</span>
                   </p>
                   <p className="dsk-post-event-thanks-text">
                     Your event brought real people to this cause. We&apos;re grateful.
@@ -125,9 +164,9 @@ export default function DesktopPostEventImpact() {
         <DesktopShareModal
           open={showShare}
           onClose={() => setShowShare(false)}
-          url={`https://charityhub.app/e/${FEATURED_EVENT?.key}`}
-          title={`${eventDisplayTitle(FEATURED_EVENT?.title)} — Impact Recap`}
-          subtitle={`${FEATURED_EVENT?.backed ?? 0} participants · ${FEATURED_EVENT?.nonprofit}`}
+          url={`https://charityhub.app/e/${ev.key}`}
+          title={`${eventDisplayTitle(ev.title)} — Impact Recap`}
+          subtitle={`${impact.backers ?? 0} participants · ${ev.nonprofit}`}
         />
       )}
 

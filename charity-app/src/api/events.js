@@ -52,3 +52,7 @@ export function goLive(eventId) {
 export function completeEvent(eventId) {
   return apiRequest(`/events/${eventId}/complete`, { method: 'POST' });
 }
+
+export function postEventUpdate(eventId, text) {
+  return apiRequest(`/events/${eventId}/updates`, { method: 'POST', body: { text } });
+}

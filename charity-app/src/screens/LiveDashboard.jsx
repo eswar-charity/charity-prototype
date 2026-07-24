@@ -1,36 +1,66 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, Compass, Plus, Bell, User, Settings, TriangleAlert, Pencil, X, ScanLine, QrCode } from 'lucide-react';
-import { liveActivities, events, eventDisplayTitle } from '../data/mockData';
+import { eventDisplayTitle } from '../data/mockData';
 import { EventImage, EventImageBanner } from '../components/event/EventImage';
 import MobileAppHeader from '../components/MobileAppHeader';
 import MobileShareModal from '../components/MobileShareModal';
 import QRScannerModal from '../components/QRScannerModal';
 import ShareQRModal from '../components/ShareQRModal';
-
-const ev = events[0];
+import { useSeLiveDashboard } from '../hooks/useSeDashboard';
 
 export default function LiveDashboard() {
   const navigate = useNavigate();
+  const { data, loading, error, postPending, submitUpdate } = useSeLiveDashboard();
   const [toast, setToast] = useState('');
   const [showAlert, setShowAlert] = useState(true);
   const [postSheet, setPostSheet] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
   const [showQR, setShowQR] = useState(false);
-  const [joinedCount, setJoinedCount] = useState(87);
+  const [joinedCount, setJoinedCount] = useState(null);
   const [update, setUpdate] = useState('');
+
+  const ev = data?.event;
+  const stats = data?.stats ?? {};
+  const activities = data?.activities ?? [];
+  const joined = joinedCount ?? stats.joined ?? 0;
 
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(''), 2200);
   };
 
-  const postUpdate = () => {
-    setPostSheet(false);
-    setUpdate('');
-    showToast('Update posted to your event');
+  const postUpdate = async () => {
+    const text = update.trim();
+    if (!text) return;
+    try {
+      await submitUpdate(text);
+      setPostSheet(false);
+      setUpdate('');
+      showToast('Update posted to your event');
+    } catch (err) {
+      showToast(err?.message || 'Could not post update');
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="phone-shell">
+        <div className="screen" style={{ padding: 24, textAlign: 'center', color: 'var(--text-secondary)' }}>Loading…</div>
+      </div>
+    );
+  }
+
+  if (error || !ev) {
+    return (
+      <div className="phone-shell">
+        <div className="screen" style={{ padding: 24, textAlign: 'center', color: 'var(--text-secondary)' }}>
+          {error?.message || 'Could not load live dashboard'}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="phone-shell">
@@ -52,7 +82,6 @@ export default function LiveDashboard() {
           />
           <div style={{ paddingTop: 4 }}>
 
-          {/* Alert banner */}
           {showAlert && (
             <div className="alert-banner">
               <TriangleAlert size={16} color="var(--primary)" style={{ flexShrink: 0, marginTop: 1 }} />
@@ -74,16 +103,15 @@ export default function LiveDashboard() {
             </div>
           )}
 
-          {/* Event card row */}
           <div className="event-card-row" style={{ marginBottom: 16 }}>
             <EventImageBanner
-              src={ev?.cover}
-              alt={ev?.title}
+              src={ev.cover}
+              alt={ev.title}
               variant="preview"
               className="recent-thumb"
             />
             <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>{eventDisplayTitle(ev?.title)}</p>
+              <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>{eventDisplayTitle(ev.title)}</p>
               <div className="live-badge" style={{ marginTop: 4 }}>
                 <div className="live-dot" />
                 LIVE NOW
@@ -91,23 +119,21 @@ export default function LiveDashboard() {
             </div>
           </div>
 
-          {/* Stats row */}
           <div className="stat-row" style={{ marginBottom: 16 }}>
             <div className="stat-box">
-              <div className="stat-num">{joinedCount}</div>
+              <div className="stat-num">{joined}</div>
               <div className="stat-lbl">Joined</div>
             </div>
             <div className="stat-box">
-              <div className="stat-num">213</div>
+              <div className="stat-num">{stats.backed ?? 0}</div>
               <div className="stat-lbl">Backing</div>
             </div>
             <div className="stat-box">
-              <div className="stat-num">38</div>
+              <div className="stat-num">{stats.updates ?? 0}</div>
               <div className="stat-lbl">Updates</div>
             </div>
           </div>
 
-          {/* Action chips */}
           <div className="action-chips" style={{ marginBottom: 20 }}>
             <button type="button" className="action-chip action-chip--scan" onClick={() => setShowScanner(true)}>
               <ScanLine size={14} aria-hidden="true" />
@@ -122,13 +148,11 @@ export default function LiveDashboard() {
             </button>
           </div>
 
-          {/* Live activity section */}
           <div className="section-header">
             <p className="section-title">Live activity</p>
           </div>
 
-          {/* Activity items */}
-          {liveActivities.map((act) => (
+          {activities.map((act) => (
             <div key={act.id} className="activity-item">
               <div className="act-avatar" style={{ background: act.color }}>
                 {act.initials}
@@ -147,12 +171,14 @@ export default function LiveDashboard() {
                         <Pencil size={12} color="var(--blue)" style={{ marginLeft: 6, verticalAlign: 'middle' }} />
                       )}
                     </p>
-                    <p style={{ fontSize: 13, color: 'var(--dark)', lineHeight: 1.5, marginBottom: 8 }}>
+                    <p style={{ fontSize: 13, color: 'var(--dark)', lineHeight: 1.5, marginBottom: act.image ? 8 : 0 }}>
                       {act.text}
                     </p>
-                    <div className="event-img-frame event-img-frame--activity">
-                      <EventImage src={act.image} alt={`Photo by ${act.user}`} fill />
-                    </div>
+                    {act.image && (
+                      <div className="event-img-frame event-img-frame--activity">
+                        <EventImage src={act.image} alt={`Photo by ${act.user}`} fill />
+                      </div>
+                    )}
                   </>
                 )}
                 {act.type === 'org' && (
@@ -184,7 +210,6 @@ export default function LiveDashboard() {
           </div>
         </div>
 
-        {/* Bottom nav */}
         <nav className="bottom-nav">
           <button className="nav-item active" onClick={() => navigate('/live-dashboard')}>
             <Home size={22} />
@@ -197,7 +222,7 @@ export default function LiveDashboard() {
           <button className="nav-center-btn" aria-label="Create event" onClick={() => navigate('/create-event')}>
             <Plus size={24} />
           </button>
-          <button className="nav-item" onClick={() => navigate('/post-event')}>
+          <button className="nav-item" onClick={() => navigate(ev.key ? `/post-event?key=${encodeURIComponent(ev.key)}` : '/post-event')}>
             <Bell size={22} />
             <span>Activity</span>
           </button>
@@ -208,7 +233,6 @@ export default function LiveDashboard() {
         </nav>
       </div>
 
-      {/* Post update bottom sheet */}
       {postSheet && (
         <div className="overlay-bg" onClick={() => setPostSheet(false)}>
           <div className="bottom-sheet" onClick={(e) => e.stopPropagation()}>
@@ -234,10 +258,10 @@ export default function LiveDashboard() {
             <button
               className="btn-primary"
               onClick={postUpdate}
-              disabled={!update.trim()}
-              style={update.trim() ? undefined : { opacity: 0.5 }}
+              disabled={!update.trim() || postPending}
+              style={update.trim() && !postPending ? undefined : { opacity: 0.5 }}
             >
-              Post update
+              {postPending ? 'Posting…' : 'Post update'}
             </button>
           </div>
         </div>
@@ -245,9 +269,9 @@ export default function LiveDashboard() {
 
       {showShare && (
         <MobileShareModal
-          title={eventDisplayTitle(ev?.title)}
-          subtitle={`${ev?.nonprofit} · verified`}
-          url={`https://charityhub.app/e/${ev?.key}`}
+          title={eventDisplayTitle(ev.title)}
+          subtitle={`${ev.nonprofit} · verified`}
+          url={`https://charityhub.app/e/${ev.key}`}
           onClose={() => setShowShare(false)}
         />
       )}
@@ -257,9 +281,9 @@ export default function LiveDashboard() {
         onClose={() => setShowScanner(false)}
         role="se"
         variant="mobile"
-        eventTitle={eventDisplayTitle(ev?.title)}
+        eventTitle={eventDisplayTitle(ev.title)}
         onScanSuccess={(attendee) => {
-          setJoinedCount((c) => c + 1);
+          setJoinedCount((c) => (c ?? joined) + 1);
           showToast(`${attendee.name} checked in`);
         }}
       />
@@ -269,7 +293,7 @@ export default function LiveDashboard() {
         onClose={() => setShowQR(false)}
         variant="mobile"
         path="/guest/event/live"
-        title={`Scan to join ${eventDisplayTitle(ev?.title)}`}
+        title={`Scan to join ${eventDisplayTitle(ev.title)}`}
         subtitle="Guests land straight on the event page to join and back it."
       />
 

@@ -6,32 +6,66 @@ import DesktopFooter from '../../components/desktop/DesktopFooter';
 import DesktopShareModal from '../../components/desktop/DesktopShareModal';
 import QRScannerModal from '../../components/QRScannerModal';
 import ShareQRModal from '../../components/ShareQRModal';
-import { events, liveActivities, eventDisplayTitle } from '../../data/mockData';
+import { eventDisplayTitle } from '../../data/mockData';
 import { EventImage, EventImageBanner } from '../../components/event/EventImage';
-
-const ev = events[0];
+import { useSeLiveDashboard } from '../../hooks/useSeDashboard';
 
 export default function DesktopLiveDashboard() {
   const navigate = useNavigate();
+  const { data, loading, error, postPending, submitUpdate } = useSeLiveDashboard();
   const [toast, setToast] = useState('');
   const [showAlert, setShowAlert] = useState(true);
   const [postOpen, setPostOpen] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
   const [showQR, setShowQR] = useState(false);
-  const [joinedCount, setJoinedCount] = useState(ev.joined);
+  const [joinedCount, setJoinedCount] = useState(null);
   const [update, setUpdate] = useState('');
+
+  const ev = data?.event;
+  const stats = data?.stats ?? {};
+  const activities = data?.activities ?? [];
+  const joined = joinedCount ?? stats.joined ?? 0;
 
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(''), 2200);
   };
 
-  const postUpdate = () => {
-    setPostOpen(false);
-    setUpdate('');
-    showToast('Update posted to your event');
+  const postUpdate = async () => {
+    const text = update.trim();
+    if (!text) return;
+    try {
+      await submitUpdate(text);
+      setPostOpen(false);
+      setUpdate('');
+      showToast('Update posted to your event');
+    } catch (err) {
+      showToast(err?.message || 'Could not post update');
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="dsk-page">
+        <DesktopHeader active="Discover" loggedIn homePath="/feed" />
+        <main className="dsk-main"><div className="dsk-container" style={{ padding: 48, textAlign: 'center' }}>Loading…</div></main>
+      </div>
+    );
+  }
+
+  if (error || !ev) {
+    return (
+      <div className="dsk-page">
+        <DesktopHeader active="Discover" loggedIn homePath="/feed" />
+        <main className="dsk-main">
+          <div className="dsk-container" style={{ padding: 48, textAlign: 'center', color: 'var(--text-secondary)' }}>
+            {error?.message || 'Could not load live dashboard'}
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="dsk-page">
@@ -77,9 +111,9 @@ export default function DesktopLiveDashboard() {
           <div className="dsk-live-dashboard-grid">
             <div className="dsk-live-dashboard-main">
               <div className="dsk-live-event-card">
-                <EventImageBanner src={ev.photos[0]} alt={ev.title} variant="preview" className="dsk-live-event-thumb" />
+                <EventImageBanner src={ev.cover} alt={ev.title} variant="preview" className="dsk-live-event-thumb" />
                 <div className="dsk-live-event-copy">
-                  <p className="dsk-live-event-title">{ev.title}</p>
+                  <p className="dsk-live-event-title">{eventDisplayTitle(ev.title)}</p>
                   <p className="dsk-live-event-sub">{ev.nonprofit} · {ev.location}</p>
                   <span className="dsk-live-pill"><span className="live-dot" /> LIVE NOW</span>
                 </div>
@@ -87,15 +121,15 @@ export default function DesktopLiveDashboard() {
 
               <div className="dsk-live-stats">
                 <div className="stat-box">
-                  <div className="stat-num">{joinedCount}</div>
+                  <div className="stat-num">{joined}</div>
                   <div className="stat-lbl">Joined</div>
                 </div>
                 <div className="stat-box">
-                  <div className="stat-num">{ev.backed}</div>
+                  <div className="stat-num">{stats.backed ?? 0}</div>
                   <div className="stat-lbl">Backing</div>
                 </div>
                 <div className="stat-box">
-                  <div className="stat-num">{ev.updates}</div>
+                  <div className="stat-num">{stats.updates ?? 0}</div>
                   <div className="stat-lbl">Updates</div>
                 </div>
               </div>
@@ -131,7 +165,7 @@ export default function DesktopLiveDashboard() {
               </div>
 
               <div className="dsk-live-activity-list">
-                {liveActivities.map((act) => (
+                {activities.map((act) => (
                   <div key={act.id} className="dsk-activity-item">
                     <div className="dsk-activity-avatar" style={{ background: act.color }}>{act.initials}</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -199,9 +233,9 @@ export default function DesktopLiveDashboard() {
               className="dsk-cta-btn"
               style={{ width: '100%' }}
               onClick={postUpdate}
-              disabled={!update.trim()}
+              disabled={!update.trim() || postPending}
             >
-              Post update
+              {postPending ? 'Posting…' : 'Post update'}
             </button>
           </div>
         </div>
@@ -211,7 +245,7 @@ export default function DesktopLiveDashboard() {
         <DesktopShareModal
           open={showShare}
           onClose={() => setShowShare(false)}
-          url="https://charityhub.app/e/neon-night-run"
+          url={`https://charityhub.app/e/${ev.key}`}
           title={eventDisplayTitle(ev.title)}
           subtitle={`${ev.nonprofit} · verified`}
         />
@@ -222,9 +256,9 @@ export default function DesktopLiveDashboard() {
         onClose={() => setShowScanner(false)}
         role="se"
         variant="desktop"
-        eventTitle={ev.title}
+        eventTitle={eventDisplayTitle(ev.title)}
         onScanSuccess={(attendee) => {
-          setJoinedCount((c) => c + 1);
+          setJoinedCount((c) => (c ?? joined) + 1);
           showToast(`${attendee.name} checked in`);
         }}
       />
@@ -234,7 +268,7 @@ export default function DesktopLiveDashboard() {
         onClose={() => setShowQR(false)}
         variant="desktop"
         path="/guest/event/live"
-        title={`Scan to join ${ev.title}`}
+        title={`Scan to join ${eventDisplayTitle(ev.title)}`}
         subtitle="Guests land straight on the event page to join and back it."
       />
 

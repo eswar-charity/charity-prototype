@@ -4,19 +4,54 @@ import { Settings, Share2, ChevronRight, Rocket, Users } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 import MobileAppHeader from '../components/MobileAppHeader';
 import MobileShareModal from '../components/MobileShareModal';
-import { SE_ORGANIZER, events, eventDisplayTitle } from '../data/mockData';
+import { eventDisplayTitle } from '../data/mockData';
+import { useAuth } from '../auth/AuthContext';
+import { useSePostEvent } from '../hooks/useSeDashboard';
 
-const FEATURED_EVENT = events[0];
+function initialsFrom(name) {
+  if (!name) return '?';
+  return name
+    .split(/\s+/)
+    .map((p) => p[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
 
 export default function PostEventImpact() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { data, loading, error } = useSePostEvent();
   const [toast, setToast] = useState('');
   const [showShare, setShowShare] = useState(false);
+
+  const ev = data?.event;
+  const impact = data?.impact ?? {};
+  const organizerName = user?.name ?? 'Organizer';
+  const organizerInitials = user?.initials ?? initialsFrom(user?.name);
 
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(''), 2200);
   };
+
+  if (loading) {
+    return (
+      <div className="phone-shell">
+        <div className="screen" style={{ padding: 24, textAlign: 'center', color: 'var(--text-secondary)' }}>Loading…</div>
+      </div>
+    );
+  }
+
+  if (error || !ev) {
+    return (
+      <div className="phone-shell">
+        <div className="screen" style={{ padding: 24, textAlign: 'center', color: 'var(--text-secondary)' }}>
+          {error?.message || 'Could not load impact recap'}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="phone-shell">
@@ -24,31 +59,28 @@ export default function PostEventImpact() {
         <div className="screen-scroll">
           <MobileAppHeader homePath="/feed" />
           <div style={{ padding: '0 18px 24px' }}>
-          {/* Header copy */}
           <div style={{ textAlign: 'center', marginBottom: 20 }}>
             <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4 }}>You made this happen</p>
             <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--dark)' }}>
-              {eventDisplayTitle(FEATURED_EVENT?.title)} · {FEATURED_EVENT?.date}
+              {eventDisplayTitle(ev.title)} · {ev.date}
             </p>
           </div>
 
-          {/* Stats row */}
           <div className="stat-row" style={{ marginBottom: 16 }}>
             <div className="stat-box">
-              <div className="stat-num">{FEATURED_EVENT?.backed ?? 0}</div>
+              <div className="stat-num">{impact.backers ?? 0}</div>
               <div className="stat-lbl">People backed</div>
             </div>
             <div className="stat-box">
-              <div className="stat-num">{FEATURED_EVENT?.joined ?? 0}</div>
+              <div className="stat-num">{impact.participants ?? 0}</div>
               <div className="stat-lbl">Joined in person</div>
             </div>
             <div className="stat-box">
-              <div className="stat-num">{FEATURED_EVENT?.updates ?? 0}</div>
+              <div className="stat-num">{impact.updates ?? 0}</div>
               <div className="stat-lbl">Live updates</div>
             </div>
           </div>
 
-          {/* Thank you card */}
           <div className="card" style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 16 }}>
             <div style={{
               width: 36,
@@ -64,7 +96,7 @@ export default function PostEventImpact() {
             </div>
             <div>
               <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)', marginBottom: 4 }}>
-                Thank you, {SE_ORGANIZER.name.split(' ')[0]}!{' '}
+                Thank you, {organizerName.split(' ')[0]}!{' '}
                 <span style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -85,7 +117,6 @@ export default function PostEventImpact() {
             </div>
           </div>
 
-          {/* Credential card */}
           <div className="credential-card" style={{ marginBottom: 20 }}>
             <div className="credential-brand">
               <div className="credential-brand-mark">CH</div>
@@ -94,14 +125,14 @@ export default function PostEventImpact() {
             </div>
 
             <div className="credential-user">
-              <div className="credential-avatar">{SE_ORGANIZER.initials}</div>
+              <div className="credential-avatar">{organizerInitials}</div>
               <div>
-                <p className="credential-name">{SE_ORGANIZER.name}</p>
-                <p className="credential-event">{eventDisplayTitle(FEATURED_EVENT?.title)}</p>
+                <p className="credential-name">{organizerName}</p>
+                <p className="credential-event">{eventDisplayTitle(ev.title)}</p>
               </div>
             </div>
 
-            <p className="credential-meta">{FEATURED_EVENT?.backed ?? 0} participants · {FEATURED_EVENT?.nonprofit} · {FEATURED_EVENT?.date}</p>
+            <p className="credential-meta">{impact.backers ?? 0} participants · {ev.nonprofit} · {ev.date}</p>
 
             <div className="credential-actions">
               <button type="button" className="credential-share-btn" onClick={() => setShowShare(true)}>
@@ -118,7 +149,6 @@ export default function PostEventImpact() {
             </div>
           </div>
 
-          {/* Keep momentum section */}
           <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--dark)', marginBottom: 14 }}>
             Keep the momentum going
           </p>
@@ -174,9 +204,9 @@ export default function PostEventImpact() {
 
       {showShare && (
         <MobileShareModal
-          title={`${eventDisplayTitle(FEATURED_EVENT?.title)} — Impact Recap`}
-          subtitle={`${FEATURED_EVENT?.backed ?? 0} participants · ${FEATURED_EVENT?.nonprofit}`}
-          url="https://charityhub.app/e/neon-night-run"
+          title={`${eventDisplayTitle(ev.title)} — Impact Recap`}
+          subtitle={`${impact.backers ?? 0} participants · ${ev.nonprofit}`}
+          url={`https://charityhub.app/e/${ev.key}`}
           onClose={() => setShowShare(false)}
         />
       )}
