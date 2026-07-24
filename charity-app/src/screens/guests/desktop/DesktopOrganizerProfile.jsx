@@ -142,16 +142,18 @@ export default function DesktopOrganizerProfile() {
     <div className="dsk-page">
       <DesktopHeader active="Discover" loggedIn avatarInitials={profile.initials} />
 
-      <EventImageBanner
-        src={profile.events[0]?.photos?.[4] || profile.events[0]?.cover}
-        alt=""
-        variant="profile-cover"
-        className="dsk-profile-cover"
-      />
+      <div className="dsk-profile-banner">
+        <EventImageBanner
+          src={profile.events[0]?.photos?.[4] || profile.events[0]?.cover}
+          alt=""
+          variant="profile-cover"
+          className="dsk-profile-cover"
+        />
+      </div>
 
       <main className="dsk-main">
         <div className="dsk-container">
-          <div className="dsk-profile-card">
+          <div className="dsk-profile-card dsk-profile-card--over-cover">
             <div className="dsk-profile-avatar">{profile.initials}</div>
             <div className="dsk-profile-info">
               <p className="dsk-profile-role">Event Presenter · Charity Hub</p>

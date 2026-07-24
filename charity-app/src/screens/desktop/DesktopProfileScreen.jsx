@@ -33,7 +33,9 @@ export default function DesktopProfileScreen() {
       />
 
       {hasCover && (
-        <EventImageBanner src={cover} alt="" variant="profile-cover" className="dsk-profile-cover" />
+        <div className="dsk-profile-banner">
+          <EventImageBanner src={cover} alt="" variant="profile-cover" className="dsk-profile-cover" />
+        </div>
       )}
 
       <main className="dsk-main">

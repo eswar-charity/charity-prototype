@@ -94,11 +94,15 @@ export default function DesktopNpPublicProfile() {
     <div className="dsk-page">
       <DesktopHeader active="Discover" />
 
-      {cover && <EventImageBanner src={cover} alt="" variant="profile-cover" className="dsk-profile-cover" />}
+      {cover && (
+        <div className="dsk-profile-banner">
+          <EventImageBanner src={cover} alt="" variant="profile-cover" className="dsk-profile-cover" />
+        </div>
+      )}
 
       <main className="dsk-main">
         <div className="dsk-container">
-          <div className="dsk-profile-card">
+          <div className={`dsk-profile-card${cover ? ' dsk-profile-card--over-cover' : ''}`}>
             <div className="dsk-profile-avatar" style={{ background: profile.bg }}>{profile.initials}</div>
             <div className="dsk-profile-info">
               <p className="dsk-profile-role">
