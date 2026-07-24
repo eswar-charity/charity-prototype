@@ -6,6 +6,7 @@ from app.models.user import User
 from app.repositories import (
     event_repository,
     feed_repository as frepo,
+    media_repository,
     user_repository,
 )
 
@@ -19,11 +20,19 @@ async def _author_brief(db: AsyncSession, user_id: int | None) -> dict | None:
     return {"id": u.id, "name": u.name, "initials": u.initials, "color": u.color}
 
 
-def _reply_read(reply: PostReply, author: dict | None) -> dict:
+async def _media_url(db: AsyncSession, media_id: int | None) -> str | None:
+    if not media_id:
+        return None
+    m = await media_repository.get_by_id(db, media_id)
+    return m.secure_url if m else None
+
+
+async def _reply_read(db: AsyncSession, reply: PostReply, author: dict | None) -> dict:
     return {
         "id": reply.id,
         "text": reply.text,
         "media_id": reply.media_id,
+        "media_url": await _media_url(db, reply.media_id),
         "created_at": reply.created_at.isoformat(),
         "author": author,
     }
@@ -32,7 +41,7 @@ def _reply_read(reply: PostReply, author: dict | None) -> dict:
 async def _post_read(db: AsyncSession, post: Post) -> dict:
     replies = []
     for r in post.replies:
-        replies.append(_reply_read(r, await _author_brief(db, r.author_id)))
+        replies.append(await _reply_read(db, r, await _author_brief(db, r.author_id)))
     return {
         "id": post.id,
         "phase": post.phase,
@@ -41,6 +50,7 @@ async def _post_read(db: AsyncSession, post: Post) -> dict:
         "host": post.host,
         "verified": post.verified,
         "media_id": post.media_id,
+        "media_url": await _media_url(db, post.media_id),
         "media_alt": post.media_alt,
         "created_at": post.created_at.isoformat(),
         "author": await _author_brief(db, post.author_id),
@@ -106,7 +116,7 @@ async def add_reply(
     reply = await frepo.add_reply(
         db, post_id=post_id, author_id=user.id, text=text, media_id=media_id
     )
-    return _reply_read(reply, await _author_brief(db, user.id))
+    return await _reply_read(db, reply, await _author_brief(db, user.id))
 
 
 async def post_update(

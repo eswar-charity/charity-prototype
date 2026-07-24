@@ -23,6 +23,54 @@ async def _event(client, headers):
     ).json()
 
 
+async def _create_media(client, headers, public_id="charity/feed1"):
+    resp = await client.post(
+        "/api/v1/media",
+        headers=headers,
+        json={
+            "public_id": public_id,
+            "secure_url": "https://example.com/img.jpg",
+            "resource_type": "image",
+            "format": "jpg",
+            "bytes": 2048,
+        },
+    )
+    assert resp.status_code == 201
+    return resp.json()
+
+
+@pytest.mark.asyncio
+async def test_post_and_reply_include_media_url(client):
+    headers = await _login(client, "fmedia@e.com", "se")
+    ev = await _event(client, headers)
+    media = await _create_media(client, headers)
+
+    post = await client.post(
+        f"/api/v1/events/{ev['id']}/posts",
+        headers=headers,
+        json={"text": "Photo moment", "phase": "during", "media_id": media["id"]},
+    )
+    assert post.status_code == 201
+    body = post.json()
+    assert body["media_id"] == media["id"]
+    assert body["media_url"] == media["secure_url"]
+
+    reply_media = await _create_media(client, headers, public_id="charity/feed2")
+    reply = await client.post(
+        f"/api/v1/posts/{body['id']}/replies",
+        headers=headers,
+        json={"text": "Nice shot", "media_id": reply_media["id"]},
+    )
+    assert reply.status_code == 201
+    reply_body = reply.json()
+    assert reply_body["media_id"] == reply_media["id"]
+    assert reply_body["media_url"] == reply_media["secure_url"]
+
+    thread = (await client.get(f"/api/v1/events/{ev['key']}/posts")).json()
+    assert thread["items"][0]["media_url"] == media["secure_url"]
+    assert thread["items"][0]["replies"][0]["media_url"] == reply_media["secure_url"]
+
+
 @pytest.mark.asyncio
 async def test_post_and_thread_and_reply(client):
     headers = await _login(client, "f1@e.com", "se")
