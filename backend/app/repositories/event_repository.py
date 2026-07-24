@@ -86,6 +86,18 @@ async def list_by_organizer(db: AsyncSession, organizer_id: int) -> list[Event]:
     )
 
 
+async def list_by_nonprofit(db: AsyncSession, nonprofit_id: int) -> list[Event]:
+    return list(
+        (
+            await db.execute(
+                select(Event).where(Event.nonprofit_id == nonprofit_id).order_by(
+                    Event.id.desc()
+                )
+            )
+        ).scalars().all()
+    )
+
+
 async def add_participation(db: AsyncSession, event_id: int, user_id: int) -> bool:
     existing = (
         await db.execute(

@@ -8,6 +8,7 @@ from app.repositories import (
     approval_repository as arepo,
     event_repository,
     nonprofit_repository,
+    notification_repository,
     user_repository,
 )
 from app.services import event_service
@@ -67,6 +68,11 @@ async def approve(db: AsyncSession, user: User, event_id: int) -> dict:
     # SE-created events auto-publish once the nonprofit approves.
     event = await event_repository.update(db, event, status="Live", is_live=True)
     await arepo.add_review(db, event.id, user.id, "approved")
+    if event.organizer_id:
+        await notification_repository.create(
+            db, event.organizer_id, "event_approved",
+            f"Your event '{event.title}' was approved and is now live.",
+        )
     return await event_service._to_read(db, event, include_photos=True)
 
 
@@ -76,6 +82,11 @@ async def reject(db: AsyncSession, user: User, event_id: int, reason: str) -> di
         raise AppError("invalid_state", f"Cannot reject from '{event.status}'", status_code=409)
     event = await event_repository.update(db, event, status="Rejected", is_live=False)
     await arepo.add_review(db, event.id, user.id, "rejected", note=reason)
+    if event.organizer_id:
+        await notification_repository.create(
+            db, event.organizer_id, "event_rejected",
+            f"Your event '{event.title}' was rejected: {reason}",
+        )
     return await event_service._to_read(db, event, include_photos=True)
 
 
@@ -85,6 +96,11 @@ async def request_changes(db: AsyncSession, user: User, event_id: int, feedback:
         raise AppError("invalid_state", f"Cannot request changes from '{event.status}'", status_code=409)
     event = await event_repository.update(db, event, status="Changes Requested")
     await arepo.add_review(db, event.id, user.id, "changes_requested", note=feedback)
+    if event.organizer_id:
+        await notification_repository.create(
+            db, event.organizer_id, "changes_requested",
+            f"Changes requested on '{event.title}': {feedback}",
+        )
     return await event_service._to_read(db, event, include_photos=True)
 
 

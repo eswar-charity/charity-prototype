@@ -10,6 +10,7 @@ from app.models.event import (
 )
 from app.models.media import MediaAsset
 from app.models.nonprofit import Nonprofit, NonprofitAdmin
+from app.models.notification import Notification
 from app.models.post import ChatMessage, Post, PostReply
 from app.models.user import User, UserCause
 
@@ -32,4 +33,5 @@ __all__ = [
     "PostReply",
     "ChatMessage",
     "Attendee",
+    "Notification",
 ]
