@@ -32,3 +32,43 @@ def test_unknown_cause_falls_back_to_community():
     allowed = set(CAUSE_TO_CATEGORY.values()) | {"Community"}
     for r in parse_records():
         assert r["category"] in allowed
+
+
+import pytest
+from sqlalchemy import func, select
+
+from app.models.nonprofit import Nonprofit
+from seed.import_nonprofits import import_nonprofits
+
+
+@pytest.mark.asyncio
+async def test_import_upserts_twenty(db_session):
+    nps = await import_nonprofits(db_session)
+    await db_session.commit()
+    assert len(nps) == 20
+    count = (
+        await db_session.execute(select(func.count()).select_from(Nonprofit))
+    ).scalar_one()
+    assert count == 20
+    red = (
+        await db_session.execute(
+            select(Nonprofit).where(Nonprofit.ein == "53-0196605")
+        )
+    ).scalar_one()
+    assert red.name == "American Red Cross"
+    assert red.legal_name == "American National Red Cross"
+    assert red.verified is True
+    assert red.status == "Active"
+    assert red.source == "ProPublica / IRS BMF"
+
+
+@pytest.mark.asyncio
+async def test_import_is_idempotent(db_session):
+    await import_nonprofits(db_session)
+    await db_session.commit()
+    await import_nonprofits(db_session)
+    await db_session.commit()
+    count = (
+        await db_session.execute(select(func.count()).select_from(Nonprofit))
+    ).scalar_one()
+    assert count == 20

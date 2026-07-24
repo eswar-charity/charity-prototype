@@ -83,3 +83,72 @@ def parse_records(path: str | Path | None = None) -> list[dict]:
             }
         )
     return out
+
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.nonprofit import Nonprofit
+from app.utils.identity import derive_initials, pick_color
+
+
+async def import_nonprofits(
+    session: AsyncSession, path: str | Path | None = None
+) -> list[Nonprofit]:
+    records = parse_records(path)
+    result: list[Nonprofit] = []
+    for rec in records:
+        existing = None
+        if rec["ein"]:
+            existing = (
+                await session.execute(
+                    select(Nonprofit).where(Nonprofit.ein == rec["ein"])
+                )
+            ).scalar_one_or_none()
+        if existing is None:
+            existing = (
+                await session.execute(
+                    select(Nonprofit).where(Nonprofit.slug == rec["slug"])
+                )
+            ).scalar_one_or_none()
+
+        if existing is None:
+            existing = Nonprofit(
+                name=rec["name"],
+                slug=rec["slug"],
+                category=rec["category"],
+                ein=rec["ein"],
+                verified=True,
+                status="Active",
+                settlement_status="Ready",
+                source="ProPublica / IRS BMF",
+                mission=rec["mission"],
+                legal_name=rec["legal_name"],
+                headquarters=rec["headquarters"],
+                founded_year=rec["founded_year"],
+                source_url=rec["source_url"],
+                raw_cause=rec["raw_cause"],
+                initials=derive_initials(rec["name"]),
+                color=pick_color(rec["name"]),
+            )
+            session.add(existing)
+        else:
+            existing.name = rec["name"]
+            existing.slug = rec["slug"]
+            existing.category = rec["category"]
+            existing.ein = rec["ein"]
+            existing.verified = True
+            existing.status = "Active"
+            existing.settlement_status = "Ready"
+            existing.source = "ProPublica / IRS BMF"
+            existing.mission = rec["mission"]
+            existing.legal_name = rec["legal_name"]
+            existing.headquarters = rec["headquarters"]
+            existing.founded_year = rec["founded_year"]
+            existing.source_url = rec["source_url"]
+            existing.raw_cause = rec["raw_cause"]
+            existing.initials = derive_initials(rec["name"])
+            existing.color = pick_color(rec["name"])
+        result.append(existing)
+    await session.flush()
+    return result
