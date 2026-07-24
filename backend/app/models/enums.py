@@ -12,3 +12,16 @@ class UserStatus(StrEnum):
     active = "active"
     suspended = "suspended"
     pending = "pending"
+
+
+class ResourceType(StrEnum):
+    image = "image"
+    video = "video"
+
+
+class MediaEntityType(StrEnum):
+    avatar = "avatar"
+    event_photo = "event_photo"
+    np_logo = "np_logo"
+    np_cover = "np_cover"
+    post = "post"
