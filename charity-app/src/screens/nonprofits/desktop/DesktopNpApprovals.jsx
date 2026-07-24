@@ -2,33 +2,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, MapPin } from 'lucide-react';
 import { DesktopNpLayout } from '../../../components/desktop/DesktopNpLayout';
+import { useNpApprovalsQueue } from '../../../hooks/useNpApprovals';
+import { npReviewPath } from '../../../utils/npApprovalAdapter';
 
 const TABS = ['All', 'Pending', 'Changes requested', 'Approved'];
-
-const EVENTS = [
-  {
-    id: 1,
-    title: 'Coastal Cleanup Wave 2',
-    organizer: 'Mike Rivera',
-    date: 'Oct 28, 2025',
-    location: 'Santa Monica Pier',
-    desc: "Join us for our second wave of coastal cleanup efforts. We will be providing all necessary equipment and a light breakfast for volunteers.",
-    submitted: 'Submitted 2 hours ago',
-    status: 'New request',
-    heroImg: '/events/breakneck-ridge-run/img1.jpg',
-  },
-  {
-    id: 2,
-    title: 'Art for All',
-    organizer: 'Mike Rivera',
-    date: 'Nov 12, 2025',
-    location: 'Downtown Arts District',
-    desc: 'An inclusive community art session focusing on collaborative murals. We updated the budget per previous feedback and...',
-    submitted: 'Updated 1 day ago',
-    status: 'Changes requested',
-    heroImg: '/events/dog-dad/img1.jpg',
-  },
-];
 
 const TOAST_STYLE = {
   position: 'fixed', bottom: 28, left: '50%', transform: 'translateX(-50%)',
@@ -40,21 +17,46 @@ const TOAST_STYLE = {
 export default function DesktopNpApprovals() {
   const navigate = useNavigate();
   const [tab, setTab] = useState('All');
-  const [autopilot, setAutopilot] = useState(false);
-  const [events, setEvents] = useState(EVENTS);
+  const {
+    events,
+    loading,
+    error,
+    autopilot,
+    approve,
+    reject,
+    toggleAutopilot,
+  } = useNpApprovalsQueue('desktop');
   const [toast, setToast] = useState('');
   const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
   const onKey = (fn) => (e) => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
   };
 
-  const approve = (ev) => {
-    setEvents((prev) => prev.map((e) => (e.id === ev.id ? { ...e, status: 'Approved' } : e)));
-    notify(`“${ev.title}” approved & published`);
+  const handleApprove = async (ev) => {
+    try {
+      await approve(ev);
+      notify(`“${ev.title}” approved & published`);
+    } catch {
+      notify('Could not approve event');
+    }
   };
-  const reject = (ev) => {
-    setEvents((prev) => prev.filter((e) => e.id !== ev.id));
-    notify(`“${ev.title}” request rejected`);
+
+  const handleReject = async (ev) => {
+    try {
+      await reject(ev);
+      notify(`“${ev.title}” request rejected`);
+    } catch {
+      notify('Could not reject event');
+    }
+  };
+
+  const handleToggleAutopilot = async () => {
+    try {
+      await toggleAutopilot();
+      notify(autopilot ? 'Autopilot turned off' : 'Autopilot turned on');
+    } catch {
+      notify('Could not update autopilot');
+    }
   };
 
   const matches = (ev, t) => {
@@ -71,6 +73,24 @@ export default function DesktopNpApprovals() {
     return 'badge-changes';
   };
 
+  if (loading) {
+    return (
+      <DesktopNpLayout active="approvals" title="Event approvals">
+        <div style={{ padding: 24, color: 'var(--text-secondary)' }}>Loading…</div>
+      </DesktopNpLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <DesktopNpLayout active="approvals" title="Event approvals">
+        <div style={{ padding: 24, color: 'var(--text-secondary)' }}>
+          {error?.message || 'Could not load approvals'}
+        </div>
+      </DesktopNpLayout>
+    );
+  }
+
   return (
     <DesktopNpLayout active="approvals" title="Event approvals">
       <div className="dsk-np-ap-tabs">
@@ -82,7 +102,7 @@ export default function DesktopNpApprovals() {
       </div>
 
       <div className="dsk-np-autopilot-banner">
-        <button className={`toggle ${autopilot ? 'on' : ''}`} onClick={() => setAutopilot(!autopilot)} aria-label="Toggle autopilot">
+        <button className={`toggle ${autopilot ? 'on' : ''}`} onClick={handleToggleAutopilot} aria-label="Toggle autopilot">
           <div className="toggle-thumb" />
         </button>
         <span>Autopilot publishing — auto-approve events from trusted SEs</span>
@@ -96,7 +116,7 @@ export default function DesktopNpApprovals() {
       )}
 
       {visible.map((ev) => (
-        <div key={ev.id} className="dsk-np-approval-card" role="button" tabIndex={0} aria-label={`Review ${ev.title}`} onClick={() => navigate('/np/approvals/review')} onKeyDown={onKey(() => navigate('/np/approvals/review'))}>
+        <div key={ev.id} className="dsk-np-approval-card" role="button" tabIndex={0} aria-label={`Review ${ev.title}`} onClick={() => navigate(npReviewPath(ev.id))} onKeyDown={onKey(() => navigate(npReviewPath(ev.id)))}>
           <div className="dsk-np-approval-hero" style={{ backgroundImage: `url(${ev.heroImg})` }}>
             {ev.status === 'Approved'
               ? <span className="badge" style={{ background: 'var(--green)', color: 'white' }}>✓ Approved</span>
@@ -110,18 +130,18 @@ export default function DesktopNpApprovals() {
               <span><MapPin size={13} /> {ev.location}</span>
             </div>
             <p className="dsk-np-approval-desc">{ev.desc}</p>
-            <p className="dsk-np-approval-submitted">{ev.submitted}</p>
+            {ev.submitted && <p className="dsk-np-approval-submitted">{ev.submitted}</p>}
           </div>
           <div className="dsk-np-approval-actions" onClick={(e) => e.stopPropagation()}>
             {ev.status === 'Approved' ? (
-              <button className="ap-btn-outline dsk-np-review-btn" onClick={() => navigate('/np/approvals/review')}>View event</button>
+              <button className="ap-btn-outline dsk-np-review-btn" onClick={() => navigate(npReviewPath(ev.id))}>View event</button>
             ) : (
               <>
-                <button className="ap-btn-outline dsk-np-review-btn" onClick={() => navigate('/np/approvals/review')}>
+                <button className="ap-btn-outline dsk-np-review-btn" onClick={() => navigate(npReviewPath(ev.id))}>
                   {ev.status === 'Changes requested' ? 'View changes' : 'Review'}
                 </button>
-                <button className="ap-btn ap-btn-approve" onClick={() => approve(ev)}>Approve</button>
-                <button className="ap-btn ap-btn-reject" onClick={() => reject(ev)}>Reject</button>
+                <button className="ap-btn ap-btn-approve" onClick={() => handleApprove(ev)}>Approve</button>
+                <button className="ap-btn ap-btn-reject" onClick={() => handleReject(ev)}>Reject</button>
               </>
             )}
           </div>

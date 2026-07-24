@@ -3,34 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, MapPin, Calendar } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
 import MobileAppHeader from '../../components/MobileAppHeader';
-
-const EVENTS = [
-  {
-    id: 1,
-    title: 'Coastal Cleanup Wave 2',
-    organizer: 'Mike Rivera',
-    date: 'Oct 28, 2025',
-    location: 'Santa Monica Pier',
-    desc: "Join us for our largest beach cleanup of the year. We're aiming to clear 500lbs of plastic",
-    submitted: '2 hours ago',
-    status: 'new',
-    hasHero: true,
-    hasAvatar: true,
-    heroImg: '/events/breakneck-ridge-run/img1.jpg',
-  },
-  {
-    id: 2,
-    title: 'Art for All Workshop',
-    organizer: 'Mike Rivera',
-    date: null,
-    location: null,
-    desc: null,
-    submitted: null,
-    status: 'changes',
-    hasHero: false,
-    hasAvatar: false,
-  },
-];
+import { useNpApprovalsQueue } from '../../hooks/useNpApprovals';
+import { npReviewPath } from '../../utils/npApprovalAdapter';
 
 const TOAST_STYLE = {
   position: 'fixed', bottom: 96, left: '50%', transform: 'translateX(-50%)',
@@ -41,22 +15,65 @@ const TOAST_STYLE = {
 
 export default function NpApprovals() {
   const navigate = useNavigate();
-  const [autopilot, setAutopilot] = useState(false);
-  const [events, setEvents] = useState(EVENTS);
+  const {
+    events,
+    loading,
+    error,
+    autopilot,
+    approve,
+    reject,
+    toggleAutopilot,
+  } = useNpApprovalsQueue('mobile');
   const [toast, setToast] = useState('');
   const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
   const onKey = (fn) => (e) => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
   };
 
-  const approve = (ev) => {
-    setEvents((prev) => prev.filter((e) => e.id !== ev.id));
-    notify(`“${ev.title}” approved & published`);
+  const handleApprove = async (ev) => {
+    try {
+      await approve(ev);
+      notify(`“${ev.title}” approved & published`);
+    } catch {
+      notify('Could not approve event');
+    }
   };
-  const reject = (ev) => {
-    setEvents((prev) => prev.filter((e) => e.id !== ev.id));
-    notify(`“${ev.title}” request rejected`);
+
+  const handleReject = async (ev) => {
+    try {
+      await reject(ev);
+      notify(`“${ev.title}” request rejected`);
+    } catch {
+      notify('Could not reject event');
+    }
   };
+
+  const handleToggleAutopilot = async () => {
+    try {
+      await toggleAutopilot();
+      notify(autopilot ? 'Autopilot turned off' : 'Autopilot turned on');
+    } catch {
+      notify('Could not update autopilot');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="phone-shell">
+        <div className="screen" style={{ padding: 24, textAlign: 'center', color: 'var(--text-secondary)' }}>Loading…</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="phone-shell">
+        <div className="screen" style={{ padding: 24, textAlign: 'center', color: 'var(--text-secondary)' }}>
+          {error?.message || 'Could not load approvals'}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="phone-shell">
@@ -89,8 +106,8 @@ export default function NpApprovals() {
                 role="button"
                 tabIndex={0}
                 aria-label={`Review ${ev.title}`}
-                onClick={() => navigate('/np/approvals/review')}
-                onKeyDown={onKey(() => navigate('/np/approvals/review'))}
+                onClick={() => navigate(npReviewPath(ev.id))}
+                onKeyDown={onKey(() => navigate(npReviewPath(ev.id)))}
               >
                 {ev.hasHero && (
                   <div className="ap-hero">
@@ -135,11 +152,11 @@ export default function NpApprovals() {
                   {ev.submitted && <p className="ap-submitted">Submitted {ev.submitted}</p>}
 
                   <div className="ap-actions" onClick={(e) => e.stopPropagation()}>
-                    <button type="button" className="ap-btn ap-btn-reject" onClick={() => reject(ev)}>Reject</button>
+                    <button type="button" className="ap-btn ap-btn-reject" onClick={() => handleReject(ev)}>Reject</button>
                     <button
                       type="button"
                       className="ap-btn ap-btn-approve"
-                      onClick={() => approve(ev)}
+                      onClick={() => handleApprove(ev)}
                     >
                       Approve
                     </button>
@@ -156,7 +173,7 @@ export default function NpApprovals() {
               <button
                 type="button"
                 className={`toggle ${autopilot ? 'on' : ''}`}
-                onClick={() => setAutopilot(!autopilot)}
+                onClick={handleToggleAutopilot}
                 aria-label="Toggle autopilot publishing"
               >
                 <div className="toggle-thumb" />

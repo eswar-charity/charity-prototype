@@ -1,16 +1,53 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNpReviewDetail } from '../../hooks/useNpApprovals';
+import { npReviewPath } from '../../utils/npApprovalAdapter';
 
 const SUGGESTIONS = ['Clarify description', 'Update event photo', 'Check location', 'Add volunteer info'];
-const HERO_IMG = '/events/breakneck-ridge-run/img1.jpg';
+
+const TOAST_STYLE = {
+  position: 'fixed', bottom: 96, left: '50%', transform: 'translateX(-50%)',
+  background: 'var(--dark)', color: '#fff', padding: '11px 20px',
+  borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 600,
+  zIndex: 100, boxShadow: '0 6px 24px rgba(0,0,0,0.28)', maxWidth: '80%', textAlign: 'center',
+};
 
 export default function NpRequestChanges() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const eventId = searchParams.get('id');
+  const { event, loading, requestChanges } = useNpReviewDetail();
   const [feedback, setFeedback] = useState('');
+  const [toast, setToast] = useState('');
+  const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
 
   const appendSuggestion = (s) => {
     setFeedback((prev) => prev ? `${prev} ${s.toLowerCase()}.` : `${s}.`);
   };
+
+  const handleSend = async () => {
+    const text = feedback.trim();
+    if (!text) return;
+    try {
+      await requestChanges(text);
+      notify('Change request sent');
+      navigate('/np/approvals');
+    } catch {
+      notify('Could not send change request');
+    }
+  };
+
+  const heroImg = event?.cover || (event?.key ? `/events/${event.key}/img1.jpg` : '/events/breakneck-ridge-run/img1.jpg');
+  const organizerName = event?.organizer || 'the organizer';
+  const reviewPath = eventId ? npReviewPath(eventId) : '/np/approvals/review';
+
+  if (loading && !event) {
+    return (
+      <div className="phone-shell">
+        <div className="screen" style={{ padding: 24, textAlign: 'center', color: 'var(--text-secondary)' }}>Loading…</div>
+      </div>
+    );
+  }
 
   return (
     <div className="phone-shell">
@@ -26,7 +63,7 @@ export default function NpRequestChanges() {
               <p className="review-banner-sub">It won&apos;t go live until you approve it.</p>
             </div>
             <div style={{ height: 120, borderRadius: 12, overflow: 'hidden', opacity: 0.5 }}>
-              <img src={HERO_IMG} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src={heroImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
           </div>
           <div style={{
@@ -40,10 +77,10 @@ export default function NpRequestChanges() {
           <div className="sheet-handle" />
 
           <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--dark)', marginBottom: 6 }}>
-            Request changes from Mike Rivera.
+            Request changes from {organizerName}.
           </h2>
           <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 18, lineHeight: 1.5 }}>
-            Mike will be notified and can resubmit after making updates.
+            {organizerName.split(' ')[0]} will be notified and can resubmit after making updates.
           </p>
 
           <textarea
@@ -70,14 +107,14 @@ export default function NpRequestChanges() {
             className="btn-primary"
             style={{ marginBottom: 8, opacity: feedback.trim() ? 1 : 0.5 }}
             disabled={!feedback.trim()}
-            onClick={() => navigate('/np/approvals')}
+            onClick={handleSend}
           >
             Send request
           </button>
 
           <button
             type="button"
-            onClick={() => navigate('/np/approvals/review')}
+            onClick={() => navigate(reviewPath)}
             style={{
               width: '100%', background: 'none', border: 'none',
               color: 'var(--text-secondary)', fontSize: 14, fontWeight: 600,
@@ -87,6 +124,7 @@ export default function NpRequestChanges() {
             Cancel
           </button>
         </div>
+        {toast && <div style={TOAST_STYLE}>{toast}</div>}
       </div>
     </div>
   );
