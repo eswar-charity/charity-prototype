@@ -4,11 +4,95 @@ import { accountRoles } from '../data/mockData';
 import RoleSelect from '../components/RoleSelect';
 import MobileAuthHeader from '../components/MobileAuthHeader';
 import GoogleIcon from '../components/GoogleIcon';
+import { useAuth } from '../auth/AuthContext';
+import { useAppToast, ToastHost } from '../components/Toast';
+
+function nameFromEmail(email) {
+  const local = String(email || '').split('@')[0].trim();
+  if (!local) return 'Social Entrepreneur';
+  return local
+    .replace(/[._+-]+/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 export default function CreateAccount() {
   const navigate = useNavigate();
+  const { register, login, googleMock } = useAuth();
+  const { toast, show } = useAppToast();
   const [roleId, setRoleId] = useState('se');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [pending, setPending] = useState(false);
   const role = accountRoles.find((r) => r.id === roleId);
+  const needsCreds = roleId === 'se' || roleId === 'np' || roleId === 'admin';
+
+  async function run(action) {
+    setPending(true);
+    try {
+      await action();
+    } catch (err) {
+      show(err?.message || 'Something went wrong', { variant: 'error' });
+    } finally {
+      setPending(false);
+    }
+  }
+
+  const handleGoogle = () => {
+    const trimmed = email.trim();
+    if (!trimmed) {
+      show('Enter an email to continue with Google', { variant: 'error' });
+      return;
+    }
+    return run(async () => {
+      await googleMock({ email: trimmed, name: nameFromEmail(trimmed) });
+      navigate('/about-you');
+    });
+  };
+
+  const handleEmailSignup = () => {
+    const trimmed = email.trim();
+    if (!trimmed || !password) {
+      show('Email and password are required', { variant: 'error' });
+      return;
+    }
+    return run(async () => {
+      await register({
+        role: 'se',
+        email: trimmed,
+        password,
+        name: nameFromEmail(trimmed),
+      });
+      navigate('/about-you');
+    });
+  };
+
+  const handleSignIn = () => {
+    const trimmed = email.trim();
+    if (!trimmed || !password) {
+      show('Email and password are required', { variant: 'error' });
+      return;
+    }
+    return run(async () => {
+      await login({ email: trimmed, password });
+      navigate('/feed');
+    });
+  };
+
+  const handleContinue = () => {
+    if (roleId === 'guest') {
+      navigate(role.route);
+      return;
+    }
+    const trimmed = email.trim();
+    if (!trimmed || !password) {
+      show('Email and password are required', { variant: 'error' });
+      return;
+    }
+    return run(async () => {
+      await login({ email: trimmed, password });
+      navigate(role.route);
+    });
+  };
 
   return (
     <div className="phone-shell">
@@ -26,19 +110,42 @@ export default function CreateAccount() {
             <RoleSelect options={accountRoles} value={roleId} onChange={setRoleId} />
           </div>
 
+          {needsCreds && (
+            <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <input
+                className="input-field"
+                type="email"
+                autoComplete="email"
+                placeholder="Email"
+                value={email}
+                disabled={pending}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <input
+                className="input-field"
+                type="password"
+                autoComplete={roleId === 'se' ? 'new-password' : 'current-password'}
+                placeholder="Password"
+                value={password}
+                disabled={pending}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          )}
+
           {roleId === 'se' ? (
             <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <button type="button" className="google-signin-btn" onClick={() => navigate('/about-you')}>
+              <button type="button" className="google-signin-btn" disabled={pending} onClick={handleGoogle}>
                 <GoogleIcon size={20} />
                 Continue with Google
               </button>
-              <button type="button" className="btn-outline" onClick={() => navigate('/about-you')}>
+              <button type="button" className="btn-outline" disabled={pending} onClick={handleEmailSignup}>
                 Sign up with email
               </button>
             </div>
           ) : (
             <div style={{ marginTop: 28 }}>
-              <button type="button" className="btn-primary" onClick={() => navigate(role.route)}>
+              <button type="button" className="btn-primary" disabled={pending} onClick={handleContinue}>
                 Continue
               </button>
             </div>
@@ -47,12 +154,13 @@ export default function CreateAccount() {
           {roleId === 'se' && (
             <p style={{ textAlign: 'center', marginTop: 40, fontSize: 14, color: 'var(--text-secondary)' }}>
               Already have an account?{' '}
-              <button type="button" className="btn-ghost" style={{ fontSize: 14 }} onClick={() => navigate('/feed')}>
+              <button type="button" className="btn-ghost" style={{ fontSize: 14 }} disabled={pending} onClick={handleSignIn}>
                 Sign in
               </button>
             </p>
           )}
         </div>
+        <ToastHost toast={toast} />
       </div>
     </div>
   );
