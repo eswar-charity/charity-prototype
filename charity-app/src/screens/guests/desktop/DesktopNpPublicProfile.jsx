@@ -1,23 +1,84 @@
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Users } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../../components/desktop/DesktopFooter';
-import { getNonprofitProfile, eventDetailPath, eventDisplayTitle } from '../../../data/mockData';
+import { eventDisplayTitle } from '../../../data/mockData';
+import { eventDetailPath } from '../../../utils/eventPaths';
+import { getNonprofit } from '../../../api/nonprofits';
+import { adaptNonprofitProfile } from '../../../api/adapters/nonprofit';
 import { EventImageBanner } from '../../../components/event/EventImage';
+
+function enrichProfileEvent(ev) {
+  return {
+    ...ev,
+    cover: ev.photos?.[0] || (ev.key ? `/events/${ev.key}/img1.jpg` : undefined),
+  };
+}
 
 export default function DesktopNpPublicProfile() {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const profile = getNonprofitProfile(slug);
+  useEffect(() => {
+    if (!slug) {
+      setProfile(null);
+      setLoading(false);
+      setError(new Error('Missing nonprofit slug'));
+      return undefined;
+    }
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    getNonprofit(slug)
+      .then((raw) => {
+        if (cancelled) return;
+        const adapted = adaptNonprofitProfile(raw);
+        setProfile({
+          ...adapted,
+          events: (adapted.events ?? []).map(enrichProfileEvent),
+        });
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setProfile(null);
+          setError(err);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
 
-  if (!profile) {
+  if (loading) {
+    return (
+      <div className="dsk-page">
+        <DesktopHeader active="Discover" />
+        <main className="dsk-main">
+          <div className="dsk-container" style={{ padding: '48px 0' }}>
+            <p style={{ color: 'var(--text-secondary)' }}>Loading nonprofit…</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error || !profile) {
     return (
       <div className="dsk-page">
         <DesktopHeader active="Discover" />
         <main className="dsk-main">
           <div className="dsk-container" style={{ padding: '60px 0', textAlign: 'center' }}>
             <p className="dsk-page-subtitle">We couldn&apos;t find that nonprofit profile.</p>
+            {error?.message && (
+              <p style={{ marginTop: 8, color: 'var(--text-secondary)' }}>{error.message}</p>
+            )}
             <button className="dsk-card-cta primary" style={{ marginTop: 16 }} onClick={() => navigate('/guest/feed')}>
               Back to Discover
             </button>

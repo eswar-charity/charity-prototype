@@ -1,13 +1,65 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MapPin, Share2 } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../../components/desktop/DesktopFooter';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
-import { getOrganizerProfile, eventDetailPath, eventDisplayTitle } from '../../../data/mockData';
+import { slugify, eventDisplayTitle } from '../../../data/mockData';
+import { eventDetailPath } from '../../../utils/eventPaths';
+import { listEvents } from '../../../api/events';
+import { adaptEvent } from '../../../api/adapters/event';
 import { EventImageBanner } from '../../../components/event/EventImage';
 
 const EVENT_TABS = ['Live', 'Upcoming', 'Past'];
+
+function enrichProfileEvent(ev) {
+  return {
+    ...ev,
+    cover: ev.photos?.[0] || (ev.key ? `/events/${ev.key}/img1.jpg` : undefined),
+  };
+}
+
+function initialsFromName(name) {
+  if (!name) return 'SE';
+  return name
+    .split(/\s+/)
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+/**
+ * Temporary: no GET /organizers/{slug} API yet.
+ * Derive organizer profile by listing events and filtering by organizer name slug
+ * until a dedicated organizers endpoint exists.
+ */
+function buildOrganizerProfile(slug, events) {
+  const hosted = events.filter(
+    (e) =>
+      slugify(e.organizer) === slug ||
+      (e.organizerBrief?.name && slugify(e.organizerBrief.name) === slug),
+  );
+  if (hosted.length === 0) return null;
+
+  const brief = hosted[0].organizerBrief;
+  const name = brief?.name || hosted[0].organizer;
+  return {
+    slug,
+    name,
+    initials: brief?.initials || initialsFromName(name),
+    role: 'Event Presenter · Charity Hub',
+    location: 'San Francisco, CA',
+    bio: 'Creating events that bring communities together for causes that matter. Dedicated to building community through shared experiences and impactful giving.',
+    causes: [...new Set(hosted.map((e) => e.category).filter(Boolean))],
+    stats: {
+      eventsHosted: hosted.length,
+      peopleReached: hosted.reduce((sum, e) => sum + (e.joined || 0), 0),
+      raised: hosted.reduce((sum, e) => sum + (e.raised || 0), 0),
+    },
+    events: hosted,
+  };
+}
 
 export default function DesktopOrganizerProfile() {
   const { slug } = useParams();
@@ -15,16 +67,64 @@ export default function DesktopOrganizerProfile() {
   const [following, setFollowing] = useState(false);
   const [eventTab, setEventTab] = useState('Live');
   const [showShare, setShowShare] = useState(false);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const profile = getOrganizerProfile(slug);
+  useEffect(() => {
+    if (!slug) {
+      setProfile(null);
+      setLoading(false);
+      setError(new Error('Missing organiser slug'));
+      return undefined;
+    }
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    // Temporary workaround until GET /organizers/{slug} exists — see buildOrganizerProfile.
+    listEvents({ page: 1, limit: 50 })
+      .then((res) => {
+        if (cancelled) return;
+        const adapted = (res.items ?? []).map((raw) => enrichProfileEvent(adaptEvent(raw)));
+        setProfile(buildOrganizerProfile(slug, adapted));
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setProfile(null);
+          setError(err);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
 
-  if (!profile) {
+  if (loading) {
+    return (
+      <div className="dsk-page">
+        <DesktopHeader active="Discover" loggedIn />
+        <main className="dsk-main">
+          <div className="dsk-container" style={{ padding: '48px 0' }}>
+            <p style={{ color: 'var(--text-secondary)' }}>Loading organiser…</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error || !profile) {
     return (
       <div className="dsk-page">
         <DesktopHeader active="Discover" loggedIn />
         <main className="dsk-main">
           <div className="dsk-container" style={{ padding: '60px 0', textAlign: 'center' }}>
-            <p className="dsk-page-subtitle">We couldn't find that organiser profile.</p>
+            <p className="dsk-page-subtitle">We couldn&apos;t find that organiser profile.</p>
+            {error?.message && (
+              <p style={{ marginTop: 8, color: 'var(--text-secondary)' }}>{error.message}</p>
+            )}
             <button className="dsk-card-cta primary" style={{ marginTop: 16 }} onClick={() => navigate('/guest/feed')}>
               Back to Discover
             </button>
