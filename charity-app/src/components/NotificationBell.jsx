@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell } from 'lucide-react';
+import { listNotifications, markNotificationRead } from '../api/notifications';
 
 export const SE_FEED_NOTIFICATIONS = [
   { id: 1, title: '#NeonNight is live', body: 'Doors are open — join the event', time: '2m ago', unread: true, route: '/event/live/neon-night' },
@@ -16,6 +17,43 @@ export const NP_NOTIFICATIONS = [
   { id: 4, title: '87 new supporters', body: 'Coastal Cleanup Drive gained backing this week', time: '2d ago', unread: false, route: '/guest/event/live/breakneck-ridge-run' },
 ];
 
+function formatNotificationTime(iso) {
+  if (!iso) return '';
+  const date = new Date(iso);
+  const diffMs = Date.now() - date.getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return 'Yesterday';
+  if (days < 7) return `${days}d ago`;
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+function inferRoute(type) {
+  switch (type) {
+    case 'event_approved':
+    case 'event_rejected':
+    case 'changes_requested':
+      return '/approval';
+    default:
+      return undefined;
+  }
+}
+
+function mapNotification(raw) {
+  return {
+    id: raw.id,
+    title: raw.type ?? 'Notification',
+    body: raw.text ?? '',
+    unread: !raw.read,
+    time: formatNotificationTime(raw.created_at),
+    route: inferRoute(raw.type),
+  };
+}
+
 export default function NotificationBell({
   items,
   bellSize = 22,
@@ -24,11 +62,26 @@ export default function NotificationBell({
   iconColor = 'var(--dark)',
 }) {
   const navigate = useNavigate();
+  const [liveItems, setLiveItems] = useState([]);
   const [hasAlerts, setHasAlerts] = useState(true);
   const [showPanel, setShowPanel] = useState(false);
   const wrapRef = useRef(null);
 
-  const unreadCount = items.filter((n) => n.unread).length;
+  const displayItems = items ?? liveItems;
+  const unreadCount = displayItems.filter((n) => n.unread).length;
+
+  useEffect(() => {
+    if (items) return undefined;
+    let cancelled = false;
+    listNotifications()
+      .then((data) => {
+        if (!cancelled) setLiveItems((data ?? []).map(mapNotification));
+      })
+      .catch(() => {
+        if (!cancelled) setLiveItems([]);
+      });
+    return () => { cancelled = true; };
+  }, [items]);
 
   const togglePanel = () => {
     setShowPanel((open) => {
@@ -37,9 +90,21 @@ export default function NotificationBell({
     });
   };
 
-  const openItem = (route) => {
+  const openItem = async (n) => {
     setShowPanel(false);
-    navigate(route);
+    if (n.unread) {
+      try {
+        await markNotificationRead(n.id);
+        if (!items) {
+          setLiveItems((prev) =>
+            prev.map((item) => (item.id === n.id ? { ...item, unread: false } : item)),
+          );
+        }
+      } catch {
+        /* keep local state if mark-read fails */
+      }
+    }
+    if (n.route) navigate(n.route);
   };
 
   useEffect(() => {
@@ -79,22 +144,26 @@ export default function NotificationBell({
             )}
           </div>
           <ul className="notify-list">
-            {items.map((n) => (
-              <li key={n.id}>
-                <button
-                  type="button"
-                  className={`notify-item${n.unread ? ' unread' : ''}`}
-                  onClick={() => openItem(n.route)}
-                >
-                  <span className="notify-item-dot" aria-hidden={!n.unread} />
-                  <span className="notify-item-body">
-                    <span className="notify-item-title">{n.title}</span>
-                    <span className="notify-item-text">{n.body}</span>
-                    <span className="notify-item-time">{n.time}</span>
-                  </span>
-                </button>
-              </li>
-            ))}
+            {displayItems.length === 0 ? (
+              <li className="notify-item-empty">No notifications yet</li>
+            ) : (
+              displayItems.map((n) => (
+                <li key={n.id}>
+                  <button
+                    type="button"
+                    className={`notify-item${n.unread ? ' unread' : ''}`}
+                    onClick={() => openItem(n)}
+                  >
+                    <span className="notify-item-dot" aria-hidden={!n.unread} />
+                    <span className="notify-item-body">
+                      <span className="notify-item-title">{n.title}</span>
+                      <span className="notify-item-text">{n.body}</span>
+                      <span className="notify-item-time">{n.time}</span>
+                    </span>
+                  </button>
+                </li>
+              ))
+            )}
           </ul>
         </div>
       )}

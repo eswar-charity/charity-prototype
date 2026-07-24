@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, Flag, MoreHorizontal, QrCode } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
-import NotificationBell, { NP_NOTIFICATIONS } from '../../components/NotificationBell';
+import NotificationBell from '../../components/NotificationBell';
 import MobileAppHeader from '../../components/MobileAppHeader';
 import ShareQRModal from '../../components/ShareQRModal';
 import { events, eventDetailPath } from '../../data/mockData';
@@ -36,7 +36,7 @@ export default function NpLaunchpad() {
             title="Launchpad"
             actions={(
               <>
-                <NotificationBell items={NP_NOTIFICATIONS} />
+                <NotificationBell />
                 <button
                   type="button"
                   className="np-header-avatar"

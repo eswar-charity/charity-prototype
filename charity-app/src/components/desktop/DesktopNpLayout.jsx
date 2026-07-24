@@ -1,14 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { Home, Calendar, ClipboardList, BarChart3, Wallet, Settings, Search } from 'lucide-react';
 import Logo from '../Logo';
-import NotificationBell, { NP_NOTIFICATIONS } from '../NotificationBell';
+import NotificationBell from '../NotificationBell';
 
 const NAV = [
   { id: 'home', label: 'Home', icon: Home, path: '/np/home' },
   { id: 'events', label: 'Events', icon: Calendar, path: '/guest/feed' },
   { id: 'approvals', label: 'Approvals', icon: ClipboardList, path: '/np/approvals', badge: 2 },
   { id: 'activity', label: 'Activity', icon: BarChart3, path: '/np/activity' },
-  { id: 'financials', label: 'Financials', icon: Wallet, path: '/np/activity' },
+  { id: 'financials', label: 'Financials', icon: Wallet, path: '/np/financials' },
 ];
 
 export default function DesktopNpSidebar({ active }) {
@@ -77,7 +77,6 @@ export function DesktopNpLayout({ active, title, children }) {
             <div className="dsk-np-topbar-actions">
               <div className="dsk-search dsk-np-search"><Search size={15} /><input placeholder="Search events..." /></div>
               <NotificationBell
-                items={NP_NOTIFICATIONS}
                 bellSize={18}
                 buttonClassName="dsk-np-bell"
                 panelClassName="notify-panel--desktop"

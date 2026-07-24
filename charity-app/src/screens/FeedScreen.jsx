@@ -2,7 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Megaphone, Building2, Compass, MessageCircle, Camera } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
-import NotificationBell, { SE_FEED_NOTIFICATIONS } from '../components/NotificationBell';
+import NotificationBell from '../components/NotificationBell';
 import MobileAppHeader from '../components/MobileAppHeader';
 import FilterPillRow from '../components/FilterPillRow';
 import { ALL_BROWSE_FILTERS, eventDisplayTitle, getEventBannerFocus } from '../data/mockData';
@@ -86,7 +86,7 @@ export default function FeedScreen() {
             subtitle="Events happening now"
             actions={(
               <>
-                <NotificationBell items={SE_FEED_NOTIFICATIONS} />
+                <NotificationBell />
                 <div
                   className="scene-avatar"
                   style={{ cursor: 'pointer' }}
