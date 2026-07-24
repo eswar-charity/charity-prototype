@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Mail, Clock } from 'lucide-react';
-import { calcDonationReceipt, events } from '../data/mockData';
-
-const DEFAULT_EVENT = events[0];
+import { calcDonationReceipt } from '../utils/donationReceipt.js';
 
 function formatMoney(value) {
   return `$${value.toFixed(2)}`;
@@ -12,14 +10,19 @@ function formatMoney(value) {
 export default function DonationSuccessView({
   donorName = 'Sarah King',
   publicName = 'Sarah K.',
-  eventTitle = DEFAULT_EVENT?.title,
-  nonprofit = DEFAULT_EVENT?.nonprofit,
+  eventTitle = 'Event',
+  nonprofit = 'Nonprofit',
   amount = 25,
+  tip,
+  total,
   returnTo = '/guest/event/live',
 }) {
   const navigate = useNavigate();
   const [toast, setToast] = useState('');
-  const { donation, tip, total } = calcDonationReceipt(amount);
+  const computed = calcDonationReceipt(amount);
+  const donation = amount;
+  const tipValue = tip ?? computed.tip;
+  const totalValue = total ?? computed.total;
 
   const showToast = (msg) => {
     setToast(msg);
@@ -33,8 +36,8 @@ export default function DonationSuccessView({
       `Event: ${eventTitle}`,
       `Beneficiary: ${nonprofit}`,
       `Donation: ${formatMoney(donation)}`,
-      `Tip to Charity Hub: ${formatMoney(tip)}`,
-      `Total charged: ${formatMoney(total)}`,
+      `Tip to Charity Hub: ${formatMoney(tipValue)}`,
+      `Total charged: ${formatMoney(totalValue)}`,
       `Shown publicly as: ${publicName}`,
     ].join('\n');
 
@@ -62,7 +65,7 @@ export default function DonationSuccessView({
         </div>
         <h1 className="donate-success-title">Thank you, {donorName}!</h1>
         <p className="donate-success-lead">
-          Your <strong>{formatMoney(total)}</strong> is on its way to{' '}
+          Your <strong>{formatMoney(totalValue)}</strong> is on its way to{' '}
           <strong>{nonprofit}</strong> for <strong>{eventTitle}</strong>.
         </p>
       </div>
@@ -74,12 +77,12 @@ export default function DonationSuccessView({
         </div>
         <div className="donate-receipt-row">
           <span>Tip to Charity Hub</span>
-          <span>{formatMoney(tip)}</span>
+          <span>{formatMoney(tipValue)}</span>
         </div>
         <div className="donate-receipt-divider" />
         <div className="donate-receipt-row donate-receipt-total">
           <span>Total charged</span>
-          <span>{formatMoney(total)}</span>
+          <span>{formatMoney(totalValue)}</span>
         </div>
         <div className="donate-receipt-row donate-receipt-public">
           <span>Shown publicly as</span>

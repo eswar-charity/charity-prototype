@@ -1,17 +1,14 @@
 import { X } from 'lucide-react';
-import { events } from '../../data/mockData';
 import { ToastHost } from '../Toast';
 import { useIdentityGateFlow } from '../../auth/useIdentityGateFlow';
-
-const DEFAULT_EVENT = events[0];
 
 export default function DesktopJoinGateModal({
   open,
   onClose,
-  eventTitle = DEFAULT_EVENT?.title,
-  nonprofit = DEFAULT_EVENT?.nonprofit,
-  npInitials = DEFAULT_EVENT?.npInitials,
-  npBg = DEFAULT_EVENT?.npBg,
+  eventTitle = 'this event',
+  nonprofit = 'the nonprofit',
+  npInitials = 'NP',
+  npBg = 'var(--primary)',
 }) {
   const {
     mode, phone, setPhone, email, setEmail, pending, toast,
