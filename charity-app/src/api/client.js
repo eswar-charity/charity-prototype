@@ -12,12 +12,15 @@ export class ApiError extends Error {
 }
 
 export function getApiBase() {
-  try {
-    const fromVite = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE_URL;
-    return fromVite || process.env.VITE_API_BASE_URL || 'http://localhost:8000';
-  } catch {
-    return process.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  const fromVite =
+    typeof import.meta !== 'undefined' &&
+    import.meta.env &&
+    import.meta.env.VITE_API_BASE_URL;
+  if (fromVite) return fromVite;
+  if (typeof process !== 'undefined' && process.env && process.env.VITE_API_BASE_URL) {
+    return process.env.VITE_API_BASE_URL;
   }
+  return 'http://localhost:8000';
 }
 
 export function getAccessToken() {
