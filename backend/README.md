@@ -56,7 +56,7 @@ uvicorn app.main:app --reload
 ## Migrations (Supabase Postgres)
 
 ```powershell
-alembic upgrade head          # apply migrations 0001..0010
+alembic upgrade head          # apply migrations 0001..0011
 ```
 
 Migrations are handwritten under `alembic/versions/` and target Postgres.

@@ -21,6 +21,7 @@ def test_derive_initials():
     assert derive_initials("Mike Rivera") == "MR"
     assert derive_initials("Jane") == "JA"
     assert derive_initials("  ") == "?"
+    assert derive_initials("World Wildlife Fund (WWF-US)") == "WW"
 
 
 def test_pick_color_is_deterministic_hex():

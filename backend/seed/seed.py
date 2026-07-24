@@ -192,6 +192,34 @@ async def seed(session: AsyncSession) -> None:
                           action="Verified nonprofit",
                           target="American Red Cross", category="Verification"),
         ])
+    else:
+        existing_review.title = "Verify United Way"
+        existing_review.entity_ref = "United Way"
+        existing_ex = (
+            await session.execute(
+                select(Exception_).where(Exception_.code == "EX-118")
+            )
+        ).scalar_one_or_none()
+        if existing_ex is not None:
+            existing_ex.entity_ref = "St. Jude Children's Research Hospital"
+        stale_audits = (
+            await session.execute(
+                select(AuditLogEntry).where(
+                    AuditLogEntry.target == "Hoboken Homeless Home"
+                )
+            )
+        ).scalars().all()
+        if not stale_audits:
+            stale_audits = (
+                await session.execute(
+                    select(AuditLogEntry).where(
+                        AuditLogEntry.category == "Verification",
+                        AuditLogEntry.actor == "Alex Mercer",
+                    )
+                )
+            ).scalars().all()
+        for entry in stale_audits:
+            entry.target = "American Red Cross"
 
     await session.commit()
 

@@ -11,7 +11,11 @@ PALETTE = [
 
 
 def derive_initials(name: str) -> str:
-    parts = [p for p in (name or "").strip().split() if p]
+    parts = []
+    for p in (name or "").strip().split():
+        cleaned = "".join(ch for ch in p if ch.isalnum())
+        if cleaned:
+            parts.append(cleaned)
     if not parts:
         return "?"
     if len(parts) == 1:
