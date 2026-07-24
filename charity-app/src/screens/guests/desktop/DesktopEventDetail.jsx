@@ -7,10 +7,11 @@ import {
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
 import DesktopJoinGateModal from '../../../components/desktop/DesktopJoinGateModal';
-import { slugify, buildDonationSuccessUrl, buildCommunityThread, eventLivePath, eventDisplayTitle, getEventBanner, getEventBannerFocus } from '../../../data/mockData';
+import { slugify, buildCommunityThread, eventLivePath, eventDisplayTitle, getEventBanner, getEventBannerFocus } from '../../../data/mockData';
 import { EventImageBanner } from '../../../components/event/EventImage';
 import { useAuth } from '../../../auth/AuthContext';
 import { useEventDetail, useEventActions } from '../../../hooks/useEventDetail';
+import { useDonateFlow } from '../../../hooks/useDonateFlow';
 
 const TABS = [
   { id: 'community', label: 'Community', sub: 'Photos & moments' },
@@ -281,8 +282,9 @@ function ChatTab({ ev, onNeedJoin, loggedIn }) {
   );
 }
 
-function SupportTab({ ev, onDonate }) {
+function SupportTab({ ev, onDonate, donatePending }) {
   const [amount, setAmount] = useState(25);
+  const [cardNumber, setCardNumber] = useState('');
 
   return (
     <div className="dsk-tab-panel">
@@ -304,8 +306,14 @@ function SupportTab({ ev, onDonate }) {
 
       <div className="support-card-fields">
         <div style={{ position: 'relative' }}>
-          <input className="support-field" style={{ width: '100%' }} placeholder="Card number" />
-          <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: 'var(--blue)', fontWeight: 700 }}>VISA</span>
+          <input
+            className="support-field"
+            style={{ width: '100%' }}
+            placeholder="Card number"
+            value={cardNumber}
+            onChange={(e) => setCardNumber(e.target.value)}
+          />
+          <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: 'var(--blue)', fontWeight: 700, pointerEvents: 'none' }}>VISA</span>
         </div>
         <div className="support-card-row">
           <input className="support-field" placeholder="MM / YY" />
@@ -314,7 +322,7 @@ function SupportTab({ ev, onDonate }) {
         <input className="support-field" style={{ width: '100%' }} placeholder="Name on card" />
       </div>
 
-      <button type="button" className="dsk-support-btn" onClick={() => onDonate(amount)}>
+      <button type="button" className="dsk-support-btn" onClick={() => onDonate(amount, cardNumber)} disabled={donatePending}>
         Support with {typeof amount === 'number' ? `$${amount}` : 'custom amount'}
       </button>
     </div>
@@ -347,13 +355,18 @@ export default function DesktopEventDetail({ loggedIn = false }) {
     showToast,
   });
 
-  const handleDonate = (amt) => {
-    const amount = amt === 'other' ? 25 : amt;
-    navigate(buildDonationSuccessUrl({
-      amount,
-      eventKey: ev.key,
+  const { donate, pending: donatePending } = useDonateFlow({
+    showToast,
+    onNeedAuth: () => setShowJoinGate(true),
+  });
+
+  const handleDonate = async (amt, cardNumber) => {
+    await donate({
+      ev,
+      amount: amt === 'other' ? 25 : amt,
+      cardNumber,
       returnTo: eventLivePath(ev.key, { loggedIn }),
-    }));
+    });
   };
 
   if (loading) {
@@ -446,7 +459,7 @@ export default function DesktopEventDetail({ loggedIn = false }) {
               />
             )}
             {activeTab === 'support' && (
-              <SupportTab ev={ev} onDonate={handleDonate} />
+              <SupportTab ev={ev} onDonate={handleDonate} donatePending={donatePending} />
             )}
           </div>
 
