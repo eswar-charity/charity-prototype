@@ -28,3 +28,27 @@ export function saveEvent(eventId) {
 export function joinEvent(eventId) {
   return apiRequest(`/events/${eventId}/join`, { method: 'POST' });
 }
+
+export function createEvent(body) {
+  return apiRequest('/events', { method: 'POST', body });
+}
+
+export function updateEvent(eventId, body) {
+  return apiRequest(`/events/${eventId}`, { method: 'PATCH', body });
+}
+
+export function saveDraft(eventId, body) {
+  return apiRequest(`/events/${eventId}/save-draft`, { method: 'POST', body });
+}
+
+export function submitEvent(eventId) {
+  return apiRequest(`/events/${eventId}/submit`, { method: 'POST' });
+}
+
+export function goLive(eventId) {
+  return apiRequest(`/events/${eventId}/go-live`, { method: 'POST' });
+}
+
+export function completeEvent(eventId) {
+  return apiRequest(`/events/${eventId}/complete`, { method: 'POST' });
+}
