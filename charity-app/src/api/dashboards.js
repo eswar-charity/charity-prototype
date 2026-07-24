@@ -7,3 +7,15 @@ export function getSeLiveDashboard(key) {
 export function getSePostEvent(key) {
   return apiRequest(`/se/post-event/${encodeURIComponent(key)}`);
 }
+
+export function getNpLaunchpad() {
+  return apiRequest('/np/launchpad');
+}
+
+export function getNpActivity() {
+  return apiRequest('/np/activity');
+}
+
+export function getNpFinancials() {
+  return apiRequest('/np/financials');
+}
