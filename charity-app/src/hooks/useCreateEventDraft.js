@@ -7,13 +7,17 @@ import { useSyncExternalStore } from 'react';
 // their own local state and never read this.
 
 const DEFAULT_DRAFT = {
+  serverEventId: null,
+  serverKey: null,
+  coverMediaId: null,
+  title: '',
   photos: [
     { id: 1, src: '/events/neon-night/img1.jpg' },
     { id: 2, src: '/events/neon-night/img2.jpg' },
     { id: 3, src: '/events/neon-night/img3.jpg' },
   ],
   story: '',
-  nonprofitId: 1,
+  nonprofitId: null,
   startDate: 'Oct 14, 2025',
   endDate: 'Oct 14, 2025',
   startTime: '9:00 AM',
