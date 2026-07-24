@@ -1,25 +1,53 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, ClipboardCheck, Building2, CalendarRange,
   AlertTriangle, ScrollText, Search, Bell, Menu, LogOut, ExternalLink,
 } from 'lucide-react';
-import { adminStats, adminUser } from '../../data/adminData';
+import { getAdminDashboard, adaptAdminDashboard } from '../../api/admin';
+import { useAuth } from '../../auth/AuthContext';
 import Logo from '../Logo';
 
-const NAV = [
+const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/admin/dashboard' },
-  { id: 'review', label: 'Review Queue', icon: ClipboardCheck, path: '/admin/review', badge: adminStats.reviewQueue },
+  { id: 'review', label: 'Review Queue', icon: ClipboardCheck, path: '/admin/review', badgeKey: 'reviewQueue' },
   { id: 'nonprofits', label: 'Nonprofits', icon: Building2, path: '/admin/nonprofits' },
   { id: 'events', label: 'Events', icon: CalendarRange, path: '/admin/events' },
-  { id: 'exceptions', label: 'Exceptions', icon: AlertTriangle, path: '/admin/exceptions', badge: adminStats.openExceptions },
+  { id: 'exceptions', label: 'Exceptions', icon: AlertTriangle, path: '/admin/exceptions', badgeKey: 'openExceptions' },
   { id: 'audit', label: 'Audit Log', icon: ScrollText, path: '/admin/audit' },
 ];
 
+function formatRole(role) {
+  if (!role) return '';
+  if (role === 'platform_admin') return 'Platform Admin';
+  return role.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export default function AdminLayout({ active, title, eyebrow = 'Charity Hub Admin', actions, children }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [navOpen, setNavOpen] = useState(false);
+  const [stats, setStats] = useState(null);
   const close = () => setNavOpen(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const raw = await getAdminDashboard();
+        if (!cancelled) setStats(adaptAdminDashboard(raw));
+      } catch {
+        if (!cancelled) setStats(null);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const displayUser = {
+    name: user?.name ?? 'Admin',
+    role: formatRole(user?.role),
+    initials: user?.initials ?? '?',
+  };
 
   return (
     <div className={`adm-root ${navOpen ? 'nav-open' : ''}`}>
@@ -34,8 +62,9 @@ export default function AdminLayout({ active, title, eyebrow = 'Charity Hub Admi
             <span className="adm-brand-sub">Admin Portal</span>
 
             <nav className="adm-nav">
-              {NAV.map((item) => {
+              {NAV_ITEMS.map((item) => {
                 const Icon = item.icon;
+                const badge = item.badgeKey && stats ? stats[item.badgeKey] : null;
                 return (
                   <button
                     key={item.id}
@@ -44,7 +73,7 @@ export default function AdminLayout({ active, title, eyebrow = 'Charity Hub Admi
                   >
                     <Icon size={18} />
                     <span>{item.label}</span>
-                    {item.badge ? <span className="adm-nav-badge">{item.badge}</span> : null}
+                    {badge ? <span className="adm-nav-badge">{badge}</span> : null}
                   </button>
                 );
               })}
@@ -57,10 +86,10 @@ export default function AdminLayout({ active, title, eyebrow = 'Charity Hub Admi
               <span>Sign out</span>
             </button>
             <div className="adm-user">
-              <div className="adm-user-avatar">{adminUser.initials}</div>
+              <div className="adm-user-avatar">{displayUser.initials}</div>
               <div>
-                <p className="adm-user-name">{adminUser.name}</p>
-                <p className="adm-user-role">{adminUser.role}</p>
+                <p className="adm-user-name">{displayUser.name}</p>
+                <p className="adm-user-role">{displayUser.role}</p>
               </div>
             </div>
           </div>
