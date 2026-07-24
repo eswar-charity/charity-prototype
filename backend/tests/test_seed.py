@@ -1,6 +1,7 @@
 import pytest
 from sqlalchemy import func, select
 
+from app.core.security import verify_password
 from app.models.event import Event
 from app.models.nonprofit import Nonprofit, NonprofitAdmin
 from app.models.user import User
@@ -57,6 +58,22 @@ async def test_seed_creates_demo_data(db_session):
         )
     ).scalar_one()
     assert link.nonprofit_id == by_name["American Red Cross"].id
+
+    mike = (
+        await db_session.execute(
+            select(User).where(User.email == "mike.rivera@demo.charityhub.com")
+        )
+    ).scalar_one()
+    assert mike.password_hash
+    assert verify_password("Passw0rd!", mike.password_hash)
+
+    alex = (
+        await db_session.execute(
+            select(User).where(User.email == "alex.mercer@charityhub.com")
+        )
+    ).scalar_one()
+    assert alex.password_hash
+    assert verify_password("Passw0rd!", alex.password_hash)
 
 
 @pytest.mark.asyncio

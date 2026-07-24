@@ -56,6 +56,8 @@ async def seed(session: AsyncSession) -> None:
             await session.execute(select(User).where(User.email == email))
         ).scalar_one_or_none()
         if u:
+            if password and not u.password_hash:
+                u.password_hash = hash_password(password)
             return u
         u = _user(role, email, name, password)
         session.add(u)
@@ -63,10 +65,10 @@ async def seed(session: AsyncSession) -> None:
         return u
 
     admin = await get_or_create_user(
-        "platform_admin", "alex.mercer@charityhub.com", "Alex Mercer"
+        "platform_admin", "alex.mercer@charityhub.com", "Alex Mercer", "Passw0rd!"
     )
     mike = await get_or_create_user(
-        "se", "mike.rivera@demo.charityhub.com", "Mike Rivera"
+        "se", "mike.rivera@demo.charityhub.com", "Mike Rivera", "Passw0rd!"
     )
     np_admin = await get_or_create_user(
         "np_admin", "np@charityhub.com", "Nonprofit Admin", "Passw0rd!"
