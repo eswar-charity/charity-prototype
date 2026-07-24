@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Clock, ShieldCheck, Flag, AlertTriangle, Users } from 'lucide-react';
 import AdminLayout, { Badge } from '../../components/admin/AdminLayout';
-import { reviewQueue, statusTone } from '../../data/adminData';
+import { listAdminReviews, adaptReviewItem } from '../../api/admin';
+import { statusTone } from '../../data/adminData';
 
 const FILTERS = ['All', 'New', 'In Review', 'Escalated', 'Approved', 'Rejected'];
 
@@ -17,9 +18,25 @@ const typeIcon = (type) => {
 export default function AdminReviewQueue() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState('All');
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const items = reviewQueue.filter((r) => filter === 'All' || r.status === filter);
-  const countFor = (f) => (f === 'All' ? reviewQueue.length : reviewQueue.filter((r) => r.status === f).length);
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const rows = await listAdminReviews();
+      setReviews((rows ?? []).map(adaptReviewItem));
+    } catch {
+      setReviews([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const items = reviews.filter((r) => filter === 'All' || r.status === filter);
+  const countFor = (f) => (f === 'All' ? reviews.length : reviews.filter((r) => r.status === f).length);
   const onKey = (fn) => (e) => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
   };
@@ -39,7 +56,9 @@ export default function AdminReviewQueue() {
           <span className="adm-panel-title">{filter === 'All' ? 'All items' : filter} · {items.length}</span>
         </div>
 
-        {items.length === 0 ? (
+        {loading ? (
+          <p className="adm-item-meta" style={{ padding: 16 }}>Loading review queue…</p>
+        ) : items.length === 0 ? (
           <div className="adm-empty">
             <div className="adm-empty-ico"><ShieldCheck size={26} /></div>
             <h3>Queue clear</h3>
@@ -52,8 +71,8 @@ export default function AdminReviewQueue() {
               <div className="adm-item-body">
                 <p className="adm-item-title">{item.title}</p>
                 <p className="adm-item-meta">
-                  <span>{item.id}</span>·<span>{item.type}</span>·
-                  <span>{item.submittedBy} ({item.submittedRole})</span>·<span>{item.submittedAt}</span>
+                  <span>{item.code ?? item.id}</span>·<span>{item.type}</span>·
+                  <span>{item.submittedBy} ({item.submittedRole})</span>
                 </p>
               </div>
               <div className="adm-item-side">
