@@ -324,28 +324,4 @@ export function getEventKeyByTitle(title) {
   return events.find((e) => e.title === title || eventDisplayTitle(e.title) === title)?.key || events[0].key;
 }
 
-export function calcDonationReceipt(amount) {
-  const donation = typeof amount === 'number' && amount > 0 ? amount : 25;
-  const tip = donation >= 25 ? 3 : Math.max(1, Math.round(donation * 0.12));
-  const subtotal = donation + tip;
-  const processingFee = Math.round(subtotal * 0.03964 * 100) / 100;
-  const total = Math.round((subtotal + processingFee) * 100) / 100;
-  return { donation, tip, processingFee, total };
-}
-
-export function buildDonationSuccessUrl({
-  amount = 25,
-  eventKey = 'neon-night',
-  returnTo = eventLivePath(eventKey, { loggedIn: false }),
-  donorName = 'Sarah King',
-  publicName = 'Sarah K.',
-} = {}) {
-  const params = new URLSearchParams({
-    amount: String(amount),
-    event: eventKey,
-    return: returnTo,
-    donor: donorName,
-    public: publicName,
-  });
-  return `/donate/success?${params.toString()}`;
-}
+export { calcDonationReceipt, buildDonationSuccessUrl } from '../utils/donationReceipt.js';
