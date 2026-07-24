@@ -9,19 +9,34 @@ import {
 import { mapDraftToApiPayload } from '../utils/eventDraftPayload';
 import { useCreateEventDraft, updateDraft } from './useCreateEventDraft';
 
+const EVENT_CREATOR_ROLES = new Set(['se', 'np_admin']);
+
+const SE_HINT =
+  'Sign in as mike.rivera@demo.charityhub.com / Passw0rd! (Social Entrepreneur), or create an SE account.';
+
 export function useEventWizardMutations(show) {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const draft = useCreateEventDraft();
   const [pending, setPending] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const requireAuth = useCallback(() => {
-    if (isAuthenticated) return true;
-    show('Sign in to save or submit your event', { variant: 'error' });
-    navigate('/');
-    return false;
-  }, [isAuthenticated, navigate, show]);
+  const requireEventCreator = useCallback(() => {
+    if (!isAuthenticated) {
+      show('Sign in as a Social Entrepreneur to save or submit your event', { variant: 'error' });
+      navigate('/');
+      return false;
+    }
+    if (!EVENT_CREATOR_ROLES.has(user?.role)) {
+      show(
+        `Only Social Entrepreneurs can create events. Your account role is “${user?.role || 'unknown'}”. ${SE_HINT}`,
+        { variant: 'error' },
+      );
+      navigate('/');
+      return false;
+    }
+    return true;
+  }, [isAuthenticated, navigate, show, user?.role]);
 
   const ensurePersisted = useCallback(async () => {
     const payload = mapDraftToApiPayload(draft);
@@ -38,7 +53,7 @@ export function useEventWizardMutations(show) {
   }, [draft]);
 
   const handleSaveDraft = useCallback(async () => {
-    if (!requireAuth() || pending) return;
+    if (!requireEventCreator() || pending) return;
     setPending(true);
     try {
       await ensurePersisted();
@@ -46,14 +61,17 @@ export function useEventWizardMutations(show) {
       show('Draft saved');
       setTimeout(() => navigate('/feed'), 900);
     } catch (err) {
-      show(err?.message || 'Could not save draft', { variant: 'error' });
+      const msg = err?.status === 403
+        ? `Insufficient permissions. ${SE_HINT}`
+        : (err?.message || 'Could not save draft');
+      show(msg, { variant: 'error' });
     } finally {
       setPending(false);
     }
-  }, [ensurePersisted, navigate, pending, requireAuth, show]);
+  }, [ensurePersisted, navigate, pending, requireEventCreator, show]);
 
   const handleSubmit = useCallback(async () => {
-    if (!requireAuth() || pending) return;
+    if (!requireEventCreator() || pending) return;
     setPending(true);
     try {
       const { eventId, key } = await ensurePersisted();
@@ -61,11 +79,14 @@ export function useEventWizardMutations(show) {
       show('Event submitted for approval');
       navigate(`/approval?key=${encodeURIComponent(key)}`);
     } catch (err) {
-      show(err?.message || 'Could not submit event', { variant: 'error' });
+      const msg = err?.status === 403
+        ? `Insufficient permissions. ${SE_HINT}`
+        : (err?.message || 'Could not submit event');
+      show(msg, { variant: 'error' });
     } finally {
       setPending(false);
     }
-  }, [ensurePersisted, navigate, pending, requireAuth, show]);
+  }, [ensurePersisted, navigate, pending, requireEventCreator, show]);
 
   return { handleSaveDraft, handleSubmit, pending, saved };
 }
