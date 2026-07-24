@@ -1,11 +1,15 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, Lock } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
+import { ToastHost } from '../../../components/Toast';
+import { useIdentityGateFlow } from '../../../auth/useIdentityGateFlow';
 
 export default function DesktopIdentityGateDonate() {
   const navigate = useNavigate();
-  const [phone, setPhone] = useState('');
+  const {
+    mode, phone, setPhone, email, setEmail, pending, toast,
+    handleContinue, switchToEmail, switchToPhone,
+  } = useIdentityGateFlow();
 
   return (
     <div className="dsk-page">
@@ -29,24 +33,53 @@ export default function DesktopIdentityGateDonate() {
               Sign in to contribute. Every backing helps the Ocean Conservancy do more.
             </p>
 
-            <div className="dsk-join-gate-phone">
-              <div className="dsk-join-gate-dial">+1</div>
+            {mode === 'phone' ? (
+              <div className="dsk-join-gate-phone">
+                <div className="dsk-join-gate-dial">+1</div>
+                <input
+                  className="dsk-join-gate-input"
+                  type="tel"
+                  placeholder="Mobile number"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  disabled={pending}
+                />
+              </div>
+            ) : (
               <input
                 className="dsk-join-gate-input"
-                type="tel"
-                placeholder="Mobile number"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                type="email"
+                autoComplete="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={pending}
+                style={{ marginBottom: 14, width: '100%', borderRadius: 12 }}
               />
-            </div>
+            )}
 
-            <button type="button" className="dsk-cta-btn dsk-join-gate-cta" onClick={() => navigate('/about-you')}>
-              Continue
+            <button
+              type="button"
+              className="dsk-cta-btn dsk-join-gate-cta"
+              disabled={pending}
+              onClick={handleContinue}
+            >
+              {pending ? 'Continuing…' : 'Continue'}
             </button>
-            <button type="button" className="btn-ghost dsk-join-gate-secondary" onClick={() => navigate('/about-you')}>
-              Use email instead
+            <button
+              type="button"
+              className="btn-ghost dsk-join-gate-secondary"
+              disabled={pending}
+              onClick={mode === 'phone' ? switchToEmail : switchToPhone}
+            >
+              {mode === 'phone' ? 'Use email instead' : 'Use phone instead'}
             </button>
-            <button type="button" className="btn-ghost dsk-join-gate-dismiss" onClick={() => navigate(-1)}>
+            <button
+              type="button"
+              className="btn-ghost dsk-join-gate-dismiss"
+              disabled={pending}
+              onClick={() => navigate(-1)}
+            >
               Maybe later — keep browsing
             </button>
 
@@ -57,6 +90,7 @@ export default function DesktopIdentityGateDonate() {
           </div>
         </div>
       </main>
+      <ToastHost toast={toast} />
     </div>
   );
 }

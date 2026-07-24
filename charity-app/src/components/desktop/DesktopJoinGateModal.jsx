@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { events } from '../../data/mockData';
+import { ToastHost } from '../Toast';
+import { useIdentityGateFlow } from '../../auth/useIdentityGateFlow';
 
 const DEFAULT_EVENT = events[0];
 
@@ -13,8 +13,10 @@ export default function DesktopJoinGateModal({
   npInitials = DEFAULT_EVENT?.npInitials,
   npBg = DEFAULT_EVENT?.npBg,
 }) {
-  const navigate = useNavigate();
-  const [phone, setPhone] = useState('');
+  const {
+    mode, phone, setPhone, email, setEmail, pending, toast,
+    handleContinue, switchToEmail, switchToPhone,
+  } = useIdentityGateFlow({ onSuccess: onClose });
 
   if (!open) return null;
 
@@ -40,26 +42,51 @@ export default function DesktopJoinGateModal({
           Create your account to join the chat, back this event, and be part of the story.
         </p>
 
-        <div className="dsk-join-gate-phone">
-          <div className="dsk-join-gate-dial">+1</div>
+        {mode === 'phone' ? (
+          <div className="dsk-join-gate-phone">
+            <div className="dsk-join-gate-dial">+1</div>
+            <input
+              className="dsk-join-gate-input"
+              type="tel"
+              placeholder="Mobile number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              disabled={pending}
+            />
+          </div>
+        ) : (
           <input
             className="dsk-join-gate-input"
-            type="tel"
-            placeholder="Mobile number"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            type="email"
+            autoComplete="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={pending}
+            style={{ marginBottom: 14, width: '100%', borderRadius: 12 }}
           />
-        </div>
+        )}
 
-        <button type="button" className="dsk-cta-btn dsk-join-gate-cta" onClick={() => navigate('/about-you')}>
-          Continue
+        <button
+          type="button"
+          className="dsk-cta-btn dsk-join-gate-cta"
+          disabled={pending}
+          onClick={handleContinue}
+        >
+          {pending ? 'Continuing…' : 'Continue'}
         </button>
-        <button type="button" className="btn-ghost dsk-join-gate-secondary" onClick={() => navigate('/about-you')}>
-          Use email instead
+        <button
+          type="button"
+          className="btn-ghost dsk-join-gate-secondary"
+          disabled={pending}
+          onClick={mode === 'phone' ? switchToEmail : switchToPhone}
+        >
+          {mode === 'phone' ? 'Use email instead' : 'Use phone instead'}
         </button>
-        <button type="button" className="btn-ghost dsk-join-gate-dismiss" onClick={onClose}>
+        <button type="button" className="btn-ghost dsk-join-gate-dismiss" disabled={pending} onClick={onClose}>
           Not now — keep browsing
         </button>
+        <ToastHost toast={toast} />
       </div>
     </div>
   );
