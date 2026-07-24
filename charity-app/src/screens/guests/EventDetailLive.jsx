@@ -1,4 +1,4 @@
-import { Fragment, useState, useEffect } from 'react';
+import { Fragment, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ChevronLeft, Info, Share2, Heart,
@@ -6,38 +6,15 @@ import {
   Images, MessageCircle, HandHeart, PartyPopper, Check, UserPlus,
   Calendar, MapPin,
 } from 'lucide-react';
-import { buildCommunityThread, eventLivePath, eventDisplayTitle, getEventBanner, getEventBannerFocus } from '../../data/mockData';
+import { eventLivePath, eventDisplayTitle, getEventBanner, getEventBannerFocus } from '../../data/mockData';
 import { EventImageBanner } from '../../components/event/EventImage';
 import MobileShareModal from '../../components/MobileShareModal';
 import MobileJoinModal from '../../components/MobileJoinModal';
 import { useAuth } from '../../auth/AuthContext';
 import { useEventDetail, useEventActions } from '../../hooks/useEventDetail';
 import { useDonateFlow } from '../../hooks/useDonateFlow';
-
-function buildChatSeed(ev) {
-  return [
-    {
-      id: 'seed-1', name: ev.organizer, initials: ev.initials,
-      avatar: 'linear-gradient(135deg,var(--primary),var(--blue))', host: true, verified: true,
-      text: "Welcome everyone! We're starting the main presentation in about 5 minutes. Feel free to grab a virtual seat and say hi!",
-    },
-    {
-      id: 'seed-2', name: 'Marcus L.', initials: 'ML',
-      avatar: 'linear-gradient(135deg,#0D7377,#14A085)',
-      text: 'So excited for this! Tuning in from Chicago.', reaction: 12,
-    },
-    {
-      id: 'seed-3', mine: true, initials: 'ME',
-      avatar: 'linear-gradient(135deg,#7B1FA2,#AB47BC)',
-      text: "Incredible turnout already. Can't wait for the auction segment!", sent: 'Sent',
-    },
-    {
-      id: 'seed-4', name: 'Emma J.', initials: 'EJ',
-      avatar: 'linear-gradient(135deg,#1976D2,#42A5F5)',
-      text: 'This is incredible! First time attending a Charity Hub event',
-    },
-  ];
-}
+import { useEventCommunity } from '../../hooks/useEventCommunity';
+import { useEventChat } from '../../hooks/useEventChat';
 
 /* ── Community Tab ──────────────────────────────────────── */
 function ThreadRow({ post, isLast, showLiveDot, onOpen, variant }) {
@@ -100,9 +77,22 @@ function ThreadRow({ post, isLast, showLiveDot, onOpen, variant }) {
 const PHASE_LABELS = { before: 'Before the event', during: 'Live', after: 'After the event' };
 
 function CommunityTab({ ev }) {
-  const posts = buildCommunityThread(ev);
+  const { posts, loading, error, reload } = useEventCommunity(ev);
   const [openPostId, setOpenPostId] = useState(null);
   const openPost = posts.find((p) => p.id === openPostId) || null;
+
+  if (loading) {
+    return <p style={{ padding: '16px 0', color: 'var(--text-secondary)', fontSize: 14 }}>Loading community…</p>;
+  }
+
+  if (error) {
+    return (
+      <div style={{ padding: '16px 0' }}>
+        <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 10 }}>Couldn&apos;t load community posts.</p>
+        <button type="button" className="btn-ghost" onClick={reload}>Try again</button>
+      </div>
+    );
+  }
 
   if (openPost) {
     return (
@@ -173,9 +163,15 @@ function ChatTabHeader({ ev }) {
   );
 }
 
-function ChatTabMessages({ messages }) {
+function ChatTabMessages({ messages, loading }) {
   return (
     <div className="chat-messages">
+      {loading && messages.length === 0 && (
+        <p style={{ padding: '12px 0', color: 'var(--text-secondary)', fontSize: 14 }}>Loading chat…</p>
+      )}
+      {!loading && messages.length === 0 && (
+        <p style={{ padding: '12px 0', color: 'var(--text-secondary)', fontSize: 14 }}>No messages yet — say hello</p>
+      )}
       {messages.map((m) => (
         <div key={m.id} className={`chat-msg${m.mine ? ' mine' : ''}`}>
           <div className="chat-msg-avatar" style={{ background: m.avatar }}>{m.initials}</div>
@@ -204,7 +200,7 @@ function ChatTabMessages({ messages }) {
   );
 }
 
-function ChatInputBar({ value, onChange, onSend, onAttach, onFocus }) {
+function ChatInputBar({ value, onChange, onSend, onAttach, onFocus, disabled }) {
   return (
     <div className="chat-input-bar">
       <div className="chat-input-pill">
@@ -223,7 +219,7 @@ function ChatInputBar({ value, onChange, onSend, onAttach, onFocus }) {
           onFocus={onFocus}
           onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onSend(); } }}
         />
-        <button type="button" className="chat-send-btn" aria-label="Send message" onClick={onSend}>
+        <button type="button" className="chat-send-btn" aria-label="Send message" onClick={onSend} disabled={disabled}>
           <ArrowUp size={18} color="white" strokeWidth={2.5} />
         </button>
       </div>
@@ -340,13 +336,12 @@ const TABS = [
 export default function EventDetailLive({ loggedIn = false }) {
   const navigate = useNavigate();
   const { eventKey } = useParams();
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { ev, loading, error } = useEventDetail(eventKey);
   const heroImage = getEventBanner(ev);
   const [activeTab, setActiveTab]         = useState('community');
   const [selectedAmount, setSelectedAmount] = useState(25);
   const [chatInput, setChatInput]         = useState('');
-  const [messages, setMessages]           = useState([]);
   const [showAbout, setShowAbout]         = useState(false);
   const [showShare, setShowShare]         = useState(false);
   const [showJoin, setShowJoin]           = useState(false);
@@ -370,9 +365,19 @@ export default function EventDetailLive({ loggedIn = false }) {
     onNeedAuth: () => setShowJoin(true),
   });
 
-  useEffect(() => {
-    if (ev) setMessages(buildChatSeed(ev));
-  }, [ev?.key]);
+  const canChat = loggedIn || isAuthenticated;
+  const {
+    messages,
+    loading: chatLoading,
+    send: sendChatMessage,
+    pending: chatPending,
+  } = useEventChat({
+    eventKey: ev?.key,
+    eventId: ev?.id,
+    enabled: activeTab === 'chat' && canChat,
+    currentUserId: user?.id,
+    showToast,
+  });
 
   // Per the Identity Gate model: viewing is open, but commenting requires
   // identity — guests hit the join gate; SE / authed users can chat.
@@ -391,15 +396,16 @@ export default function EventDetailLive({ loggedIn = false }) {
     });
   };
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (requireJoin()) return;
     const text = chatInput.trim();
-    if (!text) return;
-    setMessages((prev) => [
-      ...prev,
-      { id: `me-${prev.length}`, mine: true, initials: 'ME', avatar: 'linear-gradient(135deg,#7B1FA2,#AB47BC)', text, sent: 'Sent' },
-    ]);
-    setChatInput('');
+    if (!text || chatPending) return;
+    try {
+      await sendChatMessage(text);
+      setChatInput('');
+    } catch {
+      // toast handled in hook
+    }
   };
 
   if (loading) {
@@ -511,17 +517,18 @@ export default function EventDetailLive({ loggedIn = false }) {
 
           {/* Scrollable tab content */}
           {activeTab === 'chat' ? (
-            loggedIn ? (
+            canChat ? (
               <>
                 <ChatTabHeader ev={ev} />
                 <div className="ev-tab-content">
-                  <ChatTabMessages messages={messages} />
+                  <ChatTabMessages messages={messages} loading={chatLoading} />
                 </div>
                 <ChatInputBar
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   onSend={sendMessage}
                   onAttach={() => showToast('Photo sharing is coming soon')}
+                  disabled={chatPending}
                 />
               </>
             ) : (

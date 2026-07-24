@@ -7,26 +7,19 @@ import {
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
 import DesktopJoinGateModal from '../../../components/desktop/DesktopJoinGateModal';
-import { slugify, buildCommunityThread, eventLivePath, eventDisplayTitle, getEventBanner, getEventBannerFocus } from '../../../data/mockData';
+import { slugify, eventLivePath, eventDisplayTitle, getEventBanner, getEventBannerFocus } from '../../../data/mockData';
 import { EventImageBanner } from '../../../components/event/EventImage';
 import { useAuth } from '../../../auth/AuthContext';
 import { useEventDetail, useEventActions } from '../../../hooks/useEventDetail';
 import { useDonateFlow } from '../../../hooks/useDonateFlow';
+import { useEventCommunity } from '../../../hooks/useEventCommunity';
+import { useEventChat } from '../../../hooks/useEventChat';
 
 const TABS = [
   { id: 'community', label: 'Community', sub: 'Photos & moments' },
   { id: 'chat', label: 'Chat', sub: 'Live conversation' },
   { id: 'support', label: 'Support', sub: 'Back the cause' },
 ];
-
-function buildChatSeed(ev) {
-  return [
-    { id: 1, initials: ev.initials, color: 'linear-gradient(135deg,var(--primary),var(--blue))', name: ev.organizer, host: true, text: "Welcome everyone! We're starting the main presentation in about 5 minutes. Feel free to grab a virtual seat and say hi!" },
-    { id: 2, initials: 'ML', color: 'linear-gradient(135deg,#0D7377,#14A085)', name: 'Marcus L.', text: 'So excited for this! Tuning in from Chicago.', reaction: '12' },
-    { id: 3, initials: 'ME', color: 'linear-gradient(135deg,#7B1FA2,#AB47BC)', mine: true, text: "Incredible turnout already. Can't wait for the auction segment!", sent: true },
-    { id: 4, initials: 'EJ', color: 'linear-gradient(135deg,#1976D2,#42A5F5)', name: 'Emma J.', text: 'This is incredible! First time attending a Charity Hub event' },
-  ];
-}
 
 function AboutModal({ ev, onClose, following, onToggleFollow }) {
   return (
@@ -131,9 +124,26 @@ function ThreadRow({ post, isLast, showLiveDot, onOpen, variant }) {
 const PHASE_LABELS = { before: 'Before the event', during: 'Live', after: 'After the event' };
 
 function CommunityTab({ ev }) {
-  const posts = buildCommunityThread(ev);
+  const { posts, loading, error, reload } = useEventCommunity(ev);
   const [openPostId, setOpenPostId] = useState(null);
   const openPost = posts.find((p) => p.id === openPostId) || null;
+
+  if (loading) {
+    return (
+      <div className="dsk-tab-panel">
+        <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Loading community…</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="dsk-tab-panel">
+        <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 10 }}>Couldn&apos;t load community posts.</p>
+        <button type="button" className="dsk-cta-btn" onClick={reload}>Try again</button>
+      </div>
+    );
+  }
 
   if (openPost) {
     return (
@@ -183,9 +193,20 @@ function CommunityTab({ ev }) {
   );
 }
 
-function ChatTab({ ev, onNeedJoin, loggedIn }) {
+function ChatTab({ ev, onNeedJoin, loggedIn, showToast, currentUserId }) {
   const [value, setValue] = useState('');
-  const [messages, setMessages] = useState(() => buildChatSeed(ev));
+  const {
+    messages,
+    loading: chatLoading,
+    send: sendChatMessage,
+    pending: chatPending,
+  } = useEventChat({
+    eventKey: ev?.key,
+    eventId: ev?.id,
+    enabled: loggedIn,
+    currentUserId,
+    showToast,
+  });
 
   if (!loggedIn) {
     return (
@@ -203,21 +224,15 @@ function ChatTab({ ev, onNeedJoin, loggedIn }) {
     );
   }
 
-  const send = () => {
+  const send = async () => {
     const text = value.trim();
-    if (!text) return;
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        initials: 'ME',
-        color: 'linear-gradient(135deg,#7B1FA2,#AB47BC)',
-        mine: true,
-        text,
-        sent: true,
-      },
-    ]);
-    setValue('');
+    if (!text || chatPending) return;
+    try {
+      await sendChatMessage(text);
+      setValue('');
+    } catch {
+      // toast handled in hook
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -241,9 +256,15 @@ function ChatTab({ ev, onNeedJoin, loggedIn }) {
       </div>
 
       <div className="dsk-chat-messages">
+        {chatLoading && messages.length === 0 && (
+          <p style={{ padding: '12px 0', color: 'var(--text-secondary)', fontSize: 14 }}>Loading chat…</p>
+        )}
+        {!chatLoading && messages.length === 0 && (
+          <p style={{ padding: '12px 0', color: 'var(--text-secondary)', fontSize: 14 }}>No messages yet — say hello</p>
+        )}
         {messages.map((msg) => (
           <div key={msg.id} className={`chat-msg${msg.mine ? ' mine' : ''}`}>
-            <div className="chat-msg-avatar" style={{ background: msg.color }}>{msg.initials}</div>
+            <div className="chat-msg-avatar" style={{ background: msg.avatar || msg.color }}>{msg.initials}</div>
             <div className="chat-msg-body">
               {!msg.mine && (
                 <div className="chat-msg-name">
@@ -274,7 +295,7 @@ function ChatTab({ ev, onNeedJoin, loggedIn }) {
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
         />
-        <button type="button" className="chat-send-btn" aria-label="Send message" onClick={send} disabled={!value.trim()}>
+        <button type="button" className="chat-send-btn" aria-label="Send message" onClick={send} disabled={!value.trim() || chatPending}>
           <ArrowUp size={16} color="white" strokeWidth={2.5} />
         </button>
       </div>
@@ -332,7 +353,7 @@ function SupportTab({ ev, onDonate, donatePending }) {
 export default function DesktopEventDetail({ loggedIn = false }) {
   const navigate = useNavigate();
   const { eventKey } = useParams();
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { ev, loading, error } = useEventDetail(eventKey);
   const heroImage = getEventBanner(ev);
   const [activeTab, setActiveTab] = useState('community');
@@ -456,6 +477,8 @@ export default function DesktopEventDetail({ loggedIn = false }) {
                 ev={ev}
                 loggedIn={loggedIn || isAuthenticated}
                 onNeedJoin={() => setShowJoinGate(true)}
+                showToast={showToast}
+                currentUserId={user?.id}
               />
             )}
             {activeTab === 'support' && (
