@@ -14,6 +14,23 @@ class UserStatus(StrEnum):
     pending = "pending"
 
 
+class NonprofitStatus(StrEnum):
+    draft = "Draft"
+    submitted = "Submitted"
+    pending_verification = "Pending Verification"
+    verified = "Verified"
+    active = "Active"
+    rejected = "Rejected"
+    suspended = "Suspended"
+
+
+class SettlementStatus(StrEnum):
+    ready = "Ready"
+    payout_hold = "Payout hold"
+    not_ready = "Not ready"
+    frozen = "Frozen"
+
+
 class ResourceType(StrEnum):
     image = "image"
     video = "video"
