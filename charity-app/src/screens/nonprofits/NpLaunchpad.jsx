@@ -1,31 +1,50 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Clock, Flag, MoreHorizontal, QrCode } from 'lucide-react';
+import { Clock, MoreHorizontal, QrCode } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
 import NotificationBell from '../../components/NotificationBell';
 import MobileAppHeader from '../../components/MobileAppHeader';
 import ShareQRModal from '../../components/ShareQRModal';
-import { events, eventDetailPath } from '../../data/mockData';
+import { eventDetailPath } from '../../utils/eventPaths';
 import { EventImageBanner } from '../../components/event/EventImage';
+import { useNpLaunchpad } from '../../hooks/useNpDashboard';
 
-const ORG_LOGO = '/events/breakneck-ridge-run/img1.jpg';
+const DEFAULT_ORG_LOGO = '/events/breakneck-ridge-run/img1.jpg';
 const HEADER_AVATAR = '/events/give-now/img2.jpg';
-
-const LIVE_EVENTS = events.map((ev) => ({
-  id: ev.id,
-  key: ev.key,
-  title: ev.title,
-  stat: `${ev.joined} joined`,
-  isLive: ev.isLive,
-  cover: ev.cover,
-}));
 
 export default function NpLaunchpad() {
   const navigate = useNavigate();
+  const { data, loading, error } = useNpLaunchpad();
   const [showQR, setShowQR] = useState(false);
   const onKey = (fn) => (e) => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
   };
+
+  const org = data?.org;
+  const stats = data?.stats ?? {};
+  const liveEvents = data?.liveEvents ?? [];
+  const actionRequired = data?.actionRequired ?? [];
+  const orgName = org?.name ?? 'Your organization';
+  const orgSlug = org?.slug ?? 'profile';
+  const verifiedLabel = org?.verified ? '✓ Verified 501(c)(3) · Active' : 'Active';
+
+  if (loading) {
+    return (
+      <div className="phone-shell">
+        <div className="screen" style={{ padding: 24, textAlign: 'center', color: 'var(--text-secondary)' }}>Loading…</div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="phone-shell">
+        <div className="screen" style={{ padding: 24, textAlign: 'center', color: 'var(--text-secondary)' }}>
+          {error?.message || 'Could not load launchpad'}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="phone-shell">
@@ -43,20 +62,19 @@ export default function NpLaunchpad() {
                   onClick={() => navigate('/np/profile')}
                   aria-label="View profile"
                 >
-                  <img src={HEADER_AVATAR} alt="Ocean Conservancy" />
+                  <img src={HEADER_AVATAR} alt={orgName} />
                 </button>
               </>
             )}
           />
 
           <div style={{ padding: '0 18px 8px' }}>
-            {/* Org card */}
             <div className="card np-org-card">
               <div className="np-org-row">
-                <img className="np-org-logo" src={ORG_LOGO} alt="Ocean Conservancy" />
+                <img className="np-org-logo" src={DEFAULT_ORG_LOGO} alt={orgName} />
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)' }}>Ocean Conservancy</p>
-                  <span className="np-verified-badge">✓ Verified 501(c)(3) · Active</span>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)' }}>{orgName}</p>
+                  <span className="np-verified-badge">{verifiedLabel}</span>
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 12 }}>
@@ -78,100 +96,109 @@ export default function NpLaunchpad() {
               </div>
             </div>
 
-            {/* Stats row */}
             <div className="np-stats-row">
               <div className="np-stat" style={{ cursor: 'pointer' }} role="button" tabIndex={0} onClick={() => navigate('/np/approvals')} onKeyDown={onKey(() => navigate('/np/approvals'))}>
-                <div className="np-stat-num blue">4</div>
+                <div className="np-stat-num blue">{stats.live_events ?? 0}</div>
                 <div className="np-stat-lbl">Live Events</div>
               </div>
               <div className="np-stat" style={{ cursor: 'pointer' }} role="button" tabIndex={0} onClick={() => navigate('/np/approvals')} onKeyDown={onKey(() => navigate('/np/approvals'))}>
-                <div className="np-stat-num coral">3</div>
+                <div className="np-stat-num coral">{stats.pending_approvals ?? 0}</div>
                 <div className="np-stat-lbl">Pending Approvals</div>
               </div>
               <div className="np-stat" style={{ cursor: 'pointer' }} role="button" tabIndex={0} onClick={() => navigate('/np/activity')} onKeyDown={onKey(() => navigate('/np/activity'))}>
-                <div className="np-stat-num dark">87</div>
+                <div className="np-stat-num dark">{stats.backers ?? 0}</div>
                 <div className="np-stat-lbl">Backers This Week</div>
               </div>
             </div>
 
-            {/* Action required */}
             <div className="np-section-header">
               <div className="np-section-title-row">
                 <p className="np-section-title">Action required</p>
-                <span className="np-count-badge">3 ITEMS</span>
+                {actionRequired.length > 0 && (
+                  <span className="np-count-badge">{actionRequired.length} ITEM{actionRequired.length === 1 ? '' : 'S'}</span>
+                )}
               </div>
-              <button type="button" className="np-see-all" onClick={() => navigate('/np/approvals')}>
-                See all
-              </button>
+              {actionRequired.length > 0 && (
+                <button type="button" className="np-see-all" onClick={() => navigate('/np/approvals')}>
+                  See all
+                </button>
+              )}
             </div>
 
-            <div className="action-item coral-border" role="button" tabIndex={0} onClick={() => navigate('/np/approvals')} onKeyDown={onKey(() => navigate('/np/approvals'))}>
-              <div className="action-item-icon" style={{ background: 'var(--primary-soft)' }}>
-                <Clock size={16} color="var(--primary)" />
-              </div>
-              <div className="action-item-body">
-                <p className="action-item-title">New event request</p>
-                <p className="action-item-desc">Mike Rivera wants to run &apos;Coastal Cleanup Wave 2&apos;</p>
-                <span className="np-link-btn">Review →</span>
-              </div>
-            </div>
-
-            <div className="action-item blue-border" role="button" tabIndex={0} onClick={() => navigate('/np/activity')} onKeyDown={onKey(() => navigate('/np/activity'))}>
-              <div className="action-item-icon" style={{ background: 'var(--blue-soft)' }}>
-                <Flag size={16} color="var(--blue)" />
-              </div>
-              <div className="action-item-body">
-                <p className="action-item-title">1 content item flagged</p>
-                <p className="action-item-desc">Comment reported in &apos;Books for Bright Minds&apos;</p>
-                <span className="np-link-btn">Moderate →</span>
-              </div>
-            </div>
-
-            {/* Live events */}
-            <div className="np-section-header" style={{ marginTop: 8 }}>
-              <p className="np-section-title">Your live events</p>
-              <button type="button" className="np-see-all" onClick={() => navigate('/np/approvals')}>
-                See all
-              </button>
-            </div>
-
-            <div className="lp-event-scroll">
-              {LIVE_EVENTS.map((ev) => (
+            {actionRequired.length === 0 ? (
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 16 }}>Nothing pending right now.</p>
+            ) : (
+              actionRequired.map((item) => (
                 <div
-                  key={ev.id}
-                  className="lp-event-card"
-                  style={{ cursor: 'pointer' }}
+                  key={item.id}
+                  className="action-item coral-border"
                   role="button"
                   tabIndex={0}
-                  aria-label={`View ${ev.title}`}
-                  onClick={() => navigate(eventDetailPath(ev, { loggedIn: false }))}
-                  onKeyDown={onKey(() => navigate(eventDetailPath(ev, { loggedIn: false })))}
+                  onClick={() => navigate('/np/approvals')}
+                  onKeyDown={onKey(() => navigate('/np/approvals'))}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <span className={`badge ${ev.isLive ? 'badge-live' : 'badge-upcoming'}`} style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 'var(--radius-pill)' }}>
-                      {ev.isLive ? '● LIVE' : 'UPCOMING'}
-                    </span>
-                    <button
-                      type="button"
-                      aria-label={`Options for ${ev.title}`}
-                      style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex' }}
-                      onClick={(e) => { e.stopPropagation(); navigate('/live-dashboard'); }}
-                    >
-                      <MoreHorizontal size={16} color="var(--text-light)" />
-                    </button>
+                  <div className="action-item-icon" style={{ background: 'var(--primary-soft)' }}>
+                    <Clock size={16} color="var(--primary)" />
                   </div>
-                  <EventImageBanner src={ev.cover} alt={ev.title} variant="compact" style={{ marginBottom: 10 }} />
-                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)', marginBottom: 4 }}>{ev.title}</p>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2">
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                    </svg>
-                    <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{ev.stat}</span>
+                  <div className="action-item-body">
+                    <p className="action-item-title">New event request</p>
+                    <p className="action-item-desc">{item.title}</p>
+                    <span className="np-link-btn">Review →</span>
                   </div>
                 </div>
-              ))}
+              ))
+            )}
+
+            <div className="np-section-header" style={{ marginTop: 8 }}>
+              <p className="np-section-title">Your live events</p>
+              {liveEvents.length > 0 && (
+                <button type="button" className="np-see-all" onClick={() => navigate('/np/approvals')}>
+                  See all
+                </button>
+              )}
             </div>
+
+            {liveEvents.length === 0 ? (
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 16 }}>No live events yet.</p>
+            ) : (
+              <div className="lp-event-scroll">
+                {liveEvents.map((ev) => (
+                  <div
+                    key={ev.id}
+                    className="lp-event-card"
+                    style={{ cursor: 'pointer' }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View ${ev.title}`}
+                    onClick={() => navigate(eventDetailPath(ev, { loggedIn: false }))}
+                    onKeyDown={onKey(() => navigate(eventDetailPath(ev, { loggedIn: false })))}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <span className={`badge ${ev.isLive ? 'badge-live' : 'badge-upcoming'}`} style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 'var(--radius-pill)' }}>
+                        {ev.isLive ? '● LIVE' : 'UPCOMING'}
+                      </span>
+                      <button
+                        type="button"
+                        aria-label={`Options for ${ev.title}`}
+                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex' }}
+                        onClick={(e) => { e.stopPropagation(); navigate('/live-dashboard'); }}
+                      >
+                        <MoreHorizontal size={16} color="var(--text-light)" />
+                      </button>
+                    </div>
+                    <EventImageBanner src={ev.cover} alt={ev.title} variant="compact" style={{ marginBottom: 10 }} />
+                    <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)', marginBottom: 4 }}>{ev.title}</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                      </svg>
+                      <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{ev.joined} joined</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -182,8 +209,8 @@ export default function NpLaunchpad() {
         open={showQR}
         onClose={() => setShowQR(false)}
         variant="mobile"
-        path="/guest/np/ocean-conservancy"
-        title="Scan to view Ocean Conservancy"
+        path={`/guest/np/${orgSlug}`}
+        title={`Scan to view ${orgName}`}
         subtitle="Opens our public profile with all live and upcoming events."
       />
     </div>
