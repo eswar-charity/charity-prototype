@@ -47,3 +47,27 @@ async def test_persist_nonprofit_and_admin(db_session, make_user):
         )
     ).scalar_one()
     assert linked.nonprofit_id == np.id
+
+
+@pytest.mark.asyncio
+async def test_persist_import_fields(db_session):
+    np = Nonprofit(
+        name="American Red Cross",
+        slug="american-red-cross",
+        category="Human Services",
+        ein="53-0196605",
+        verified=True,
+        status="Active",
+        settlement_status="Ready",
+        legal_name="American National Red Cross",
+        headquarters="Washington, D.C.",
+        founded_year=1881,
+        source_url="https://example.com",
+        raw_cause="Disaster Relief & Humanitarian Services",
+    )
+    db_session.add(np)
+    await db_session.commit()
+    await db_session.refresh(np)
+    assert np.legal_name == "American National Red Cross"
+    assert np.founded_year == 1881
+    assert np.raw_cause.startswith("Disaster")

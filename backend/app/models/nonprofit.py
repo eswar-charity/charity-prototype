@@ -26,6 +26,11 @@ class Nonprofit(Base):
     )
     source: Mapped[str | None] = mapped_column(String(80), nullable=True)
     mission: Mapped[str | None] = mapped_column(Text, nullable=True)
+    legal_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    headquarters: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    founded_year: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    source_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    raw_cause: Mapped[str | None] = mapped_column(String(160), nullable=True)
     # Loose media references (plain nullable int, no FK — polymorphic media).
     logo_media_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     cover_media_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
