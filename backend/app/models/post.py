@@ -66,6 +66,7 @@ class ChatMessage(Base):
         ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
     text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    media_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     reaction: Mapped[int | None] = mapped_column(Integer, nullable=True)
     host: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
