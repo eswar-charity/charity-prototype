@@ -20,4 +20,5 @@ class UpdateCreateRequest(BaseModel):
 
 
 class MessageCreateRequest(BaseModel):
-    text: str
+    text: str | None = None
+    media_id: int | None = None

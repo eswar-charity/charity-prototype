@@ -21,10 +21,19 @@ async def _author_brief(db: AsyncSession, user_id: int | None) -> dict | None:
 
 
 async def _media_url(db: AsyncSession, media_id: int | None) -> str | None:
+    url, _rtype = await _media_meta(db, media_id)
+    return url
+
+
+async def _media_meta(
+    db: AsyncSession, media_id: int | None
+) -> tuple[str | None, str | None]:
     if not media_id:
-        return None
+        return None, None
     m = await media_repository.get_by_id(db, media_id)
-    return m.secure_url if m else None
+    if not m:
+        return None, None
+    return m.secure_url, m.resource_type
 
 
 async def _reply_read(db: AsyncSession, reply: PostReply, author: dict | None) -> dict:
@@ -58,7 +67,13 @@ async def _post_read(db: AsyncSession, post: Post) -> dict:
     }
 
 
-def _message_read(msg: ChatMessage, author: dict | None) -> dict:
+def _message_read(
+    msg: ChatMessage,
+    author: dict | None,
+    *,
+    media_url: str | None = None,
+    media_resource_type: str | None = None,
+) -> dict:
     return {
         "id": msg.id,
         "text": msg.text,
@@ -67,6 +82,9 @@ def _message_read(msg: ChatMessage, author: dict | None) -> dict:
         "verified": msg.verified,
         "created_at": msg.created_at.isoformat(),
         "author": author,
+        "media_id": msg.media_id,
+        "media_url": media_url,
+        "media_resource_type": media_resource_type,
     }
 
 
@@ -136,16 +154,45 @@ async def list_messages(db: AsyncSession, key: str, page: int, limit: int) -> di
     messages, total, has_more = await frepo.list_messages(db, event.id, page, limit)
     out = []
     for m in messages:
-        out.append(_message_read(m, await _author_brief(db, m.user_id)))
+        url, rtype = await _media_meta(db, m.media_id)
+        out.append(
+            _message_read(
+                m,
+                await _author_brief(db, m.user_id),
+                media_url=url,
+                media_resource_type=rtype,
+            )
+        )
     return {"items": out, "total": total, "has_more": has_more}
 
 
-async def send_message(db: AsyncSession, user: User, event_id: int, text: str | None) -> dict:
+async def send_message(
+    db: AsyncSession,
+    user: User,
+    event_id: int,
+    text: str | None,
+    media_id: int | None = None,
+) -> dict:
+    trimmed = (text or "").strip() or None
+    if not trimmed and not media_id:
+        raise AppError(
+            "validation_error", "Message requires text or media", status_code=400
+        )
     event = await _event_or_404(db, event_id=event_id)
     msg = await frepo.create_message(
-        db, event_id=event_id, user_id=user.id, text=text,
+        db,
+        event_id=event_id,
+        user_id=user.id,
+        text=trimmed,
+        media_id=media_id,
         host=(event.organizer_id == user.id),
         verified=user.role in ("np_admin", "platform_admin"),
     )
     await event_repository.update(db, event, chat_count=event.chat_count + 1)
-    return _message_read(msg, await _author_brief(db, user.id))
+    url, rtype = await _media_meta(db, msg.media_id)
+    return _message_read(
+        msg,
+        await _author_brief(db, user.id),
+        media_url=url,
+        media_resource_type=rtype,
+    )

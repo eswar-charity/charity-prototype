@@ -72,4 +72,6 @@ async def send_message(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    return await feed_service.send_message(db, user, event_id, payload.text)
+    return await feed_service.send_message(
+        db, user, event_id, payload.text, payload.media_id
+    )

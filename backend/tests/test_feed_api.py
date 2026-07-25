@@ -144,3 +144,54 @@ async def test_chat_requires_auth_and_send(client):
 
     detail = (await client.get(f"/api/v1/events/{ev['key']}")).json()
     assert detail["chat_count"] == 1
+
+
+@pytest.mark.asyncio
+async def test_chat_message_with_media(client):
+    headers = await _login(client, "fchatmedia@e.com", "se")
+    ev = await _event(client, headers)
+    media = await _create_media(client, headers, public_id="charity/chat1")
+
+    sent = await client.post(
+        f"/api/v1/events/{ev['id']}/messages",
+        headers=headers,
+        json={"media_id": media["id"]},
+    )
+    assert sent.status_code == 201
+    body = sent.json()
+    assert body["media_id"] == media["id"]
+    assert body["media_url"] == media["secure_url"]
+    assert body["media_resource_type"] == "image"
+    assert body.get("text") in (None, "")
+
+    msgs = await client.get(f"/api/v1/events/{ev['key']}/messages", headers=headers)
+    item = msgs.json()["items"][0]
+    assert item["media_url"] == media["secure_url"]
+    assert item["media_resource_type"] == "image"
+
+
+@pytest.mark.asyncio
+async def test_chat_message_rejects_empty(client):
+    headers = await _login(client, "fchatempty@e.com", "se")
+    ev = await _event(client, headers)
+    resp = await client.post(
+        f"/api/v1/events/{ev['id']}/messages",
+        headers=headers,
+        json={},
+    )
+    assert resp.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_chat_message_text_and_media(client):
+    headers = await _login(client, "fchatboth@e.com", "se")
+    ev = await _event(client, headers)
+    media = await _create_media(client, headers, public_id="charity/chat2")
+    sent = await client.post(
+        f"/api/v1/events/{ev['id']}/messages",
+        headers=headers,
+        json={"text": "check this out", "media_id": media["id"]},
+    )
+    assert sent.status_code == 201
+    assert sent.json()["text"] == "check this out"
+    assert sent.json()["media_url"] == media["secure_url"]
