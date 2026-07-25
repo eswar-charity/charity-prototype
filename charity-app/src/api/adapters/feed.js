@@ -220,6 +220,8 @@ export function adaptChatMessage(m, currentUserId) {
     host: !!m.host,
     verified: !!m.verified,
     text: m.text,
+    media: m.media_url || null,
+    mediaType: m.media_resource_type || null,
     reaction: m.reaction,
     mine,
     sent: mine ? 'Sent' : undefined,

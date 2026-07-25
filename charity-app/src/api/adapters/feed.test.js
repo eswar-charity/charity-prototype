@@ -123,4 +123,30 @@ describe('adaptChatMessage', () => {
     assert.equal(ui.host, true);
     assert.equal(ui.reaction, 3);
   });
+
+  it('maps media_url and media_resource_type', () => {
+    const m = adaptChatMessage({
+      id: 1,
+      text: 'hi',
+      media_url: 'https://cdn.example.com/a.jpg',
+      media_resource_type: 'image',
+      author: { id: 9, name: 'Ada', initials: 'A' },
+    }, 9);
+    assert.equal(m.media, 'https://cdn.example.com/a.jpg');
+    assert.equal(m.mediaType, 'image');
+    assert.equal(m.mine, true);
+  });
+
+  it('allows media-only messages', () => {
+    const m = adaptChatMessage({
+      id: 2,
+      text: null,
+      media_url: 'https://cdn.example.com/v.mp4',
+      media_resource_type: 'video',
+      author: { id: 1, name: 'Bob', initials: 'B' },
+    }, 99);
+    assert.equal(m.text, null);
+    assert.equal(m.mediaType, 'video');
+    assert.equal(m.mine, false);
+  });
 });
