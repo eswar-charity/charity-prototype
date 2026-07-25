@@ -15,6 +15,7 @@ import { useDonateFlow } from '../../../hooks/useDonateFlow';
 import StaticStripePaymentForm, { STRIPE_TEST_SUCCESS } from '../../../components/StaticStripePaymentForm';
 import { useEventCommunity } from '../../../hooks/useEventCommunity';
 import { useEventChat } from '../../../hooks/useEventChat';
+import { handleChatMediaAttach } from '../../../utils/chatMediaAttach';
 
 const TABS = [
   { id: 'community', label: 'Community', sub: 'Photos & moments' },
@@ -229,7 +230,7 @@ function ChatTab({ ev, onNeedJoin, loggedIn, showToast, currentUserId }) {
     const text = value.trim();
     if (!text || chatPending) return;
     try {
-      await sendChatMessage(text);
+      await sendChatMessage({ text });
       setValue('');
     } catch {
       // toast handled in hook
@@ -282,10 +283,20 @@ function ChatTab({ ev, onNeedJoin, loggedIn, showToast, currentUserId }) {
       </div>
 
       <div className="dsk-chat-input-bar">
-        <button type="button" className="chat-input-action" aria-label="Add attachment" onClick={onNeedJoin}>
+        <button
+          type="button"
+          className="chat-input-action"
+          aria-label="Add attachment"
+          onClick={() => handleChatMediaAttach({ isAuthed: loggedIn, onNeedAuth: onNeedJoin, showToast })}
+        >
           <Plus size={18} />
         </button>
-        <button type="button" className="chat-input-action" aria-label="Add photo" onClick={onNeedJoin}>
+        <button
+          type="button"
+          className="chat-input-action"
+          aria-label="Add photo"
+          onClick={() => handleChatMediaAttach({ isAuthed: loggedIn, onNeedAuth: onNeedJoin, showToast })}
+        >
           <Camera size={18} />
         </button>
         <input

@@ -16,6 +16,7 @@ import { useDonateFlow } from '../../hooks/useDonateFlow';
 import { useEventCommunity } from '../../hooks/useEventCommunity';
 import { useEventChat } from '../../hooks/useEventChat';
 import StaticStripePaymentForm, { STRIPE_TEST_SUCCESS } from '../../components/StaticStripePaymentForm';
+import { handleChatMediaAttach } from '../../utils/chatMediaAttach';
 
 /* ── Community Tab ──────────────────────────────────────── */
 function ThreadRow({ post, isLast, showLiveDot, onOpen, variant }) {
@@ -387,7 +388,7 @@ export default function EventDetailLive({ loggedIn = false }) {
     const text = chatInput.trim();
     if (!text || chatPending) return;
     try {
-      await sendChatMessage(text);
+      await sendChatMessage({ text });
       setChatInput('');
     } catch {
       // toast handled in hook
@@ -513,7 +514,11 @@ export default function EventDetailLive({ loggedIn = false }) {
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   onSend={sendMessage}
-                  onAttach={() => showToast('Photo sharing is coming soon')}
+                  onAttach={() => handleChatMediaAttach({
+                    isAuthed: canChat,
+                    onNeedAuth: () => setShowJoin(true),
+                    showToast,
+                  })}
                   disabled={chatPending}
                 />
               </>

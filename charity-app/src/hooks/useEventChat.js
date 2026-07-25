@@ -57,9 +57,10 @@ export function useEventChat({
     };
   }, [enabled, eventKey, currentUserId]);
 
-  const send = useCallback(async (text) => {
-    const trimmed = text?.trim();
-    if (!eventId || !trimmed || pending) return;
+  const send = useCallback(async ({ text, mediaId, localPreviewUrl, mediaType } = {}) => {
+    const trimmed = typeof text === 'string' ? text.trim() : '';
+    if (!eventId || pending) return;
+    if (!trimmed && mediaId == null && !localPreviewUrl) return;
 
     const optimisticId = `pending-${Date.now()}`;
     setPending(true);
@@ -70,15 +71,22 @@ export function useEventChat({
         mine: true,
         initials: 'ME',
         avatar: 'linear-gradient(135deg,#7B1FA2,#AB47BC)',
-        text: trimmed,
+        text: trimmed || null,
+        media: localPreviewUrl || null,
+        mediaType: mediaType || null,
         sent: 'Sending…',
       },
     ]);
 
     try {
-      await sendMessage(eventId, trimmed);
+      await sendMessage(eventId, {
+        text: trimmed || undefined,
+        mediaId: mediaId ?? undefined,
+      });
+      setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
     } catch (err) {
       setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
+      if (localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
       showToast?.(err?.message || 'Could not send message');
       throw err;
     } finally {
