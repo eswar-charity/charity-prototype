@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ChevronLeft, Info, Share2, Heart,
@@ -16,7 +16,7 @@ import { useDonateFlow } from '../../hooks/useDonateFlow';
 import { useEventCommunity } from '../../hooks/useEventCommunity';
 import { useEventChat } from '../../hooks/useEventChat';
 import StaticStripePaymentForm, { STRIPE_TEST_SUCCESS } from '../../components/StaticStripePaymentForm';
-import { handleChatMediaAttach } from '../../utils/chatMediaAttach';
+import { uploadDeviceMedia } from '../../api/uploadDeviceMedia';
 
 /* ── Community Tab ──────────────────────────────────────── */
 function ThreadRow({ post, isLast, showLiveDot, onOpen, variant }) {
@@ -191,7 +191,23 @@ function ChatTabMessages({ messages, loading }) {
                 {m.host && <span className="chat-host-badge">Host</span>}
               </div>
             )}
-            <div className="chat-bubble">{m.text}</div>
+            <div className="chat-bubble">
+              {m.media && (m.mediaType === 'video' ? (
+                <video
+                  src={m.media}
+                  controls
+                  playsInline
+                  style={{ maxWidth: '100%', borderRadius: 8, display: 'block', marginBottom: m.text ? 8 : 0 }}
+                />
+              ) : (
+                <img
+                  src={m.media}
+                  alt=""
+                  style={{ maxWidth: '100%', borderRadius: 8, display: 'block', marginBottom: m.text ? 8 : 0 }}
+                />
+              ))}
+              {m.text ? m.text : null}
+            </div>
             {m.reaction && <div className="chat-reaction"><PartyPopper size={13} aria-hidden="true" /> {m.reaction}</div>}
             {m.sent && <p className="chat-sent">{m.sent}</p>}
           </div>
@@ -333,6 +349,7 @@ export default function EventDetailLive({ loggedIn = false }) {
   const [showShare, setShowShare]         = useState(false);
   const [showJoin, setShowJoin]           = useState(false);
   const [toast, setToast]                 = useState('');
+  const chatFileInputRef = useRef(null);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -392,6 +409,34 @@ export default function EventDetailLive({ loggedIn = false }) {
       setChatInput('');
     } catch {
       // toast handled in hook
+    }
+  };
+
+  const openChatMediaPicker = () => {
+    if (requireJoin()) return;
+    if (chatPending) return;
+    chatFileInputRef.current?.click();
+  };
+
+  const handleChatMediaSelected = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || !ev?.id || chatPending) return;
+    const caption = chatInput.trim();
+    const localPreviewUrl = URL.createObjectURL(file);
+    const mediaType = file.type.startsWith('video/') ? 'video' : 'image';
+    try {
+      const asset = await uploadDeviceMedia(file, { folder: 'chat', eventId: ev.id });
+      await sendChatMessage({
+        text: caption,
+        mediaId: asset.id,
+        localPreviewUrl,
+        mediaType: asset.resource_type || mediaType,
+      });
+      setChatInput('');
+    } catch (err) {
+      URL.revokeObjectURL(localPreviewUrl);
+      showToast(err?.message || 'Could not upload media');
     }
   };
 
@@ -514,12 +559,15 @@ export default function EventDetailLive({ loggedIn = false }) {
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   onSend={sendMessage}
-                  onAttach={() => handleChatMediaAttach({
-                    isAuthed: canChat,
-                    onNeedAuth: () => setShowJoin(true),
-                    showToast,
-                  })}
+                  onAttach={openChatMediaPicker}
                   disabled={chatPending}
+                />
+                <input
+                  ref={chatFileInputRef}
+                  type="file"
+                  accept="image/*,video/*"
+                  style={{ display: 'none' }}
+                  onChange={handleChatMediaSelected}
                 />
               </>
             ) : (

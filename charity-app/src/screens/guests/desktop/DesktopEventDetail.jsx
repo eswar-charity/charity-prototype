@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Share2, Heart, X, Calendar, MapPin, Plus, Camera, ArrowUp, ChevronLeft,
@@ -15,7 +15,7 @@ import { useDonateFlow } from '../../../hooks/useDonateFlow';
 import StaticStripePaymentForm, { STRIPE_TEST_SUCCESS } from '../../../components/StaticStripePaymentForm';
 import { useEventCommunity } from '../../../hooks/useEventCommunity';
 import { useEventChat } from '../../../hooks/useEventChat';
-import { handleChatMediaAttach } from '../../../utils/chatMediaAttach';
+import { uploadDeviceMedia } from '../../../api/uploadDeviceMedia';
 
 const TABS = [
   { id: 'community', label: 'Community', sub: 'Photos & moments' },
@@ -197,6 +197,7 @@ function CommunityTab({ ev }) {
 
 function ChatTab({ ev, onNeedJoin, loggedIn, showToast, currentUserId }) {
   const [value, setValue] = useState('');
+  const fileInputRef = useRef(null);
   const {
     messages,
     loading: chatLoading,
@@ -244,6 +245,33 @@ function ChatTab({ ev, onNeedJoin, loggedIn, showToast, currentUserId }) {
     }
   };
 
+  const openMediaPicker = () => {
+    if (chatPending) return;
+    fileInputRef.current?.click();
+  };
+
+  const handleMediaSelected = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || !ev?.id || chatPending) return;
+    const caption = value.trim();
+    const localPreviewUrl = URL.createObjectURL(file);
+    const mediaType = file.type.startsWith('video/') ? 'video' : 'image';
+    try {
+      const asset = await uploadDeviceMedia(file, { folder: 'chat', eventId: ev.id });
+      await sendChatMessage({
+        text: caption,
+        mediaId: asset.id,
+        localPreviewUrl,
+        mediaType: asset.resource_type || mediaType,
+      });
+      setValue('');
+    } catch (err) {
+      URL.revokeObjectURL(localPreviewUrl);
+      showToast?.(err?.message || 'Could not upload media');
+    }
+  };
+
   return (
     <div className="dsk-tab-panel dsk-chat-panel">
       <div className="dsk-chat-room-header">
@@ -274,7 +302,23 @@ function ChatTab({ ev, onNeedJoin, loggedIn, showToast, currentUserId }) {
                   {msg.host && <span className="chat-host-badge">Host</span>}
                 </div>
               )}
-              <div className="chat-bubble">{msg.text}</div>
+              <div className="chat-bubble">
+                {msg.media && (msg.mediaType === 'video' ? (
+                  <video
+                    src={msg.media}
+                    controls
+                    playsInline
+                    style={{ maxWidth: '100%', borderRadius: 8, display: 'block', marginBottom: msg.text ? 8 : 0 }}
+                  />
+                ) : (
+                  <img
+                    src={msg.media}
+                    alt=""
+                    style={{ maxWidth: '100%', borderRadius: 8, display: 'block', marginBottom: msg.text ? 8 : 0 }}
+                  />
+                ))}
+                {msg.text ? msg.text : null}
+              </div>
               {msg.reaction && <div className="chat-reaction"><PartyPopper size={12} aria-hidden="true" /> {msg.reaction}</div>}
               {msg.sent && <p className="chat-sent">Sent</p>}
             </div>
@@ -287,7 +331,8 @@ function ChatTab({ ev, onNeedJoin, loggedIn, showToast, currentUserId }) {
           type="button"
           className="chat-input-action"
           aria-label="Add attachment"
-          onClick={() => handleChatMediaAttach({ isAuthed: loggedIn, onNeedAuth: onNeedJoin, showToast })}
+          onClick={openMediaPicker}
+          disabled={chatPending}
         >
           <Plus size={18} />
         </button>
@@ -295,10 +340,18 @@ function ChatTab({ ev, onNeedJoin, loggedIn, showToast, currentUserId }) {
           type="button"
           className="chat-input-action"
           aria-label="Add photo"
-          onClick={() => handleChatMediaAttach({ isAuthed: loggedIn, onNeedAuth: onNeedJoin, showToast })}
+          onClick={openMediaPicker}
+          disabled={chatPending}
         >
           <Camera size={18} />
         </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*,video/*"
+          style={{ display: 'none' }}
+          onChange={handleMediaSelected}
+        />
         <input
           className="dsk-chat-input-field"
           aria-label="Write a message"
