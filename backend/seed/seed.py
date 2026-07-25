@@ -9,12 +9,14 @@ from app.db.session import engine
 from app.models.admin import AdminReviewItem, AuditLogEntry, Exception_
 from app.models.donation import Donation
 from app.models.event import Event
+from app.models.media import MediaAsset
 from app.models.nonprofit import Nonprofit, NonprofitAdmin
 from app.models.post import ChatMessage, Post
 from app.models.user import User
 from app.utils.identity import derive_initials, pick_color
 from seed.import_nonprofits import import_nonprofits
 from seed.np_accounts import ensure_np_accounts, remove_legacy_np_user
+from seed.se_accounts import PRIMARY_SE_EMAIL, ensure_se_accounts
 
 # (key, title, np_common_name, category, mission, date, start, end, loc,
 #  backed, joined, chat, raised, updates)
@@ -40,6 +42,15 @@ EVENTS = [
      "Oct 24, 2026", "8:00 AM", "2:00 PM", "Breakneck Ridge, Hudson Valley NY",
      145, 62, 89, 8920, 24),
 ]
+
+# Matches charity-app/public/events/{key}/ assets
+EVENT_PHOTO_COUNTS = {
+    "neon-night": 11,
+    "give-now": 12,
+    "golf-outing": 8,
+    "dog-dad": 9,
+    "breakneck-ridge-run": 10,
+}
 
 
 def _user(role, email, name, password=None):
@@ -68,9 +79,8 @@ async def seed(session: AsyncSession) -> None:
     admin = await get_or_create_user(
         "platform_admin", "alex.mercer@charityhub.com", "Alex Mercer", "Passw0rd!"
     )
-    mike = await get_or_create_user(
-        "se", "mike.rivera@demo.charityhub.com", "Mike Rivera", "Passw0rd!"
-    )
+    se_users = await ensure_se_accounts(session)
+    mike = se_users[PRIMARY_SE_EMAIL]
 
     # 2) Upsert 20 real nonprofits
     nps = await import_nonprofits(session)
@@ -112,6 +122,64 @@ async def seed(session: AsyncSession) -> None:
             ev.raised = raised
             ev.updates = updates
         events.append(ev)
+    await session.flush()
+
+    # 3b) Attach local static photos so feed/detail always have covers
+    for ev in events:
+        count = EVENT_PHOTO_COUNTS.get(ev.key, 0)
+        if count <= 0:
+            continue
+        existing = (
+            await session.execute(
+                select(MediaAsset).where(
+                    MediaAsset.entity_type == "event_photo",
+                    MediaAsset.entity_id == ev.id,
+                )
+            )
+        ).scalars().first()
+        if existing:
+            continue
+        for i in range(1, count + 1):
+            ext = "png" if (ev.key == "dog-dad" and i == 9) or (ev.key == "golf-outing" and i == 8) else "jpg"
+            public_id = f"seed-{ev.key}-img{i}"
+            already = (
+                await session.execute(
+                    select(MediaAsset).where(MediaAsset.public_id == public_id)
+                )
+            ).scalar_one_or_none()
+            if already:
+                already.entity_type = "event_photo"
+                already.entity_id = ev.id
+                continue
+            session.add(
+                MediaAsset(
+                    public_id=public_id,
+                    secure_url=f"/events/{ev.key}/img{i}.{ext}",
+                    resource_type="image",
+                    format=ext,
+                    bytes=1,
+                    owner_id=mike.id,
+                    entity_type="event_photo",
+                    entity_id=ev.id,
+                )
+            )
+        if not ev.cover_media_id:
+            # cover id set after flush below
+            pass
+    await session.flush()
+    for ev in events:
+        if ev.cover_media_id:
+            continue
+        first = (
+            await session.execute(
+                select(MediaAsset).where(
+                    MediaAsset.entity_type == "event_photo",
+                    MediaAsset.entity_id == ev.id,
+                ).order_by(MediaAsset.id.asc())
+            )
+        ).scalars().first()
+        if first:
+            ev.cover_media_id = first.id
     await session.flush()
 
     # 5) Delete orphaned demo nonprofits (no longer referenced)

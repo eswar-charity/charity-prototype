@@ -102,8 +102,17 @@ async def test_identity_gate_creates_then_reuses_guest_lead(db_session):
 
 
 @pytest.mark.asyncio
-async def test_google_mock_creates_se(db_session):
-    user, tokens = await auth_service.google_mock(db_session, email="mike.rivera@demo.charityhub.com", name="Mike Rivera")
+async def test_google_login_creates_se(db_session, monkeypatch):
+    monkeypatch.setattr(
+        auth_service,
+        "verify_google_id_token",
+        lambda _token: {
+            "email": "mike.rivera@demo.charityhub.com",
+            "email_verified": True,
+            "name": "Mike Rivera",
+        },
+    )
+    user, tokens = await auth_service.google_login(db_session, "fake-token")
     assert user.role == "se"
     assert tokens["token_type"] == "bearer"
 
@@ -152,25 +161,73 @@ async def test_identity_gate_rejects_credentialed_account_by_phone(db_session):
 
 
 @pytest.mark.asyncio
-async def test_google_mock_rejects_credentialed_account(db_session):
+async def test_google_login_rejects_credentialed_account(db_session, monkeypatch):
     await auth_service.register(
         db_session, name="Real Google User", email="realgoogle@e.com", password="Passw0rd!", role="se"
     )
+    monkeypatch.setattr(
+        auth_service,
+        "verify_google_id_token",
+        lambda _token: {
+            "email": "realgoogle@e.com",
+            "email_verified": True,
+            "name": "Real Google User",
+        },
+    )
 
     with pytest.raises(AppError) as exc:
-        await auth_service.google_mock(db_session, email="realgoogle@e.com", name=None)
+        await auth_service.google_login(db_session, "fake-token")
     assert exc.value.status_code == 409
     assert exc.value.code == "conflict"
 
 
 @pytest.mark.asyncio
-async def test_google_mock_creates_se_for_new_email(db_session):
-    user, tokens = await auth_service.google_mock(
-        db_session, email="brandnew@e.com", name="Brand New"
+async def test_google_login_creates_se_for_new_email(db_session, monkeypatch):
+    monkeypatch.setattr(
+        auth_service,
+        "verify_google_id_token",
+        lambda _token: {
+            "email": "brandnew@e.com",
+            "email_verified": True,
+            "name": "Brand New",
+        },
     )
+    user, tokens = await auth_service.google_login(db_session, "fake-token")
     assert user.role == "se"
     assert user.password_hash is None
     assert tokens["access_token"]
+
+
+@pytest.mark.asyncio
+async def test_google_login_rejects_unverified_email(db_session, monkeypatch):
+    monkeypatch.setattr(
+        auth_service,
+        "verify_google_id_token",
+        lambda _token: {
+            "email": "unverified@e.com",
+            "email_verified": False,
+            "name": "Nope",
+        },
+    )
+    with pytest.raises(AppError) as exc:
+        await auth_service.google_login(db_session, "fake-token")
+    assert exc.value.status_code == 401
+
+
+def test_verify_google_id_token_requires_client_id(monkeypatch):
+    from app.core.config import Settings, get_settings
+
+    get_settings.cache_clear()
+    monkeypatch.setenv("GOOGLE_CLIENT_ID", "")
+    # Rebuild settings without client id
+    monkeypatch.setattr(
+        "app.services.auth_service.get_settings",
+        lambda: Settings(google_client_id=""),
+    )
+    with pytest.raises(AppError) as exc:
+        auth_service.verify_google_id_token("anything")
+    assert exc.value.status_code == 503
+    get_settings.cache_clear()
 
 
 def test_hash_and_verify_password_handles_long_password():

@@ -4,13 +4,16 @@ import { completeEvent, getEvent, goLive, listEvents } from '../api/events';
 import { adaptEvent } from '../api/adapters/event';
 import { useAuth } from '../auth/AuthContext';
 import { mapEventStatusToUi } from '../utils/eventApprovalStatus';
+import { resolveEventCover } from '../utils/eventPhotos';
 
 function enrichApprovalEvent(raw) {
   const ev = adaptEvent(raw);
   return {
     ...ev,
     apiStatus: raw.status,
-    cover: ev.photos?.[0] || (ev.key ? `/events/${ev.key}/img1.jpg` : undefined),
+    cover: resolveEventCover(ev),
+    raw,
+    changeRequest: ev.changeRequest,
   };
 }
 

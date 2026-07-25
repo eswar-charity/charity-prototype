@@ -1,13 +1,16 @@
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock, MapPin, Globe, Lock, Check } from 'lucide-react';
+import { Clock, MapPin, Globe, Lock, Check } from 'lucide-react';
 import DesktopCreateEventLayout from '../../components/desktop/DesktopCreateEventLayout';
 import { useCreateEventDraft, updateDraft } from '../../hooks/useCreateEventDraft';
+import { useWizardStepAccess } from '../../hooks/useWizardStepAccess';
+import { backWizardPath, nextWizardPath } from '../../utils/changeRequestAreas';
 import { START_TIMES, END_TIMES, cycleValue } from '../../utils/eventWizard';
 import DatePickerField from '../../components/DatePickerField';
 
 export default function DesktopEventStep3() {
   const navigate = useNavigate();
   const draft = useCreateEventDraft();
+  const { fixMode, allowedSteps } = useWizardStepAccess(3);
 
   return (
     <DesktopCreateEventLayout step={3}>
@@ -86,8 +89,10 @@ export default function DesktopEventStep3() {
       </button>
 
       <div className="dsk-wizard-footer">
-        <button type="button" className="dsk-wizard-back-link" onClick={() => navigate('/event/step-2')}>← Back</button>
-        <button type="button" className="dsk-cta-btn" onClick={() => navigate('/event/step-4')}>Next: preview →</button>
+        <button type="button" className="dsk-wizard-back-link" onClick={() => navigate(backWizardPath(fixMode, allowedSteps, 3))}>← Back</button>
+        <button type="button" className="dsk-cta-btn" onClick={() => navigate(nextWizardPath(fixMode, allowedSteps, 3))}>
+          {fixMode ? 'Done →' : 'Next: preview →'}
+        </button>
       </div>
     </DesktopCreateEventLayout>
   );

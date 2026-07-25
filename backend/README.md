@@ -12,7 +12,7 @@ nonprofit EIN verification.
 
 | Area | Endpoints |
 |------|-----------|
-| **auth** | register, login, refresh, logout, me, identity-gate, google (mock) |
+| **auth** | register, login, refresh, logout, me, identity-gate, google (GIS ID token) |
 | **users** | GET/PATCH `/me/profile` |
 | **nonprofits** | `GET /nonprofits` (search/category), `GET /nonprofits/{slug}`, `GET/PATCH /np/profile` |
 | **events** | feed (`GET /events`), `GET /events/{key}`, create wizard (`POST /events`, `PATCH /events/{id}`, submit, save-draft), lifecycle (go-live, complete), join/like/save, backers |

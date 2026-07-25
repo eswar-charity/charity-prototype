@@ -11,6 +11,7 @@ import { EventImageBanner } from '../../components/event/EventImage';
 import { listEvents } from '../../api/events';
 import { adaptEvent } from '../../api/adapters/event';
 import { eventDetailPath } from '../../utils/eventPaths';
+import { resolveEventCover } from '../../utils/eventPhotos';
 
 /** Map Scene discovery pills → API `discovery` query values. */
 function mapDiscovery(label) {
@@ -24,7 +25,7 @@ function enrichFeedEvent(ev) {
   const np = ev.nonprofitBrief;
   return {
     ...ev,
-    cover: ev.photos?.[0] || (ev.key ? `/events/${ev.key}/img1.jpg` : undefined),
+    cover: resolveEventCover(ev),
     chatCount: ev.chat ?? 0,
     npInitials: np?.initials || (ev.nonprofit ? ev.nonprofit.slice(0, 2).toUpperCase() : 'NP'),
     npBg: np?.color || '#1A6EB5',
@@ -43,9 +44,9 @@ function SceneEventCard({ ev }) {
           ) : (
             <span className="dsk-badge-date">{ev.date}</span>
           )}
-          <span className="dsk-badge-cat">
-            {ev.category}
-          </span>
+          {ev.category ? (
+            <span className="dsk-badge-cat">{ev.category}</span>
+          ) : null}
         </div>
         <div className="dsk-event-card-title-wrap">
           <p className="dsk-event-card-title">{eventDisplayTitle(ev.title)}</p>

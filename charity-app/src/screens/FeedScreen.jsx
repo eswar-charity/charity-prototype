@@ -13,6 +13,8 @@ import { listEvents } from '../api/events';
 import { adaptEvent } from '../api/adapters/event';
 import { eventDetailPath } from '../utils/eventPaths';
 import { useAuth } from '../auth/AuthContext';
+import { resolveEventCover } from '../utils/eventPhotos';
+import { resetDraft } from '../hooks/useCreateEventDraft';
 
 const activateOnKey = (fn) => (e) => {
   if (e.key === 'Enter' || e.key === ' ') {
@@ -33,7 +35,7 @@ function enrichFeedEvent(ev) {
   const np = ev.nonprofitBrief;
   return {
     ...ev,
-    cover: ev.photos?.[0] || (ev.key ? `/events/${ev.key}/img1.jpg` : undefined),
+    cover: resolveEventCover(ev),
     chatCount: ev.chat ?? 0,
     npInitials: np?.initials || (ev.nonprofit ? ev.nonprofit.slice(0, 2).toUpperCase() : 'NP'),
     npBg: np?.color || '#1A6EB5',
@@ -178,7 +180,9 @@ export default function FeedScreen() {
                   ) : (
                     <span className="scene-badge-date">{ev.date}</span>
                   )}
-                  <span className="scene-badge-cat">{ev.category}</span>
+                  {ev.category ? (
+                    <span className="scene-badge-cat">{ev.category}</span>
+                  ) : null}
                 </div>
                 <div className="scene-card-overlay">
                   <h3 className="scene-card-title">{eventDisplayTitle(ev.title)}</h3>
@@ -254,8 +258,8 @@ export default function FeedScreen() {
               className="opt-row"
               role="button"
               tabIndex={0}
-              onClick={() => { setShowSheet(false); navigate('/event/step-1'); }}
-              onKeyDown={activateOnKey(() => { setShowSheet(false); navigate('/event/step-1'); })}
+              onClick={() => { setShowSheet(false); resetDraft(); navigate('/event/step-1'); }}
+              onKeyDown={activateOnKey(() => { setShowSheet(false); resetDraft(); navigate('/event/step-1'); })}
             >
               <div className="opt-icon" style={{ background: 'var(--primary)' }}>
                 <Megaphone size={20} color="white" />

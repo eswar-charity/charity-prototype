@@ -3,14 +3,17 @@ import { ChevronLeft, Info, Heart } from 'lucide-react';
 import { useCreateEventDraft, updateDraft } from '../hooks/useCreateEventDraft';
 import { useSelectedNonprofit } from '../hooks/useNonprofitList';
 import { useEventWizardMutations } from '../hooks/useEventWizardMutations';
+import { useWizardStepAccess } from '../hooks/useWizardStepAccess';
 import { useAppToast, ToastHost } from '../components/Toast';
 import { previewHashtag } from '../utils/eventWizard';
+import { backWizardPath } from '../utils/changeRequestAreas';
 import MobileAppHeader from '../components/MobileAppHeader';
 import SubmitChecklist from '../components/SubmitChecklist';
 
 export default function EventStep4() {
   const navigate = useNavigate();
   const draft = useCreateEventDraft();
+  const { fixMode, allowedSteps } = useWizardStepAccess(4);
   const { nonprofit } = useSelectedNonprofit(draft.nonprofitId);
   const { toast, show } = useAppToast();
   const { handleSaveDraft, handleSubmit, pending, saved } = useEventWizardMutations(show);
@@ -25,13 +28,13 @@ export default function EventStep4() {
           layout="bar"
           homePath="/feed"
           left={(
-            <button type="button" className="back-btn" aria-label="Go back" onClick={() => navigate('/event/step-3')}>
+            <button type="button" className="back-btn" aria-label="Go back" onClick={() => navigate(backWizardPath(fixMode, allowedSteps, 4))}>
               <ChevronLeft size={18} />
             </button>
           )}
-          meta="Step 4 of 4"
-          title="Preview & submit"
-          subtitle="This is how your event will look to the world."
+          meta={fixMode ? 'Update & resubmit' : 'Step 4 of 4'}
+          title={fixMode ? 'Fix requested changes' : 'Preview & submit'}
+          subtitle={fixMode ? 'Update only the items the nonprofit asked for, then resubmit.' : 'This is how your event will look to the world.'}
         />
 
         <div className="screen-inner">
@@ -111,7 +114,7 @@ export default function EventStep4() {
 
           <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
             <button type="button" className="btn-primary" onClick={handleSubmit} disabled={pending}>
-              Submit for approval
+              {fixMode ? 'Resubmit for approval' : 'Submit for approval'}
             </button>
             <button type="button" className="btn-outline" onClick={handleSaveDraft} disabled={pending}>
               {saved ? 'Draft saved ✓' : 'Save as draft'}

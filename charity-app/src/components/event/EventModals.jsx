@@ -57,55 +57,70 @@ export function NonprofitLearnMoreModal({
   initials,
   avatarStyle,
   category,
-  ein = '81-4419920',
+  ein,
   description,
-  eventsHosted = 3,
-  raisedTotal = '$54.2k',
+  eventsHosted = 0,
+  raisedTotal,
+  loading = false,
   onViewProfile,
 }) {
   if (!open) return null;
 
+  const raisedLabel = raisedTotal != null
+    ? (typeof raisedTotal === 'string'
+      ? raisedTotal
+      : `$${Number(raisedTotal).toLocaleString()}`)
+    : '—';
+
   return (
     <ModalShell title="About this nonprofit" onClose={onClose}>
-      <div className="np-learn-hero">
-        <div className="np-learn-avatar" style={avatarStyle}>{initials}</div>
-        <div>
-          <p className="np-learn-name">{name}</p>
-          <span className="np-verified-badge">
-            <Check size={11} strokeWidth={3} /> Verified 501(c)(3)
-          </span>
-        </div>
-      </div>
+      {loading ? (
+        <p className="dsk-modal-section-text" style={{ marginBottom: 12 }}>Loading profile…</p>
+      ) : (
+        <>
+          <div className="np-learn-hero">
+            <div className="np-learn-avatar" style={avatarStyle}>{initials}</div>
+            <div>
+              <p className="np-learn-name">{name}</p>
+              <span className="np-verified-badge">
+                <Check size={11} strokeWidth={3} /> Verified 501(c)(3)
+              </span>
+            </div>
+          </div>
 
-      <div className="np-learn-meta">
-        <span>{category}</span>
-        <span className="np-learn-meta-sep">·</span>
-        <span>EIN {ein}</span>
-      </div>
+          <div className="np-learn-meta">
+            {category && <span>{category}</span>}
+            {category && ein && <span className="np-learn-meta-sep">·</span>}
+            {ein && <span>EIN {ein}</span>}
+          </div>
 
-      <p className="dsk-modal-section-lbl" style={{ marginTop: 0 }}>ABOUT</p>
-      <p className="dsk-modal-section-text">{description}</p>
+          <p className="dsk-modal-section-lbl" style={{ marginTop: 0 }}>ABOUT</p>
+          <p className="dsk-modal-section-text">
+            {description || 'This verified nonprofit partners with Charity Hub to host community events.'}
+          </p>
 
-      <div className="np-learn-stats">
-        <div className="np-learn-stat">
-          <span className="np-learn-stat-num">{eventsHosted}</span>
-          <span className="np-learn-stat-lbl">Active events</span>
-        </div>
-        <div className="np-learn-stat">
-          <span className="np-learn-stat-num">{raisedTotal}</span>
-          <span className="np-learn-stat-lbl">Raised on Charity Hub</span>
-        </div>
-      </div>
+          <div className="np-learn-stats">
+            <div className="np-learn-stat">
+              <span className="np-learn-stat-num">{eventsHosted}</span>
+              <span className="np-learn-stat-lbl">Active events</span>
+            </div>
+            <div className="np-learn-stat">
+              <span className="np-learn-stat-num">{raisedLabel}</span>
+              <span className="np-learn-stat-lbl">Raised on Charity Hub</span>
+            </div>
+          </div>
 
-      <div className="np-learn-trust">
-        <Shield size={16} color="var(--blue)" />
-        <p>Donations are processed securely and go directly to this verified nonprofit.</p>
-      </div>
+          <div className="np-learn-trust">
+            <Shield size={16} color="var(--blue)" />
+            <p>Donations are processed securely and go directly to this verified nonprofit.</p>
+          </div>
 
-      {onViewProfile && (
-        <button type="button" className="btn-primary np-learn-cta" onClick={onViewProfile}>
-          View nonprofit profile
-        </button>
+          {onViewProfile && (
+            <button type="button" className="btn-primary np-learn-cta" onClick={onViewProfile}>
+              View nonprofit profile
+            </button>
+          )}
+        </>
       )}
     </ModalShell>
   );

@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Check, Clock, Rocket, PartyPopper, Radio } from 'lucide-react';
 import MobileAppHeader from '../components/MobileAppHeader';
+import { getEvent } from '../api/events';
 import { useApprovalEvent } from '../hooks/useApprovalEvent';
+import { beginEventFix } from '../utils/beginEventFix';
 
 const NODES = [
   { key: 'submitted', label: 'Submitted' },
@@ -52,6 +54,19 @@ export default function ApprovalStatus() {
     } catch (err) {
       showToast(err?.message || failMsg);
     }
+  };
+
+  const openUpdateEvent = async () => {
+    let raw = event?.raw;
+    if (raw?.key) {
+      try {
+        raw = await getEvent(raw.key);
+      } catch {
+        /* use list payload */
+      }
+    }
+    if (raw) beginEventFix(raw);
+    navigate('/event/step-4');
   };
 
   const primary = {
@@ -179,7 +194,10 @@ export default function ApprovalStatus() {
                 </button>
               )}
 
-              {uiState === 'review' && (
+              {uiState === 'review' && event.apiStatus === 'Changes Requested' && (
+                <button type="button" className="btn-outline" onClick={openUpdateEvent}>Update event</button>
+              )}
+              {uiState === 'review' && event.apiStatus !== 'Changes Requested' && (
                 <button type="button" className="btn-outline" onClick={() => navigate('/event/step-4')}>Edit event</button>
               )}
               {uiState === 'approved' && (
@@ -199,7 +217,7 @@ export default function ApprovalStatus() {
                 <button
                   type="button"
                   className="btn-ghost approval-notify-btn"
-                  onClick={() => { setNotified(true); showToast('We'll notify you the moment it's approved'); }}
+                  onClick={() => { setNotified(true); showToast("We'll notify you the moment it's approved"); }}
                 >
                   {notified ? 'Notifications on ✓' : 'Notify me when approved'}
                 </button>

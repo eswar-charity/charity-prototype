@@ -12,6 +12,7 @@ from app.repositories import (
     user_repository,
 )
 from app.services import event_service
+from app.utils.change_request_note import VALID_AREAS, encode_change_request_note
 
 REVIEWABLE = ("Submitted", "Changes Requested")
 
@@ -44,7 +45,7 @@ async def _event_brief(db: AsyncSession, event: Event) -> dict:
 
 async def list_queue(db: AsyncSession, user: User) -> list[dict]:
     np = await _my_nonprofit(db, user)
-    events = await arepo.list_pending(db, np.id)
+    events = await arepo.list_queue(db, np.id)
     return [await _event_brief(db, e) for e in events]
 
 
@@ -65,7 +66,7 @@ async def approve(db: AsyncSession, user: User, event_id: int) -> dict:
     event = await _load_for_review(db, user, event_id)
     if event.status not in REVIEWABLE:
         raise AppError("invalid_state", f"Cannot approve from '{event.status}'", status_code=409)
-    # SE-created events auto-publish once the nonprofit approves.
+    # Nonprofit approval is the mandatory gate; SE-led events publish only after this.
     event = await event_repository.update(db, event, status="Live", is_live=True)
     await arepo.add_review(db, event.id, user.id, "approved")
     if event.organizer_id:
@@ -90,12 +91,26 @@ async def reject(db: AsyncSession, user: User, event_id: int, reason: str) -> di
     return await event_service._to_read(db, event, include_photos=True)
 
 
-async def request_changes(db: AsyncSession, user: User, event_id: int, feedback: str) -> dict:
+async def request_changes(
+    db: AsyncSession,
+    user: User,
+    event_id: int,
+    feedback: str,
+    areas: list[str] | None = None,
+) -> dict:
     event = await _load_for_review(db, user, event_id)
     if event.status not in REVIEWABLE:
         raise AppError("invalid_state", f"Cannot request changes from '{event.status}'", status_code=409)
+    clean_areas = [a for a in (areas or []) if a in VALID_AREAS]
+    if not clean_areas:
+        raise AppError(
+            "validation_error",
+            "Select at least one area for the organizer to update",
+            status_code=422,
+        )
+    note = encode_change_request_note(feedback, clean_areas)
     event = await event_repository.update(db, event, status="Changes Requested")
-    await arepo.add_review(db, event.id, user.id, "changes_requested", note=feedback)
+    await arepo.add_review(db, event.id, user.id, "changes_requested", note=note)
     if event.organizer_id:
         await notification_repository.create(
             db, event.organizer_id, "changes_requested",

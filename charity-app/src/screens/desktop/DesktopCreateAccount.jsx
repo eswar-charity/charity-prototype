@@ -6,18 +6,11 @@ import RoleSelect from '../../components/RoleSelect';
 import GoogleIcon from '../../components/GoogleIcon';
 import { useAuth } from '../../auth/AuthContext';
 import { useAppToast, ToastHost } from '../../components/Toast';
-
-function nameFromEmail(email) {
-  const local = String(email || '').split('@')[0].trim();
-  if (!local) return 'Social Entrepreneur';
-  return local
-    .replace(/[._+-]+/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-}
+import { requestGoogleIdToken } from '../../utils/googleIdentity';
 
 export default function DesktopCreateAccount() {
   const navigate = useNavigate();
-  const { register, login, googleMock } = useAuth();
+  const { login, googleLogin } = useAuth();
   const { toast, show } = useAppToast();
   const [roleId, setRoleId] = useState('se');
   const [email, setEmail] = useState('');
@@ -37,34 +30,12 @@ export default function DesktopCreateAccount() {
     }
   }
 
-  const handleGoogle = () => {
-    const trimmed = email.trim();
-    if (!trimmed) {
-      show('Enter an email to continue with Google', { variant: 'error' });
-      return;
-    }
-    return run(async () => {
-      await googleMock({ email: trimmed, name: nameFromEmail(trimmed) });
+  const handleGoogle = () =>
+    run(async () => {
+      const idToken = await requestGoogleIdToken();
+      await googleLogin({ id_token: idToken });
       navigate('/about-you');
     });
-  };
-
-  const handleEmailSignup = () => {
-    const trimmed = email.trim();
-    if (!trimmed || !password) {
-      show('Email and password are required', { variant: 'error' });
-      return;
-    }
-    return run(async () => {
-      await register({
-        role: 'se',
-        email: trimmed,
-        password,
-        name: nameFromEmail(trimmed),
-      });
-      navigate('/about-you');
-    });
-  };
 
   const handleSignIn = () => {
     const trimmed = email.trim();
@@ -120,7 +91,7 @@ export default function DesktopCreateAccount() {
           <input
             className="input-field"
             type="password"
-            autoComplete={roleId === 'se' ? 'new-password' : 'current-password'}
+            autoComplete="current-password"
             placeholder="Password"
             value={password}
             disabled={pending}
@@ -139,15 +110,6 @@ export default function DesktopCreateAccount() {
           >
             <GoogleIcon size={20} />
             Continue with Google
-          </button>
-          <button
-            type="button"
-            className="btn-outline"
-            style={{ marginTop: 12 }}
-            disabled={pending}
-            onClick={handleEmailSignup}
-          >
-            Sign up with email
           </button>
           <p style={{ textAlign: 'center', marginTop: 24, fontSize: 14, color: 'var(--text-secondary)' }}>
             Already have an account?{' '}

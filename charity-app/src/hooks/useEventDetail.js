@@ -1,6 +1,7 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { getEvent, getBackers, likeEvent, saveEvent, joinEvent } from '../api/events';
 import { adaptEvent } from '../api/adapters/event';
+import { resolveEventCover, resolveEventPhotos } from '../utils/eventPhotos';
 
 /** UI fields the detail screens expect beyond adaptEvent. */
 export function enrichDetailEvent(ev) {
@@ -17,9 +18,11 @@ export function enrichDetailEvent(ev) {
           .slice(0, 2)
           .toUpperCase()
       : 'SE');
+  const photos = resolveEventPhotos(ev);
   return {
     ...ev,
-    cover: ev.photos?.[0] || (ev.key ? `/events/${ev.key}/img1.jpg` : undefined),
+    photos,
+    cover: resolveEventCover({ ...ev, photos }),
     subtitle: ev.mission || '',
     story: ev.mission || '',
     chatCount: ev.chat ?? 0,
@@ -37,6 +40,38 @@ export function useEventDetail(eventKey) {
   const [ev, setEv] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const reloadGen = useRef(0);
+
+  const reload = useCallback(async ({ silent = false } = {}) => {
+    if (!eventKey) {
+      setEv(null);
+      setError(new Error('Missing event key'));
+      if (!silent) setLoading(false);
+      return null;
+    }
+    const gen = ++reloadGen.current;
+    if (!silent) {
+      setLoading(true);
+      setError(null);
+    }
+    try {
+      const raw = await getEvent(eventKey);
+      if (gen !== reloadGen.current) return null;
+      const enriched = enrichDetailEvent(adaptEvent(raw));
+      setEv(enriched);
+      setError(null);
+      return enriched;
+    } catch (err) {
+      if (gen !== reloadGen.current) return null;
+      if (!silent) {
+        setEv(null);
+        setError(err);
+      }
+      return null;
+    } finally {
+      if (!silent && gen === reloadGen.current) setLoading(false);
+    }
+  }, [eventKey]);
 
   useEffect(() => {
     if (!eventKey) {
@@ -66,7 +101,15 @@ export function useEventDetail(eventKey) {
     };
   }, [eventKey]);
 
-  return { ev, loading, error };
+  const patchEv = useCallback((patch) => {
+    setEv((prev) => {
+      if (!prev) return prev;
+      const next = typeof patch === 'function' ? patch(prev) : patch;
+      return { ...prev, ...next };
+    });
+  }, []);
+
+  return { ev, setEv, patchEv, loading, error, reload };
 }
 
 /** Map API backers → EventBackersModal row shape. */
@@ -128,7 +171,7 @@ export function useEventBackers(eventKey, enabled, showToast) {
 
 /**
  * Like / save / join with auth gate.
- * - Authenticated → live API + toast
+ * - Authenticated → live API + toast; state restored from event.viewer* flags
  * - SE `loggedIn` prop without token → local UI only (prototype routes)
  * - Guest → call onNeedAuth (join modal / identity gate)
  */
@@ -138,18 +181,25 @@ export function useEventActions({ ev, loggedIn = false, isAuthenticated = false,
   const [joined, setJoined] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  const gateOrLocal = (localFn) => {
+  useEffect(() => {
+    if (!ev) return;
+    setJoined(!!ev.viewerJoined);
+    setLiked(!!ev.viewerLiked);
+    setSaved(!!ev.viewerSaved);
+  }, [ev?.id, ev?.viewerJoined, ev?.viewerLiked, ev?.viewerSaved]);
+
+  const gateOrLocal = (intent, localFn) => {
     if (isAuthenticated) return 'api';
     if (loggedIn) {
       localFn();
       return 'local';
     }
-    onNeedAuth?.();
+    onNeedAuth?.(intent);
     return 'gate';
   };
 
   const handleLike = async () => {
-    const mode = gateOrLocal(() => {
+    const mode = gateOrLocal('like', () => {
       setLiked((v) => !v);
       showToast?.(liked ? 'Removed like' : 'Liked');
     });
@@ -167,7 +217,7 @@ export function useEventActions({ ev, loggedIn = false, isAuthenticated = false,
   };
 
   const handleSave = async () => {
-    const mode = gateOrLocal(() => {
+    const mode = gateOrLocal('save', () => {
       setSaved((v) => !v);
       showToast?.(saved ? 'Removed from saved' : 'Saved');
     });
@@ -186,7 +236,7 @@ export function useEventActions({ ev, loggedIn = false, isAuthenticated = false,
 
   const handleJoin = async () => {
     if (joined) return;
-    const mode = gateOrLocal(() => {
+    const mode = gateOrLocal('join', () => {
       setJoined(true);
       showToast?.("You're in! See you there.");
     });

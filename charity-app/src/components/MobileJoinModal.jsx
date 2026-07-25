@@ -1,20 +1,28 @@
 import { ToastHost } from './Toast';
 import { useIdentityGateFlow } from '../auth/useIdentityGateFlow';
+import { getIdentityGateCopy } from '../utils/identityGateIntent';
 
 /**
  * Guest identity gate as a bottom sheet over the current screen — same
  * pattern as MobileShareModal, so joining/backing (and gated nav actions)
  * no longer jump to a separate full-screen gradient page.
  */
-export default function MobileJoinModal({ title, subtitle, onClose }) {
+export default function MobileJoinModal({
+  title,
+  subtitle,
+  intent = 'default',
+  returnTo,
+  onClose,
+}) {
+  const copy = getIdentityGateCopy(intent);
   const {
     mode, phone, setPhone, email, setEmail, pending, toast,
     handleContinue, switchToEmail, switchToPhone,
-  } = useIdentityGateFlow({ onSuccess: onClose });
+  } = useIdentityGateFlow({ onSuccess: onClose, returnTo, intent });
 
   return (
     <div className="overlay-bg" onClick={onClose} role="presentation">
-      <div className="bottom-sheet" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Join the movement">
+      <div className="bottom-sheet" onClick={(e) => e.stopPropagation()} role="dialog" aria-label={copy.headline}>
         <div className="sheet-handle" />
 
         {(title || subtitle) && (
@@ -34,13 +42,13 @@ export default function MobileJoinModal({ title, subtitle, onClose }) {
           fontSize: 26, fontWeight: 800, color: 'var(--dark)',
           textAlign: 'center', letterSpacing: -0.5, marginBottom: 8, marginTop: title || subtitle ? 4 : 8,
         }}>
-          Join the movement
+          {copy.headline}
         </h2>
         <p style={{
           fontSize: 14, color: 'var(--text-secondary)',
           textAlign: 'center', lineHeight: 1.5, marginBottom: 22,
         }}>
-          Create your account to back this event and be part of the story.
+          {copy.body}
         </p>
 
         {mode === 'phone' ? (

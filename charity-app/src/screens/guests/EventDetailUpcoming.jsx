@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, Bookmark, MapPin, Share2, Heart, Calendar, ChevronRight } from 'lucide-react';
-import { NonprofitLearnMoreModal, EventBackersModal } from '../../components/event/EventModals';
+import { EventBackersModal } from '../../components/event/EventModals';
+import EventNonprofitLearnMore from '../../components/event/EventNonprofitLearnMore';
 import { slugify, eventDisplayTitle, getCommunityPhotos, eventUpcomingPath, getEventBannerFocus } from '../../data/mockData';
 import { EventImageBanner } from '../../components/event/EventImage';
 import MobileShareModal from '../../components/MobileShareModal';
@@ -22,6 +23,7 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
   const [showBackersModal, setShowBackersModal] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
+  const [gateIntent, setGateIntent] = useState('default');
   const [toast, setToast] = useState('');
 
   const showToast = (msg) => {
@@ -29,11 +31,24 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
     setTimeout(() => setToast(''), 1800);
   };
 
+  const openGate = (intent = 'default') => {
+    setGateIntent(intent);
+    setShowJoin(true);
+  };
+
+  const handleFollow = () => {
+    if (isAuthenticated || loggedIn) {
+      setFollowing((f) => !f);
+      return;
+    }
+    openGate('follow');
+  };
+
   const { liked, saved, handleLike, handleSave } = useEventActions({
     ev,
     loggedIn,
     isAuthenticated,
-    onNeedAuth: () => setShowJoin(true),
+    onNeedAuth: (intent) => openGate(intent || 'default'),
     showToast,
   });
 
@@ -62,9 +77,6 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
       </div>
     );
   }
-
-  const npDescription = ev.nonprofitBrief?.mission || ev.mission || ev.subtitle;
-  const npProfilePath = ev.nonprofitSlug ? `/guest/np/${ev.nonprofitSlug}` : '/np/profile';
 
   return (
     <div className="phone-shell">
@@ -224,7 +236,7 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
               </div>
               <button
                 className="follow-btn"
-                onClick={() => setFollowing(!following)}
+                onClick={handleFollow}
                 style={following ? { background: 'var(--primary)', color: 'white', borderColor: 'var(--primary)' } : {}}
               >
                 {following ? 'Following' : 'Follow'}
@@ -260,7 +272,7 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
                 setBacked((prev) => !prev);
                 return;
               }
-              setShowJoin(true);
+              openGate('donate');
             }}
           >
             {backed ? 'Backed ✓' : 'Back this event'}
@@ -270,15 +282,15 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
           </button>
         </div>
 
-        <NonprofitLearnMoreModal
+        <EventNonprofitLearnMore
           open={showNpModal}
           onClose={() => setShowNpModal(false)}
-          name={ev.nonprofit}
-          initials={ev.npInitials}
-          avatarStyle={{ background: ev.npBg }}
-          category={ev.category}
-          description={npDescription}
-          onViewProfile={() => { setShowNpModal(false); navigate(npProfilePath); }}
+          event={ev}
+          fallbackName={ev.nonprofit}
+          fallbackInitials={ev.npInitials}
+          fallbackBg={ev.npBg}
+          fallbackCategory={ev.category}
+          fallbackDescription={ev.mission || ev.subtitle}
         />
 
         <EventBackersModal
@@ -304,6 +316,7 @@ export default function EventDetailUpcoming({ loggedIn = false }) {
           <MobileJoinModal
             title={eventDisplayTitle(ev.title)}
             subtitle={ev.nonprofit}
+            intent={gateIntent}
             onClose={() => setShowJoin(false)}
           />
         )}

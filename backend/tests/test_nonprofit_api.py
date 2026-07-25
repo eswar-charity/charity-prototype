@@ -46,11 +46,58 @@ async def test_list_search(client, db_session):
 
 @pytest.mark.asyncio
 async def test_get_profile(client, db_session):
-    await _seed(db_session)
+    np = await _seed(db_session)
+    # Live event for this nonprofit should appear on the public profile.
+    se = await _login(client, "se-np-prof@e.com", "se")
+    created = (
+        await client.post(
+            "/api/v1/events",
+            headers=se,
+            json={
+                "story": "Coastal cleanup day",
+                "category": "Environment",
+                "nonprofit_id": np.id,
+            },
+        )
+    ).json()
+    await client.post(f"/api/v1/events/{created['id']}/submit", headers=se)
+    np_headers = await _login(client, "np-prof@e.com", "np_admin")
+    me = (await client.get("/api/v1/auth/me", headers=np_headers)).json()
+    await repo.link_admin(db_session, me["id"], np.id)
+    approved = await client.post(
+        f"/api/v1/np/approvals/{created['id']}/approve", headers=np_headers
+    )
+    assert approved.status_code == 200
+
     resp = await client.get("/api/v1/nonprofits/ocean-conservancy")
     assert resp.status_code == 200
     body = resp.json()
     assert body["nonprofit"]["slug"] == "ocean-conservancy"
+    assert body["nonprofit"]["mission"] == "Protect oceans"
+    assert body["nonprofit"]["ein"] == "12-3456789"
+    assert body["stats"]["eventsHosted"] == 1
+    assert body["stats"]["totalRaised"] >= 0
+    assert len(body["events"]) == 1
+    assert body["events"][0]["status"] == "Live"
+    assert body["events"][0]["key"] == created["key"]
+
+
+@pytest.mark.asyncio
+async def test_get_profile_excludes_unapproved_events(client, db_session):
+    np = await _seed(db_session, "Quiet Org", "quiet-org")
+    se = await _login(client, "se-quiet@e.com", "se")
+    created = (
+        await client.post(
+            "/api/v1/events",
+            headers=se,
+            json={"story": "Still in review", "nonprofit_id": np.id},
+        )
+    ).json()
+    await client.post(f"/api/v1/events/{created['id']}/submit", headers=se)
+
+    resp = await client.get("/api/v1/nonprofits/quiet-org")
+    assert resp.status_code == 200
+    body = resp.json()
     assert body["stats"]["eventsHosted"] == 0
     assert body["events"] == []
 

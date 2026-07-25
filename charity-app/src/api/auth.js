@@ -39,7 +39,7 @@ export async function identityGate(body) {
   return data;
 }
 
-export async function googleMock(body) {
+export async function googleLogin(body) {
   const data = await apiRequest('/auth/google', { method: 'POST', body, auth: false });
   setTokens(data);
   return data;

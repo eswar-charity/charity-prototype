@@ -5,6 +5,7 @@ import {
   assertUploadableFile,
   MAX_IMAGE_BYTES,
   MAX_VIDEO_BYTES,
+  MAX_LOCAL_FALLBACK_BYTES,
 } from './uploadDeviceMedia.js';
 
 describe('uploadDeviceMedia validation', () => {
@@ -32,5 +33,9 @@ describe('uploadDeviceMedia validation', () => {
       () => assertUploadableFile({ type: 'application/pdf', size: 100, name: 'x.pdf' }),
       /Unsupported/,
     );
+  });
+
+  it('exports local fallback size limit', () => {
+    assert.ok(MAX_LOCAL_FALLBACK_BYTES < MAX_IMAGE_BYTES);
   });
 });

@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { DEFAULT_EVENT_COVER } from '../../utils/eventPhotos';
 
 /**
  * Pick cover vs contain for a fixed-size container.
@@ -36,6 +37,7 @@ export function EventImage({
   ...props
 }) {
   const [objectFit, setObjectFit] = useState('cover');
+  const [failed, setFailed] = useState(false);
 
   const handleLoad = useCallback((e) => {
     if (!fill || fit === 'cover') return;
@@ -47,20 +49,24 @@ export function EventImage({
     setObjectFit(pickObjectFit(img.naturalWidth, img.naturalHeight, width, height));
   }, [fill, fit]);
 
-  if (!src) return null;
+  const displaySrc = failed || !src ? DEFAULT_EVENT_COVER : src;
+  if (!displaySrc) return null;
 
   const variantClass = variant === 'responsive' ? '' : ` event-img--${variant}`;
   const fillClass = fill ? ' event-img--fill' : '';
 
   return (
     <img
-      src={src}
+      src={displaySrc}
       alt={alt}
       className={`event-img${variantClass}${fillClass}${className ? ` ${className}` : ''}`}
       style={fill ? { objectFit: fit === 'cover' ? 'cover' : objectFit, ...style } : style}
       loading="lazy"
       decoding="async"
       onLoad={fill ? handleLoad : undefined}
+      onError={() => {
+        if (!failed && displaySrc !== DEFAULT_EVENT_COVER) setFailed(true);
+      }}
       {...props}
     />
   );
@@ -79,8 +85,6 @@ export function EventImageBanner({
   objectPosition,
   children,
 }) {
-  if (!src) return null;
-
   const fillCover = variant === 'np-tile' || variant === 'compact' || variant === 'hero';
 
   return (
@@ -89,7 +93,7 @@ export function EventImageBanner({
       style={style}
     >
       <EventImage
-        src={src}
+        src={src || undefined}
         alt={alt}
         fill
         fit={fillCover ? 'cover' : 'smart'}

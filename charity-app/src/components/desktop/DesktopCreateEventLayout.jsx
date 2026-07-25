@@ -5,6 +5,7 @@ import { useSelectedNonprofit } from '../../hooks/useNonprofitList';
 import { useEventWizardMutations } from '../../hooks/useEventWizardMutations';
 import { useAppToast, ToastHost } from '../Toast';
 import { previewHashtag } from '../../utils/eventWizard';
+import { isStepAllowed } from '../../utils/changeRequestAreas';
 import Logo from '../Logo';
 
 const STEPS = [
@@ -22,8 +23,22 @@ function LivePreviewCard() {
 
   return (
     <div className="dsk-wizard-preview-card">
-      <div className="dsk-wizard-preview-hero" style={{ backgroundImage: `url(${draft.photos[0]?.src})` }}>
+      <div
+        className="dsk-wizard-preview-hero"
+        style={draft.photos[0]?.src
+          ? { backgroundImage: `url(${draft.photos[0].src})` }
+          : { background: 'linear-gradient(135deg, var(--primary-soft), var(--blue-soft, #e8f0fe))' }}
+      >
         <span className="dsk-wizard-draft-badge">DRAFT</span>
+        {!draft.photos[0]?.src && (
+          <span style={{
+            position: 'absolute', inset: 0, display: 'flex', alignItems: 'center',
+            justifyContent: 'center', fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)',
+          }}
+          >
+            Add a photo
+          </span>
+        )}
       </div>
       <div className="dsk-wizard-preview-body">
         <p className="dsk-wizard-preview-title">{previewHashtag(draft.story)}</p>
@@ -65,14 +80,17 @@ function LivePreviewCard() {
 
 export default function DesktopCreateEventLayout({ step, children, hidePreview = false }) {
   const navigate = useNavigate();
+  const draft = useCreateEventDraft();
   const { toast, show } = useAppToast();
   const { handleSaveDraft, pending, saved } = useEventWizardMutations(show);
+  const allowedSteps = draft.fixMode ? draft.allowedSteps : null;
+  const title = draft.fixMode ? 'Update event' : 'Create an event';
 
   return (
     <div className="dsk-page dsk-wizard-page">
       <div className="dsk-wizard-topbar">
         <Logo height={24} tone="dark" style={{ cursor: 'pointer' }} />
-        <h2 className="dsk-wizard-topbar-title">Create an event</h2>
+        <h2 className="dsk-wizard-topbar-title">{title}</h2>
         <div className="dsk-wizard-topbar-actions">
           <button type="button" className="dsk-wizard-save-btn" onClick={handleSaveDraft} disabled={pending}>
             {saved ? 'Draft saved ✓' : 'Save draft'}
@@ -83,16 +101,21 @@ export default function DesktopCreateEventLayout({ step, children, hidePreview =
 
       <div className={`dsk-wizard-body ${hidePreview ? 'no-preview' : ''}`}>
         <nav className="dsk-wizard-rail">
-          {STEPS.map((s) => (
-            <div
-              key={s.id}
-              className={`dsk-wizard-rail-item ${step === s.id ? 'active' : ''} ${step > s.id ? 'done' : ''}`}
-              onClick={() => navigate(s.path)}
-            >
-              <span className="dsk-wizard-rail-num">{step > s.id ? '✓' : s.id}</span>
-              <span className="dsk-wizard-rail-label">{s.label}</span>
-            </div>
-          ))}
+          {STEPS.map((s) => {
+            const allowed = isStepAllowed(allowedSteps, s.id);
+            return (
+              <div
+                key={s.id}
+                className={`dsk-wizard-rail-item ${step === s.id ? 'active' : ''} ${step > s.id ? 'done' : ''}`}
+                onClick={() => { if (allowed) navigate(s.path); }}
+                style={allowed ? undefined : { opacity: 0.4, cursor: 'not-allowed' }}
+                aria-disabled={!allowed}
+              >
+                <span className="dsk-wizard-rail-num">{step > s.id ? '✓' : s.id}</span>
+                <span className="dsk-wizard-rail-label">{s.label}</span>
+              </div>
+            );
+          })}
         </nav>
 
         <div className="dsk-wizard-content">{children}</div>

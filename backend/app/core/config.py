@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     cloudinary_cloud_name: str = ""
     cloudinary_api_key: str = ""
     cloudinary_api_secret: str = ""
+    google_client_id: str = ""
 
     @field_validator("cors_origins", mode="before")
     @classmethod

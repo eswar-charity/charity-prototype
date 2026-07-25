@@ -44,7 +44,7 @@ export const HOW_IT_WORKS_ROLES = [
     title: 'Nonprofit',
     body: 'Review event submissions, approve fundraisers, and receive settled donations with full visibility into backers and live activity.',
     cta: 'Nonprofit Launchpad',
-    route: '/np/home',
+    route: '/',
   },
 ];
 

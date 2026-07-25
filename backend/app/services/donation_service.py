@@ -41,6 +41,12 @@ async def create_donation(
     event = await event_repository.get_by_id(db, event_id)
     if not event:
         raise AppError("not_found", "Event not found", status_code=404)
+    if event.status != "Live" or not event.is_live:
+        raise AppError(
+            "invalid_state",
+            "Donations are only available for live events",
+            status_code=409,
+        )
     if amount is None or amount <= 0:
         raise AppError("invalid_request", "Donation amount must be positive", status_code=400)
 

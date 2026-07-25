@@ -2,21 +2,26 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Compass, Users, Camera, Heart, ArrowRight, ShieldCheck } from 'lucide-react';
 import MobileAppHeader from '../../components/MobileAppHeader';
 import GuestBottomNav from '../../components/GuestBottomNav';
+import BottomNav from '../../components/BottomNav';
+import { useAuth } from '../../auth/AuthContext';
 import { HOW_IT_WORKS_STEPS, HOW_IT_WORKS_ROLES } from '../../data/marketingPages';
 
 const STEP_ICONS = { compass: Compass, users: Users, camera: Camera, heart: Heart };
 
 export default function HowItWorks() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const homePath = isAuthenticated ? '/feed' : '/guest/feed';
+  const startPath = isAuthenticated ? '/event/step-1' : '/';
 
   return (
     <div className="phone-shell">
       <div className="screen info-page-screen">
         <MobileAppHeader
           layout="bar"
-          homePath="/guest/feed"
+          homePath={homePath}
           left={(
-            <button type="button" className="back-btn" aria-label="Go back" onClick={() => navigate('/guest/feed')}>
+            <button type="button" className="back-btn" aria-label="Go back" onClick={() => navigate(homePath)}>
               <ChevronLeft size={18} />
             </button>
           )}
@@ -71,12 +76,14 @@ export default function HowItWorks() {
             ))}
           </section>
 
-          <button type="button" className="btn-primary" style={{ marginTop: 8 }} onClick={() => navigate('/')}>
-            Get started
+          <button type="button" className="btn-primary" style={{ marginTop: 8 }} onClick={() => navigate(startPath)}>
+            {isAuthenticated ? 'Create an event' : 'Get started'}
           </button>
         </div>
 
-        <GuestBottomNav active="discover" />
+        {isAuthenticated
+          ? <BottomNav onPlusClick={() => navigate('/event/step-1')} />
+          : <GuestBottomNav active="discover" />}
       </div>
     </div>
   );

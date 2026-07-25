@@ -7,6 +7,8 @@ class ReasonRequest(BaseModel):
 
 class FeedbackRequest(BaseModel):
     feedback: str
+    # Wizard areas the SE may edit when fixing: media_story | nonprofit | date_location
+    areas: list[str] | None = None
 
 
 class AutopilotUpdate(BaseModel):

@@ -1,6 +1,7 @@
 import { X } from 'lucide-react';
 import { ToastHost } from '../Toast';
 import { useIdentityGateFlow } from '../../auth/useIdentityGateFlow';
+import { getIdentityGateCopy } from '../../utils/identityGateIntent';
 
 export default function DesktopJoinGateModal({
   open,
@@ -9,19 +10,22 @@ export default function DesktopJoinGateModal({
   nonprofit = 'the nonprofit',
   npInitials = 'NP',
   npBg = 'var(--primary)',
+  intent = 'default',
+  returnTo,
 }) {
+  const copy = getIdentityGateCopy(intent);
   const {
     mode, phone, setPhone, email, setEmail, pending, toast,
     handleContinue, switchToEmail, switchToPhone,
-  } = useIdentityGateFlow({ onSuccess: onClose });
+  } = useIdentityGateFlow({ onSuccess: onClose, returnTo, intent });
 
   if (!open) return null;
 
   return (
     <div className="dsk-modal-backdrop" onClick={onClose} role="presentation">
-      <div className="dsk-modal dsk-join-gate-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Join to participate">
+      <div className="dsk-modal dsk-join-gate-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-label={copy.headline}>
         <div className="dsk-modal-head">
-          <h3>Join the movement</h3>
+          <h3>{copy.headline}</h3>
           <button type="button" className="dsk-modal-close" onClick={onClose} aria-label="Close">
             <X size={16} />
           </button>
@@ -35,9 +39,7 @@ export default function DesktopJoinGateModal({
           </div>
         </div>
 
-        <p className="dsk-join-gate-copy">
-          Create your account to join the chat, back this event, and be part of the story.
-        </p>
+        <p className="dsk-join-gate-copy">{copy.body}</p>
 
         {mode === 'phone' ? (
           <div className="dsk-join-gate-phone">

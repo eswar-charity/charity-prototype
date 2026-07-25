@@ -4,11 +4,13 @@ import { MapPin, Share2 } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../../components/desktop/DesktopFooter';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
+import DesktopJoinGateModal from '../../../components/desktop/DesktopJoinGateModal';
 import { slugify, eventDisplayTitle } from '../../../data/mockData';
 import { eventDetailPath } from '../../../utils/eventPaths';
 import { listEvents } from '../../../api/events';
 import { adaptEvent } from '../../../api/adapters/event';
 import { EventImageBanner } from '../../../components/event/EventImage';
+import { useAuth } from '../../../auth/AuthContext';
 
 const EVENT_TABS = ['Live', 'Upcoming', 'Past'];
 
@@ -64,12 +66,22 @@ function buildOrganizerProfile(slug, events) {
 export default function DesktopOrganizerProfile() {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [following, setFollowing] = useState(false);
   const [eventTab, setEventTab] = useState('Live');
   const [showShare, setShowShare] = useState(false);
+  const [showJoinGate, setShowJoinGate] = useState(false);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const handleFollow = () => {
+    if (isAuthenticated) {
+      setFollowing((f) => !f);
+      return;
+    }
+    setShowJoinGate(true);
+  };
 
   useEffect(() => {
     if (!slug) {
@@ -165,8 +177,8 @@ export default function DesktopOrganizerProfile() {
               </div>
             </div>
             <div className="dsk-profile-actions">
-              <button className="dsk-msg-btn" onClick={() => navigate('/guest/join')}>Message</button>
-              <button className={`dsk-follow-cta ${following ? 'active' : ''}`} onClick={() => setFollowing((f) => !f)}>
+              <button className="dsk-msg-btn" onClick={() => setShowJoinGate(true)}>Message</button>
+              <button className={`dsk-follow-cta ${following ? 'active' : ''}`} onClick={handleFollow}>
                 {following ? 'Following' : 'Follow'}
               </button>
             </div>
@@ -256,6 +268,17 @@ export default function DesktopOrganizerProfile() {
           subtitle="Event Presenter · Charity Hub"
           heading="Share profile"
           previewSrc={profile.events[0]?.photos?.[4] || profile.events[0]?.cover}
+        />
+      )}
+
+      {showJoinGate && (
+        <DesktopJoinGateModal
+          open={showJoinGate}
+          onClose={() => setShowJoinGate(false)}
+          eventTitle={profile?.name || 'this organiser'}
+          nonprofit="Charity Hub organiser"
+          npInitials={profile?.initials || 'SE'}
+          intent="follow"
         />
       )}
 

@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Clock, MessageSquare, Rocket, PartyPopper, Radio } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
+import { getEvent } from '../../api/events';
 import { useApprovalEvent } from '../../hooks/useApprovalEvent';
+import { beginEventFix } from '../../utils/beginEventFix';
 
 const NODES = [
   { key: 'submitted', label: 'Submitted' },
@@ -57,6 +59,19 @@ export default function DesktopApprovalStatus() {
     } catch (err) {
       showToast(err?.message || failMsg);
     }
+  };
+
+  const openUpdateEvent = async () => {
+    let raw = event?.raw;
+    if (raw?.key) {
+      try {
+        raw = await getEvent(raw.key);
+      } catch {
+        /* use list payload */
+      }
+    }
+    if (raw) beginEventFix(raw);
+    navigate('/event/step-4');
   };
 
   const primary = {
@@ -149,7 +164,7 @@ export default function DesktopApprovalStatus() {
                     {primary.label}
                   </button>
                 )}
-                {uiState === 'review' && (
+                {uiState === 'review' && event.apiStatus !== 'Changes Requested' && (
                   <button type="button" className="dsk-approval-btn-secondary" onClick={() => navigate('/event/step-4')}>Edit event</button>
                 )}
                 {uiState === 'approved' && (
@@ -168,7 +183,7 @@ export default function DesktopApprovalStatus() {
                   <button
                     type="button"
                     className={`dsk-approval-notify-btn${notify ? ' on' : ''}`}
-                    onClick={() => { setNotify(!notify); showToast(notify ? 'Notifications off' : 'We'll notify you when it's approved'); }}
+                    onClick={() => { setNotify(!notify); showToast(notify ? 'Notifications off' : "We'll notify you when it's approved"); }}
                   >
                     {notify ? 'Notifications on ✓' : 'Notify me when approved'}
                   </button>
@@ -176,9 +191,11 @@ export default function DesktopApprovalStatus() {
                     <div className="dsk-approval-comment">
                       <div className="dsk-approval-comment-icon"><MessageSquare size={16} color="var(--blue)" /></div>
                       <div style={{ flex: 1 }}>
-                        <p className="dsk-approval-comment-text">Changes were requested for this event.</p>
+                        <p className="dsk-approval-comment-text">
+                          {event.changeRequest?.feedback || 'Changes were requested for this event.'}
+                        </p>
                         <p className="dsk-approval-comment-from">— {event.nonprofit}</p>
-                        <button type="button" className="dsk-approval-comment-btn" onClick={() => navigate('/event/step-4')}>Update event</button>
+                        <button type="button" className="dsk-approval-comment-btn" onClick={openUpdateEvent}>Update event</button>
                       </div>
                     </div>
                   )}

@@ -16,6 +16,7 @@ import StaticStripePaymentForm, { STRIPE_TEST_SUCCESS } from '../../../component
 import { useEventCommunity } from '../../../hooks/useEventCommunity';
 import { useEventChat } from '../../../hooks/useEventChat';
 import { uploadDeviceMedia } from '../../../api/uploadDeviceMedia';
+import EventNonprofitLearnMore from '../../../components/event/EventNonprofitLearnMore';
 
 const TABS = [
   { id: 'community', label: 'Community', sub: 'Photos & moments' },
@@ -23,13 +24,29 @@ const TABS = [
   { id: 'support', label: 'Support', sub: 'Back the cause' },
 ];
 
-function AboutModal({ ev, onClose, following, onToggleFollow }) {
+function AboutModal({ ev, onClose, following, onToggleFollow, onLearnMore }) {
   return (
     <div className="dsk-modal-backdrop" onClick={onClose}>
       <div className="dsk-modal" onClick={(e) => e.stopPropagation()}>
         <div className="dsk-modal-head">
           <h3>About this event</h3>
           <button className="dsk-modal-close" onClick={onClose}><X size={16} /></button>
+        </div>
+
+        <div className="dsk-np-info-row" style={{ marginBottom: 18 }}>
+          <div className="dsk-sidebar-np-avatar" style={{ background: ev.npBg }}>{ev.npInitials}</div>
+          <div style={{ flex: 1 }}>
+            <p className="dsk-sidebar-np-name">{ev.nonprofit}</p>
+            <p className="dsk-sidebar-np-sub">Verified nonprofit</p>
+          </div>
+          <button
+            type="button"
+            className="btn-ghost"
+            style={{ fontSize: 13 }}
+            onClick={() => { onClose(); onLearnMore?.(); }}
+          >
+            Learn more
+          </button>
         </div>
 
         <div className="dsk-modal-host-row">
@@ -195,7 +212,7 @@ function CommunityTab({ ev }) {
   );
 }
 
-function ChatTab({ ev, onNeedJoin, loggedIn, showToast, currentUserId }) {
+function ChatTab({ ev, onNeedJoin, loggedIn, showToast, currentUserId, onMessageSent }) {
   const [value, setValue] = useState('');
   const fileInputRef = useRef(null);
   const {
@@ -209,6 +226,7 @@ function ChatTab({ ev, onNeedJoin, loggedIn, showToast, currentUserId }) {
     enabled: loggedIn,
     currentUserId,
     showToast,
+    onMessageSent,
   });
 
   if (!loggedIn) {
@@ -308,13 +326,13 @@ function ChatTab({ ev, onNeedJoin, loggedIn, showToast, currentUserId }) {
                     src={msg.media}
                     controls
                     playsInline
-                    style={{ maxWidth: '100%', borderRadius: 8, display: 'block', marginBottom: msg.text ? 8 : 0 }}
+                    style={{ width: 150, height: 150, objectFit: 'cover', borderRadius: 8, display: 'block', marginBottom: msg.text ? 8 : 0 }}
                   />
                 ) : (
                   <img
                     src={msg.media}
                     alt=""
-                    style={{ maxWidth: '100%', borderRadius: 8, display: 'block', marginBottom: msg.text ? 8 : 0 }}
+                    style={{ width: 150, height: 150, objectFit: 'cover', borderRadius: 8, display: 'block', marginBottom: msg.text ? 8 : 0 }}
                   />
                 ))}
                 {msg.text ? msg.text : null}
@@ -370,8 +388,14 @@ function ChatTab({ ev, onNeedJoin, loggedIn, showToast, currentUserId }) {
 
 function SupportTab({ ev, onDonate, donatePending }) {
   const [amount, setAmount] = useState(25);
+  const [customAmount, setCustomAmount] = useState('');
   const [cardDigits, setCardDigits] = useState(STRIPE_TEST_SUCCESS);
-  const donateAmount = typeof amount === 'number' ? amount : 25;
+  const isOther = amount === 'other';
+  const parsedCustom = Number.parseFloat(customAmount);
+  const donateAmount = typeof amount === 'number'
+    ? amount
+    : (Number.isFinite(parsedCustom) && parsedCustom > 0 ? Math.round(parsedCustom * 100) / 100 : null);
+  const canDonate = donateAmount != null && donateAmount > 0;
 
   return (
     <div className="dsk-tab-panel">
@@ -388,22 +412,44 @@ function SupportTab({ ev, onDonate, donatePending }) {
         {[10, 25, 50].map((amt) => (
           <button key={amt} className={`support-amount-btn ${amount === amt ? 'active' : ''}`} onClick={() => setAmount(amt)}>${amt}</button>
         ))}
-        <button className={`support-amount-btn ${amount === 'other' ? 'active' : ''}`} onClick={() => setAmount('other')}>Other</button>
+        <button className={`support-amount-btn ${isOther ? 'active' : ''}`} onClick={() => setAmount('other')}>Other</button>
       </div>
+      {isOther && (
+        <div className="support-other-amount" style={{ marginBottom: 16 }}>
+          <label htmlFor="dsk-support-other-amount" className="support-amount-label" style={{ display: 'block' }}>
+            Enter amount
+          </label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontWeight: 700, color: 'var(--dark)' }}>$</span>
+            <input
+              id="dsk-support-other-amount"
+              className="input-field"
+              type="number"
+              inputMode="decimal"
+              min="1"
+              step="0.01"
+              placeholder="0.00"
+              value={customAmount}
+              onChange={(e) => setCustomAmount(e.target.value)}
+              aria-label="Custom donation amount"
+            />
+          </div>
+        </div>
+      )}
 
       <StaticStripePaymentForm
-        amount={donateAmount}
-        disabled={donatePending}
+        amount={canDonate ? donateAmount : 0}
+        disabled={donatePending || !canDonate}
         onCardChange={setCardDigits}
       />
 
       <button
         type="button"
         className="dsk-support-btn"
-        onClick={() => onDonate(donateAmount, cardDigits)}
-        disabled={donatePending}
+        onClick={() => canDonate && onDonate(donateAmount, cardDigits)}
+        disabled={donatePending || !canDonate}
       >
-        {donatePending ? 'Processing…' : `Support with $${donateAmount}`}
+        {donatePending ? 'Processing…' : canDonate ? `Support with $${donateAmount}` : 'Enter an amount'}
       </button>
     </div>
   );
@@ -413,13 +459,15 @@ export default function DesktopEventDetail({ loggedIn = false }) {
   const navigate = useNavigate();
   const { eventKey } = useParams();
   const { user, isAuthenticated } = useAuth();
-  const { ev, loading, error } = useEventDetail(eventKey);
+  const { ev, patchEv, loading, error, reload } = useEventDetail(eventKey);
   const heroImage = getEventBanner(ev);
   const [activeTab, setActiveTab] = useState('community');
   const [showAbout, setShowAbout] = useState(false);
+  const [showNpModal, setShowNpModal] = useState(false);
   const [following, setFollowing] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showJoinGate, setShowJoinGate] = useState(false);
+  const [gateIntent, setGateIntent] = useState('default');
   const [toast, setToast] = useState('');
 
   const showToast = (msg) => {
@@ -427,23 +475,45 @@ export default function DesktopEventDetail({ loggedIn = false }) {
     setTimeout(() => setToast(''), 1800);
   };
 
+  const openGate = (intent = 'default') => {
+    setGateIntent(typeof intent === 'string' ? intent : intent?.intent || 'default');
+    setShowJoinGate(true);
+  };
+
+  const handleFollow = () => {
+    if (isAuthenticated || loggedIn) {
+      setFollowing((f) => !f);
+      return;
+    }
+    openGate('follow');
+  };
+
+  const handleChatStatsRefresh = () => {
+    // Optimistic chat bump, then silent reload for backing + authoritative chat count.
+    patchEv((prev) => {
+      const nextCount = (prev.chatCount ?? prev.chat ?? 0) + 1;
+      return { chatCount: nextCount, chat: nextCount };
+    });
+    reload({ silent: true });
+  };
+
   const { liked, joined, handleLike, handleJoin } = useEventActions({
     ev,
     loggedIn,
     isAuthenticated,
-    onNeedAuth: () => setShowJoinGate(true),
+    onNeedAuth: (intent) => openGate(intent || 'default'),
     showToast,
   });
 
   const { donate, pending: donatePending } = useDonateFlow({
     showToast,
-    onNeedAuth: () => setShowJoinGate(true),
+    onNeedAuth: (opts) => openGate(opts?.intent || 'donate'),
   });
 
   const handleDonate = async (amt, cardNumber) => {
     await donate({
       ev,
-      amount: amt === 'other' ? 25 : amt,
+      amount: amt,
       cardNumber,
       returnTo: eventLivePath(ev.key, { loggedIn }),
     });
@@ -535,9 +605,10 @@ export default function DesktopEventDetail({ loggedIn = false }) {
               <ChatTab
                 ev={ev}
                 loggedIn={loggedIn || isAuthenticated}
-                onNeedJoin={() => setShowJoinGate(true)}
+                onNeedJoin={() => openGate('chat')}
                 showToast={showToast}
                 currentUserId={user?.id}
+                onMessageSent={handleChatStatsRefresh}
               />
             )}
             {activeTab === 'support' && (
@@ -547,13 +618,26 @@ export default function DesktopEventDetail({ loggedIn = false }) {
 
           <aside className="dsk-ev-sidebar">
             <div className="dsk-sidebar-card">
-              <div className="dsk-sidebar-np-row">
+              <div className="dsk-sidebar-np-row" style={{ alignItems: 'flex-start' }}>
                 <div className="dsk-sidebar-np-avatar" style={{ background: ev.npBg }}>{ev.npInitials}</div>
-                <div>
+                <div style={{ flex: 1, minWidth: 0 }}>
                   <p className="dsk-sidebar-np-name">{ev.nonprofit}</p>
                   <p className="dsk-sidebar-np-sub">Registered 501(c)(3)</p>
+                  {(ev.mission || ev.subtitle) ? (
+                    <p className="dsk-modal-section-text" style={{ fontSize: 13, marginTop: 8, WebkitLineClamp: 2, display: '-webkit-box', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {ev.mission || ev.subtitle}
+                    </p>
+                  ) : null}
                 </div>
               </div>
+              <button
+                type="button"
+                className="btn-ghost"
+                style={{ width: '100%', justifyContent: 'center', marginBottom: 10, fontSize: 13 }}
+                onClick={() => setShowNpModal(true)}
+              >
+                Learn more
+              </button>
               <button
                 type="button"
                 className="ev-join-btn"
@@ -585,9 +669,21 @@ export default function DesktopEventDetail({ loggedIn = false }) {
           ev={ev}
           onClose={() => setShowAbout(false)}
           following={following}
-          onToggleFollow={() => setFollowing((f) => !f)}
+          onToggleFollow={handleFollow}
+          onLearnMore={() => setShowNpModal(true)}
         />
       )}
+
+      <EventNonprofitLearnMore
+        open={showNpModal}
+        onClose={() => setShowNpModal(false)}
+        event={ev}
+        fallbackName={ev.nonprofit}
+        fallbackInitials={ev.npInitials}
+        fallbackBg={ev.npBg}
+        fallbackCategory={ev.category}
+        fallbackDescription={ev.mission || ev.subtitle}
+      />
 
       {showJoinGate && (
         <DesktopJoinGateModal
@@ -597,6 +693,7 @@ export default function DesktopEventDetail({ loggedIn = false }) {
           nonprofit={ev.nonprofit}
           npInitials={ev.npInitials}
           npBg={ev.npBg}
+          intent={gateIntent}
         />
       )}
 

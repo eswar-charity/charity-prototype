@@ -1,17 +1,4 @@
-import { EVENT_CATALOG, getCommunityPhotos } from '../../data/eventData.js';
-import { EVENT_PHOTO_MANIFEST } from '../../data/eventPhotoManifest.js';
-
-function catalogEventPhotos(key) {
-  const entry = EVENT_CATALOG.find((e) => e.key === key);
-  if (!entry) return [];
-  const meta = EVENT_PHOTO_MANIFEST[entry.assetKey] || { photoCount: 1, photoExt: {} };
-  const { photoCount, photoExt = {} } = meta;
-  return Array.from({ length: photoCount }, (_, i) => {
-    const n = i + 1;
-    const ext = photoExt[n] || photoExt[String(n)] || 'jpg';
-    return `/events/${entry.assetKey}/img${n}.${ext}`;
-  });
-}
+import { resolveEventPhotos } from '../../utils/eventPhotos.js';
 
 export function formatRelative(iso) {
   if (!iso) return '';
@@ -49,10 +36,7 @@ function adaptReply(reply, pool) {
 }
 
 export function galleryUrlsForEvent(ev) {
-  const fromApi = (ev?.photos || []).filter((u) => typeof u === 'string' && u.length > 0);
-  if (fromApi.length) return fromApi.slice();
-  const photos = ev?.photos?.length ? ev.photos : catalogEventPhotos(ev?.key);
-  return getCommunityPhotos({ ...ev, photos, cover: photos[0] }).slice();
+  return resolveEventPhotos(ev).slice();
 }
 
 const PHOTO_CAPTIONS = [

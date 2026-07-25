@@ -17,6 +17,8 @@ import { useEventCommunity } from '../../hooks/useEventCommunity';
 import { useEventChat } from '../../hooks/useEventChat';
 import StaticStripePaymentForm, { STRIPE_TEST_SUCCESS } from '../../components/StaticStripePaymentForm';
 import { uploadDeviceMedia } from '../../api/uploadDeviceMedia';
+import EventNonprofitLearnMore from '../../components/event/EventNonprofitLearnMore';
+import EventNpStoryStrip from '../../components/event/EventNpStoryStrip';
 
 /* ── Community Tab ──────────────────────────────────────── */
 function ThreadRow({ post, isLast, showLiveDot, onOpen, variant }) {
@@ -197,13 +199,13 @@ function ChatTabMessages({ messages, loading }) {
                   src={m.media}
                   controls
                   playsInline
-                  style={{ maxWidth: '100%', borderRadius: 8, display: 'block', marginBottom: m.text ? 8 : 0 }}
+                  style={{ width: 150, height: 150, objectFit: 'cover', borderRadius: 8, display: 'block', marginBottom: m.text ? 8 : 0 }}
                 />
               ) : (
                 <img
                   src={m.media}
                   alt=""
-                  style={{ maxWidth: '100%', borderRadius: 8, display: 'block', marginBottom: m.text ? 8 : 0 }}
+                  style={{ width: 150, height: 150, objectFit: 'cover', borderRadius: 8, display: 'block', marginBottom: m.text ? 8 : 0 }}
                 />
               ))}
               {m.text ? m.text : null}
@@ -248,7 +250,13 @@ function ChatInputBar({ value, onChange, onSend, onAttach, onFocus, disabled }) 
 /* ── Support Tab ─────────────────────────────────────────── */
 function SupportTab({ ev, selectedAmount, onSelectAmount, onDonate, onViewStructure, donatePending }) {
   const [cardDigits, setCardDigits] = useState(STRIPE_TEST_SUCCESS);
-  const donateAmount = typeof selectedAmount === 'number' ? selectedAmount : 25;
+  const [customAmount, setCustomAmount] = useState('');
+  const isOther = selectedAmount === 'other';
+  const parsedCustom = Number.parseFloat(customAmount);
+  const donateAmount = typeof selectedAmount === 'number'
+    ? selectedAmount
+    : (Number.isFinite(parsedCustom) && parsedCustom > 0 ? Math.round(parsedCustom * 100) / 100 : null);
+  const canDonate = donateAmount != null && donateAmount > 0;
 
   return (
     <div className="support-content">
@@ -292,21 +300,47 @@ function SupportTab({ ev, selectedAmount, onSelectAmount, onDonate, onViewStruct
           </button>
         ))}
         <button
-          className={`support-amount-btn ${selectedAmount === 'other' ? 'active' : ''}`}
+          className={`support-amount-btn ${isOther ? 'active' : ''}`}
           onClick={() => onSelectAmount('other')}
         >
           Other
         </button>
       </div>
+      {isOther && (
+        <div className="support-other-amount" style={{ marginBottom: 16 }}>
+          <label htmlFor="support-other-amount" className="support-amount-label" style={{ display: 'block' }}>
+            Enter amount
+          </label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontWeight: 700, color: 'var(--dark)' }}>$</span>
+            <input
+              id="support-other-amount"
+              className="input-field"
+              type="number"
+              inputMode="decimal"
+              min="1"
+              step="0.01"
+              placeholder="0.00"
+              value={customAmount}
+              onChange={(e) => setCustomAmount(e.target.value)}
+              aria-label="Custom donation amount"
+            />
+          </div>
+        </div>
+      )}
 
       <StaticStripePaymentForm
-        amount={donateAmount}
-        disabled={donatePending}
+        amount={canDonate ? donateAmount : 0}
+        disabled={donatePending || !canDonate}
         onCardChange={setCardDigits}
       />
 
-      <button className="btn-primary" onClick={() => onDonate(cardDigits)} disabled={donatePending}>
-        {donatePending ? 'Processing…' : `Donate $${donateAmount}`}
+      <button
+        className="btn-primary"
+        onClick={() => canDonate && onDonate(donateAmount, cardDigits)}
+        disabled={donatePending || !canDonate}
+      >
+        {donatePending ? 'Processing…' : canDonate ? `Donate $${donateAmount}` : 'Enter an amount'}
       </button>
     </div>
   );
@@ -340,14 +374,16 @@ export default function EventDetailLive({ loggedIn = false }) {
   const navigate = useNavigate();
   const { eventKey } = useParams();
   const { user, isAuthenticated } = useAuth();
-  const { ev, loading, error } = useEventDetail(eventKey);
+  const { ev, patchEv, loading, error, reload } = useEventDetail(eventKey);
   const heroImage = getEventBanner(ev);
   const [activeTab, setActiveTab]         = useState('community');
   const [selectedAmount, setSelectedAmount] = useState(25);
   const [chatInput, setChatInput]         = useState('');
   const [showAbout, setShowAbout]         = useState(false);
+  const [showNpModal, setShowNpModal]     = useState(false);
   const [showShare, setShowShare]         = useState(false);
   const [showJoin, setShowJoin]           = useState(false);
+  const [gateIntent, setGateIntent]       = useState('default');
   const [toast, setToast]                 = useState('');
   const chatFileInputRef = useRef(null);
 
@@ -356,17 +392,31 @@ export default function EventDetailLive({ loggedIn = false }) {
     setTimeout(() => setToast(''), 1800);
   };
 
+  const openGate = (intent = 'default') => {
+    setGateIntent(typeof intent === 'string' ? intent : intent?.intent || 'default');
+    setShowJoin(true);
+  };
+
+  const handleChatStatsRefresh = () => {
+    // Optimistic chat bump, then silent reload for backing + authoritative chat count.
+    patchEv((prev) => {
+      const nextCount = (prev.chatCount ?? prev.chat ?? 0) + 1;
+      return { chatCount: nextCount, chat: nextCount };
+    });
+    reload({ silent: true });
+  };
+
   const { liked, joined, handleLike, handleJoin } = useEventActions({
     ev,
     loggedIn,
     isAuthenticated,
-    onNeedAuth: () => setShowJoin(true),
+    onNeedAuth: (intent) => openGate(intent || 'default'),
     showToast,
   });
 
   const { donate, pending: donatePending } = useDonateFlow({
     showToast,
-    onNeedAuth: () => setShowJoin(true),
+    onNeedAuth: (opts) => openGate(opts?.intent || 'donate'),
   });
 
   const canChat = loggedIn || isAuthenticated;
@@ -381,20 +431,21 @@ export default function EventDetailLive({ loggedIn = false }) {
     enabled: activeTab === 'chat' && canChat,
     currentUserId: user?.id,
     showToast,
+    onMessageSent: handleChatStatsRefresh,
   });
 
   // Per the Identity Gate model: viewing is open, but commenting requires
   // identity — guests hit the join gate; SE / authed users can chat.
   const requireJoin = () => {
     if (loggedIn || isAuthenticated) return false;
-    setShowJoin(true);
+    openGate('chat');
     return true;
   };
 
-  const handleDonate = async (cardNumber) => {
+  const handleDonate = async (amount, cardNumber) => {
     await donate({
       ev,
-      amount: selectedAmount === 'other' ? 25 : selectedAmount,
+      amount,
       cardNumber,
       returnTo: eventLivePath(ev.key, { loggedIn }),
     });
@@ -532,6 +583,17 @@ export default function EventDetailLive({ loggedIn = false }) {
         <div className="ev-sheet">
           <div className="ev-sheet-handle" />
 
+          <div style={{ padding: '0 18px' }}>
+            <EventNpStoryStrip
+              name={ev.nonprofit}
+              initials={ev.npInitials}
+              bg={ev.npBg}
+              mission={ev.mission || ev.subtitle}
+              onLearnMore={() => setShowNpModal(true)}
+              compact
+            />
+          </div>
+
           {/* Tab bar */}
           <div className="ev-tabs">
             {TABS.map((tab) => (
@@ -572,7 +634,7 @@ export default function EventDetailLive({ loggedIn = false }) {
               </>
             ) : (
               <div className="ev-tab-content">
-                <GuestChatGate onSignUp={() => setShowJoin(true)} />
+                <GuestChatGate onSignUp={() => openGate('chat')} />
               </div>
             )
           ) : (
@@ -598,7 +660,7 @@ export default function EventDetailLive({ loggedIn = false }) {
             <div className="bottom-sheet" onClick={(e) => e.stopPropagation()}>
               <div className="sheet-handle" />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--dark)' }}>{ev.title}</h2>
+                <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--dark)' }}>About this event</h2>
                 <button
                   onClick={() => setShowAbout(false)}
                   aria-label="Close"
@@ -609,6 +671,28 @@ export default function EventDetailLive({ loggedIn = false }) {
                   }}
                 >✕</button>
               </div>
+
+              <div className="np-info-row" style={{ marginBottom: 16 }}>
+                <div style={{
+                  width: 36, height: 36, borderRadius: '50%',
+                  background: ev.npBg,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 11, fontWeight: 700, color: 'white', flexShrink: 0,
+                }}>{ev.npInitials}</div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)' }}>{ev.nonprofit}</p>
+                  <p style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Verified Nonprofit</p>
+                </div>
+                <button
+                  type="button"
+                  className="btn-ghost"
+                  style={{ fontSize: 13 }}
+                  onClick={() => { setShowAbout(false); setShowNpModal(true); }}
+                >
+                  Learn more
+                </button>
+              </div>
+
               <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary)', letterSpacing: 0.5, marginBottom: 6 }}>WHEN &amp; WHERE</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                 <Calendar size={15} color="var(--primary)" style={{ flexShrink: 0 }} />
@@ -628,10 +712,6 @@ export default function EventDetailLive({ loggedIn = false }) {
                 className="btn-primary"
                 onClick={() => {
                   setShowAbout(false);
-                  if (loggedIn) {
-                    setActiveTab('support');
-                    return;
-                  }
                   setActiveTab('support');
                 }}
               >
@@ -640,6 +720,17 @@ export default function EventDetailLive({ loggedIn = false }) {
             </div>
           </div>
         )}
+
+        <EventNonprofitLearnMore
+          open={showNpModal}
+          onClose={() => setShowNpModal(false)}
+          event={ev}
+          fallbackName={ev.nonprofit}
+          fallbackInitials={ev.npInitials}
+          fallbackBg={ev.npBg}
+          fallbackCategory={ev.category}
+          fallbackDescription={ev.mission || ev.subtitle}
+        />
 
         {showShare && (
           <MobileShareModal
@@ -654,6 +745,7 @@ export default function EventDetailLive({ loggedIn = false }) {
           <MobileJoinModal
             title={eventDisplayTitle(ev.title)}
             subtitle={ev.nonprofit}
+            intent={gateIntent}
             onClose={() => setShowJoin(false)}
           />
         )}

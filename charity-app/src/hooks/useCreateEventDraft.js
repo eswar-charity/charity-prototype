@@ -1,23 +1,16 @@
 import { useSyncExternalStore } from 'react';
 
-// Lightweight external store (no context/provider needed) that lets the
-// desktop "Create an event" wizard steps share one draft so the sidebar
-// "Live preview" card updates as the SE fills out each step. Scoped only
-// to the desktop wizard screens — the mobile EventStep* screens keep
-// their own local state and never read this.
+// Lightweight external store shared by create-event wizard steps (mobile + desktop).
 
 const DEFAULT_DRAFT = {
   serverEventId: null,
   serverKey: null,
   coverMediaId: null,
   title: '',
-  photos: [
-    { id: 1, src: '/events/neon-night/img1.jpg' },
-    { id: 2, src: '/events/neon-night/img2.jpg' },
-    { id: 3, src: '/events/neon-night/img3.jpg' },
-  ],
+  photos: [],
   story: '',
   nonprofitId: null,
+  category: null,
   startDate: 'Oct 14, 2025',
   endDate: 'Oct 14, 2025',
   startTime: '9:00 AM',
@@ -26,9 +19,17 @@ const DEFAULT_DRAFT = {
   visibility: 'public',
   previewLiked: false,
   inviteSent: false,
+  // When true, SE is fixing NP-requested changes — only allowedSteps are editable.
+  fixMode: false,
+  allowedSteps: null,
+  changeFeedback: '',
 };
 
-let state = { ...DEFAULT_DRAFT };
+function freshDraft() {
+  return { ...DEFAULT_DRAFT, photos: [] };
+}
+
+let state = freshDraft();
 const listeners = new Set();
 
 export function updateDraft(patch) {
@@ -37,7 +38,7 @@ export function updateDraft(patch) {
 }
 
 export function resetDraft() {
-  state = { ...DEFAULT_DRAFT };
+  state = freshDraft();
   listeners.forEach((l) => l());
 }
 

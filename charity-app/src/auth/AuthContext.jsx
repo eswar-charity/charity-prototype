@@ -70,9 +70,9 @@ export function AuthProvider({ children }) {
       await authApi.identityGate(payload);
       return refreshUser();
     },
-    async googleMock(payload) {
+    async googleLogin(payload) {
       setError(null);
-      await authApi.googleMock(payload);
+      await authApi.googleLogin(payload);
       return refreshUser();
     },
     refreshUser,

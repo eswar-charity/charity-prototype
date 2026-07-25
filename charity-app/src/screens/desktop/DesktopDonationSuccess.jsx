@@ -57,6 +57,8 @@ export default function DesktopDonationSuccess() {
             publicName={receipt?.publicName || publicName}
             eventTitle={ev?.title || 'Event'}
             nonprofit={ev?.nonprofit || 'Nonprofit'}
+            donationId={receipt?.id ?? donationId}
+            paymentRef={receipt?.paymentRef}
             returnTo={returnTo}
           />
         </div>

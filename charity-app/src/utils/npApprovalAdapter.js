@@ -28,12 +28,18 @@ export function mapDesktopApprovalRow(raw) {
   let uiStatus = 'New request';
   if (lower.includes('changes')) uiStatus = 'Changes requested';
   else if (lower === 'live' || lower === 'approved') uiStatus = 'Approved';
+  else if (lower === 'rejected') uiStatus = 'Rejected';
+
+  const organizer =
+    typeof raw.organizer === 'string'
+      ? raw.organizer
+      : (raw.organizer?.name ?? 'Unknown');
 
   return {
     id: raw.id,
     key: raw.key,
     title: raw.title ?? 'Untitled event',
-    organizer: raw.organizer ?? 'Unknown',
+    organizer: organizer || 'Unknown',
     date: raw.date ?? '—',
     location: raw.location ?? '—',
     desc: raw.story ?? '',

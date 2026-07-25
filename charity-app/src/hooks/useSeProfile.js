@@ -3,12 +3,13 @@ import { listEvents } from '../api/events';
 import { getProfile } from '../api/users';
 import { adaptEvent } from '../api/adapters/event';
 import { useAuth } from '../auth/AuthContext';
+import { resolveEventCover } from '../utils/eventPhotos';
 
 function enrichProfileEvent(raw) {
   const ev = adaptEvent(raw);
   return {
     ...ev,
-    cover: ev.photos?.[0] || (ev.key ? `/events/${ev.key}/img1.jpg` : undefined),
+    cover: resolveEventCover(ev),
   };
 }
 

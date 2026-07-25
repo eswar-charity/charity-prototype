@@ -1,15 +1,32 @@
 import { useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import Logo from '../Logo';
+import { useAuth } from '../../auth/AuthContext';
+import { resetDraft } from '../../hooks/useCreateEventDraft';
 
 const NAV_LINKS = ['Discover', 'How it works', 'Causes', 'For nonprofits'];
 
-export default function DesktopHeader({ active = 'Discover', loggedIn = false, avatarInitials = 'MR', homePath = '/guest/feed', showSearch = true }) {
+/**
+ * Global desktop chrome. Auth state is read from AuthContext so authenticated
+ * users never see "Sign up" — callers no longer need to remember loggedIn.
+ * Optional props still override initials / home path when needed.
+ */
+export default function DesktopHeader({
+  active = 'Discover',
+  loggedIn: loggedInProp,
+  avatarInitials,
+  homePath,
+  showSearch = true,
+}) {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+  const loggedIn = isAuthenticated || !!loggedInProp;
+  const initials = avatarInitials || user?.initials || 'SE';
+  const resolvedHome = homePath || (loggedIn ? '/feed' : '/guest/feed');
 
   const handleNav = (link) => {
     if (link === 'Discover') {
-      navigate(homePath);
+      navigate(resolvedHome);
       return;
     }
     if (link === 'Causes') {
@@ -27,13 +44,18 @@ export default function DesktopHeader({ active = 'Discover', loggedIn = false, a
   };
 
   const handleStartEvent = () => {
-    navigate(loggedIn ? '/event/step-1' : '/');
+    if (!loggedIn) {
+      navigate('/');
+      return;
+    }
+    resetDraft();
+    navigate('/event/step-1');
   };
 
   return (
     <header className="dsk-header">
       <div className="dsk-header-inner">
-        <Logo height={26} tone="dark" style={{ cursor: 'pointer' }} />
+        <Logo height={26} tone="dark" style={{ cursor: 'pointer' }} onClick={() => navigate(resolvedHome)} />
 
         <nav className="dsk-nav">
           {NAV_LINKS.map((link) => (
@@ -53,7 +75,7 @@ export default function DesktopHeader({ active = 'Discover', loggedIn = false, a
               <Search size={15} />
               <input
                 placeholder="Search events..."
-                onKeyDown={(e) => { if (e.key === 'Enter') navigate('/guest/feed'); }}
+                onKeyDown={(e) => { if (e.key === 'Enter') navigate(resolvedHome); }}
               />
             </div>
           )}
@@ -67,7 +89,7 @@ export default function DesktopHeader({ active = 'Discover', loggedIn = false, a
               tabIndex={0}
               onKeyDown={(e) => { if (e.key === 'Enter') navigate('/profile'); }}
             >
-              {avatarInitials}
+              {initials}
             </div>
           ) : (
             <span className="dsk-loglink" onClick={() => navigate('/')}>Sign up</span>

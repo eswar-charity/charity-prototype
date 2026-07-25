@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Users } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
+import { useAuth } from '../../auth/AuthContext';
 import { getCausesWithEvents } from '../../data/marketingPages';
 import { EventImageBanner } from '../../components/event/EventImage';
 
@@ -11,17 +12,25 @@ function formatRaised(value) {
 
 export default function DesktopCauses() {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+  const homePath = isAuthenticated ? '/feed' : '/guest/feed';
+  const startPath = isAuthenticated ? '/event/step-1' : '/';
   const causes = getCausesWithEvents();
   const totalEvents = causes.reduce((sum, c) => sum + c.eventCount, 0);
   const totalRaised = causes.reduce((sum, c) => sum + c.totalRaised, 0);
 
   const openCause = (category) => {
-    navigate(`/guest/feed?cause=${encodeURIComponent(category)}`);
+    navigate(`${homePath}?cause=${encodeURIComponent(category)}`);
   };
 
   return (
     <div className="dsk-page dsk-info-page">
-      <DesktopHeader active="Causes" homePath="/guest/feed" />
+      <DesktopHeader
+        active="Causes"
+        loggedIn={isAuthenticated}
+        avatarInitials={user?.initials || 'SE'}
+        homePath={homePath}
+      />
 
       <main className="dsk-main">
         <section className="dsk-info-hero dsk-info-hero--blue">
@@ -97,8 +106,8 @@ export default function DesktopCauses() {
             <p className="dsk-info-cta-sub">
               Host an event for any verified nonprofit — your story can open a brand-new cause lane on The Scene.
             </p>
-            <button type="button" className="dsk-cta-btn dsk-info-cta-btn" onClick={() => navigate('/')}>
-              Start an event
+            <button type="button" className="dsk-cta-btn dsk-info-cta-btn" onClick={() => navigate(startPath)}>
+              {isAuthenticated ? 'Create an event' : 'Start an event'}
             </button>
           </div>
         </section>

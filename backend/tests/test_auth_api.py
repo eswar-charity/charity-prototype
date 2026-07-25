@@ -98,10 +98,16 @@ async def test_identity_gate_requires_email_or_phone_422(client):
 
 
 @pytest.mark.asyncio
-async def test_google_mock_returns_tokens(client):
-    resp = await client.post(
-        "/api/v1/auth/google", json={"email": "mike.rivera@demo.charityhub.com", "name": "Mike Rivera"}
+async def test_google_login_returns_tokens(client, monkeypatch):
+    monkeypatch.setattr(
+        "app.services.auth_service.verify_google_id_token",
+        lambda _token: {
+            "email": "mike.rivera@demo.charityhub.com",
+            "email_verified": True,
+            "name": "Mike Rivera",
+        },
     )
+    resp = await client.post("/api/v1/auth/google", json={"id_token": "fake-jwt"})
     assert resp.status_code == 200
     assert resp.json()["access_token"]
 

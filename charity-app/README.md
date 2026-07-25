@@ -12,9 +12,12 @@ React + Vite app for Charity Hub.
 | Role | Email | Password |
 |------|-------|----------|
 | SE | mike.rivera@demo.charityhub.com | Passw0rd! |
+| SE | jordan.blake@demo.charityhub.com | Passw0rd! |
+| SE | sam.okonkwo@demo.charityhub.com | Passw0rd! |
+| SE | priya.desai@demo.charityhub.com | Passw0rd! |
 | NP | redcross@charityhub.com (and 19 other short aliases) | Passw0rd! |
 | Admin | alex.mercer@charityhub.com | Passw0rd! |
 
-Full NP alias list: see `backend/seed/np_accounts.py`.
+Full SE list: `backend/seed/se_accounts.py`. Full NP alias list: `backend/seed/np_accounts.py`.
 
 Guest: use Join/Donate identity gate (phone or email).

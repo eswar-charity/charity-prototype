@@ -4,11 +4,14 @@ import { Search, Check } from 'lucide-react';
 import DesktopCreateEventLayout from '../../components/desktop/DesktopCreateEventLayout';
 import { useCreateEventDraft, updateDraft } from '../../hooks/useCreateEventDraft';
 import { useNonprofitList } from '../../hooks/useNonprofitList';
+import { useWizardStepAccess } from '../../hooks/useWizardStepAccess';
+import { backWizardPath, nextWizardPath } from '../../utils/changeRequestAreas';
 import { NP_CATEGORY_FILTERS } from '../../data/mockData';
 
 export default function DesktopEventStep2() {
   const navigate = useNavigate();
   const draft = useCreateEventDraft();
+  const { fixMode, allowedSteps } = useWizardStepAccess(2);
   const [activeFilter, setActiveFilter] = useState('All');
   const [query, setQuery] = useState('');
   const { nonprofits: filtered } = useNonprofitList({ q: query, category: activeFilter });
@@ -41,7 +44,7 @@ export default function DesktopEventStep2() {
           <div
             key={np.id}
             className={`np-item ${draft.nonprofitId === np.id ? 'selected-np' : ''}`}
-            onClick={() => updateDraft({ nonprofitId: np.id })}
+            onClick={() => updateDraft({ nonprofitId: np.id, category: np.category || null })}
           >
             <div className="np-logo" style={{ background: np.bg, color: 'white' }}>{np.initials}</div>
             <div style={{ flex: 1 }}>
@@ -70,8 +73,10 @@ export default function DesktopEventStep2() {
       </div>
 
       <div className="dsk-wizard-footer">
-        <button type="button" className="dsk-wizard-back-link" onClick={() => navigate('/event/step-1')}>← Back</button>
-        <button type="button" className="dsk-cta-btn" onClick={() => navigate('/event/step-3')}>Next: date & location →</button>
+        <button type="button" className="dsk-wizard-back-link" onClick={() => navigate(backWizardPath(fixMode, allowedSteps, 2))}>← Back</button>
+        <button type="button" className="dsk-cta-btn" onClick={() => navigate(nextWizardPath(fixMode, allowedSteps, 2))}>
+          {fixMode ? 'Done →' : 'Next: date & location →'}
+        </button>
       </div>
     </DesktopCreateEventLayout>
   );

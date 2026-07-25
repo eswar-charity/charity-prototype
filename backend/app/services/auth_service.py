@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import get_settings
 from app.core.exceptions import AppError
 from app.core.security import (
     create_access_token,
@@ -109,10 +110,46 @@ async def identity_gate(
     return user, issue_tokens(user)
 
 
-async def google_mock(
-    db: AsyncSession, email: str | None, name: str | None
-) -> tuple[User, dict]:
-    email = email or "mike.rivera@demo.charityhub.com"
+def verify_google_id_token(token: str) -> dict:
+    """Verify a Google GIS ID token; returns claims. Separated for tests to mock."""
+    settings = get_settings()
+    if not settings.google_client_id:
+        raise AppError(
+            "misconfigured",
+            "Google sign-in is not configured",
+            status_code=503,
+        )
+    try:
+        from google.auth.transport import requests as google_requests
+        from google.oauth2 import id_token
+
+        return id_token.verify_oauth2_token(
+            token,
+            google_requests.Request(),
+            settings.google_client_id,
+        )
+    except AppError:
+        raise
+    except Exception as exc:
+        raise AppError(
+            "unauthorized",
+            "Invalid Google sign-in token",
+            status_code=401,
+        ) from exc
+
+
+async def google_login(db: AsyncSession, id_token_str: str) -> tuple[User, dict]:
+    claims = verify_google_id_token(id_token_str)
+    email = (claims.get("email") or "").strip().lower()
+    if not email:
+        raise AppError("unauthorized", "Google account has no email", status_code=401)
+    if not claims.get("email_verified"):
+        raise AppError(
+            "unauthorized",
+            "Google email is not verified",
+            status_code=401,
+        )
+
     user = await user_repository.get_by_email(db, email)
     if user is not None and user.password_hash is not None:
         raise AppError(
@@ -121,7 +158,7 @@ async def google_mock(
             status_code=409,
         )
     if not user:
-        display = name or "Mike Rivera"
+        display = (claims.get("name") or "").strip() or email.split("@")[0]
         user = await user_repository.create(
             db,
             role="se",

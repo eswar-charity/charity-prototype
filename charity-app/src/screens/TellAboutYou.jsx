@@ -6,6 +6,7 @@ import MobileAuthHeader from '../components/MobileAuthHeader';
 import { updateProfile } from '../api/users';
 import { useAuth } from '../auth/AuthContext';
 import { useAppToast, ToastHost } from '../components/Toast';
+import { consumeGuestReturn } from '../utils/identityGateIntent';
 
 const CAUSES = causes;
 
@@ -39,7 +40,8 @@ export default function TellAboutYou() {
         causes: selected,
       });
       await refreshUser();
-      navigate('/feed');
+      const { returnTo } = consumeGuestReturn();
+      navigate(returnTo || '/feed');
     } catch (err) {
       show(err?.message || 'Something went wrong', { variant: 'error' });
     } finally {

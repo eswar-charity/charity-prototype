@@ -1,9 +1,16 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import ChangeAreaPicker from '../../components/ChangeAreaPicker';
 import { useNpReviewDetail } from '../../hooks/useNpApprovals';
 import { npReviewPath } from '../../utils/npApprovalAdapter';
+import { CHANGE_AREAS } from '../../utils/changeRequestAreas';
 
-const SUGGESTIONS = ['Clarify description', 'Update event photo', 'Check location', 'Add volunteer info'];
+const SUGGESTIONS = [
+  { label: 'Clarify description', area: 'media_story' },
+  { label: 'Update event photo', area: 'media_story' },
+  { label: 'Check location', area: 'date_location' },
+  { label: 'Add volunteer info', area: 'media_story' },
+];
 
 const TOAST_STYLE = {
   position: 'fixed', bottom: 96, left: '50%', transform: 'translateX(-50%)',
@@ -18,18 +25,20 @@ export default function NpRequestChanges() {
   const eventId = searchParams.get('id');
   const { event, loading, requestChanges } = useNpReviewDetail();
   const [feedback, setFeedback] = useState('');
+  const [areas, setAreas] = useState([]);
   const [toast, setToast] = useState('');
   const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
 
   const appendSuggestion = (s) => {
-    setFeedback((prev) => prev ? `${prev} ${s.toLowerCase()}.` : `${s}.`);
+    setFeedback((prev) => (prev ? `${prev} ${s.label.toLowerCase()}.` : `${s.label}.`));
+    setAreas((prev) => (prev.includes(s.area) ? prev : [...prev, s.area]));
   };
 
   const handleSend = async () => {
     const text = feedback.trim();
-    if (!text) return;
+    if (!text || !areas.length) return;
     try {
-      await requestChanges(text);
+      await requestChanges(text, areas);
       notify('Change request sent');
       navigate('/np/approvals');
     } catch {
@@ -40,6 +49,7 @@ export default function NpRequestChanges() {
   const heroImg = event?.cover || (event?.key ? `/events/${event.key}/img1.jpg` : '/events/breakneck-ridge-run/img1.jpg');
   const organizerName = event?.organizer || 'the organizer';
   const reviewPath = eventId ? npReviewPath(eventId) : '/np/approvals/review';
+  const canSend = !!feedback.trim() && areas.length > 0;
 
   if (loading && !event) {
     return (
@@ -80,8 +90,13 @@ export default function NpRequestChanges() {
             Request changes from {organizerName}.
           </h2>
           <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 18, lineHeight: 1.5 }}>
-            {organizerName.split(' ')[0]} will be notified and can resubmit after making updates.
+            Choose which sections they can edit, then describe what to fix.
           </p>
+
+          <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 10 }}>
+            Sections to unlock ({areas.length}/{CHANGE_AREAS.length})
+          </p>
+          <ChangeAreaPicker selected={areas} onChange={setAreas} />
 
           <textarea
             className="input-field input-soft"
@@ -96,8 +111,8 @@ export default function NpRequestChanges() {
           </p>
           <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', marginBottom: 20, paddingBottom: 2 }}>
             {SUGGESTIONS.map((s) => (
-              <button key={s} type="button" className="quick-chip" onClick={() => appendSuggestion(s)}>
-                {s}
+              <button key={s.label} type="button" className="quick-chip" onClick={() => appendSuggestion(s)}>
+                {s.label}
               </button>
             ))}
           </div>
@@ -105,8 +120,8 @@ export default function NpRequestChanges() {
           <button
             type="button"
             className="btn-primary"
-            style={{ marginBottom: 8, opacity: feedback.trim() ? 1 : 0.5 }}
-            disabled={!feedback.trim()}
+            style={{ marginBottom: 8, opacity: canSend ? 1 : 0.5 }}
+            disabled={!canSend}
             onClick={handleSend}
           >
             Send request

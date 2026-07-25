@@ -21,7 +21,7 @@ Stripe payments and nonprofit/EIN verification are mocked; Cloudinary is real
 """.strip()
 
 TAGS_METADATA = [
-    {"name": "auth", "description": "Registration, login, JWT refresh, identity gate, mock Google."},
+    {"name": "auth", "description": "Registration, login, JWT refresh, identity gate, Google GIS."},
     {"name": "users", "description": "Current-user profile (SE creator profile)."},
     {"name": "nonprofits", "description": "Public nonprofit directory and NP self-profile."},
     {"name": "events", "description": "Create wizard, lifecycle, feed, detail, join/like/save."},

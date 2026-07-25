@@ -10,7 +10,7 @@ export function listEvents({ cause, discovery, page = 1, limit = 20 } = {}) {
 }
 
 export function getEvent(key) {
-  return apiRequest(`/events/${encodeURIComponent(key)}`, { auth: false });
+  return apiRequest(`/events/${encodeURIComponent(key)}`);
 }
 
 export function getBackers(key) {

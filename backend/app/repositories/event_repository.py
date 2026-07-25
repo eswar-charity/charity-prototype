@@ -10,7 +10,7 @@ from app.models.event import (
 )
 from app.utils.pagination import paginate
 
-FEED_STATUSES = ("Live", "Approved", "Completed")
+FEED_STATUSES = ("Live", "Completed")
 
 
 async def list_feed(
@@ -111,6 +111,39 @@ async def add_participation(db: AsyncSession, event_id: int, user_id: int) -> bo
     db.add(Participation(event_id=event_id, user_id=user_id))
     await db.commit()
     return True
+
+
+async def has_participation(db: AsyncSession, event_id: int, user_id: int) -> bool:
+    existing = (
+        await db.execute(
+            select(Participation.id).where(
+                Participation.event_id == event_id, Participation.user_id == user_id
+            )
+        )
+    ).scalar_one_or_none()
+    return existing is not None
+
+
+async def has_like(db: AsyncSession, event_id: int, user_id: int) -> bool:
+    existing = (
+        await db.execute(
+            select(EventLike.id).where(
+                EventLike.event_id == event_id, EventLike.user_id == user_id
+            )
+        )
+    ).scalar_one_or_none()
+    return existing is not None
+
+
+async def has_save(db: AsyncSession, event_id: int, user_id: int) -> bool:
+    existing = (
+        await db.execute(
+            select(EventSave.id).where(
+                EventSave.event_id == event_id, EventSave.user_id == user_id
+            )
+        )
+    ).scalar_one_or_none()
+    return existing is not None
 
 
 async def count_participants(db: AsyncSession, event_id: int) -> int:

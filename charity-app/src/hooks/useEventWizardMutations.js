@@ -7,12 +7,13 @@ import {
   submitEvent,
 } from '../api/events';
 import { mapDraftToApiPayload } from '../utils/eventDraftPayload';
-import { useCreateEventDraft, updateDraft } from './useCreateEventDraft';
+import { syncEventDraftPhotos } from '../utils/syncEventDraftPhotos';
+import { useCreateEventDraft, updateDraft, resetDraft } from './useCreateEventDraft';
 
 const EVENT_CREATOR_ROLES = new Set(['se', 'np_admin']);
 
 const SE_HINT =
-  'Sign in as mike.rivera@demo.charityhub.com / Passw0rd! (Social Entrepreneur), or create an SE account.';
+  'Sign in as mike.rivera@demo.charityhub.com / Passw0rd! (or jordan.blake@ / sam.okonkwo@ / priya.desai@ demo.charityhub.com), or create an SE account.';
 
 export function useEventWizardMutations(show) {
   const navigate = useNavigate();
@@ -40,16 +41,32 @@ export function useEventWizardMutations(show) {
 
   const ensurePersisted = useCallback(async () => {
     const payload = mapDraftToApiPayload(draft);
+    let eventId;
+    let key;
     if (!draft.serverEventId) {
       const created = await createEvent(payload);
+      eventId = created.id;
+      key = created.key;
       updateDraft({ serverEventId: created.id, serverKey: created.key });
-      return { eventId: created.id, key: created.key };
+    } else {
+      const updated = await saveDraftApi(draft.serverEventId, payload);
+      eventId = draft.serverEventId;
+      key = updated.key ?? draft.serverKey;
     }
-    const updated = await saveDraftApi(draft.serverEventId, payload);
-    return {
-      eventId: draft.serverEventId,
-      key: updated.key ?? draft.serverKey,
-    };
+
+    const synced = await syncEventDraftPhotos(eventId, draft.photos);
+    const photoPatch = { photos: synced.photos };
+    if (synced.coverMediaId != null) {
+      photoPatch.coverMediaId = synced.coverMediaId;
+      if (synced.coverMediaId !== draft.coverMediaId) {
+        await saveDraftApi(eventId, {
+          ...mapDraftToApiPayload({ ...draft, coverMediaId: synced.coverMediaId }),
+          cover_media_id: synced.coverMediaId,
+        });
+      }
+    }
+    updateDraft(photoPatch);
+    return { eventId, key };
   }, [draft]);
 
   const handleSaveDraft = useCallback(async () => {
@@ -75,9 +92,18 @@ export function useEventWizardMutations(show) {
     setPending(true);
     try {
       const { eventId, key } = await ensurePersisted();
-      await submitEvent(eventId);
-      show('Event submitted for approval');
-      navigate(`/approval?key=${encodeURIComponent(key)}`);
+      const submitted = await submitEvent(eventId);
+      const submittedKey = submitted?.key || key;
+      // Own-org NP events auto-publish; SE / partner-NP events wait for approval.
+      if (submitted?.status === 'Live' || submitted?.is_live) {
+        resetDraft();
+        show('Event is live');
+        navigate(`/live-dashboard?key=${encodeURIComponent(submittedKey)}`);
+      } else {
+        resetDraft();
+        show('Event submitted for approval');
+        navigate(`/approval?key=${encodeURIComponent(submittedKey)}`);
+      }
     } catch (err) {
       const msg = err?.status === 403
         ? `Insufficient permissions. ${SE_HINT}`

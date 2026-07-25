@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Pencil, MapPin, ChevronRight, Share2 } from 'lucide-react';
+import { Pencil, MapPin, ChevronRight, Share2, LogOut } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 import MobileAppHeader from '../components/MobileAppHeader';
 import MobileShareModal from '../components/MobileShareModal';
+import { useAuth } from '../auth/AuthContext';
 import { eventDetailPath } from '../utils/eventPaths';
 import { EventImageBanner } from '../components/event/EventImage';
 import { useSeProfile } from '../hooks/useSeProfile';
@@ -13,8 +14,21 @@ const DEFAULT_BIO = 'Creating events that bring communities together for causes 
 
 export default function ProfileScreen() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [showShare, setShowShare] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const { profile, hostedEvents, stats, loading, error, reload } = useSeProfile();
+
+  const handleSignOut = async () => {
+    if (signingOut) return;
+    setSigningOut(true);
+    try {
+      await logout();
+      navigate('/');
+    } finally {
+      setSigningOut(false);
+    }
+  };
 
   const name = profile?.name ?? 'Profile';
   const initials = initialsFromName(name, profile?.initials ?? '?');
@@ -53,6 +67,15 @@ export default function ProfileScreen() {
                 <button type="button" className="guest-signup-btn" style={{ marginTop: 12 }} onClick={reload}>
                   Try again
                 </button>
+                <button
+                  type="button"
+                  className="btn-outline"
+                  style={{ width: 'auto', margin: '12px auto 0', padding: '10px 20px', fontSize: 14, display: 'flex' }}
+                  onClick={handleSignOut}
+                  disabled={signingOut}
+                >
+                  <LogOut size={14} /> {signingOut ? 'Signing out…' : 'Sign out'}
+                </button>
               </div>
             )}
             {profile && (
@@ -76,13 +99,25 @@ export default function ProfileScreen() {
               <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.55, marginBottom: 16 }}>
                 {bio}
               </p>
-              <button
-                className="btn-outline"
-                style={{ width: 'auto', padding: '10px 20px', fontSize: 14 }}
-                onClick={() => navigate('/about-you')}
-              >
-                <Pencil size={14} /> Edit profile
-              </button>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
+                <button
+                  type="button"
+                  className="btn-outline"
+                  style={{ width: 'auto', padding: '10px 20px', fontSize: 14 }}
+                  onClick={() => navigate('/about-you')}
+                >
+                  <Pencil size={14} /> Edit profile
+                </button>
+                <button
+                  type="button"
+                  className="btn-outline"
+                  style={{ width: 'auto', padding: '10px 20px', fontSize: 14 }}
+                  onClick={handleSignOut}
+                  disabled={signingOut}
+                >
+                  <LogOut size={14} /> {signingOut ? 'Signing out…' : 'Sign out'}
+                </button>
+              </div>
             </div>
 
             <div className="stat-row" style={{ marginBottom: 20 }}>

@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, X } from 'lucide-react';
+import { Check, Lock, X } from 'lucide-react';
+import { useCreateEventDraft } from '../hooks/useCreateEventDraft';
+import { isStepAllowed } from '../utils/changeRequestAreas';
 
 const GUIDELINES = [
   'Keep event stories honest, respectful, and free of misleading claims.',
@@ -28,47 +30,65 @@ function formatDatesLocation(draft) {
 
 export default function SubmitChecklist({ draft, nonprofit }) {
   const navigate = useNavigate();
+  const liveDraft = useCreateEventDraft();
+  const source = draft || liveDraft;
   const [guidelinesReviewed, setGuidelinesReviewed] = useState(false);
   const [showGuidelines, setShowGuidelines] = useState(false);
 
-  const hasMedia = draft.photos.length > 0;
-  const hasDates = Boolean(draft.startDate?.trim());
-  const hasLocation = Boolean(draft.location?.trim());
+  const fixMode = !!source.fixMode;
+  const allowedSteps = fixMode ? source.allowedSteps : null;
 
-  const items = useMemo(() => [
-    {
-      id: 1,
-      text: `Story media added (${draft.photos.length} item${draft.photos.length === 1 ? '' : 's'})`,
-      done: hasMedia,
-      path: '/event/step-1',
-    },
-    {
-      id: 2,
-      text: `Nonprofit selected: ${nonprofit?.name || 'Choose a nonprofit'}`,
-      done: !!nonprofit,
-      path: '/event/step-2',
-    },
-    {
-      id: 3,
-      text: formatDatesLocation(draft),
-      done: hasDates && hasLocation,
-      path: '/event/step-3',
-    },
-    {
-      id: 4,
-      text: 'Review Charity Hub content guidelines',
-      done: guidelinesReviewed,
-      isLink: true,
-      action: 'guidelines',
-    },
-  ], [draft, nonprofit, guidelinesReviewed, hasMedia, hasDates, hasLocation]);
+  const hasMedia = source.photos.length > 0;
+  const hasDates = Boolean(source.startDate?.trim());
+  const hasLocation = Boolean(source.location?.trim());
+
+  const items = useMemo(() => {
+    const all = [
+      {
+        id: 1,
+        step: 1,
+        text: `Story media added (${source.photos.length} item${source.photos.length === 1 ? '' : 's'})`,
+        done: hasMedia,
+        path: '/event/step-1',
+      },
+      {
+        id: 2,
+        step: 2,
+        text: `Nonprofit selected: ${nonprofit?.name || 'Choose a nonprofit'}`,
+        done: !!nonprofit,
+        path: '/event/step-2',
+      },
+      {
+        id: 3,
+        step: 3,
+        text: formatDatesLocation(source),
+        done: hasDates && hasLocation,
+        path: '/event/step-3',
+      },
+      {
+        id: 4,
+        step: null,
+        text: 'Review Charity Hub content guidelines',
+        done: guidelinesReviewed,
+        isLink: true,
+        action: 'guidelines',
+      },
+    ];
+
+    if (!fixMode) return all;
+
+    // In fix mode, only show checklist rows for requested steps (+ guidelines).
+    return all.filter((item) => item.step == null || isStepAllowed(allowedSteps, item.step));
+  }, [source, nonprofit, guidelinesReviewed, hasMedia, hasDates, hasLocation, fixMode, allowedSteps]);
 
   const handleClick = (item) => {
     if (item.action === 'guidelines') {
       setShowGuidelines(true);
       return;
     }
-    if (item.path) navigate(item.path);
+    if (item.path && isStepAllowed(allowedSteps, item.step)) {
+      navigate(item.path);
+    }
   };
 
   const acknowledgeGuidelines = () => {
@@ -78,25 +98,49 @@ export default function SubmitChecklist({ draft, nonprofit }) {
 
   return (
     <>
+      {fixMode && source.changeFeedback ? (
+        <div className="info-banner" style={{ marginBottom: 14 }}>
+          <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+            <strong style={{ color: 'var(--dark)' }}>Requested changes: </strong>
+            {source.changeFeedback}
+          </p>
+        </div>
+      ) : null}
+
+      {fixMode ? (
+        <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10, lineHeight: 1.45 }}>
+          Only the steps below were requested — update those, then resubmit.
+        </p>
+      ) : null}
+
       <div className="card submit-checklist-card">
-        {items.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            className="check-item check-item-btn"
-            onClick={() => handleClick(item)}
-          >
-            <div className={`check-circle ${item.done ? 'checked' : ''}`}>
-              {item.done && <Check size={12} strokeWidth={3} />}
-            </div>
-            <span
-              className={item.isLink && !item.done ? 'check-item-link' : undefined}
-              style={{ color: item.isLink && !item.done ? 'var(--blue)' : 'var(--dark)', textDecoration: item.isLink && !item.done ? 'underline' : 'none' }}
+        {items.map((item) => {
+          const locked = item.step != null && !isStepAllowed(allowedSteps, item.step);
+          return (
+            <button
+              key={item.id}
+              type="button"
+              className="check-item check-item-btn"
+              onClick={() => handleClick(item)}
+              disabled={locked}
+              style={locked ? { opacity: 0.55, cursor: 'not-allowed' } : undefined}
             >
-              {item.text}
-            </span>
-          </button>
-        ))}
+              <div className={`check-circle ${item.done ? 'checked' : ''}`}>
+                {item.done && <Check size={12} strokeWidth={3} />}
+                {locked && !item.done && <Lock size={11} strokeWidth={2.5} />}
+              </div>
+              <span
+                className={item.isLink && !item.done ? 'check-item-link' : undefined}
+                style={{
+                  color: item.isLink && !item.done ? 'var(--blue)' : 'var(--dark)',
+                  textDecoration: item.isLink && !item.done ? 'underline' : 'none',
+                }}
+              >
+                {item.text}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {showGuidelines && (

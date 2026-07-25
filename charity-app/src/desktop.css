@@ -1021,7 +1021,7 @@
 .dsk-wizard-preview { align-self: flex-start; position: sticky; top: 24px; }
 .dsk-wizard-preview-lbl { font-size: 11px; font-weight: 700; color: var(--text-light); letter-spacing: 0.5px; margin-bottom: 8px; }
 .dsk-wizard-preview-card { background: var(--white); border-radius: var(--radius-md); box-shadow: var(--card-shadow); overflow: hidden; }
-.dsk-wizard-preview-hero { height: 130px; background-size: cover; background-position: center; padding: 10px; }
+.dsk-wizard-preview-hero { height: 130px; background-size: cover; background-position: center; padding: 10px; position: relative; }
 .dsk-wizard-draft-badge { background: rgba(0,0,0,0.55); color: white; font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: var(--radius-pill); letter-spacing: 0.4px; }
 .dsk-wizard-preview-body { padding: 14px; }
 .dsk-wizard-preview-title { font-size: 16px; font-weight: 800; color: var(--dark); margin-bottom: 3px; }
@@ -1254,6 +1254,7 @@
 
 .dsk-np-review-banner { background: var(--primary); color: white; text-align: center; font-size: 13px; font-weight: 600; padding: 10px; border-radius: var(--radius-sm); margin-bottom: 20px; }
 .dsk-np-review-grid { display: grid; grid-template-columns: 1fr 300px; gap: 24px; margin-bottom: 90px; }
+.dsk-np-request-grid { display: grid; grid-template-columns: 1fr 280px; gap: 24px; align-items: start; margin-bottom: 32px; }
 .dsk-np-review-hero { height: 280px; border-radius: var(--radius-md); background-size: cover; background-position: center; position: relative; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 20px; }
 .dsk-np-review-hero::after { content: ''; position: absolute; inset: 0; border-radius: var(--radius-md); background: linear-gradient(to top, rgba(0,0,0,0.7), transparent 60%); z-index: 0; }
 .dsk-np-review-hero-tags { position: relative; z-index: 1; display: flex; gap: 6px; }
@@ -1351,6 +1352,7 @@
   .dsk-wizard-body { grid-template-columns: 190px 1fr 260px; }
   .dsk-np-event-grid { grid-template-columns: repeat(2, 1fr); }
   .dsk-np-review-grid { grid-template-columns: 1fr 260px; }
+  .dsk-np-request-grid { grid-template-columns: 1fr 240px; }
   .dsk-np-two-col { grid-template-columns: 1fr; }
   .dsk-approval-grid { grid-template-columns: 1fr 1fr; }
   .dsk-post-event-grid { grid-template-columns: 1fr 1fr; }

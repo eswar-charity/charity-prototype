@@ -5,7 +5,7 @@ export function adaptEvent(apiEvent) {
     key: apiEvent.key,
     title: apiEvent.title,
     mission: apiEvent.story ?? apiEvent.subtitle ?? '',
-    category: apiEvent.category,
+    category: apiEvent.category || apiEvent.nonprofit?.category || null,
     isLive: !!apiEvent.is_live,
     date: apiEvent.date,
     startTime: apiEvent.start_time,
@@ -24,5 +24,14 @@ export function adaptEvent(apiEvent) {
     photos: apiEvent.photos ?? [],
     nonprofitBrief: apiEvent.nonprofit,
     organizerBrief: apiEvent.organizer,
+    viewerJoined: !!apiEvent.viewer_joined,
+    viewerLiked: !!apiEvent.viewer_liked,
+    viewerSaved: !!apiEvent.viewer_saved,
+    changeRequest: apiEvent.change_request
+      ? {
+          feedback: apiEvent.change_request.feedback || '',
+          areas: apiEvent.change_request.areas || [],
+        }
+      : null,
   };
 }

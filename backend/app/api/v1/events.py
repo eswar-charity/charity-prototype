@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user, require_role
+from app.api.deps import get_current_user, get_current_user_optional, require_role
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.event import (
@@ -36,8 +36,12 @@ async def create_event(
 
 
 @router.get("/{key}", response_model=EventRead)
-async def event_detail(key: str, db: AsyncSession = Depends(get_db)):
-    return await event_service.get_detail(db, key)
+async def event_detail(
+    key: str,
+    db: AsyncSession = Depends(get_db),
+    viewer: User | None = Depends(get_current_user_optional),
+):
+    return await event_service.get_detail(db, key, viewer)
 
 
 @router.get("/{key}/backers")

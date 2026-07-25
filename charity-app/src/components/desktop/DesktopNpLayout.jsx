@@ -1,18 +1,48 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, Calendar, ClipboardList, BarChart3, Wallet, Settings, Search } from 'lucide-react';
 import Logo from '../Logo';
 import NotificationBell from '../NotificationBell';
+import { useAuth } from '../../auth/AuthContext';
+import { getNpLaunchpad } from '../../api/dashboards';
+import { resetDraft } from '../../hooks/useCreateEventDraft';
 
 const NAV = [
   { id: 'home', label: 'Home', icon: Home, path: '/np/home' },
   { id: 'events', label: 'Events', icon: Calendar, path: '/guest/feed' },
-  { id: 'approvals', label: 'Approvals', icon: ClipboardList, path: '/np/approvals', badge: 2 },
+  { id: 'approvals', label: 'Approvals', icon: ClipboardList, path: '/np/approvals' },
   { id: 'activity', label: 'Activity', icon: BarChart3, path: '/np/activity' },
   { id: 'financials', label: 'Financials', icon: Wallet, path: '/np/financials' },
 ];
 
 export default function DesktopNpSidebar({ active }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [pendingApprovals, setPendingApprovals] = useState(null);
+  const [org, setOrg] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getNpLaunchpad()
+      .then((data) => {
+        if (cancelled) return;
+        setOrg(data?.org ?? null);
+        setPendingApprovals(Number(data?.stats?.pending_approvals) || 0);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setOrg(null);
+          setPendingApprovals(0);
+        }
+      });
+    return () => { cancelled = true; };
+  }, [active]);
+
+  const orgName = org?.name || 'Your organization';
+  const orgInitials = org?.initials || (orgName.slice(0, 2).toUpperCase());
+  const userName = user?.name || 'Admin';
+  const userInitials = user?.initials || userName.slice(0, 2).toUpperCase();
+  const userRole = user?.role === 'np_admin' ? 'Admin' : (user?.role || 'Admin');
 
   return (
     <aside className="dsk-np-sidebar">
@@ -23,25 +53,39 @@ export default function DesktopNpSidebar({ active }) {
         </div>
 
         <div className="dsk-np-org-row">
-          <div className="dsk-np-org-logo">OC</div>
+          <div
+            className="dsk-np-org-logo"
+            style={org?.color ? { background: org.color } : undefined}
+          >
+            {orgInitials}
+          </div>
           <div>
-            <p className="dsk-np-org-name">Ocean Conservancy</p>
-            <p className="dsk-np-org-verified">✓ Verified</p>
+            <p className="dsk-np-org-name">{orgName}</p>
+            <p className="dsk-np-org-verified">{org?.verified === false ? 'Unverified' : '✓ Verified'}</p>
           </div>
         </div>
 
         <nav className="dsk-np-nav">
           {NAV.map((item) => {
             const Icon = item.icon;
+            const showBadge = item.id === 'approvals' && pendingApprovals != null && pendingApprovals > 0;
             return (
               <div
                 key={item.id}
                 className={`dsk-np-nav-item ${active === item.id ? 'active' : ''}`}
                 onClick={() => navigate(item.path)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate(item.path);
+                  }
+                }}
               >
                 <Icon size={17} />
                 <span>{item.label}</span>
-                {item.badge ? <span className="dsk-np-nav-badge">{item.badge}</span> : null}
+                {showBadge ? <span className="dsk-np-nav-badge">{pendingApprovals}</span> : null}
               </div>
             );
           })}
@@ -53,12 +97,21 @@ export default function DesktopNpSidebar({ active }) {
           <Settings size={17} />
           <span>Settings</span>
         </div>
-        <button className="dsk-np-new-event-btn" onClick={() => navigate('/event/step-1')}>New Event</button>
+        <button
+          type="button"
+          className="dsk-np-new-event-btn"
+          onClick={() => {
+            resetDraft();
+            navigate('/event/step-1');
+          }}
+        >
+          New Event
+        </button>
         <div className="dsk-np-user-row">
-          <div className="dsk-np-user-avatar">AM</div>
+          <div className="dsk-np-user-avatar">{userInitials}</div>
           <div>
-            <p className="dsk-np-user-name">Alex Mercer</p>
-            <p className="dsk-np-user-role">Admin</p>
+            <p className="dsk-np-user-name">{userName}</p>
+            <p className="dsk-np-user-role">{userRole}</p>
           </div>
         </div>
       </div>

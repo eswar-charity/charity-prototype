@@ -120,7 +120,9 @@ export default function DesktopNpApprovals() {
           <div className="dsk-np-approval-hero" style={{ backgroundImage: `url(${ev.heroImg})` }}>
             {ev.status === 'Approved'
               ? <span className="badge" style={{ background: 'var(--green)', color: 'white' }}>✓ Approved</span>
-              : <span className={badgeStyle(ev.status)}>{ev.status}</span>}
+              : ev.status === 'Rejected'
+                ? <span className="badge" style={{ background: 'var(--coral)', color: 'white' }}>Rejected</span>
+                : <span className={badgeStyle(ev.status)}>{ev.status}</span>}
           </div>
           <div className="dsk-np-approval-body">
             <h3 className="dsk-np-approval-title">{ev.title}</h3>
@@ -133,7 +135,7 @@ export default function DesktopNpApprovals() {
             {ev.submitted && <p className="dsk-np-approval-submitted">{ev.submitted}</p>}
           </div>
           <div className="dsk-np-approval-actions" onClick={(e) => e.stopPropagation()}>
-            {ev.status === 'Approved' ? (
+            {ev.status === 'Approved' || ev.status === 'Rejected' ? (
               <button className="ap-btn-outline dsk-np-review-btn" onClick={() => navigate(npReviewPath(ev.id))}>View event</button>
             ) : (
               <>

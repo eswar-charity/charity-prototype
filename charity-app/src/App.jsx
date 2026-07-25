@@ -3,6 +3,7 @@ import useIsDesktop from './hooks/useIsDesktop';
 import { events } from './data/mockData';
 import AccessGate from './access/AccessGate';
 import { AuthProvider } from './auth/AuthContext';
+import RequireNpAdmin from './auth/RequireNpAdmin';
 
 const DEFAULT_EVENT_KEY = events[0].key;
 
@@ -36,7 +37,7 @@ import DesktopGuestFeed from './screens/guests/desktop/DesktopGuestFeed';
 import DesktopEventDetail from './screens/guests/desktop/DesktopEventDetail';
 import DesktopEventDetailUpcoming from './screens/guests/desktop/DesktopEventDetailUpcoming';
 import DesktopOrganizerProfile from './screens/guests/desktop/DesktopOrganizerProfile';
-import DesktopNpPublicProfile from './screens/guests/desktop/DesktopNpPublicProfile';
+import GuestNpPublicProfileRoute from './screens/guests/GuestNpPublicProfile';
 import DesktopIdentityGateJoin from './screens/guests/desktop/DesktopIdentityGateJoin';
 import DesktopIdentityGateDonate from './screens/guests/desktop/DesktopIdentityGateDonate';
 
@@ -75,6 +76,7 @@ import DesktopNpReviewDetail from './screens/nonprofits/desktop/DesktopNpReviewD
 import DesktopNpActivity from './screens/nonprofits/desktop/DesktopNpActivity';
 import DesktopNpFinancials from './screens/nonprofits/desktop/DesktopNpFinancials';
 import DesktopNpAutopilot from './screens/nonprofits/desktop/DesktopNpAutopilot';
+import DesktopNpRequestChanges from './screens/nonprofits/desktop/DesktopNpRequestChanges';
 
 // Charity Hub Platform Admin — the internal Admin Portal (Blueprint journey #9).
 // Desktop-first, responsive; brand-faithful to CharityHub_Branding_Guidelines.
@@ -158,6 +160,9 @@ function NpApprovalsRoute() {
 function NpReviewDetailRoute() {
   return useIsDesktop() ? <DesktopNpReviewDetail /> : <NpReviewDetail />;
 }
+function NpRequestChangesRoute() {
+  return useIsDesktop() ? <DesktopNpRequestChanges /> : <NpRequestChanges />;
+}
 function NpActivityRoute() {
   return useIsDesktop() ? <DesktopNpActivity /> : <NpActivity />;
 }
@@ -223,18 +228,18 @@ export default function App() {
         <Route path="/how-it-works" element={<HowItWorksRoute />} />
         <Route path="/causes" element={<CausesRoute />} />
         <Route path="/guest/organizer/:slug" element={<DesktopOrganizerProfile />} />
-        <Route path="/guest/np/:slug" element={<DesktopNpPublicProfile />} />
+        <Route path="/guest/np/:slug" element={<GuestNpPublicProfileRoute />} />
 
-        {/* Nonprofit flow */}
+        {/* Nonprofit flow — NP admin only (guests redirected away) */}
         <Route path="/np" element={<Navigate to="/np/home" replace />} />
-        <Route path="/np/home" element={<NpHomeRoute />} />
-        <Route path="/np/profile" element={<NpProfile />} />
-        <Route path="/np/activity" element={<NpActivityRoute />} />
-        <Route path="/np/financials" element={<NpFinancialsRoute />} />
-        <Route path="/np/approvals" element={<NpApprovalsRoute />} />
-        <Route path="/np/approvals/review" element={<NpReviewDetailRoute />} />
-        <Route path="/np/approvals/request-changes" element={<NpRequestChanges />} />
-        <Route path="/np/settings/autopilot" element={<NpAutopilotRoute />} />
+        <Route path="/np/home" element={<RequireNpAdmin><NpHomeRoute /></RequireNpAdmin>} />
+        <Route path="/np/profile" element={<RequireNpAdmin><NpProfile /></RequireNpAdmin>} />
+        <Route path="/np/activity" element={<RequireNpAdmin><NpActivityRoute /></RequireNpAdmin>} />
+        <Route path="/np/financials" element={<RequireNpAdmin><NpFinancialsRoute /></RequireNpAdmin>} />
+        <Route path="/np/approvals" element={<RequireNpAdmin><NpApprovalsRoute /></RequireNpAdmin>} />
+        <Route path="/np/approvals/review" element={<RequireNpAdmin><NpReviewDetailRoute /></RequireNpAdmin>} />
+        <Route path="/np/approvals/request-changes" element={<RequireNpAdmin><NpRequestChangesRoute /></RequireNpAdmin>} />
+        <Route path="/np/settings/autopilot" element={<RequireNpAdmin><NpAutopilotRoute /></RequireNpAdmin>} />
 
         {/* Charity Hub Platform Admin flow */}
         <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />

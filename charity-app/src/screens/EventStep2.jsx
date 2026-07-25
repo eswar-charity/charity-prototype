@@ -3,12 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Search, Check } from 'lucide-react';
 import { useCreateEventDraft, updateDraft } from '../hooks/useCreateEventDraft';
 import { useNonprofitList } from '../hooks/useNonprofitList';
+import { useWizardStepAccess } from '../hooks/useWizardStepAccess';
+import { backWizardPath, nextWizardPath } from '../utils/changeRequestAreas';
 import { NP_CATEGORY_FILTERS } from '../data/mockData';
 import MobileAppHeader from '../components/MobileAppHeader';
 
 export default function EventStep2() {
   const navigate = useNavigate();
   const draft = useCreateEventDraft();
+  const { fixMode, allowedSteps } = useWizardStepAccess(2);
   const [activeFilter, setActiveFilter] = useState('All');
   const [query, setQuery] = useState('');
   const { nonprofits: filtered } = useNonprofitList({ q: query, category: activeFilter });
@@ -20,7 +23,7 @@ export default function EventStep2() {
           layout="bar"
           homePath="/feed"
           left={(
-            <button type="button" className="back-btn" aria-label="Go back" onClick={() => navigate('/event/step-1')}>
+            <button type="button" className="back-btn" aria-label="Go back" onClick={() => navigate(backWizardPath(fixMode, allowedSteps, 2))}>
               <ChevronLeft size={18} />
             </button>
           )}
@@ -63,11 +66,11 @@ export default function EventStep2() {
                 tabIndex={0}
                 aria-pressed={draft.nonprofitId === np.id}
                 aria-label={`Select ${np.name}`}
-                onClick={() => updateDraft({ nonprofitId: np.id })}
+                onClick={() => updateDraft({ nonprofitId: np.id, category: np.category || null })}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    updateDraft({ nonprofitId: np.id });
+                    updateDraft({ nonprofitId: np.id, category: np.category || null });
                   }
                 }}
               >
@@ -105,7 +108,7 @@ export default function EventStep2() {
           </div>
 
           <div style={{ marginTop: 24 }}>
-            <button type="button" className="btn-primary" onClick={() => navigate('/event/step-3')}>
+            <button type="button" className="btn-primary" onClick={() => navigate(nextWizardPath(fixMode, allowedSteps, 2))}>
               Next →
             </button>
           </div>

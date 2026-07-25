@@ -15,6 +15,12 @@ class NonprofitBrief(BaseModel):
     initials: str | None = None
     color: str | None = None
     verified: bool = False
+    category: str | None = None
+
+
+class ChangeRequestBrief(BaseModel):
+    feedback: str = ""
+    areas: list[str] = []
 
 
 class EventRead(BaseModel):
@@ -42,6 +48,10 @@ class EventRead(BaseModel):
     organizer: OrganizerBrief | None = None
     tags: list[str] = []
     photos: list[str] = []
+    viewer_joined: bool = False
+    viewer_liked: bool = False
+    viewer_saved: bool = False
+    change_request: ChangeRequestBrief | None = None
 
 
 class EventListResponse(BaseModel):

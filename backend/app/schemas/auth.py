@@ -58,14 +58,8 @@ class IdentityGateRequest(BaseModel):
         return self
 
 
-class GoogleMockRequest(BaseModel):
-    email: str | None = None
-    name: str | None = None
-
-    @field_validator("email", mode="before")
-    @classmethod
-    def _lowercase_email(cls, v):
-        return _normalize_email(v)
+class GoogleAuthRequest(BaseModel):
+    id_token: str = Field(min_length=1)
 
 
 class TokenResponse(BaseModel):

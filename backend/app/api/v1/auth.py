@@ -5,7 +5,7 @@ from app.api.deps import get_current_user
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.auth import (
-    GoogleMockRequest,
+    GoogleAuthRequest,
     IdentityGateRequest,
     LoginRequest,
     RefreshRequest,
@@ -56,6 +56,6 @@ async def identity_gate(
 
 
 @router.post("/google", response_model=TokenResponse)
-async def google(payload: GoogleMockRequest, db: AsyncSession = Depends(get_db)):
-    _user, tokens = await auth_service.google_mock(db, payload.email, payload.name)
+async def google(payload: GoogleAuthRequest, db: AsyncSession = Depends(get_db)):
+    _user, tokens = await auth_service.google_login(db, payload.id_token)
     return tokens

@@ -1,60 +1,22 @@
-import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Users } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../../components/desktop/DesktopFooter';
 import { eventDisplayTitle } from '../../../data/mockData';
 import { eventDetailPath } from '../../../utils/eventPaths';
-import { getNonprofit } from '../../../api/nonprofits';
-import { adaptNonprofitProfile } from '../../../api/adapters/nonprofit';
 import { EventImageBanner } from '../../../components/event/EventImage';
+import { useNonprofitProfile } from '../../../hooks/useNonprofitProfile';
 
-function enrichProfileEvent(ev) {
-  return {
-    ...ev,
-    cover: ev.photos?.[0] || (ev.key ? `/events/${ev.key}/img1.jpg` : undefined),
-  };
+function formatRaised(amount) {
+  const n = Number(amount) || 0;
+  if (n >= 1000) return `$${Math.round(n / 1000)}k`;
+  return `$${n.toLocaleString()}`;
 }
 
 export default function DesktopNpPublicProfile() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    if (!slug) {
-      setProfile(null);
-      setLoading(false);
-      setError(new Error('Missing nonprofit slug'));
-      return undefined;
-    }
-    let cancelled = false;
-    setLoading(true);
-    setError(null);
-    getNonprofit(slug)
-      .then((raw) => {
-        if (cancelled) return;
-        const adapted = adaptNonprofitProfile(raw);
-        setProfile({
-          ...adapted,
-          events: (adapted.events ?? []).map(enrichProfileEvent),
-        });
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setProfile(null);
-          setError(err);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [slug]);
+  const { profile, loading, error } = useNonprofitProfile(slug, true);
 
   if (loading) {
     return (
@@ -88,7 +50,7 @@ export default function DesktopNpPublicProfile() {
     );
   }
 
-  const cover = profile.events[0]?.photos?.[0] || profile.events[0]?.cover;
+  const cover = profile.events[0]?.cover;
 
   return (
     <div className="dsk-page">
@@ -110,14 +72,26 @@ export default function DesktopNpPublicProfile() {
                 <span className="dsk-verify-dot" style={{ marginLeft: 6 }}>✓</span>
               </p>
               <h1 className="dsk-profile-name">{profile.name}</h1>
-              <p className="dsk-profile-bio">{profile.mission}</p>
+              {profile.ein && (
+                <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>EIN {profile.ein}</p>
+              )}
+              <p className="dsk-profile-bio">{profile.mission || 'A verified nonprofit partner on Charity Hub.'}</p>
             </div>
           </div>
 
           <div className="dsk-profile-stats-row">
-            <div className="dsk-profile-stat"><span className="dsk-profile-stat-num">{profile.stats.eventsHosted}</span><span className="dsk-profile-stat-lbl">Events hosted</span></div>
-            <div className="dsk-profile-stat"><span className="dsk-profile-stat-num">{profile.stats.totalBacked.toLocaleString()}</span><span className="dsk-profile-stat-lbl">Backers</span></div>
-            <div className="dsk-profile-stat"><span className="dsk-profile-stat-num">${Math.round(profile.stats.totalRaised / 1000)}k</span><span className="dsk-profile-stat-lbl">Raised</span></div>
+            <div className="dsk-profile-stat">
+              <span className="dsk-profile-stat-num">{profile.stats.eventsHosted}</span>
+              <span className="dsk-profile-stat-lbl">Events hosted</span>
+            </div>
+            <div className="dsk-profile-stat">
+              <span className="dsk-profile-stat-num">{profile.stats.totalBacked.toLocaleString()}</span>
+              <span className="dsk-profile-stat-lbl">Backers</span>
+            </div>
+            <div className="dsk-profile-stat">
+              <span className="dsk-profile-stat-num">{formatRaised(profile.stats.totalRaised)}</span>
+              <span className="dsk-profile-stat-lbl">Raised</span>
+            </div>
           </div>
 
           <div className="dsk-profile-events-head">
@@ -126,7 +100,7 @@ export default function DesktopNpPublicProfile() {
 
           <div className="dsk-profile-event-grid">
             {profile.events.length === 0 && (
-              <p className="dsk-empty-note">No events yet.</p>
+              <p className="dsk-empty-note">No public events yet.</p>
             )}
             {profile.events.map((e) => (
               <div
@@ -134,7 +108,7 @@ export default function DesktopNpPublicProfile() {
                 className="dsk-profile-event-card"
                 role="button"
                 tabIndex={0}
-                aria-label={`View ${e.title.replace(/\s+/g, '')}`}
+                aria-label={`View ${eventDisplayTitle(e.title)}`}
                 onClick={() => navigate(eventDetailPath(e, { loggedIn: false }))}
                 onKeyDown={(evt) => {
                   if (evt.key === 'Enter' || evt.key === ' ') {
@@ -148,7 +122,10 @@ export default function DesktopNpPublicProfile() {
                 </EventImageBanner>
                 <div className="dsk-profile-event-body">
                   <p className="dsk-profile-event-title">{eventDisplayTitle(e.title)}</p>
-                  <p className="dsk-profile-event-np"><Users size={12} style={{ verticalAlign: 'text-bottom', marginRight: 4 }} />{e.backed} backing</p>
+                  <p className="dsk-profile-event-np">
+                    <Users size={12} style={{ verticalAlign: 'text-bottom', marginRight: 4 }} />
+                    {e.backed} backing
+                  </p>
                   <p className="dsk-profile-event-stat">{e.joined} attending</p>
                 </div>
               </div>

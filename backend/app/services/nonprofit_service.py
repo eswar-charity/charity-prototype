@@ -3,7 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import AppError
 from app.models.nonprofit import Nonprofit
 from app.models.user import User
-from app.repositories import nonprofit_repository as repo
+from app.repositories import event_repository, nonprofit_repository as repo
+from app.services import event_service
+
+PUBLIC_NP_EVENT_STATUSES = ("Live", "Completed")
 
 
 async def list_nonprofits(
@@ -25,9 +28,22 @@ async def get_public_profile(db: AsyncSession, slug: str) -> dict:
     np = await repo.get_by_slug(db, slug)
     if not np:
         raise AppError("not_found", "Nonprofit not found", status_code=404)
-    # Stats/events are aggregated over events+donations, wired in a later phase.
-    stats = {"eventsHosted": 0, "totalRaised": 0, "totalBacked": 0}
-    return {"nonprofit": np, "stats": stats, "events": []}
+
+    owned = await event_repository.list_by_nonprofit(db, np.id)
+    public_events = [
+        e
+        for e in owned
+        if e.status in PUBLIC_NP_EVENT_STATUSES and e.visibility == "public"
+    ]
+    event_reads = [
+        await event_service._to_read(db, e, include_photos=True) for e in public_events
+    ]
+    stats = {
+        "eventsHosted": len(public_events),
+        "totalRaised": sum(e.raised or 0 for e in public_events),
+        "totalBacked": sum(e.backed or 0 for e in public_events),
+    }
+    return {"nonprofit": np, "stats": stats, "events": event_reads}
 
 
 async def get_my_nonprofit(db: AsyncSession, user: User) -> Nonprofit:

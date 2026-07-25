@@ -58,17 +58,18 @@ export function useNpApprovalsQueue(variant = 'mobile') {
     if (actionPending) return null;
     setActionPending(true);
     try {
-      await approveEvent(ev.id);
-      setEvents((prev) =>
-        variant === 'desktop'
-          ? prev.map((e) => (e.id === ev.id ? { ...e, status: 'Approved' } : e))
-          : prev.filter((e) => e.id !== ev.id),
-      );
-      return ev;
+      const raw = await approveEvent(ev.id);
+      const mapped = mapRow({ ...raw, organizer: raw.organizer?.name ?? ev.organizer });
+      setEvents((prev) => {
+        const others = prev.filter((e) => e.id !== ev.id);
+        if (variant === 'mobile') return others;
+        return [mapped, ...others];
+      });
+      return mapped;
     } finally {
       setActionPending(false);
     }
-  }, [actionPending, variant]);
+  }, [actionPending, mapRow, variant]);
 
   const reject = useCallback(async (ev, reason = DEFAULT_REJECT_REASON) => {
     if (actionPending) return null;
@@ -162,11 +163,11 @@ export function useNpReviewDetail() {
     }
   }, [actionPending, eventId]);
 
-  const requestChangesAction = useCallback(async (feedback) => {
+  const requestChangesAction = useCallback(async (feedback, areas) => {
     if (!eventId || actionPending) return null;
     setActionPending(true);
     try {
-      await requestChanges(eventId, feedback);
+      await requestChanges(eventId, feedback, areas);
       return true;
     } finally {
       setActionPending(false);

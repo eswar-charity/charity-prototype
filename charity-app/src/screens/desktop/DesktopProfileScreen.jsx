@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Pencil, Share2 } from 'lucide-react';
+import { MapPin, Pencil, Share2, LogOut } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
 import DesktopShareModal from '../../components/desktop/DesktopShareModal';
+import { useAuth } from '../../auth/AuthContext';
 import { eventDetailPath } from '../../utils/eventPaths';
 import { EventImageBanner } from '../../components/event/EventImage';
 import { useSeProfile } from '../../hooks/useSeProfile';
@@ -13,8 +14,21 @@ const DEFAULT_BIO = 'Creating events that bring communities together for causes 
 
 export default function DesktopProfileScreen() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [showShare, setShowShare] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const { profile, hostedEvents, stats, loading, error, reload } = useSeProfile();
+
+  const handleSignOut = async () => {
+    if (signingOut) return;
+    setSigningOut(true);
+    try {
+      await logout();
+      navigate('/');
+    } finally {
+      setSigningOut(false);
+    }
+  };
 
   const name = profile?.name ?? 'Profile';
   const initials = initialsFromName(name, profile?.initials ?? '?');
@@ -50,6 +64,16 @@ export default function DesktopProfileScreen() {
               <button type="button" className="dsk-btn-primary" style={{ marginTop: 12 }} onClick={reload}>
                 Try again
               </button>
+              <button
+                type="button"
+                className="dsk-msg-btn"
+                style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center' }}
+                onClick={handleSignOut}
+                disabled={signingOut}
+              >
+                <LogOut size={14} style={{ marginRight: 6 }} />
+                {signingOut ? 'Signing out…' : 'Sign out'}
+              </button>
             </div>
           )}
           {profile && (
@@ -72,6 +96,15 @@ export default function DesktopProfileScreen() {
                   <button type="button" className="dsk-follow-cta" onClick={() => setShowShare(true)}>
                     <Share2 size={14} style={{ marginRight: 6, verticalAlign: -2 }} />
                     Share
+                  </button>
+                  <button
+                    type="button"
+                    className="dsk-msg-btn"
+                    onClick={handleSignOut}
+                    disabled={signingOut}
+                  >
+                    <LogOut size={14} style={{ marginRight: 6, verticalAlign: -2 }} />
+                    {signingOut ? 'Signing out…' : 'Sign out'}
                   </button>
                 </div>
               </div>

@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, X, Clock, MapPin, Globe, Lock, Check } from 'lucide-react';
 import { useCreateEventDraft, updateDraft } from '../hooks/useCreateEventDraft';
+import { useWizardStepAccess } from '../hooks/useWizardStepAccess';
+import { backWizardPath, nextWizardPath } from '../utils/changeRequestAreas';
 import { START_TIMES, END_TIMES, cycleValue } from '../utils/eventWizard';
 import MobileAppHeader from '../components/MobileAppHeader';
 import DatePickerField from '../components/DatePickerField';
@@ -8,6 +10,7 @@ import DatePickerField from '../components/DatePickerField';
 export default function EventStep3() {
   const navigate = useNavigate();
   const draft = useCreateEventDraft();
+  const { fixMode, allowedSteps } = useWizardStepAccess(3);
 
   return (
     <div className="phone-shell">
@@ -16,7 +19,7 @@ export default function EventStep3() {
           layout="bar"
           homePath="/feed"
           left={(
-            <button type="button" className="back-btn" aria-label="Go back" onClick={() => navigate('/event/step-2')}>
+            <button type="button" className="back-btn" aria-label="Go back" onClick={() => navigate(backWizardPath(fixMode, allowedSteps, 3))}>
               <ChevronLeft size={18} />
             </button>
           )}
@@ -117,7 +120,7 @@ export default function EventStep3() {
           </button>
 
           <div style={{ marginTop: 24 }}>
-            <button type="button" className="btn-primary" onClick={() => navigate('/event/step-4')}>
+            <button type="button" className="btn-primary" onClick={() => navigate(nextWizardPath(fixMode, allowedSteps, 3))}>
               Next →
             </button>
           </div>

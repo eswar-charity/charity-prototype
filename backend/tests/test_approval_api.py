@@ -60,6 +60,11 @@ async def test_queue_and_approve(client, db_session):
     assert approved.json()["status"] == "Live"
     assert approved.json()["is_live"] is True
 
+    # Approved (Live) events remain visible on the Approvals page.
+    queue_after = (await client.get("/api/v1/np/approvals", headers=np_headers)).json()
+    approved_row = next(item for item in queue_after if item["id"] == eid)
+    assert approved_row["status"] == "Live"
+
 
 @pytest.mark.asyncio
 async def test_request_changes_then_reject(client, db_session):
@@ -69,10 +74,16 @@ async def test_request_changes_then_reject(client, db_session):
 
     rc = await client.post(
         f"/api/v1/np/approvals/{eid}/request-changes", headers=np_headers,
-        json={"feedback": "Please add a clearer description"},
+        json={
+            "feedback": "Please add a clearer description",
+            "areas": ["media_story"],
+        },
     )
     assert rc.status_code == 200
-    assert rc.json()["status"] == "Changes Requested"
+    body = rc.json()
+    assert body["status"] == "Changes Requested"
+    assert body["change_request"]["feedback"] == "Please add a clearer description"
+    assert body["change_request"]["areas"] == ["media_story"]
 
     rej = await client.post(
         f"/api/v1/np/approvals/{eid}/reject", headers=np_headers,

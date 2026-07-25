@@ -4,7 +4,8 @@ import { Share2, Bookmark, Calendar, MapPin, Users, ChevronRight } from 'lucide-
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
 import DesktopJoinGateModal from '../../../components/desktop/DesktopJoinGateModal';
-import { NonprofitLearnMoreModal, EventBackersModal } from '../../../components/event/EventModals';
+import { EventBackersModal } from '../../../components/event/EventModals';
+import EventNonprofitLearnMore from '../../../components/event/EventNonprofitLearnMore';
 import { slugify, eventDisplayTitle, getEventBannerFocus, getCommunityPhotos } from '../../../data/mockData';
 import { EventImageBanner } from '../../../components/event/EventImage';
 import { useAuth } from '../../../auth/AuthContext';
@@ -23,6 +24,7 @@ export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
   const [showNpModal, setShowNpModal] = useState(false);
   const [showBackersModal, setShowBackersModal] = useState(false);
   const [showJoinGate, setShowJoinGate] = useState(false);
+  const [gateIntent, setGateIntent] = useState('default');
   const [toast, setToast] = useState('');
 
   const showToast = (msg) => {
@@ -30,14 +32,26 @@ export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
     setTimeout(() => setToast(''), 1800);
   };
 
+  const openGate = (intent = 'default') => {
+    setGateIntent(intent);
+    setShowJoinGate(true);
+  };
+
+  const handleFollow = () => {
+    if (isAuthenticated || loggedIn) {
+      setFollowing((f) => !f);
+      return;
+    }
+    openGate('follow');
+  };
+
   const { saved, handleSave } = useEventActions({
     ev,
     loggedIn,
     isAuthenticated,
-    onNeedAuth: () => setShowJoinGate(true),
+    onNeedAuth: (intent) => openGate(intent || 'default'),
     showToast,
   });
-
   const { backers, loading: backersLoading } = useEventBackers(eventKey, showBackersModal, showToast);
 
   if (loading) {
@@ -68,8 +82,6 @@ export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
   }
 
   const shareUrl = `https://charity.hub/event/${ev.key}`;
-  const npDescription = ev.nonprofitBrief?.mission || ev.mission || ev.subtitle;
-  const npProfilePath = ev.nonprofitSlug ? `/guest/np/${ev.nonprofitSlug}` : '/np/profile';
 
   return (
     <div className="dsk-page">
@@ -153,7 +165,7 @@ export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
                 <button
                   className="follow-btn"
                   style={following ? { background: 'var(--primary)', color: 'white', borderColor: 'var(--primary)' } : {}}
-                  onClick={() => setFollowing(!following)}
+                  onClick={handleFollow}
                 >
                   {following ? 'Following' : 'Follow'}
                 </button>
@@ -172,13 +184,26 @@ export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
 
           <aside className="dsk-ev-sidebar">
             <div className="dsk-sidebar-card">
-              <div className="dsk-sidebar-np-row">
+              <div className="dsk-sidebar-np-row" style={{ alignItems: 'flex-start' }}>
                 <div className="dsk-sidebar-np-avatar" style={{ background: ev.npBg }}>{ev.npInitials}</div>
-                <div>
+                <div style={{ flex: 1, minWidth: 0 }}>
                   <p className="dsk-sidebar-np-name">{ev.nonprofit}</p>
                   <p className="dsk-sidebar-np-sub">{ev.date}</p>
+                  {(ev.mission || ev.subtitle) ? (
+                    <p className="dsk-modal-section-text" style={{ fontSize: 13, marginTop: 8, WebkitLineClamp: 2, display: '-webkit-box', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {ev.mission || ev.subtitle}
+                    </p>
+                  ) : null}
                 </div>
               </div>
+              <button
+                type="button"
+                className="btn-ghost"
+                style={{ width: '100%', justifyContent: 'center', marginBottom: 10, fontSize: 13 }}
+                onClick={() => setShowNpModal(true)}
+              >
+                Learn more
+              </button>
               <button
                 className="dsk-sidebar-back-btn"
                 style={backed ? { background: 'var(--green)' } : {}}
@@ -187,7 +212,7 @@ export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
                     setBacked(!backed);
                     return;
                   }
-                  setShowJoinGate(true);
+                  openGate('donate');
                 }}
               >
                 {backed ? 'Backed ✓' : 'Back this event'}
@@ -213,15 +238,15 @@ export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
         />
       )}
 
-      <NonprofitLearnMoreModal
+      <EventNonprofitLearnMore
         open={showNpModal}
         onClose={() => setShowNpModal(false)}
-        name={ev.nonprofit}
-        initials={ev.npInitials}
-        avatarStyle={{ background: ev.npBg }}
-        category={ev.category}
-        description={npDescription}
-        onViewProfile={() => { setShowNpModal(false); navigate(npProfilePath); }}
+        event={ev}
+        fallbackName={ev.nonprofit}
+        fallbackInitials={ev.npInitials}
+        fallbackBg={ev.npBg}
+        fallbackCategory={ev.category}
+        fallbackDescription={ev.mission || ev.subtitle}
       />
 
       <EventBackersModal
@@ -242,6 +267,7 @@ export default function DesktopEventDetailUpcoming({ loggedIn = false }) {
           nonprofit={ev.nonprofit}
           npInitials={ev.npInitials}
           npBg={ev.npBg}
+          intent={gateIntent}
         />
       )}
 

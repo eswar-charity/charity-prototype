@@ -11,6 +11,7 @@ export function useEventChat({
   enabled = false,
   currentUserId,
   showToast,
+  onMessageSent,
 }) {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -84,6 +85,7 @@ export function useEventChat({
         mediaId: mediaId ?? undefined,
       });
       setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
+      onMessageSent?.();
     } catch (err) {
       setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
       if (localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
@@ -92,7 +94,7 @@ export function useEventChat({
     } finally {
       setPending(false);
     }
-  }, [eventId, pending, showToast]);
+  }, [eventId, pending, showToast, onMessageSent]);
 
   return { messages, loading, error, send, pending };
 }

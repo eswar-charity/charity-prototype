@@ -59,7 +59,9 @@ async def request_changes(
     user: User = Depends(require_role("np_admin")),
     db: AsyncSession = Depends(get_db),
 ):
-    return await approval_service.request_changes(db, user, event_id, payload.feedback)
+    return await approval_service.request_changes(
+        db, user, event_id, payload.feedback, payload.areas
+    )
 
 
 @router.get("/autopilot")

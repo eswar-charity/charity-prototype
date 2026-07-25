@@ -19,10 +19,10 @@ export function rejectEvent(eventId, reason) {
   });
 }
 
-export function requestChanges(eventId, feedback) {
+export function requestChanges(eventId, feedback, areas) {
   return apiRequest(`/np/approvals/${eventId}/request-changes`, {
     method: 'POST',
-    body: { feedback },
+    body: { feedback, areas },
   });
 }
 

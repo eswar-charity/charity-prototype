@@ -2,6 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ArrowRight, Users } from 'lucide-react';
 import MobileAppHeader from '../../components/MobileAppHeader';
 import GuestBottomNav from '../../components/GuestBottomNav';
+import BottomNav from '../../components/BottomNav';
+import { useAuth } from '../../auth/AuthContext';
 import { getCausesWithEvents } from '../../data/marketingPages';
 import { EventImageBanner } from '../../components/event/EventImage';
 
@@ -11,6 +13,8 @@ function formatRaised(value) {
 
 export default function Causes() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const homePath = isAuthenticated ? '/feed' : '/guest/feed';
   const causes = getCausesWithEvents();
 
   return (
@@ -18,9 +22,9 @@ export default function Causes() {
       <div className="screen info-page-screen">
         <MobileAppHeader
           layout="bar"
-          homePath="/guest/feed"
+          homePath={homePath}
           left={(
-            <button type="button" className="back-btn" aria-label="Go back" onClick={() => navigate('/guest/feed')}>
+            <button type="button" className="back-btn" aria-label="Go back" onClick={() => navigate(homePath)}>
               <ChevronLeft size={18} />
             </button>
           )}
@@ -55,7 +59,7 @@ export default function Causes() {
                 <button
                   type="button"
                   className="info-cause-btn"
-                  onClick={() => navigate(`/guest/feed?cause=${encodeURIComponent(cause.category)}`)}
+                  onClick={() => navigate(`${homePath}?cause=${encodeURIComponent(cause.category)}`)}
                 >
                   View events <ArrowRight size={14} />
                 </button>
@@ -64,7 +68,9 @@ export default function Causes() {
           ))}
         </div>
 
-        <GuestBottomNav active="discover" />
+        {isAuthenticated
+          ? <BottomNav onPlusClick={() => navigate('/event/step-1')} />
+          : <GuestBottomNav active="discover" />}
       </div>
     </div>
   );

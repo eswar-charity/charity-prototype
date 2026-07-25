@@ -5,12 +5,15 @@ import SubmitChecklist from '../../components/SubmitChecklist';
 import { useCreateEventDraft, updateDraft } from '../../hooks/useCreateEventDraft';
 import { useSelectedNonprofit } from '../../hooks/useNonprofitList';
 import { useEventWizardMutations } from '../../hooks/useEventWizardMutations';
+import { useWizardStepAccess } from '../../hooks/useWizardStepAccess';
 import { useAppToast, ToastHost } from '../../components/Toast';
 import { previewHashtag } from '../../utils/eventWizard';
+import { backWizardPath } from '../../utils/changeRequestAreas';
 
 export default function DesktopEventStep4() {
   const navigate = useNavigate();
   const draft = useCreateEventDraft();
+  const { fixMode, allowedSteps } = useWizardStepAccess(4);
   const { nonprofit } = useSelectedNonprofit(draft.nonprofitId);
   const { toast, show } = useAppToast();
   const { handleSaveDraft, handleSubmit, pending, saved } = useEventWizardMutations(show);
@@ -19,8 +22,10 @@ export default function DesktopEventStep4() {
 
   return (
     <DesktopCreateEventLayout step={4} hidePreview>
-      <h1 className="dsk-wizard-h1">Preview & submit</h1>
-      <p className="dsk-wizard-sub">This is how your event will look</p>
+      <h1 className="dsk-wizard-h1">{fixMode ? 'Fix requested changes' : 'Preview & submit'}</h1>
+      <p className="dsk-wizard-sub">
+        {fixMode ? 'Update only the items the nonprofit asked for, then resubmit.' : 'This is how your event will look'}
+      </p>
 
       <div className="dsk-wizard-final-card">
         <div className="dsk-wizard-final-hero" style={{ backgroundImage: `url(${draft.photos[0]?.src})` }}>
@@ -67,12 +72,14 @@ export default function DesktopEventStep4() {
       </div>
 
       <div className="dsk-wizard-footer">
-        <button type="button" className="dsk-wizard-back-link" onClick={() => navigate('/event/step-3')}>← Back</button>
+        <button type="button" className="dsk-wizard-back-link" onClick={() => navigate(backWizardPath(fixMode, allowedSteps, 4))}>← Back</button>
         <div style={{ display: 'flex', gap: 10 }}>
           <button type="button" className="btn-outline" style={{ width: 'auto', padding: '12px 20px' }} onClick={handleSaveDraft} disabled={pending}>
             {saved ? 'Draft saved ✓' : 'Save as draft'}
           </button>
-          <button type="button" className="dsk-cta-btn" onClick={handleSubmit} disabled={pending}>Submit for approval →</button>
+          <button type="button" className="dsk-cta-btn" onClick={handleSubmit} disabled={pending}>
+            {fixMode ? 'Resubmit for approval →' : 'Submit for approval →'}
+          </button>
         </div>
       </div>
       <ToastHost toast={toast} />

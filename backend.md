@@ -12,6 +12,10 @@ Before implementation, analyze the complete prototype and Master Blueprint to id
 
 SE
 mike.rivera@demo.charityhub.com
+jordan.blake@demo.charityhub.com
+sam.okonkwo@demo.charityhub.com
+priya.desai@demo.charityhub.com
+(password Passw0rd! for all — see backend/seed/se_accounts.py)
 
 NP (password Passw0rd! for all — one admin per USA_20 org)
 redcross@charityhub.com

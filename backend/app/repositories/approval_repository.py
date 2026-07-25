@@ -5,12 +5,24 @@ from app.models.approval import AutopilotSettings, EventReview, TrustedSE
 from app.models.event import Event
 
 PENDING_STATUSES = ("Submitted", "Changes Requested")
+# Approvals page tabs: pending + decided (Live after approve, Rejected).
+QUEUE_STATUSES = ("Submitted", "Changes Requested", "Live", "Approved", "Rejected")
 
 
 async def list_pending(db: AsyncSession, nonprofit_id: int) -> list[Event]:
     stmt = (
         select(Event)
         .where(Event.nonprofit_id == nonprofit_id, Event.status.in_(PENDING_STATUSES))
+        .order_by(Event.id.desc())
+    )
+    return list((await db.execute(stmt)).scalars().all())
+
+
+async def list_queue(db: AsyncSession, nonprofit_id: int) -> list[Event]:
+    """Pending requests plus approved (Live) and rejected events for NP Approvals tabs."""
+    stmt = (
+        select(Event)
+        .where(Event.nonprofit_id == nonprofit_id, Event.status.in_(QUEUE_STATUSES))
         .order_by(Event.id.desc())
     )
     return list((await db.execute(stmt)).scalars().all())
@@ -26,6 +38,16 @@ async def add_review(
     await db.commit()
     await db.refresh(review)
     return review
+
+
+async def latest_changes_requested(db: AsyncSession, event_id: int) -> EventReview | None:
+    stmt = (
+        select(EventReview)
+        .where(EventReview.event_id == event_id, EventReview.action == "changes_requested")
+        .order_by(EventReview.id.desc())
+        .limit(1)
+    )
+    return (await db.execute(stmt)).scalar_one_or_none()
 
 
 async def get_autopilot(db: AsyncSession, nonprofit_id: int) -> AutopilotSettings | None:

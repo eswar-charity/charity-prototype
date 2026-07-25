@@ -2,16 +2,25 @@ import { useNavigate } from 'react-router-dom';
 import { Compass, Users, Camera, Heart, ArrowRight, ShieldCheck } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
+import { useAuth } from '../../auth/AuthContext';
 import { HOW_IT_WORKS_STEPS, HOW_IT_WORKS_ROLES } from '../../data/marketingPages';
 
 const STEP_ICONS = { compass: Compass, users: Users, camera: Camera, heart: Heart };
 
 export default function DesktopHowItWorks() {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+  const homePath = isAuthenticated ? '/feed' : '/guest/feed';
+  const startPath = isAuthenticated ? '/event/step-1' : '/';
 
   return (
     <div className="dsk-page dsk-info-page">
-      <DesktopHeader active="How it works" homePath="/guest/feed" />
+      <DesktopHeader
+        active="How it works"
+        loggedIn={isAuthenticated}
+        avatarInitials={user?.initials || 'SE'}
+        homePath={homePath}
+      />
 
       <main className="dsk-main">
         <section className="dsk-info-hero dsk-info-hero--blue">
@@ -23,12 +32,19 @@ export default function DesktopHowItWorks() {
               around live events — so participation turns into real dollars for causes that matter.
             </p>
             <div className="dsk-info-hero-actions">
-              <button type="button" className="dsk-cta-btn" onClick={() => navigate('/guest/feed')}>
+              <button type="button" className="dsk-cta-btn" onClick={() => navigate(homePath)}>
                 Explore events
               </button>
-              <button type="button" className="dsk-info-btn-outline" onClick={() => navigate('/')}>
-                Sign up to host
-              </button>
+              {!isAuthenticated && (
+                <button type="button" className="dsk-info-btn-outline" onClick={() => navigate('/')}>
+                  Sign up to host
+                </button>
+              )}
+              {isAuthenticated && (
+                <button type="button" className="dsk-info-btn-outline" onClick={() => navigate(startPath)}>
+                  Host an event
+                </button>
+              )}
             </div>
           </div>
         </section>
@@ -101,8 +117,8 @@ export default function DesktopHowItWorks() {
           <div className="dsk-container dsk-info-cta-inner">
             <h2 className="dsk-info-cta-title">Ready to start something good?</h2>
             <p className="dsk-info-cta-sub">Create a free event for any verified nonprofit on Charity Hub.</p>
-            <button type="button" className="dsk-cta-btn dsk-info-cta-btn" onClick={() => navigate('/')}>
-              Get started
+            <button type="button" className="dsk-cta-btn dsk-info-cta-btn" onClick={() => navigate(startPath)}>
+              {isAuthenticated ? 'Create an event' : 'Get started'}
             </button>
           </div>
         </section>

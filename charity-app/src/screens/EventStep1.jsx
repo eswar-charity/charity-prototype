@@ -2,14 +2,18 @@ import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Camera, Plus, X } from 'lucide-react';
 import { useCreateEventDraft, updateDraft } from '../hooks/useCreateEventDraft';
+import { useWizardStepAccess } from '../hooks/useWizardStepAccess';
+import { nextWizardPath } from '../utils/changeRequestAreas';
+import { appendDraftPhotos, removeDraftPhoto } from '../utils/draftPhotos';
 import MobileAppHeader from '../components/MobileAppHeader';
 
 export default function EventStep1() {
   const navigate = useNavigate();
   const draft = useCreateEventDraft();
+  const { fixMode, allowedSteps } = useWizardStepAccess(1);
   const fileInputRef = useRef(null);
 
-  const removePhoto = (id) => updateDraft({ photos: draft.photos.filter((p) => p.id !== id) });
+  const removePhoto = (id) => updateDraft({ photos: removeDraftPhoto(draft.photos, id) });
 
   const openFilePicker = () => fileInputRef.current?.click();
 
@@ -17,14 +21,7 @@ export default function EventStep1() {
     const files = Array.from(e.target.files || []);
     e.target.value = '';
     if (!files.length) return;
-    const remaining = 10 - draft.photos.length;
-    if (remaining <= 0) return;
-    let nextId = draft.photos.reduce((m, p) => Math.max(m, p.id), 0);
-    const newPhotos = files.slice(0, remaining).map((file) => {
-      nextId += 1;
-      return { id: nextId, src: URL.createObjectURL(file), type: file.type.startsWith('video') ? 'video' : 'image' };
-    });
-    updateDraft({ photos: [...draft.photos, ...newPhotos] });
+    updateDraft({ photos: appendDraftPhotos(draft.photos, files) });
   };
 
   return (
@@ -144,8 +141,12 @@ export default function EventStep1() {
           </div>
 
           <div style={{ marginTop: 24 }}>
-            <button type="button" className="btn-primary" onClick={() => navigate('/event/step-2')}>
-              Next →
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={() => navigate(nextWizardPath(fixMode, allowedSteps, 1))}
+            >
+              {fixMode ? 'Done →' : 'Next →'}
             </button>
           </div>
         </div>

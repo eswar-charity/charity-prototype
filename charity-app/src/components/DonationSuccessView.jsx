@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Mail, Clock } from 'lucide-react';
 import { calcDonationReceipt } from '../utils/donationReceipt.js';
+import { downloadDonationReceiptPdf } from '../utils/downloadDonationReceiptPdf.js';
 
 function formatMoney(value) {
   return `$${value.toFixed(2)}`;
@@ -15,10 +16,13 @@ export default function DonationSuccessView({
   amount = 25,
   tip,
   total,
+  paymentRef,
+  donationId,
   returnTo = '/guest/event/live',
 }) {
   const navigate = useNavigate();
   const [toast, setToast] = useState('');
+  const [downloading, setDownloading] = useState(false);
   const computed = calcDonationReceipt(amount);
   const donation = amount;
   const tipValue = tip ?? computed.tip;
@@ -30,25 +34,26 @@ export default function DonationSuccessView({
   };
 
   const handleDownloadReceipt = () => {
-    const receiptText = [
-      'Charity Hub — Donation Receipt',
-      `Donor: ${donorName}`,
-      `Event: ${eventTitle}`,
-      `Beneficiary: ${nonprofit}`,
-      `Donation: ${formatMoney(donation)}`,
-      `Tip to Charity Hub: ${formatMoney(tipValue)}`,
-      `Total charged: ${formatMoney(totalValue)}`,
-      `Shown publicly as: ${publicName}`,
-    ].join('\n');
-
-    const blob = new Blob([receiptText], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `charity-hub-receipt-${eventTitle.toLowerCase().replace(/\s+/g, '-')}.txt`;
-    link.click();
-    URL.revokeObjectURL(url);
-    showToast('Receipt downloaded successfully');
+    if (downloading) return;
+    setDownloading(true);
+    try {
+      downloadDonationReceiptPdf({
+        donorName,
+        publicName,
+        eventTitle,
+        nonprofit,
+        amount: donation,
+        tip: tipValue,
+        total: totalValue,
+        paymentRef,
+        donationId,
+      });
+      showToast('PDF receipt downloaded');
+    } catch {
+      showToast('Could not generate PDF receipt');
+    } finally {
+      setDownloading(false);
+    }
   };
 
   return (
@@ -100,8 +105,13 @@ export default function DonationSuccessView({
         The event&apos;s raised total updates once funds settle — your gift shows as pending until then.
       </p>
 
-      <button type="button" className="btn-primary donate-success-cta" onClick={handleDownloadReceipt}>
-        Download my receipt
+      <button
+        type="button"
+        className="btn-primary donate-success-cta"
+        onClick={handleDownloadReceipt}
+        disabled={downloading}
+      >
+        {downloading ? 'Preparing PDF…' : 'Download my receipt'}
       </button>
       <button type="button" className="btn-outline donate-success-back" onClick={() => navigate(returnTo)}>
         Back to event
