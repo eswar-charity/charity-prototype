@@ -48,6 +48,10 @@ export function resetDraft() {
   listeners.forEach((l) => l());
 }
 
+export function getDraft() {
+  return state;
+}
+
 export function useCreateEventDraft() {
   return useSyncExternalStore(
     (cb) => { listeners.add(cb); return () => listeners.delete(cb); },

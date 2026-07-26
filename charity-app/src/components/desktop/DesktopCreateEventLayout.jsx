@@ -92,7 +92,7 @@ export default function DesktopCreateEventLayout({ step, children, hidePreview =
         <Logo height={24} tone="dark" style={{ cursor: 'pointer' }} />
         <h2 className="dsk-wizard-topbar-title">{title}</h2>
         <div className="dsk-wizard-topbar-actions">
-          <button type="button" className="dsk-wizard-save-btn" onClick={handleSaveDraft} disabled={pending}>
+          <button type="button" className="dsk-wizard-save-btn" onClick={() => handleSaveDraft(step)} disabled={pending}>
             {saved ? 'Draft saved ✓' : 'Save draft'}
           </button>
           <button className="dsk-wizard-close-btn" onClick={() => navigate('/feed')} aria-label="Close"><X size={18} /></button>

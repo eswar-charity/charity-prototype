@@ -60,6 +60,11 @@ describe('mapDraftToApiPayload', () => {
     assert.equal(payload.cover_media_id, 42);
   });
 
+  it('includes wizard_step when wizardStep is set', () => {
+    const payload = mapDraftToApiPayload({ ...baseDraft, wizardStep: 3 });
+    assert.equal(payload.wizard_step, 3);
+  });
+
   it('omits cover_media_id when coverMediaId is null', () => {
     const payload = mapDraftToApiPayload(baseDraft);
     assert.equal('cover_media_id' in payload, false);

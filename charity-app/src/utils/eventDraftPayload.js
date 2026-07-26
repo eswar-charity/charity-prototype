@@ -22,6 +22,10 @@ export function mapDraftToApiPayload(draft) {
     payload.cover_media_id = Number(draft.coverMediaId);
   }
 
+  if (draft.wizardStep != null) {
+    payload.wizard_step = Number(draft.wizardStep);
+  }
+
   if (draft.tags?.length) {
     payload.tags = draft.tags;
   }

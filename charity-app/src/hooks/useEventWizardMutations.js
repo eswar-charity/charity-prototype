@@ -8,7 +8,7 @@ import {
 } from '../api/events';
 import { mapDraftToApiPayload } from '../utils/eventDraftPayload';
 import { syncEventDraftPhotos } from '../utils/syncEventDraftPhotos';
-import { useCreateEventDraft, updateDraft, resetDraft } from './useCreateEventDraft';
+import { useCreateEventDraft, updateDraft, resetDraft, getDraft } from './useCreateEventDraft';
 
 const EVENT_CREATOR_ROLES = new Set(['se', 'np_admin']);
 
@@ -40,37 +40,39 @@ export function useEventWizardMutations(show) {
   }, [isAuthenticated, navigate, show, user?.role]);
 
   const ensurePersisted = useCallback(async () => {
-    const payload = mapDraftToApiPayload(draft);
+    const current = getDraft();
+    const payload = mapDraftToApiPayload(current);
     let eventId;
     let key;
-    if (!draft.serverEventId) {
+    if (!current.serverEventId) {
       const created = await createEvent(payload);
       eventId = created.id;
       key = created.key;
       updateDraft({ serverEventId: created.id, serverKey: created.key });
     } else {
-      const updated = await saveDraftApi(draft.serverEventId, payload);
-      eventId = draft.serverEventId;
-      key = updated.key ?? draft.serverKey;
+      const updated = await saveDraftApi(current.serverEventId, payload);
+      eventId = current.serverEventId;
+      key = updated.key ?? current.serverKey;
     }
 
-    const synced = await syncEventDraftPhotos(eventId, draft.photos);
+    const synced = await syncEventDraftPhotos(eventId, current.photos);
     const photoPatch = { photos: synced.photos };
     if (synced.coverMediaId != null) {
       photoPatch.coverMediaId = synced.coverMediaId;
-      if (synced.coverMediaId !== draft.coverMediaId) {
+      if (synced.coverMediaId !== current.coverMediaId) {
         await saveDraftApi(eventId, {
-          ...mapDraftToApiPayload({ ...draft, coverMediaId: synced.coverMediaId }),
+          ...mapDraftToApiPayload({ ...getDraft(), coverMediaId: synced.coverMediaId }),
           cover_media_id: synced.coverMediaId,
         });
       }
     }
     updateDraft(photoPatch);
     return { eventId, key };
-  }, [draft]);
+  }, []);
 
-  const handleSaveDraft = useCallback(async () => {
+  const handleSaveDraft = useCallback(async (stepOverride) => {
     if (!requireEventCreator() || pending) return;
+    if (stepOverride != null) updateDraft({ wizardStep: stepOverride });
     setPending(true);
     try {
       await ensurePersisted();
