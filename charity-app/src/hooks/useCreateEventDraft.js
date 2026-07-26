@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { formatDisplayDate } from '../utils/datePicker';
+import { formatDisplayDate } from '../utils/datePicker.js';
 
 // Lightweight external store shared by create-event wizard steps (mobile + desktop).
 
