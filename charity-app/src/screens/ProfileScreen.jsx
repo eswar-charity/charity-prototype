@@ -136,6 +136,27 @@ export default function ProfileScreen() {
             </div>
 
             <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)', marginBottom: 12 }}>Your events</p>
+            <div
+              className="card"
+              style={{ marginBottom: 12, padding: 0 }}
+              role="button"
+              tabIndex={0}
+              onClick={() => navigate('/event/drafts')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  navigate('/event/drafts');
+                }
+              }}
+            >
+              <div className="recent-event-row">
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>Draft events</p>
+                  <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Continue editing or submit for approval</p>
+                </div>
+                <ChevronRight size={16} color="var(--text-light)" />
+              </div>
+            </div>
             <div className="card" style={{ marginBottom: 16 }}>
               {hostedEvents.length === 0 && (
                 <p style={{ padding: 16, fontSize: 13, color: 'var(--text-secondary)', textAlign: 'center' }}>

@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Megaphone, Building2, Compass, MessageCircle, Camera } from 'lucide-react';
+import { Megaphone, Building2, Compass, MessageCircle, Camera, FileText } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 import NotificationBell from '../components/NotificationBell';
 import MobileAppHeader from '../components/MobileAppHeader';
@@ -268,6 +268,25 @@ export default function FeedScreen() {
                 <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)' }}>Create an event</p>
                 <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
                   For a verified nonprofit of your choice.
+                </p>
+              </div>
+              <Compass size={16} color="var(--text-light)" />
+            </div>
+
+            <div
+              className="opt-row"
+              role="button"
+              tabIndex={0}
+              onClick={() => { setShowSheet(false); navigate('/event/drafts'); }}
+              onKeyDown={activateOnKey(() => { setShowSheet(false); navigate('/event/drafts'); })}
+            >
+              <div className="opt-icon" style={{ background: 'var(--dark)' }}>
+                <FileText size={20} color="white" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)' }}>Your drafts</p>
+                <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
+                  Continue editing a saved draft event.
                 </p>
               </div>
               <Compass size={16} color="var(--text-light)" />

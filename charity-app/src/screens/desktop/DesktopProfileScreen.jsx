@@ -126,6 +126,14 @@ export default function DesktopProfileScreen() {
 
               <div className="dsk-profile-events-head">
                 <p className="dsk-panel-title">Your events</p>
+                <button
+                  type="button"
+                  className="dsk-msg-btn"
+                  style={{ marginLeft: 'auto' }}
+                  onClick={() => navigate('/event/drafts')}
+                >
+                  Draft events
+                </button>
               </div>
 
               {hostedEvents.length === 0 ? (

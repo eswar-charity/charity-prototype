@@ -15,6 +15,7 @@ import EventStep1 from './screens/EventStep1';
 import EventStep2 from './screens/EventStep2';
 import EventStep3 from './screens/EventStep3';
 import EventStep4 from './screens/EventStep4';
+import EventDrafts from './screens/EventDrafts';
 import ApprovalStatus from './screens/ApprovalStatus';
 import LiveDashboard from './screens/LiveDashboard';
 import PostEventImpact from './screens/PostEventImpact';
@@ -48,6 +49,7 @@ import DesktopEventStep1 from './screens/desktop/DesktopEventStep1';
 import DesktopEventStep2 from './screens/desktop/DesktopEventStep2';
 import DesktopEventStep3 from './screens/desktop/DesktopEventStep3';
 import DesktopEventStep4 from './screens/desktop/DesktopEventStep4';
+import DesktopEventDrafts from './screens/desktop/DesktopEventDrafts';
 import DesktopApprovalStatus from './screens/desktop/DesktopApprovalStatus';
 import DesktopFeedScreen from './screens/desktop/DesktopFeedScreen';
 import DesktopPostEventImpact from './screens/desktop/DesktopPostEventImpact';
@@ -136,6 +138,9 @@ function EventStep3Route() {
 function EventStep4Route() {
   return useIsDesktop() ? <DesktopEventStep4 /> : <EventStep4 />;
 }
+function EventDraftsRoute() {
+  return useIsDesktop() ? <DesktopEventDrafts /> : <EventDrafts />;
+}
 function ApprovalStatusRoute() {
   return useIsDesktop() ? <DesktopApprovalStatus /> : <ApprovalStatus />;
 }
@@ -203,6 +208,7 @@ export default function App() {
         <Route path="/event/step-2" element={<EventStep2Route />} />
         <Route path="/event/step-3" element={<EventStep3Route />} />
         <Route path="/event/step-4" element={<EventStep4Route />} />
+        <Route path="/event/drafts" element={<EventDraftsRoute />} />
         <Route path="/approval" element={<ApprovalStatusRoute />} />
         <Route path="/live-dashboard" element={<LiveDashboardRoute />} />
         <Route path="/post-event" element={<PostEventImpactRoute />} />

@@ -81,16 +81,26 @@ export default function DesktopHeader({
           )}
 
           {loggedIn ? (
-            <div
-              className="dsk-header-avatar"
-              onClick={() => navigate('/profile')}
-              style={{ cursor: 'pointer' }}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => { if (e.key === 'Enter') navigate('/profile'); }}
-            >
-              {initials}
-            </div>
+            <>
+              <button
+                type="button"
+                className="dsk-loglink"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', font: 'inherit' }}
+                onClick={() => navigate('/event/drafts')}
+              >
+                Your drafts
+              </button>
+              <div
+                className="dsk-header-avatar"
+                onClick={() => navigate('/profile')}
+                style={{ cursor: 'pointer' }}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter') navigate('/profile'); }}
+              >
+                {initials}
+              </div>
+            </>
           ) : (
             <span className="dsk-loglink" onClick={() => navigate('/')}>Sign up</span>
           )}
