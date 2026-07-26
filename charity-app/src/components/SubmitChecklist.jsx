@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Lock, X } from 'lucide-react';
-import { useCreateEventDraft } from '../hooks/useCreateEventDraft';
+import { useCreateEventDraft, updateDraft } from '../hooks/useCreateEventDraft';
 import { isStepAllowed } from '../utils/changeRequestAreas';
+import { isStepComplete } from '../utils/eventDraftValidation';
 
 const GUIDELINES = [
   'Keep event stories honest, respectful, and free of misleading claims.',
@@ -32,15 +33,15 @@ export default function SubmitChecklist({ draft, nonprofit }) {
   const navigate = useNavigate();
   const liveDraft = useCreateEventDraft();
   const source = draft || liveDraft;
-  const [guidelinesReviewed, setGuidelinesReviewed] = useState(false);
   const [showGuidelines, setShowGuidelines] = useState(false);
 
   const fixMode = !!source.fixMode;
   const allowedSteps = fixMode ? source.allowedSteps : null;
+  const guidelinesReviewed = !!source.guidelinesReviewed;
 
-  const hasMedia = source.photos.length > 0;
-  const hasDates = Boolean(source.startDate?.trim());
-  const hasLocation = Boolean(source.location?.trim());
+  const hasMedia = isStepComplete(1, source);
+  const hasNonprofit = isStepComplete(2, source, nonprofit);
+  const hasDatesLocation = isStepComplete(3, source);
 
   const items = useMemo(() => {
     const all = [
@@ -55,14 +56,14 @@ export default function SubmitChecklist({ draft, nonprofit }) {
         id: 2,
         step: 2,
         text: `Nonprofit selected: ${nonprofit?.name || 'Choose a nonprofit'}`,
-        done: !!nonprofit,
+        done: hasNonprofit,
         path: '/event/step-2',
       },
       {
         id: 3,
         step: 3,
         text: formatDatesLocation(source),
-        done: hasDates && hasLocation,
+        done: hasDatesLocation,
         path: '/event/step-3',
       },
       {
@@ -79,7 +80,7 @@ export default function SubmitChecklist({ draft, nonprofit }) {
 
     // In fix mode, only show checklist rows for requested steps (+ guidelines).
     return all.filter((item) => item.step == null || isStepAllowed(allowedSteps, item.step));
-  }, [source, nonprofit, guidelinesReviewed, hasMedia, hasDates, hasLocation, fixMode, allowedSteps]);
+  }, [source, nonprofit, guidelinesReviewed, hasMedia, hasNonprofit, hasDatesLocation, fixMode, allowedSteps]);
 
   const handleClick = (item) => {
     if (item.action === 'guidelines') {
@@ -92,7 +93,7 @@ export default function SubmitChecklist({ draft, nonprofit }) {
   };
 
   const acknowledgeGuidelines = () => {
-    setGuidelinesReviewed(true);
+    updateDraft({ guidelinesReviewed: true });
     setShowGuidelines(false);
   };
 

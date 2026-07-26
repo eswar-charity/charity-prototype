@@ -7,6 +7,7 @@ import { useWizardStepAccess } from '../hooks/useWizardStepAccess';
 import { useAppToast, ToastHost } from '../components/Toast';
 import { previewHashtag } from '../utils/eventWizard';
 import { backWizardPath } from '../utils/changeRequestAreas';
+import { isDraftReadyToSubmit } from '../utils/eventDraftValidation';
 import MobileAppHeader from '../components/MobileAppHeader';
 import SubmitChecklist from '../components/SubmitChecklist';
 
@@ -17,6 +18,7 @@ export default function EventStep4() {
   const { nonprofit } = useSelectedNonprofit(draft.nonprofitId);
   const { toast, show } = useAppToast();
   const { handleSaveDraft, handleSubmit, pending, saved } = useEventWizardMutations(show);
+  const canSubmit = isDraftReadyToSubmit(draft, nonprofit);
 
   const backingCount = draft.previewLiked ? 1 : 0;
   const joinedCount = 0;
@@ -113,7 +115,7 @@ export default function EventStep4() {
           </div>
 
           <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <button type="button" className="btn-primary" onClick={handleSubmit} disabled={pending}>
+            <button type="button" className="btn-primary" onClick={handleSubmit} disabled={pending || !canSubmit}>
               {fixMode ? 'Resubmit for approval' : 'Submit for approval'}
             </button>
             <button type="button" className="btn-outline" onClick={handleSaveDraft} disabled={pending}>

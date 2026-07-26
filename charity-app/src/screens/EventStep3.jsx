@@ -4,6 +4,7 @@ import { useCreateEventDraft, updateDraft } from '../hooks/useCreateEventDraft';
 import { useWizardStepAccess } from '../hooks/useWizardStepAccess';
 import { backWizardPath, nextWizardPath } from '../utils/changeRequestAreas';
 import { START_TIMES, END_TIMES, cycleValue } from '../utils/eventWizard';
+import { isStepComplete } from '../utils/eventDraftValidation';
 import MobileAppHeader from '../components/MobileAppHeader';
 import DatePickerField from '../components/DatePickerField';
 
@@ -11,6 +12,7 @@ export default function EventStep3() {
   const navigate = useNavigate();
   const draft = useCreateEventDraft();
   const { fixMode, allowedSteps } = useWizardStepAccess(3);
+  const canNext = isStepComplete(3, draft);
 
   return (
     <div className="phone-shell">
@@ -120,7 +122,15 @@ export default function EventStep3() {
           </button>
 
           <div style={{ marginTop: 24 }}>
-            <button type="button" className="btn-primary" onClick={() => navigate(nextWizardPath(fixMode, allowedSteps, 3))}>
+            <button
+              type="button"
+              className="btn-primary"
+              disabled={!canNext}
+              onClick={() => {
+                updateDraft({ wizardStep: 4 });
+                navigate(nextWizardPath(fixMode, allowedSteps, 3));
+              }}
+            >
               Next →
             </button>
           </div>

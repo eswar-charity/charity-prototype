@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Search, Check } from 'lucide-react';
 import { useCreateEventDraft, updateDraft } from '../hooks/useCreateEventDraft';
-import { useNonprofitList } from '../hooks/useNonprofitList';
+import { useNonprofitList, useSelectedNonprofit } from '../hooks/useNonprofitList';
 import { useWizardStepAccess } from '../hooks/useWizardStepAccess';
 import { backWizardPath, nextWizardPath } from '../utils/changeRequestAreas';
+import { isStepComplete } from '../utils/eventDraftValidation';
 import { NP_CATEGORY_FILTERS } from '../data/mockData';
 import MobileAppHeader from '../components/MobileAppHeader';
 
@@ -15,6 +16,8 @@ export default function EventStep2() {
   const [activeFilter, setActiveFilter] = useState('All');
   const [query, setQuery] = useState('');
   const { nonprofits: filtered } = useNonprofitList({ q: query, category: activeFilter });
+  const { nonprofit } = useSelectedNonprofit(draft.nonprofitId);
+  const canNext = isStepComplete(2, draft, nonprofit);
 
   return (
     <div className="phone-shell">
@@ -108,7 +111,15 @@ export default function EventStep2() {
           </div>
 
           <div style={{ marginTop: 24 }}>
-            <button type="button" className="btn-primary" onClick={() => navigate(nextWizardPath(fixMode, allowedSteps, 2))}>
+            <button
+              type="button"
+              className="btn-primary"
+              disabled={!canNext}
+              onClick={() => {
+                updateDraft({ wizardStep: 3 });
+                navigate(nextWizardPath(fixMode, allowedSteps, 2));
+              }}
+            >
               Next →
             </button>
           </div>

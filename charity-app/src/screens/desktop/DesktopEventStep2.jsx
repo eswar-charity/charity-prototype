@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Check } from 'lucide-react';
 import DesktopCreateEventLayout from '../../components/desktop/DesktopCreateEventLayout';
 import { useCreateEventDraft, updateDraft } from '../../hooks/useCreateEventDraft';
-import { useNonprofitList } from '../../hooks/useNonprofitList';
+import { useNonprofitList, useSelectedNonprofit } from '../../hooks/useNonprofitList';
 import { useWizardStepAccess } from '../../hooks/useWizardStepAccess';
 import { backWizardPath, nextWizardPath } from '../../utils/changeRequestAreas';
+import { isStepComplete } from '../../utils/eventDraftValidation';
 import { NP_CATEGORY_FILTERS } from '../../data/mockData';
 
 export default function DesktopEventStep2() {
@@ -15,6 +16,8 @@ export default function DesktopEventStep2() {
   const [activeFilter, setActiveFilter] = useState('All');
   const [query, setQuery] = useState('');
   const { nonprofits: filtered } = useNonprofitList({ q: query, category: activeFilter });
+  const { nonprofit } = useSelectedNonprofit(draft.nonprofitId);
+  const canNext = isStepComplete(2, draft, nonprofit);
 
   return (
     <DesktopCreateEventLayout step={2}>
@@ -74,7 +77,15 @@ export default function DesktopEventStep2() {
 
       <div className="dsk-wizard-footer">
         <button type="button" className="dsk-wizard-back-link" onClick={() => navigate(backWizardPath(fixMode, allowedSteps, 2))}>← Back</button>
-        <button type="button" className="dsk-cta-btn" onClick={() => navigate(nextWizardPath(fixMode, allowedSteps, 2))}>
+        <button
+          type="button"
+          className="dsk-cta-btn"
+          disabled={!canNext}
+          onClick={() => {
+            updateDraft({ wizardStep: 3 });
+            navigate(nextWizardPath(fixMode, allowedSteps, 2));
+          }}
+        >
           {fixMode ? 'Done →' : 'Next: date & location →'}
         </button>
       </div>

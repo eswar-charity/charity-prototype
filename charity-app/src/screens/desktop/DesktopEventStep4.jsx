@@ -9,6 +9,7 @@ import { useWizardStepAccess } from '../../hooks/useWizardStepAccess';
 import { useAppToast, ToastHost } from '../../components/Toast';
 import { previewHashtag } from '../../utils/eventWizard';
 import { backWizardPath } from '../../utils/changeRequestAreas';
+import { isDraftReadyToSubmit } from '../../utils/eventDraftValidation';
 
 export default function DesktopEventStep4() {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ export default function DesktopEventStep4() {
   const { nonprofit } = useSelectedNonprofit(draft.nonprofitId);
   const { toast, show } = useAppToast();
   const { handleSaveDraft, handleSubmit, pending, saved } = useEventWizardMutations(show);
+  const canSubmit = isDraftReadyToSubmit(draft, nonprofit);
 
   const backingCount = draft.previewLiked ? 1 : 0;
 
@@ -77,7 +79,7 @@ export default function DesktopEventStep4() {
           <button type="button" className="btn-outline" style={{ width: 'auto', padding: '12px 20px' }} onClick={handleSaveDraft} disabled={pending}>
             {saved ? 'Draft saved ✓' : 'Save as draft'}
           </button>
-          <button type="button" className="dsk-cta-btn" onClick={handleSubmit} disabled={pending}>
+          <button type="button" className="dsk-cta-btn" onClick={handleSubmit} disabled={pending || !canSubmit}>
             {fixMode ? 'Resubmit for approval →' : 'Submit for approval →'}
           </button>
         </div>

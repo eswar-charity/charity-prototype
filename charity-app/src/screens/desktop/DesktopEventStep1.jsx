@@ -6,12 +6,14 @@ import { useCreateEventDraft, updateDraft } from '../../hooks/useCreateEventDraf
 import { useWizardStepAccess } from '../../hooks/useWizardStepAccess';
 import { nextWizardPath } from '../../utils/changeRequestAreas';
 import { appendDraftPhotos, removeDraftPhoto } from '../../utils/draftPhotos';
+import { isStepComplete } from '../../utils/eventDraftValidation';
 
 export default function DesktopEventStep1() {
   const navigate = useNavigate();
   const draft = useCreateEventDraft();
   const { fixMode, allowedSteps } = useWizardStepAccess(1);
   const fileInputRef = useRef(null);
+  const canNext = isStepComplete(1, draft);
 
   const removePhoto = (id) => updateDraft({ photos: removeDraftPhoto(draft.photos, id) });
 
@@ -98,8 +100,13 @@ export default function DesktopEventStep1() {
       <div className="dsk-wizard-footer">
         <span />
         <button
+          type="button"
           className="dsk-cta-btn"
-          onClick={() => navigate(nextWizardPath(fixMode, allowedSteps, 1))}
+          disabled={!canNext}
+          onClick={() => {
+            updateDraft({ wizardStep: 2 });
+            navigate(nextWizardPath(fixMode, allowedSteps, 1));
+          }}
         >
           {fixMode ? 'Done →' : 'Next: choose nonprofit →'}
         </button>

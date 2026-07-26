@@ -5,12 +5,14 @@ import { useCreateEventDraft, updateDraft } from '../../hooks/useCreateEventDraf
 import { useWizardStepAccess } from '../../hooks/useWizardStepAccess';
 import { backWizardPath, nextWizardPath } from '../../utils/changeRequestAreas';
 import { START_TIMES, END_TIMES, cycleValue } from '../../utils/eventWizard';
+import { isStepComplete } from '../../utils/eventDraftValidation';
 import DatePickerField from '../../components/DatePickerField';
 
 export default function DesktopEventStep3() {
   const navigate = useNavigate();
   const draft = useCreateEventDraft();
   const { fixMode, allowedSteps } = useWizardStepAccess(3);
+  const canNext = isStepComplete(3, draft);
 
   return (
     <DesktopCreateEventLayout step={3}>
@@ -90,7 +92,15 @@ export default function DesktopEventStep3() {
 
       <div className="dsk-wizard-footer">
         <button type="button" className="dsk-wizard-back-link" onClick={() => navigate(backWizardPath(fixMode, allowedSteps, 3))}>← Back</button>
-        <button type="button" className="dsk-cta-btn" onClick={() => navigate(nextWizardPath(fixMode, allowedSteps, 3))}>
+        <button
+          type="button"
+          className="dsk-cta-btn"
+          disabled={!canNext}
+          onClick={() => {
+            updateDraft({ wizardStep: 4 });
+            navigate(nextWizardPath(fixMode, allowedSteps, 3));
+          }}
+        >
           {fixMode ? 'Done →' : 'Next: preview →'}
         </button>
       </div>
