@@ -32,6 +32,7 @@ class Event(Base):
     start_time: Mapped[str | None] = mapped_column(String(40), nullable=True)
     end_time: Mapped[str | None] = mapped_column(String(40), nullable=True)
     location: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    wizard_step: Mapped[int | None] = mapped_column(Integer, nullable=True)
     is_live: Mapped[bool] = mapped_column(default=False, nullable=False)
     cover_media_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     # Denormalized counters (aggregates maintained as later phases add rows).
