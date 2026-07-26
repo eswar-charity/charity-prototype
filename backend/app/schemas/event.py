@@ -37,6 +37,7 @@ class EventRead(BaseModel):
     start_time: str | None = None
     end_time: str | None = None
     location: str | None = None
+    wizard_step: int | None = None
     is_live: bool
     cover_media_id: int | None = None
     backed: int
@@ -69,6 +70,7 @@ class EventCreateRequest(BaseModel):
     start_time: str | None = None
     end_time: str | None = None
     location: str | None = None
+    wizard_step: int | None = None
     visibility: str = "public"
     cover_media_id: int | None = None
     tags: list[str] | None = None
@@ -83,6 +85,7 @@ class EventUpdateRequest(BaseModel):
     start_time: str | None = None
     end_time: str | None = None
     location: str | None = None
+    wizard_step: int | None = None
     visibility: str | None = None
     cover_media_id: int | None = None
     tags: list[str] | None = None

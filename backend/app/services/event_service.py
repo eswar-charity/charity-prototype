@@ -112,7 +112,8 @@ async def _to_read(
         "subtitle": event.subtitle, "category": category, "kind": event.kind,
         "status": event.status, "visibility": event.visibility, "date": event.date,
         "start_time": event.start_time, "end_time": event.end_time,
-        "location": event.location, "is_live": event.is_live,
+        "location": event.location, "wizard_step": event.wizard_step,
+        "is_live": event.is_live,
         "cover_media_id": event.cover_media_id, "backed": event.backed,
         "joined": event.joined, "updates": event.updates,
         "chat_count": event.chat_count, "raised": event.raised,
@@ -229,6 +230,7 @@ async def create_draft(db: AsyncSession, user: User, data: dict) -> dict:
         start_time=data.get("start_time"),
         end_time=data.get("end_time"),
         location=data.get("location"),
+        wizard_step=data.get("wizard_step"),
         cover_media_id=data.get("cover_media_id"),
     )
     if tags:
