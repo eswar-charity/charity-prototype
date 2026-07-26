@@ -203,6 +203,20 @@ async def _can_auto_publish(db: AsyncSession, user: User, event: Event) -> bool:
     return bool(own_id and event.nonprofit_id == own_id)
 
 
+async def list_mine(
+    db: AsyncSession,
+    user: User,
+    statuses: list[str] | None = None,
+) -> dict:
+    effective = statuses or ["Draft", "Changes Requested"]
+    items = await repo.list_by_organizer(db, user.id, statuses=effective)
+    return {
+        "items": [await _to_read(db, e, include_photos=True) for e in items],
+        "total": len(items),
+        "has_more": False,
+    }
+
+
 async def create_draft(db: AsyncSession, user: User, data: dict) -> dict:
     tags = data.pop("tags", None)
     title = data.get("title") or _derive_title(data.get("story"))

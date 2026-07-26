@@ -35,6 +35,18 @@ async def create_event(
     return await event_service.create_draft(db, user, payload.model_dump())
 
 
+@router.get("/mine", response_model=EventListResponse)
+async def list_my_events(
+    statuses: str | None = None,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    parsed = None
+    if statuses:
+        parsed = [s.strip() for s in statuses.split(",") if s.strip()]
+    return await event_service.list_mine(db, user, parsed)
+
+
 @router.get("/{key}", response_model=EventRead)
 async def event_detail(
     key: str,

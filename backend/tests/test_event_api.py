@@ -304,3 +304,56 @@ async def test_backers_empty_for_now(client):
     resp = await client.get(f"/api/v1/events/{created['key']}/backers")
     assert resp.status_code == 200
     assert resp.json() == []
+
+
+@pytest.mark.asyncio
+async def test_list_mine_drafts_and_wizard_step(client, db_session):
+    from app.repositories import nonprofit_repository as np_repo
+
+    np = await np_repo.create(
+        db_session,
+        name="Mine NP",
+        slug="mine-np",
+        category="Community",
+        verified=True,
+        status="Verified",
+        settlement_status="Ready",
+    )
+    headers = await _login(client, "mine.se@demo.charityhub.com")
+    create = await client.post(
+        "/api/v1/events",
+        headers=headers,
+        json={
+            "story": "Park cleanup day",
+            "nonprofit_id": np.id,
+            "date": "Jul 26, 2026",
+            "location": "Central Park",
+            "wizard_step": 3,
+        },
+    )
+    assert create.status_code == 201
+    body = create.json()
+    assert body["wizard_step"] == 3
+    assert body["status"] == "Draft"
+    event_id = body["id"]
+
+    save = await client.post(
+        f"/api/v1/events/{event_id}/save-draft",
+        headers=headers,
+        json={"wizard_step": 4, "story": "Park cleanup day"},
+    )
+    assert save.status_code == 200
+    assert save.json()["wizard_step"] == 4
+
+    mine = await client.get("/api/v1/events/mine", headers=headers)
+    assert mine.status_code == 200
+    items = mine.json()["items"]
+    assert any(i["id"] == event_id and i["wizard_step"] == 4 for i in items)
+
+    filtered = await client.get(
+        "/api/v1/events/mine",
+        headers=headers,
+        params={"statuses": "Draft"},
+    )
+    assert filtered.status_code == 200
+    assert all(i["status"] == "Draft" for i in filtered.json()["items"])

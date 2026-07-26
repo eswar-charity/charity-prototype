@@ -74,16 +74,16 @@ async def set_tags(db: AsyncSession, event: Event, tags: list[str]) -> Event:
     return event
 
 
-async def list_by_organizer(db: AsyncSession, organizer_id: int) -> list[Event]:
-    return list(
-        (
-            await db.execute(
-                select(Event).where(Event.organizer_id == organizer_id).order_by(
-                    Event.id.desc()
-                )
-            )
-        ).scalars().all()
-    )
+async def list_by_organizer(
+    db: AsyncSession,
+    organizer_id: int,
+    statuses: list[str] | None = None,
+) -> list[Event]:
+    stmt = select(Event).where(Event.organizer_id == organizer_id)
+    if statuses:
+        stmt = stmt.where(Event.status.in_(statuses))
+    stmt = stmt.order_by(Event.id.desc())
+    return list((await db.execute(stmt)).scalars().all())
 
 
 async def list_by_nonprofit(db: AsyncSession, nonprofit_id: int) -> list[Event]:
