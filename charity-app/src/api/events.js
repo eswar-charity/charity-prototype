@@ -9,6 +9,13 @@ export function listEvents({ cause, discovery, page = 1, limit = 20 } = {}) {
   return apiRequest(`/events?${params}`, { auth: false });
 }
 
+export function listMyEvents({ statuses } = {}) {
+  const params = new URLSearchParams();
+  if (statuses?.length) params.set('statuses', statuses.join(','));
+  const qs = params.toString();
+  return apiRequest(`/events/mine${qs ? `?${qs}` : ''}`);
+}
+
 export function getEvent(key) {
   return apiRequest(`/events/${encodeURIComponent(key)}`);
 }
