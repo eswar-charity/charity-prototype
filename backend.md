@@ -41,3 +41,5 @@ msf@charityhub.com
 (full list: backend/seed/np_accounts.py / docs/superpowers/specs/2026-07-24-np-accounts-from-xlsx-design.md)
 Admin
 alex.mercer@charityhub.com
+
+beacon-hpq1x-4xfx

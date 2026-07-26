@@ -1,0 +1,947 @@
+CHARITY HUB
+Master Product Blueprint
+Product Discovery & 0-to-1 Build Baseline
+Document Purpose
+This master blueprint captures the current product truth, operating model, personas, business functions, high-level journeys, lifecycle models, decision areas, artifact system, and next execution steps for Charity Hub. It is intended to guide founder alignment, PRD refinement, UX/UI work, technical discovery, and build readiness.
+ |
+Document Type
+ | Master Product Blueprint / Living Product Baseline
+ |
+Version
+ | v1.0
+ |
+Product Direction
+ | Social participation network for nonprofit storytelling, creative event-led engagement, and voluntary giving
+ |
+Primary Audience
+ | Founders, product team, UX/UI, engineering, delivery leads, advisors
+ |
+Prepared For
+ | Charity Hub product discovery and 0-to-1 build alignment
+ |
+Document Control
+Item
+ | Description
+ |
+Document Name
+ | Charity Hub Master Product Blueprint
+ |
+Version
+ | Submittable v1.0
+ |
+Status
+ | Working product baseline for founder review and ongoing product execution
+ |
+Confidentiality
+ | Confidential. Not for external distribution without explicit approval from authorized project owners.
+ |
+Intended Use
+ | Single master view of product truth, journey landscape, business functions, lifecycle states, open decisions, and artifact system.
+ |
+How to Use This Document
+Use this document as the master product baseline, not as a replacement for detailed entity-level journey documents or epic-level PRDs.
+Use the journey blueprints as supporting documents for deeper edge cases, detailed PlantUML flows, screen mapping, and lifecycle state coverage.
+Use the open decisions and risks sections as founder alignment tools before locking UX, PRD, SOW, or engineering commitments.
+Update this document whenever the product thesis, core moat, personas, business model, scope assumptions, or strategic direction changes.
+Contents
+ TOC \o "1-3" \h \z \u Document Control PAGEREF _Toc230868079 \h 2
+How to Use This Document PAGEREF _Toc230868080 \h 2
+1. Executive Summary PAGEREF _Toc230868081 \h 4
+Strategic Implications PAGEREF _Toc230868082 \h 4
+2. Product Thesis and North Star PAGEREF _Toc230868083 \h 4
+2.1 Product Thesis PAGEREF _Toc230868084 \h 4
+2.2 Product North Star PAGEREF _Toc230868085 \h 4
+2.3 What Charity Hub Is Not PAGEREF _Toc230868086 \h 5
+3. Product Operating Model PAGEREF _Toc230868087 \h 5
+4. Personas, Roles, and Action States PAGEREF _Toc230868088 \h 5
+4.1 Governing Personas PAGEREF _Toc230868089 \h 5
+4.2 Operating Roles and Action States PAGEREF _Toc230868090 \h 6
+5. Business Functions Catalogue PAGEREF _Toc230868091 \h 6
+6. Overall Product Journey Landscape PAGEREF _Toc230868092 \h 7
+6.1 Competition For Good Flywheel PAGEREF _Toc230868093 \h 7
+6.2 Identity Gate Model PAGEREF _Toc230868094 \h 7
+7. Detailed Journey Portfolio PAGEREF _Toc230868095 \h 7
+7.1 Journey Design Standard PAGEREF _Toc230868096 \h 8
+8. Entity Lifecycle Models PAGEREF _Toc230868097 \h 8
+9. Role-Based Permissions PAGEREF _Toc230868098 \h 8
+10. Journey-to-Screen Traceability PAGEREF _Toc230868099 \h 9
+11. Roadmap and Artifact System PAGEREF _Toc230868100 \h 9
+11.1 Recommended Artifact System PAGEREF _Toc230868101 \h 9
+11.2 Product Roadmap Layers PAGEREF _Toc230868102 \h 10
+12. Open Decision Log PAGEREF _Toc230868103 \h 10
+13. Product Risks and Mitigations PAGEREF _Toc230868104 \h 10
+14. PRD and SOW Alignment PAGEREF _Toc230868105 \h 11
+15. Recommended Next Steps PAGEREF _Toc230868106 \h 11
+15.1 Immediate Founder Review Questions PAGEREF _Toc230868107 \h 11
+Appendix A. PlantUML Sources PAGEREF _Toc230868108 \h 13
+Overall Product Journey Landscape PAGEREF _Toc230868109 \h 13
+Competition For Good Flywheel PAGEREF _Toc230868110 \h 13
+Identity Gate Model PAGEREF _Toc230868111 \h 13
+Artifact System PAGEREF _Toc230868112 \h 13
+Sign-Off / Review Acknowledgement PAGEREF _Toc230868113 \h 14
+1. Executive Summary
+Charity Hub is being shaped as a social participation network for nonprofit storytelling, creative event-led engagement, and voluntary giving. The product should not be positioned narrowly as a donation page or fundraising form. Its strategic center is SE-led and nonprofit-led content, storytelling, and event participation, where donations become a natural by-product of engagement rather than the first product ask.
+The product aims to make nonprofits culturally engaging, social, and participatory. The landing experience should feel like a living content feed of nonprofit stories, creative events, community moments, and engagement opportunities. Users should discover, feel, engage, and participate before being asked to donate.
+Competition For Good is the named product engagement model that expresses this direction. It turns nonprofit support into a friendly, purpose-driven social participation loop where Social Entrepreneurs, nonprofits, communities, teams, creators, and supporters compete creatively through stories, events, challenges, content, and participation. The goal is not to make giving feel like a financial transaction first; the goal is to make nonprofit causes culturally engaging enough that users want to watch, join, share, create, and voluntarily give.
+Product Positioning
+Charity Hub is a social participation network where verified nonprofits and Social Entrepreneurs turn creative events, storytelling, and community participation into fundraising momentum and measurable impact.
+ |
+Strategic Implications
+Theme
+ | Implication
+ |
+Category
+ | Charity Hub should be understood as a social participation and event-led engagement platform, not primarily a donation platform.
+ |
+Core Moat
+ | Storytelling, blank-canvas creativity, SE-led activation, nonprofit trust, content-driven feed, and engagement-first giving.
+ |
+Donation Role
+ | Donation is important, but it should appear as a voluntary by-product of emotional engagement and participation.
+ |
+Design Principle
+ | Landing and event experiences should prioritize feed, story, emotion, content, and participation before donation ask.
+ |
+Operating Need
+ | Trust controls remain essential: verified 501(c)(3), settlement readiness, nonprofit approval, moderation, payout/reconciliation.
+ |
+Competition For Good
+ | Competition For Good is the engagement mechanism that makes nonprofit causes feel social, creative, and culturally relevant before donation is requested.
+ |
+2. Product Thesis and North Star
+2.1 Product Thesis
+Core Thesis
+Any event can become a reason to raise money - when the event is meaningful, creative, social, and emotionally engaging enough for people to participate first.
+ |
+The product thesis is rooted in the belief that nonprofit engagement is currently too donation-centric, transactional, formal, and often emotionally underpowered. Charity Hub seeks to change that by turning causes into dynamic content-led participation experiences.
+Competition For Good should be treated as the core engagement expression of the thesis: creative events and storytelling create attention, participation, and community energy; donations follow as the by-product of emotional connection and social momentum.
+2.2 Product North Star
+North Star Area
+ | Charity Hub Position
+ |
+Product Category
+ | Social participation network for nonprofit storytelling, creative events, engagement, and giving.
+ |
+Primary Users
+ | 501(c)(3) / Nonprofit Admin and Social Entrepreneur.
+ |
+Core Action
+ | Create, discover, join, engage with, and share nonprofit-related events and stories.
+ |
+Core Loop
+ | Discover -> Engage -> Participate -> Donate -> Impact -> Return.
+ |
+Moat
+ | Storytelling, engagement, creative blank canvas, nonprofit trust, and SE-led activation.
+ |
+Business Value
+ | Nonprofit community growth, engagement data, donation flow, platform attention, potential ad revenue, and future SaaS/merchant services.
+ |
+Success Signal
+ | Users engage with nonprofit content and events before donation becomes the natural next action.
+ |
+Anti-Pattern
+ | Do not become a static donation jar, campaign goal page, or generic fundraising form.
+ |
+Engagement Model
+ | Competition For Good: friendly, purpose-driven creative participation where stories, events, challenges, and content make nonprofit engagement exciting, with donations following naturally.
+ |
+2.3 What Charity Hub Is Not
+Not just a donation collection platform.
+Not a generic peer-to-peer campaign form.
+Not a campaign directory sorted by amount raised.
+Not a template-driven event autofill product that limits creativity.
+Not a payment-first user experience where the main emotion is obligation.
+3. Product Operating Model
+Charity Hub should be designed as layered product architecture where storytelling and engagement sit at the center, while trust, governance, payments, and operations support the experience.
+Figure 1. Charity Hub operating layers: public discovery and storytelling feed lead into event participation, donation, distribution, and impact. Trust and operations support the full journey.
+Layer
+ | Description
+ | Product Implication
+ |
+Trust Layer
+ | 501(c)(3) verification, settlement readiness, nonprofit approval, brand safety.
+ | Must protect donor confidence and legal/platform credibility.
+ |
+Discovery Layer
+ | Public content feed, stories, event pages, nonprofit visibility.
+ | No unnecessary login wall before value is shown.
+ |
+Participation Layer
+ | Join, share, comment, upload, create, engage.
+ | Participation is the conversion mechanism.
+ |
+Event Layer
+ | Nonprofit-led and SE-led creative events.
+ | Blank canvas is the moat; avoid over-templating.
+ |
+Donation Layer
+ | Voluntary giving through trusted payment flow.
+ | Donation follows engagement; it should not dominate the landing experience.
+ |
+Distribution Layer
+ | Payout readiness, payout execution, reconciliation, evidence.
+ | Must be operationally trustworthy.
+ |
+Impact Layer
+ | Post-event thank-you, results, community growth, retention.
+ | Creates repeat engagement and credibility.
+ |
+Admin Layer
+ | Approvals, moderation, operations, exceptions, audit.
+ | Human-in-the-loop governance for trust-sensitive actions.
+ |
+Intelligence Layer
+ | AI support and future intelligence with human oversight.
+ | AI should assist, not autonomously approve sensitive actions.
+ |
+4. Personas, Roles, and Action States
+Figure 2. Persona model: 501(c)(3) and Social Entrepreneur govern the product flywheel; donor, participant, and content contributor are action states.
+4.1 Governing Personas
+Persona
+ | Role in Product
+ | Primary Motivation
+ | Key Product Need
+ |
+501(c)(3) / Nonprofit Admin
+ | Trust anchor, beneficiary, content/brand owner, event creator, SE event approver, fund recipient.
+ | Grow community, attract engagement, raise funds, protect brand trust.
+ | Verified onboarding, settlement readiness, Launchpad, approvals, event management, donation/payout visibility.
+ |
+Social Entrepreneur
+ | Creative activation engine that discovers causes, creates events, participates, engages, and mobilizes community.
+ | Self-expression, impact, recognition, community energy, social creativity.
+ | Public discovery, identity gate, profile, event creation, engagement tools, event monitoring.
+ |
+Minor Social Entrepreneur
+ | Controlled Social Entrepreneur category for eligible minors whose platform actions require parent/guardian consent and oversight.
+ | Participation, creativity, recognition, social engagement, and cause-based contribution within a protected consent model.
+ | Age-appropriate onboarding, verified parent/guardian consent, action-level controls, restricted permissions, and safe engagement boundaries.
+ |
+4.2 Operating Roles and Action States
+Role / State
+ | Classification
+ | Description
+ |
+Guest / Voyeur
+ | Pre-conversion state
+ | Anonymous user browsing public content, events, stories, and nonprofit context before identity capture.
+ |
+Participant
+ | Action state
+ | A user who joins, participates, shares, comments, uploads, or engages in an event.
+ |
+Donor
+ | Action state
+ | A user who completes donation/payment action after identity and payment capture.
+ |
+Content Contributor
+ | Action state
+ | A user who posts, comments, uploads, or shares event-related content.
+ |
+Charity Hub Platform Admin
+ | Internal operating role
+ | Governance and operations role for approvals, monitoring, exception handling, and platform controls.
+ |
+Founder / Operator
+ | Strategic authority
+ | Owns product direction, business model, legal/compliance ownership, milestone acceptance, and strategic decisions.
+ |
+Key PrincipleDonor and Participant should be treated as action states, not primary personas. The primary product loop is governed by 501(c)(3) and Social Entrepreneur, with Guest/Voyeur as the critical pre-conversion state. A Minor SE is not a separate persona; it is the same Social Entrepreneur journey with age-based parent/guardian consent and controls applied to every meaningful platform action.
+ |
+5. Business Functions Catalogue
+Business Function
+ | Description
+ | Primary Actor
+ | Key Dependency
+ |
+Public Discovery
+ | Public feed, event discovery, nonprofit stories, creative content
+ | Guest / Voyeur
+ | Content availability, event visibility
+ |
+501(c)(3) Onboarding
+ | Register, verify, and activate nonprofit
+ | Nonprofit Admin
+ | EIN verification, settlement readiness
+ |
+SE Onboarding
+ | Convert SE from anonymous discovery to registered creator/participant
+ | Social Entrepreneur
+ | Identity capture and profile setup
+ |
+Nonprofit-Led Event Creation
+ | Nonprofit creates and auto-publishes own event after required conditions
+ | Nonprofit Admin
+ | Verified nonprofit and settlement readiness
+ |
+SE-Led Event Creation
+ | SE creates event linked to nonprofit
+ | Social Entrepreneur
+ | Nonprofit approval before system auto-publish
+ |
+Event Approval
+ | Nonprofit approves/rejects/requests changes for SE-created event
+ | Nonprofit Admin
+ | Brand safety and content review
+ |
+Join / Participate
+ | User joins event after identity capture
+ | Participant Action State
+ | No guest join; identity required
+ |
+Engage in Event
+ | View/share/comment/upload/participate
+ | Participant / SE
+ | Comment/upload requires identity; nonprofit moderates
+ |
+Donation
+ | User donates through payment provider
+ | Donor Action State
+ | Stripe default; settlement readiness mandatory
+ |
+Payout / Reconciliation
+ | Track payout execution, evidence, and reconciliation
+ | Charity Hub Admin / Payment Layer
+ | Settlement and payment provider readiness
+ |
+Launchpad
+ | Nonprofit dashboard for events, approvals, engagement, donations, payouts
+ | Nonprofit Admin
+ | Role-based visibility and verified account
+ |
+Admin Portal
+ | Internal monitoring, approvals, exception tracking, audit
+ | Charity Hub Admin
+ | Governance and operational controls
+ |
+Post-Event Experience
+ | Results, thank-you, impact, retention, next event prompt
+ | Nonprofit / SE / Platform
+ | Event completion and payout/impact data
+ |
+AI Support
+ | Support ideation, productivity, documentation, and future intelligence
+ | Platform / Team
+ | Human oversight and data governance
+ |
+Minor SE Age-Based Consent & Controls
+ | Apply parent/guardian consent and action-level controls to Minor SE profile, participation, content, event, donation-related, and account actions.
+ | Minor SE / Parent or Guardian
+ | Age eligibility, consent capture, guardian controls, auditability, policy/legal review
+ |
+Competition For Good
+ | Enable friendly, purpose-driven social participation where creative stories, events, challenges, content, and community energy drive engagement before voluntary giving.
+ | Social Entrepreneur / Nonprofit Admin
+ | Content feed, event creation, participation mechanics, nonprofit trust, engagement guardrails
+ |
+6. Overall Product Journey Landscape
+6.1 Competition For Good Flywheel
+Competition For Good is Charity Hub's social participation engine. It turns nonprofit support into friendly, purpose-driven creative competition where SEs, nonprofits, communities, creators, and supporters create stories, events, challenges, content, and engagement loops around causes. The product should make nonprofit participation feel culturally exciting before it feels transactional.
+Figure 3. Competition For Good flywheel: nonprofit trust and SE creativity create content energy, participation, voluntary donations, impact data, and repeat community growth.
+6.2 Identity Gate Model
+Figure 4. Identity gate model: users can view and share publicly, but identity capture is required for join, donate, upload/comment, and create event.
+Action
+ | Identity Rule
+ | Confirmed Direction
+ |
+View public feed/event/nonprofit content
+ | No identity required
+ | Allowed anonymously
+ |
+Share public event/content
+ | No identity required
+ | Allowed anonymously
+ |
+Join event
+ | Identity required
+ | Guest join is not allowed
+ |
+Donate
+ | Identity/payment capture required
+ | Stripe default; settlement required
+ |
+Comment / upload content
+ | Identity required
+ | Anonymous users can view/share only
+ |
+Create event
+ | Identity and role required
+ | Nonprofit or SE only
+ |
+Approve SE-created event
+ | Authorized nonprofit admin required
+ | Nonprofit approval before system auto-publish
+ |
+7. Detailed Journey Portfolio
+This master blueprint summarizes the required journey portfolio. Each journey should also be maintained as a standalone entity-level or business-function-level journey document containing full edge cases, status models, diagrams, PlantUML source, screen states, and PRD alignment.
+#
+ | Journey
+ | Coverage
+ | Status / Treatment
+ |
+1
+ | 501(c)(3) / Nonprofit Journey
+ | Nonprofit onboarding, EIN verification, settlement readiness, Launchpad activation, nonprofit-led events, SE event approvals, donation/payout visibility.
+ | Deep standalone journey document
+ |
+2
+ | Social Entrepreneur Journey
+ | Anonymous discovery, identity capture, profile, event creation, participation, donation, engagement, monitoring, post-event retention.
+ | Deep standalone journey document
+ |
+3
+ | Guest / Anonymous Journey
+ | Voyeurism, public feed, public events, view/share behavior, identity gates, conversion triggers.
+ | Deep standalone journey document
+ |
+4
+ | Event Journey
+ | Nonprofit-led and SE-led event creation, approval, auto-publish, live event, completion, cancellation, archive.
+ | Deep standalone journey document
+ |
+5
+ | Engagement / Content Journey
+ | Feed, story, posts, comments, uploads, share, flags, nonprofit moderation, disputes.
+ | Recommended next detailed document
+ |
+6
+ | Donation / Payment Journey
+ | Donation CTA, identity/payment capture, Stripe, confirmation, receipt, failure, refund, chargeback.
+ | Recommended next detailed document
+ |
+7
+ | Payout / Reconciliation Journey
+ | Settlement readiness, payout trigger, payout status, reconciliation, evidence, exceptions.
+ | Recommended next detailed document
+ |
+8
+ | Launchpad / Nonprofit Admin Journey
+ | Dashboard, approvals, event management, engagement monitoring, donation and payout visibility.
+ | Recommended next detailed document
+ |
+9
+ | Charity Hub Admin Portal Journey
+ | Approvals, monitoring, support, exceptions, audit logs, platform operations.
+ | Recommended next detailed document
+ |
+10
+ | Post-Event Experience Journey
+ | Completion, thank-you, impact reveal, SE recognition, nonprofit follow-up, retention loop.
+ | Recommended next detailed document
+ |
+11
+ | AI / Intelligence Journey
+ | AI-assisted productivity, discovery, future intelligence, human review boundaries.
+ | Conceptual and governance-focused
+ |
+12
+ | SaaS / Commercial Journey
+ | Feature tiers, subscriptions, ad revenue, nonprofit data value, merchant services.
+ | Future commercial product baseline
+ |
+7.1 Journey Design Standard
+Every detailed journey document should include the following sections to maintain consistency and execution readiness:
+Section
+ | Required Content
+ |
+Journey Objective
+ | Business purpose, primary actor, supporting actors, user psychology.
+ |
+Happy Path
+ | Step-by-step expected journey.
+ |
+Alternate Paths
+ | Approved variations and decision branches.
+ |
+Edge Cases
+ | Failures, exceptions, disputes, delays, permission issues, data issues.
+ |
+Lifecycle States
+ | Object status model and transitions.
+ |
+Screens and States
+ | Required UI screens, empty states, error states, approval states.
+ |
+Permissions
+ | Who can view, create, edit, approve, publish, moderate, monitor, receive funds.
+ |
+Open Decisions
+ | Founder/legal/product/technical items requiring confirmation.
+ |
+Diagrams
+ | Rendered diagrams plus PlantUML source under each diagram.
+ |
+8. Entity Lifecycle Models
+Entity
+ | Lifecycle States
+ | Key Rule / Note
+ |
+Nonprofit
+ | Draft -> Submitted -> Pending Verification -> Verified -> Active -> Rejected -> Suspended
+ | EIN must resolve against IRS, GuideStar, FDO, or Charity Navigator. No manual fallback unless policy changes.
+ |
+Social Entrepreneur
+ | Anonymous -> Triggered -> Registered -> Profile Complete -> Active -> Restricted -> Suspended
+ | Adult SEs follow normal identity and profile completion rules. Minor SEs are included only through a parent/guardian consent model with action-level controls.
+ |
+Event
+ | Draft -> Submitted -> Changes Requested -> Approved -> System Auto-Published -> Live -> Completed -> Archived / Cancelled / Rejected
+ | Nonprofit-created events auto-publish after creation if prerequisites are met. SE-created events auto-publish after nonprofit approval.
+ |
+Donation
+ | Initiated -> Pending -> Successful -> Failed -> Refunded -> Disputed
+ | Donation requires identity/payment capture and settlement-ready 501(c)(3).
+ |
+Payout
+ | Not Ready -> Pending Setup -> Payout Pending -> Processing -> Paid -> Failed -> Reconciled
+ | Actual payout, payout evidence, and reconciliation must be documented as full operating journey.
+ |
+Content / Engagement
+ | Created -> Published -> Flagged -> Under Review -> Hidden -> Removed
+ | Nonprofit Admin moderates event content. Anonymous users can view/share only.
+ |
+Admin Review Item
+ | New -> In Review -> Approved / Rejected / Escalated -> Closed
+ | Used for nonprofit verification, exceptions, escalations, and operational controls.
+ |
+Social Entrepreneur - Minor Age-Control State
+ | Anonymous Discovery -> Minor Indicated -> Parent/Guardian Consent Pending -> Consent Verified -> Controlled Active -> Restricted -> Suspended
+ | This is an age-based control path inside the SE lifecycle, not a separate persona. Every meaningful action requires the applicable parent/guardian consent/control path.
+ |
+9. Role-Based Permissions
+Role
+ | View
+ | Create
+ | Edit
+ | Approve
+ | Donate
+ | Notes
+ |
+Guest / Voyeur
+ | Public content only
+ | No
+ | No
+ | No
+ | No
+ | View/share only; identity needed for gated actions.
+ |
+Social Entrepreneur
+ | Public content, own profile/events
+ | SE profile, event draft, content after identity
+ | Own drafts before submit; limited after approval
+ | No nonprofit approval rights
+ | Yes
+ | Can never receive funds directly.
+ |
+501(c)(3) / Nonprofit Admin
+ | Own Launchpad, events, approvals, donations, payout status
+ | Nonprofit profile and nonprofit-led events
+ | Own org/event content
+ | SE-created events
+ | Yes as individual
+ | Receives funds as organization beneficiary.
+ |
+Participant Action State
+ | Event content after identity
+ | Participation record, comments/uploads if allowed
+ | Own content where permitted
+ | No
+ | Yes
+ | Not a standalone fund recipient.
+ |
+Donor Action State
+ | Event/donation confirmation
+ | Donation transaction
+ | No
+ | No
+ | Yes
+ | Donor action requires payment identity.
+ |
+Charity Hub Admin
+ | Platform operational view
+ | Operational/admin records
+ | Admin notes/statuses
+ | Nonprofit approvals and exceptions
+ | Not primary
+ | Does not receive funds personally.
+ |
+Founder / Operator
+ | Strategic dashboards and decision documents
+ | Policy/roadmap decisions
+ | Strategic inputs
+ | Final business/legal decisions
+ | Not primary
+ | Owns decisions, not day-to-day user journey.
+ |
+Social Entrepreneur - Minor Age-Control State
+ | Public content and permitted account/event views after consent
+ | Only permitted profile/event/content actions after parent/guardian consent
+ | Own drafts/content within guardian-controlled limits
+ | No nonprofit approval rights
+ | Only through approved consent/payment controls as defined by policy
+ | Same SE persona with age-based controls; cannot receive funds. Every meaningful action requires parent/guardian consent/control and platform policy enforcement.
+ |
+10. Journey-to-Screen Traceability
+Journey
+ | Required Screens
+ | Required States
+ | Permission Dependency
+ |
+Public Discovery / Guest
+ | Landing feed, event cards, public event page, nonprofit story section
+ | Anonymous view, broken link, expired/cancelled event
+ | Guest can view/share only
+ |
+501(c)(3) Onboarding
+ | Org info, EIN verification, settlement setup, verification status, Launchpad activation
+ | Draft, pending, verified, rejected, settlement pending
+ | Nonprofit Admin and Charity Hub Admin
+ |
+SE Onboarding
+ | Public discovery, signup/login, SE profile, activation state
+ | Anonymous, triggered, registered, active, restricted
+ | SE identity required for create/engage/donate
+ |
+Nonprofit-Led Event
+ | Event builder, event preview, publish confirmation, live event dashboard
+ | Draft, published, live, completed, cancelled
+ | Nonprofit Admin
+ |
+SE-Led Event
+ | Event builder, submit approval, changes requested, approved/auto-published status
+ | Draft, submitted, changes requested, approved, published, rejected
+ | SE creates; Nonprofit Admin approves
+ |
+Engagement / Content
+ | Feed, comment, upload, flag, moderation state
+ | Published, flagged, hidden, removed
+ | Identity required for comment/upload; nonprofit moderates
+ |
+Donation
+ | Donation CTA, amount, checkout, confirmation, failure, receipt
+ | Pending, successful, failed, refunded/disputed
+ | Donor identity/payment required
+ |
+Launchpad
+ | Dashboard, events, approvals, engagement, donations, payouts, notifications
+ | Active, no events, pending requests, payout issue
+ | Nonprofit Admin
+ |
+Admin Portal
+ | Review queues, nonprofits, events, exceptions, audit log
+ | New, in review, escalated, closed
+ | Charity Hub Admin
+ |
+Post-Event
+ | Summary, thank-you, impact, next event prompt
+ | Completed, impact pending, archived
+ | Nonprofit / SE / Platform
+ |
+SE Minor Age-Based Consent & Controlled Actions
+ | Minor indication, parent/guardian consent, consent status, controlled action prompts, restricted states
+ | Consent pending, consent verified, action blocked, controlled active, restricted
+ | Parent/guardian consent and action-level permissions
+ |
+11. Roadmap and Artifact System
+Figure 5. Product artifact system: the master blueprint should feed entity journey blueprints, screen inventory, epic PRDs, technical HLD, and build backlog.
+11.1 Recommended Artifact System
+Artifact
+ | Purpose
+ | Owner / Usage
+ |
+Master Product Blueprint
+ | Single source of product truth, category, moat, personas, business functions, journey landscape.
+ | Founders + Product Lead
+ |
+Entity Journey Blueprints
+ | Detailed lifecycle, edge cases, permissions, PlantUML, screen states for each entity/function.
+ | Product Lead + UX + Engineering
+ |
+Screen Inventory
+ | Translate journeys into screens, states, and UX priorities.
+ | Product Lead + Designer
+ |
+Epic PRDs
+ | Detailed requirements and acceptance criteria for buildable product areas.
+ | Product Lead
+ |
+Technical HLD
+ | Solution approach, APIs, auth, data, integrations, payments, admin workflows.
+ | Solution Architect + Tech Lead
+ |
+Build Backlog
+ | Engineering execution tasks and sequencing.
+ | Engineering Lead
+ |
+Decision Log
+ | Founder confirmations and unresolved questions.
+ | Project Manager / Product Lead
+ |
+Risk Register
+ | Product, market, technical, legal, payment, operational risks.
+ | Delivery Lead + Product Lead
+ |
+11.2 Product Roadmap Layers
+Roadmap Layer
+ | Goal
+ | Representative Capabilities
+ |
+Discovery Baseline
+ | Align product truth, personas, business functions, journeys, risks.
+ | Master blueprint, journey documents, decisions, risks.
+ |
+Design Validation
+ | Translate journeys into mobile-first responsive web experiences.
+ | Screen inventory, IA, wireframes, high-fidelity design, clickable prototype.
+ |
+Build Readiness
+ | Define technical dependencies and implementation plan.
+ | HLD, API needs, data models, auth, payment, payout, admin dependencies.
+ |
+Operating Product
+ | Run real journeys with data, payments, admin, moderation, reconciliation.
+ | Verified onboarding, event workflows, donation, payout, Launchpad, Admin Portal.
+ |
+Scale Product
+ | Improve growth, retention, monetization, automation.
+ | Content feed optimization, ad revenue, analytics, SaaS tiers, AI assistance, integrations.
+ |
+12. Open Decision Log
+Decision Area
+ | Question
+ | Current Direction / Working Answer
+ | Owner
+ |
+UI Labels
+ | Should Donation be visually de-emphasized or represented differently?
+ | Donation should not dominate the experience; wording/CTA needs design validation.
+ | Founders + Product + UX
+ |
+Nonprofit Event Publish
+ | Do nonprofit-created events require Charity Hub Admin approval?
+ | No. Auto-publish after creation if prerequisites are met.
+ | Confirmed
+ |
+SE Event Publish
+ | Who publishes after nonprofit approval?
+ | System auto-publishes after nonprofit approval.
+ | Confirmed
+ |
+Guest Join
+ | Can users join as guests?
+ | No. Join requires identity capture.
+ | Confirmed
+ |
+Content Moderation
+ | Who moderates content?
+ | Nonprofit Admin moderates event content.
+ | Confirmed
+ |
+Verification Fallback
+ | Can manual verification be used if EIN does not resolve?
+ | No fallback currently accepted; this may create operational risk if sources are unavailable.
+ | Founder / Legal
+ |
+Payment Provider
+ | Is Stripe default?
+ | Yes, while alternatives remain open.
+ | Founders
+ |
+Receipt / Tax Language
+ | Who owns donation receipt and compliance language?
+ | Founder/legal owner.
+ | Founder / Legal
+ |
+Minors
+ | Are Minor Social Entrepreneurs included?
+ | Yes. Minor SEs are included with parent/guardian consent and action-level controls for every meaningful SE action on the platform.
+ | Confirmed; legal/policy wording to be reviewed by founder/legal owner
+ |
+Ad Revenue
+ | When does ad revenue enter roadmap?
+ | Strategic future opportunity tied to engagement/feed scale.
+ | Founders + Product
+ |
+13. Product Risks and Mitigations
+Risk
+ | Why It Matters
+ | Severity
+ | Mitigation
+ |
+Category Confusion
+ | Market may see Charity Hub as another fundraising/donation tool.
+ | High
+ | Lead with social participation, storytelling feed, SE-led creativity, and engagement-first positioning.
+ |
+Over-Templating
+ | Predefined event templates/goals may dilute blank-canvas moat.
+ | High
+ | Design flexible creation flows with guardrails, not rigid campaign autofills.
+ |
+Nonprofit Trust Risk
+ | Unverified nonprofits or weak controls damage donor confidence.
+ | High
+ | Mandatory EIN verification and settlement readiness before donations.
+ |
+SE Adoption Risk
+ | SEs may not understand why they should create events for nonprofits.
+ | High
+ | Make creator identity, recognition, content, and social impact visible.
+ |
+Engagement Quality Risk
+ | Without compelling feed/content, donation by-product will not happen.
+ | High
+ | Prioritize content feed, story formats, participation loops, and creative event expression.
+ |
+Moderation Burden
+ | Nonprofit Admin may be overwhelmed moderating content.
+ | Medium
+ | Design clear moderation queues, flags, user messages, and escalation paths.
+ |
+Payment/Payout Complexity
+ | Donation, receipt, payout, reconciliation, disputes add operational risk.
+ | High
+ | Separate payment/payout journeys, define owner, status states, and legal review.
+ |
+Compliance Risk
+ | Charitable solicitation, receipts, donor data ownership require expert decisions.
+ | High
+ | Assign founder/legal ownership and avoid undocumented assumptions.
+ |
+AI Overclaiming
+ | AI could be perceived as autonomous trust/compliance decisioning.
+ | Medium
+ | Position AI as support/intelligence only, with human oversight for sensitive decisions.
+ |
+Minor SE age-based consent and controls
+ | Minor SE participation requires parent/guardian consent, age-appropriate controls, privacy safeguards, and policy/legal review for every meaningful action.
+ | High
+ | Define consent workflows, block actions until consent is complete, maintain auditability, and obtain founder/legal approval before operating with minors.
+ |
+14. PRD and SOW Alignment
+This master blueprint does not replace epic-level PRDs. It provides the product truth, journey landscape, entity lifecycles, permission model, and decision baseline that PRDs and SOWs should reference. Detailed PRDs should convert journey sections into requirements, acceptance criteria, dependencies, and testable outcomes.
+Blueprint Section
+ | Feeds Into
+ | Expected Usage
+ |
+Product Thesis / North Star
+ | Founder pitch, roadmap, PRD introduction
+ | Aligns product direction and anti-patterns.
+ |
+Personas and Action States
+ | UX brief, PRDs, permissions
+ | Prevents persona/action confusion.
+ |
+Business Functions Catalogue
+ | PRD epic structure, feature inventory
+ | Defines what product must enable.
+ |
+Journey Portfolio
+ | Detailed journey docs, PRDs, screen inventory
+ | Provides product flow baseline.
+ |
+Lifecycle Models
+ | Data model, UI states, QA scenarios
+ | Ensures all entity states are represented.
+ |
+Permissions
+ | RBAC, UI conditions, admin controls
+ | Clarifies who can do what.
+ |
+Open Decisions
+ | Founder sessions, SOW exclusions, change control
+ | Keeps ambiguity visible.
+ |
+Risk Register
+ | Project governance, technical planning, legal review
+ | Prevents hidden execution risk.
+ |
+15. Recommended Next Steps
+Founder review and confirmation of the Product North Star: social participation network, SE-led content, nonprofit storytelling, engagement-first donation.
+Review and approve the master persona/action-state model: 501(c)(3), Social Entrepreneur, Guest/Voyeur, Donor/Participant action states, Charity Hub Admin.
+Complete remaining detailed journey documents: Engagement/Content, Donation/Payment, Payout/Reconciliation, Launchpad, Admin Portal, Post-Event Experience.
+Create a consolidated Screen Inventory for UX/UI: screens, states, permissions, data, and key edge cases.
+Convert approved journeys into epic PRDs with requirements and acceptance criteria.
+Prepare Technical HLD inputs: auth, entities, APIs, payment/payout dependencies, admin workflows, notification events, audit requirements.
+Maintain the Decision Log and Risk Register as living governance artifacts.
+15.1 Immediate Founder Review Questions
+Question
+ | Why It Matters
+ |
+Are we aligned that Charity Hub is a social participation network, not primarily a donation platform?
+ | Defines positioning, UX, and competitive differentiation.
+ |
+Should the landing page be a content-driven feed instead of a donation/campaign directory?
+ | Defines first 10-second user experience.
+ |
+How strongly should donation be de-emphasized in visual hierarchy and language?
+ | Affects CTA design and product identity.
+ |
+How much freedom should the event creation blank canvas provide before guardrails apply?
+ | Balances creativity and nonprofit brand safety.
+ |
+What minimum feed/content experience is required to make the product feel culturally engaging?
+ | Defines the core moat and design focus.
+ |
+Which monetization path should be explored first: transaction, subscription, ad revenue, data/analytics, merchant services?
+ | Guides roadmap and validation.
+ |
+Clarification Area
+ | Founder-Aligned Position
+ | Product Implication
+ |
+Product Category
+ | Charity Hub should be positioned as a social participation network for nonprofit storytelling, creative events, and engagement-led giving, not primarily as a donation platform.
+ | The product experience should lead with participation, storytelling, content, and community engagement. Donation remains important but should be treated as an outcome of engagement rather than the product’s primary identity.
+ |
+Landing Page Experience
+ | The landing page should be a content-driven feed, not a donation/campaign directory.
+ | The first user impression should create curiosity, emotion, and cultural energy. Users should feel they are entering a living feed of nonprofit stories, creative events, Social Entrepreneur activity, and community participation.
+ |
+Donation Visual Hierarchy
+ | Donation should be de-emphasized as the first ask, but not hidden or made confusing.
+ | The primary hierarchy should lead with story, event, participation, and engagement. Donation should appear as a natural next action after the user emotionally connects with the cause or event.
+ |
+Blank Canvas Event Creation
+ | Event creation should provide high creative freedom because the blank canvas is central to Charity Hub’s moat.
+ | The product should avoid rigid donation-first templates, pre-filled campaign structures, and generic fundraising forms. Guardrails should apply only where needed for nonprofit brand safety, compliance, harmful content, donation integrity, and approval workflows.
+ |
+Core Feed / Content Experience
+ | The minimum feed experience should make nonprofit activity feel culturally engaging and socially alive.
+ | The feed should include event stories, creator-led posts, nonprofit moments, participation prompts, visual content, social proof, engagement actions, and clear pathways into events. The product should feel like “what’s happening for good right now,” not “who is asking for money.”
+ |
+Competition For Good
+ | Charity Hub’s engagement model should be framed as Competition For Good: purpose-led, creative, social participation where people, communities, and Social Entrepreneurs generate awareness, engagement, and donations through events.
+ | Competition For Good should become a core product concept that supports challenges, event participation, storytelling, creative contribution, and voluntary giving. It should be positive, social, and mission-led rather than transactional.
+ |
+Monetization Direction
+ | Monetization should be explored through an engagement-led lens.
+ | Short term, transaction/payment economics may be easiest to validate. Medium term, nonprofit subscription/Launchpad value and data/analytics should be explored. Long term, ad revenue and merchant services become stronger once engagement volume, audience attention, and nonprofit community value are proven.
+ |
+Appendix A. PlantUML Sources
+The following PlantUML sources reflect the business-readable diagrams included in this master blueprint. They are provided for traceability and future editing.
+Overall Product Journey Landscape
+@startumltitle Charity Hub Overall Product Journey Landscapestart:Guest / Voyeur discovers public content feed;:User enters story-driven nonprofit/event content;if (Participation trigger?) then (Yes)  :Identity capture;  :Join / engage / create / donate;else (No)  :Continue browsing and sharing;endif:Event experience drives engagement;:Donation becomes voluntary by-product;:Distribution and impact visibility create retention;stop@enduml
+ |
+Competition For Good Flywheel
+@startumltitle Competition For Good Flywheelstart:Verified 501(c)(3) brings trust and mission;:Social Entrepreneur creates creative event/story;:Content feed creates attention and engagement;:Users participate, share, and create content;:Donations flow as by-product of engagement;:Impact and data help nonprofit grow community;:More events and creators enter the network;stop@enduml
+ |
+Identity Gate Model
+@startumltitle Identity Gate Modelstart:Anonymous user views public content;:User browses events, stories, and nonprofit context;if (User takes gated action?) then (Join / Donate / Upload / Create Event)  :Capture identity;  :Proceed with authenticated action;else (View / Share)  :Continue anonymous discovery;endifstop@enduml
+ |
+Artifact System
+@startumltitle Product Artifact Systemrectangle "Master Product Blueprint" as Masterrectangle "Entity Journey Blueprints" as Journeyrectangle "Screen Inventory" as Screenrectangle "Epic PRDs" as PRDrectangle "Technical HLD" as HLDrectangle "Build Backlog" as Backlogrectangle "Decision Log" as Decisionrectangle "Risk Register" as RiskMaster --> JourneyJourney --> ScreenScreen --> PRDPRD --> HLDHLD --> BacklogDecision ..> MasterRisk ..> Master@enduml
+ |
+Sign-Off / Review Acknowledgement
+Role
+ | Name
+ | Signature / Approval
+ | Date
+ |
+Founder / Product Owner
+ |  |  |  |
+Product Owner
+ |  |  |  |
+Technical Lead / Architect
+ |  |  |  |
