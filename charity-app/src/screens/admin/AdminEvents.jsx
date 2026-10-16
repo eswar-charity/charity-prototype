@@ -5,7 +5,7 @@ import AdminLayout, { Badge } from '../../components/admin/AdminLayout';
 import { Toast, useToast } from '../../components/admin/useToast';
 import QRScannerModal from '../../components/QRScannerModal';
 import { listAdminEvents, adaptAdminEvent } from '../../api/admin';
-import { statusTone } from '../../data/adminData';
+import { statusTone } from '../../utils/adminStatus';
 import { eventLivePath } from '../../utils/eventPaths.js';
 
 const FILTERS = ['All', 'Live', 'Submitted', 'Approved', 'Changes Requested', 'Completed', 'Cancelled'];
@@ -18,7 +18,7 @@ export default function AdminEvents() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showScanner, setShowScanner] = useState(false);
-  const [scannerEvent, setScannerEvent] = useState('');
+  const [scannerEvent, setScannerEvent] = useState(null); // { id, title }
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -35,7 +35,6 @@ export default function AdminEvents() {
   useEffect(() => { load(); }, [load]);
 
   const filtered = rows.filter((e) => filter === 'All' || e.status === filter);
-  const defaultScanner = rows.find((e) => e.status === 'Live')?.title ?? rows[0]?.title ?? '';
 
   return (
     <AdminLayout
@@ -85,7 +84,7 @@ export default function AdminEvents() {
                         <button
                           className="adm-btn adm-btn-scan adm-btn-sm"
                           onClick={() => {
-                            setScannerEvent(e.title);
+                            setScannerEvent({ id: e.id, title: e.title });
                             setShowScanner(true);
                           }}
                         >
@@ -111,8 +110,9 @@ export default function AdminEvents() {
         onClose={() => setShowScanner(false)}
         role="admin"
         variant="desktop"
-        eventTitle={scannerEvent || defaultScanner}
-        onScanSuccess={(attendee) => show(`Audit logged: ${attendee.name} at ${scannerEvent || defaultScanner}`)}
+        eventId={scannerEvent?.id}
+        eventTitle={scannerEvent?.title}
+        onScanSuccess={(attendee) => show(`Audit logged: ${attendee.name} at ${scannerEvent?.title}`)}
       />
     </AdminLayout>
   );

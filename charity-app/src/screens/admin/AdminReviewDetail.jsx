@@ -4,7 +4,7 @@ import { Check, X, ArrowUpRight, MessageSquare, ChevronLeft, Ban } from 'lucide-
 import AdminLayout, { Badge } from '../../components/admin/AdminLayout';
 import { Toast, useToast } from '../../components/admin/useToast';
 import { getAdminReview, adminReviewAction, adaptReviewItem } from '../../api/admin';
-import { statusTone } from '../../data/adminData';
+import { statusTone } from '../../utils/adminStatus';
 
 const DECIDED = ['Approved', 'Rejected'];
 

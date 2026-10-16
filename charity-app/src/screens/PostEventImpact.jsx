@@ -4,9 +4,11 @@ import { Settings, Share2, ChevronRight, Rocket, Users } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 import MobileAppHeader from '../components/MobileAppHeader';
 import MobileShareModal from '../components/MobileShareModal';
-import { eventDisplayTitle } from '../data/mockData';
+import { eventDisplayTitle } from '../utils/eventDisplay';
 import { useAuth } from '../auth/AuthContext';
 import { useSePostEvent } from '../hooks/useSeDashboard';
+import { buildAppUrl } from '../utils/qrLink';
+import { eventLivePath } from '../utils/eventPaths';
 
 function initialsFrom(name) {
   if (!name) return '?';
@@ -206,7 +208,7 @@ export default function PostEventImpact() {
         <MobileShareModal
           title={`${eventDisplayTitle(ev.title)} — Impact Recap`}
           subtitle={`${impact.backers ?? 0} participants · ${ev.nonprofit}`}
-          url={`https://charityhub.app/e/${ev.key}`}
+          url={buildAppUrl(eventLivePath(ev.key))}
           onClose={() => setShowShare(false)}
         />
       )}

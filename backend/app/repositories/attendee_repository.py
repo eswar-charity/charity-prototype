@@ -12,6 +12,18 @@ async def create(db: AsyncSession, **fields) -> Attendee:
     return attendee
 
 
+async def get_by_ticket(
+    db: AsyncSession, event_id: int, ticket_code: str
+) -> Attendee | None:
+    return (
+        await db.execute(
+            select(Attendee).where(
+                Attendee.event_id == event_id, Attendee.ticket_code == ticket_code
+            )
+        )
+    ).scalar_one_or_none()
+
+
 async def list_by_event(db: AsyncSession, event_id: int) -> list[Attendee]:
     stmt = (
         select(Attendee)

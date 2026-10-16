@@ -3,7 +3,7 @@ import { ArrowRight, Users } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
 import { useAuth } from '../../auth/AuthContext';
-import { getCausesWithEvents } from '../../data/marketingPages';
+import useCauses from '../../hooks/useCauses';
 import { EventImageBanner } from '../../components/event/EventImage';
 
 function formatRaised(value) {
@@ -15,7 +15,7 @@ export default function DesktopCauses() {
   const { user, isAuthenticated } = useAuth();
   const homePath = isAuthenticated ? '/feed' : '/guest/feed';
   const startPath = isAuthenticated ? '/event/step-1' : '/';
-  const causes = getCausesWithEvents();
+  const { causes } = useCauses();
   const totalEvents = causes.reduce((sum, c) => sum + c.eventCount, 0);
   const totalRaised = causes.reduce((sum, c) => sum + c.totalRaised, 0);
 

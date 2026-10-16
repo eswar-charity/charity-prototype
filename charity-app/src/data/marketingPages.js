@@ -1,5 +1,3 @@
-import { events, EVENT_CATEGORIES } from './mockData';
-
 export const HOW_IT_WORKS_STEPS = [
   {
     step: '01',
@@ -47,25 +45,3 @@ export const HOW_IT_WORKS_ROLES = [
     route: '/',
   },
 ];
-
-const CAUSE_COPY = {
-  Health: 'Runs, walks, and wellness gatherings that fund youth fitness, mental health, and community care programs.',
-  Environment: 'Trail runs, clean-ups, and outdoor events raising awareness and dollars for conservation and climate action.',
-  Education: 'Book drives, apé-ski fundraisers, and school partnerships that put learning resources in every community.',
-  Animals: 'Pet-friendly 5Ks and shelter benefits that keep rescue animals fed, safe, and adopted into loving homes.',
-  'Food & Hunger': 'Golf outings, meal packing, and food-bank drives that put meals on tables across your city.',
-};
-
-export function getCausesWithEvents() {
-  return EVENT_CATEGORIES.map((category) => {
-    const categoryEvents = events.filter((ev) => ev.category === category);
-    const featured = categoryEvents.find((ev) => ev.isLive) || categoryEvents[0];
-    return {
-      category,
-      description: CAUSE_COPY[category] || `Events and gatherings supporting ${category.toLowerCase()} causes.`,
-      eventCount: categoryEvents.length,
-      featured,
-      totalRaised: categoryEvents.reduce((sum, ev) => sum + ev.raised, 0),
-    };
-  });
-}

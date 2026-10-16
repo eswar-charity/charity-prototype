@@ -4,7 +4,8 @@ import { MessageCircle, Camera, Bell } from 'lucide-react';
 import GuestBottomNav from '../../components/GuestBottomNav';
 import MobileAppHeader from '../../components/MobileAppHeader';
 import FilterPillRow from '../../components/FilterPillRow';
-import { ALL_BROWSE_FILTERS, eventDisplayTitle, getEventBannerFocus } from '../../data/mockData';
+import { eventDisplayTitle, getEventBannerFocus } from '../../utils/eventDisplay';
+import useCategories from '../../hooks/useCategories';
 import { getCategoryIcon, DISCOVERY_FILTERS } from '../../data/categoryIcons';
 import usePagedFeed from '../../hooks/usePagedFeed';
 import { EventImageBanner } from '../../components/event/EventImage';
@@ -40,6 +41,7 @@ function enrichFeedEvent(ev) {
 }
 
 export default function GuestFeed() {
+  const { names: ALL_BROWSE_FILTERS } = useCategories();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const causeParam = searchParams.get('cause');
@@ -54,7 +56,7 @@ export default function GuestFeed() {
     if (causeParam && ALL_BROWSE_FILTERS.includes(causeParam)) {
       setActiveCategory(causeParam);
     }
-  }, [causeParam]);
+  }, [causeParam, ALL_BROWSE_FILTERS]);
 
   const isFollowing = activeDiscovery === 'Following';
 

@@ -1,20 +1,21 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, TriangleAlert, Pencil, X, ScanLine, QrCode } from 'lucide-react';
+import { Settings, Pencil, X, ScanLine, QrCode } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
 import DesktopShareModal from '../../components/desktop/DesktopShareModal';
 import QRScannerModal from '../../components/QRScannerModal';
 import ShareQRModal from '../../components/ShareQRModal';
-import { eventDisplayTitle } from '../../data/mockData';
+import { eventDisplayTitle } from '../../utils/eventDisplay';
 import { EventImage, EventImageBanner } from '../../components/event/EventImage';
 import { useSeLiveDashboard } from '../../hooks/useSeDashboard';
+import { buildAppUrl } from '../../utils/qrLink';
+import { eventLivePath } from '../../utils/eventPaths';
 
 export default function DesktopLiveDashboard() {
   const navigate = useNavigate();
   const { data, loading, error, postPending, submitUpdate } = useSeLiveDashboard();
   const [toast, setToast] = useState('');
-  const [showAlert, setShowAlert] = useState(true);
   const [postOpen, setPostOpen] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
@@ -87,26 +88,6 @@ export default function DesktopLiveDashboard() {
               <Settings size={18} />
             </button>
           </div>
-
-          {showAlert && (
-            <div className="dsk-live-alert">
-              <TriangleAlert size={18} color="var(--primary)" />
-              <div className="dsk-live-alert-copy">
-                <p>1 comment flagged for review.</p>
-                <button
-                  type="button"
-                  className="btn-ghost"
-                  style={{ marginTop: 4, fontSize: 13, padding: 0 }}
-                  onClick={() => {
-                    setShowAlert(false);
-                    showToast('Comment reviewed');
-                  }}
-                >
-                  Review
-                </button>
-              </div>
-            </div>
-          )}
 
           <div className="dsk-live-dashboard-grid">
             <div className="dsk-live-dashboard-main">
@@ -245,7 +226,7 @@ export default function DesktopLiveDashboard() {
         <DesktopShareModal
           open={showShare}
           onClose={() => setShowShare(false)}
-          url={`https://charityhub.app/e/${ev.key}`}
+          url={buildAppUrl(eventLivePath(ev.key))}
           title={eventDisplayTitle(ev.title)}
           subtitle={`${ev.nonprofit} · verified`}
         />
@@ -255,6 +236,7 @@ export default function DesktopLiveDashboard() {
         open={showScanner}
         onClose={() => setShowScanner(false)}
         role="se"
+        eventId={ev.id}
         variant="desktop"
         eventTitle={eventDisplayTitle(ev.title)}
         onScanSuccess={(attendee) => {

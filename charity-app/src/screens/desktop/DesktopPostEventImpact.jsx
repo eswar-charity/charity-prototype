@@ -5,9 +5,11 @@ import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
 import DesktopShareModal from '../../components/desktop/DesktopShareModal';
 import Logo from '../../components/Logo';
-import { eventDisplayTitle } from '../../data/mockData';
+import { eventDisplayTitle } from '../../utils/eventDisplay';
 import { useAuth } from '../../auth/AuthContext';
 import { useSePostEvent } from '../../hooks/useSeDashboard';
+import { buildAppUrl } from '../../utils/qrLink';
+import { eventLivePath } from '../../utils/eventPaths';
 
 function initialsFrom(name) {
   if (!name) return '?';
@@ -164,7 +166,7 @@ export default function DesktopPostEventImpact() {
         <DesktopShareModal
           open={showShare}
           onClose={() => setShowShare(false)}
-          url={`https://charityhub.app/e/${ev.key}`}
+          url={buildAppUrl(eventLivePath(ev.key))}
           title={`${eventDisplayTitle(ev.title)} — Impact Recap`}
           subtitle={`${impact.backers ?? 0} participants · ${ev.nonprofit}`}
         />

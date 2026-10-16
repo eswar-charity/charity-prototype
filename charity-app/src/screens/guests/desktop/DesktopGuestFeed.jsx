@@ -4,7 +4,8 @@ import { Users, MessageCircle, Camera } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../../components/desktop/DesktopFooter';
 import FilterPillRow from '../../../components/FilterPillRow';
-import { ALL_BROWSE_FILTERS, eventDisplayTitle, getEventBannerFocus } from '../../../data/mockData';
+import { eventDisplayTitle, getEventBannerFocus } from '../../../utils/eventDisplay';
+import useCategories from '../../../hooks/useCategories';
 import { getCategoryIcon, DISCOVERY_FILTERS } from '../../../data/categoryIcons';
 import usePagedFeed from '../../../hooks/usePagedFeed';
 import { EventImageBanner } from '../../../components/event/EventImage';
@@ -85,6 +86,7 @@ function SceneEventCard({ ev }) {
 }
 
 export default function DesktopGuestFeed() {
+  const { names: ALL_BROWSE_FILTERS } = useCategories();
   const [searchParams] = useSearchParams();
   const causeParam = searchParams.get('cause');
   const [category, setCategory] = useState(
@@ -98,7 +100,7 @@ export default function DesktopGuestFeed() {
     if (causeParam && ALL_BROWSE_FILTERS.includes(causeParam)) {
       setCategory(causeParam);
     }
-  }, [causeParam]);
+  }, [causeParam, ALL_BROWSE_FILTERS]);
 
   const fetcher = useCallback(async ({ page, limit }) => {
     // No following graph / API filter — keep empty client-side.

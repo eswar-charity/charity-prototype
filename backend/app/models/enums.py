@@ -35,8 +35,7 @@ class EventStatus(StrEnum):
     draft = "Draft"
     submitted = "Submitted"
     changes_requested = "Changes Requested"
-    approved = "Approved"
-    live = "Live"
+    live = "Live"  # nonprofit approval publishes in a single step
     completed = "Completed"
     archived = "Archived"
     cancelled = "Cancelled"

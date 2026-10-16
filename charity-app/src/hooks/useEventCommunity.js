@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { listPosts } from '../api/feed';
-import { adaptCommunityPosts, galleryUrlsForEvent } from '../api/adapters/feed';
+import { adaptCommunityPosts } from '../api/adapters/feed';
 
 /**
  * Load and adapt community posts for a live event detail screen.
@@ -32,8 +32,7 @@ export function useEventCommunity(ev) {
     listPosts(ev.key)
       .then((data) => {
         if (cancelled) return;
-        const gallery = galleryUrlsForEvent(ev);
-        setPosts(adaptCommunityPosts(data.items || [], gallery, ev));
+        setPosts(adaptCommunityPosts(data.items || []));
       })
       .catch((err) => {
         if (!cancelled) {

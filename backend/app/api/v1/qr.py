@@ -11,10 +11,11 @@ router = APIRouter(tags=["qr"])
 
 
 class CheckInRequest(BaseModel):
-    name: str
+    # Either a scanned ticket code, or a name for a walk-in.
+    code: str | None = None
+    name: str | None = None
     ticket_type: str | None = None
     backed: bool = False
-    code: str | None = None
 
 
 @router.get("/events/{event_id}/qr")
@@ -27,6 +28,15 @@ async def nonprofit_qr(nonprofit_id: int, db: AsyncSession = Depends(get_db)):
     return await qr_service.nonprofit_qr(db, nonprofit_id)
 
 
+@router.get("/events/{event_id}/ticket")
+async def my_ticket(
+    event_id: int,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    return await qr_service.my_ticket(db, user, event_id)
+
+
 @router.post("/events/{event_id}/checkin", status_code=201)
 async def check_in(
     event_id: int,
@@ -35,8 +45,8 @@ async def check_in(
     db: AsyncSession = Depends(get_db),
 ):
     return await qr_service.check_in(
-        db, user, event_id, name=payload.name,
-        ticket_type=payload.ticket_type, backed=payload.backed,
+        db, user, event_id, name=payload.name, ticket_type=payload.ticket_type,
+        backed=payload.backed, code=payload.code,
     )
 
 

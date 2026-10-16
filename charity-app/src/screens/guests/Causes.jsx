@@ -4,7 +4,7 @@ import MobileAppHeader from '../../components/MobileAppHeader';
 import GuestBottomNav from '../../components/GuestBottomNav';
 import BottomNav from '../../components/BottomNav';
 import { useAuth } from '../../auth/AuthContext';
-import { getCausesWithEvents } from '../../data/marketingPages';
+import useCauses from '../../hooks/useCauses';
 import { EventImageBanner } from '../../components/event/EventImage';
 
 function formatRaised(value) {
@@ -15,7 +15,7 @@ export default function Causes() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const homePath = isAuthenticated ? '/feed' : '/guest/feed';
-  const causes = getCausesWithEvents();
+  const { causes, loading } = useCauses();
 
   return (
     <div className="phone-shell">
@@ -40,6 +40,10 @@ export default function Causes() {
               Every event supports a verified nonprofit — from health runs to food-bank outings.
             </p>
           </section>
+
+          {!loading && causes.length === 0 && (
+            <p className="info-lead" style={{ textAlign: 'center', padding: 24 }}>No causes have events yet.</p>
+          )}
 
           {causes.map((cause) => (
             <article key={cause.category} className="info-cause-card">

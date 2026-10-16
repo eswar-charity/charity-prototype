@@ -30,3 +30,6 @@ class DonationRead(BaseModel):
     public_name: str | None = None
     status: str
     payment_ref: str | None = None
+    provider: str = "mock"
+    # Present only on the create response for real (Stripe) payments.
+    client_secret: str | None = None

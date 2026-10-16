@@ -11,13 +11,16 @@ DESCRIPTION = """
 Charity Hub backend — a social participation network for nonprofit storytelling,
 creative event-led engagement, and voluntary giving.
 
-Covers authentication & RBAC (SE / Non-Profit / Guest / Admin), nonprofits,
-events (create wizard + lifecycle), NP approvals & autopilot, donations
-(mock Stripe), the community feed / posts / chat, Cloudinary media, QR
-check-in & share links, notifications, role dashboards, and the admin portal.
+Covers authentication & RBAC (SE / Non-Profit / Guest / Admin; nonprofit and
+admin accounts are invite-only), nonprofits, events (create wizard +
+lifecycle; nonprofit approval publishes in one step), NP approvals &
+autopilot, donations (Stripe Connect destination charges, webhooks), the
+community feed / posts / chat, Cloudinary media, QR tickets & check-in,
+notifications, role dashboards, and the admin portal.
 
-Stripe payments and nonprofit/EIN verification are mocked; Cloudinary is real
-(metadata only is stored). See /docs for the interactive API.
+Nonprofit/EIN verification is a manual admin status check; Stripe falls back to
+a deterministic mock only outside production when no Stripe key is set.
+See /docs for the interactive API.
 """.strip()
 
 TAGS_METADATA = [
@@ -32,6 +35,8 @@ TAGS_METADATA = [
     {"name": "qr", "description": "Share links and attendee check-in."},
     {"name": "dashboards", "description": "Notifications and NP/SE dashboards."},
     {"name": "admin", "description": "Platform-admin portal: review, verification, exceptions, audit."},
+    {"name": "payments", "description": "Stripe config, webhooks, nonprofit Connect onboarding."},
+    {"name": "meta", "description": "Public reference data: categories and causes."},
     {"name": "health", "description": "Service health."},
 ]
 

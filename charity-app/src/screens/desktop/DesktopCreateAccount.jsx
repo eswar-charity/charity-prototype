@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DesktopAuthLayout from '../../components/desktop/DesktopAuthLayout';
-import { accountRoles } from '../../data/mockData';
+import { accountRoles } from '../../constants/accountRoles';
 import RoleSelect from '../../components/RoleSelect';
 import GoogleIcon from '../../components/GoogleIcon';
 import { useAuth } from '../../auth/AuthContext';

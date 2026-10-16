@@ -1,19 +1,12 @@
 import pytest
 
+from tests.helpers import login_as
+
 from app.repositories import nonprofit_repository as np_repo
 
 
 async def _login(client, email, role="se"):
-    await client.post(
-        "/api/v1/auth/register",
-        json={"name": "U", "email": email, "password": "Passw0rd!", "role": role},
-    )
-    tokens = (
-        await client.post(
-            "/api/v1/auth/login", json={"email": email, "password": "Passw0rd!"}
-        )
-    ).json()
-    return {"Authorization": f"Bearer {tokens['access_token']}"}
+    return await login_as(client, email, role)
 
 
 async def _me_id(client, headers):

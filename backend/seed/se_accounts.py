@@ -61,7 +61,8 @@ async def ensure_se_accounts(session: AsyncSession) -> dict[str, User]:
         else:
             u.role = "se"
             u.name = name
-            u.password_hash = hash_password(SE_DEMO_PASSWORD)
+            if not u.password_hash:  # never reset a password someone has changed
+                u.password_hash = hash_password(SE_DEMO_PASSWORD)
             u.initials = derive_initials(name)
             u.color = pick_color(name)
             u.status = "active"

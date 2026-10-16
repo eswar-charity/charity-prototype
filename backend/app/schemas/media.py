@@ -11,6 +11,7 @@ class SignResponse(BaseModel):
     api_key: str
     timestamp: int
     folder: str
+    allowed_formats: str
     signature: str
     resource_type: str
 

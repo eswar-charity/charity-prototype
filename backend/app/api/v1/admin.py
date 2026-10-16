@@ -4,8 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import require_role
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.admin import InviteNonprofitRequest
-from app.services import admin_service
+from app.schemas.admin import InviteAdminRequest, InviteNonprofitRequest
+from app.services import admin_service, donation_service
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -63,7 +63,19 @@ async def invite_nonprofit(
     user: User = Depends(require_role("platform_admin")),
     db: AsyncSession = Depends(get_db),
 ):
-    return await admin_service.invite_nonprofit(db, user, payload.name, payload.category, payload.ein)
+    return await admin_service.invite_nonprofit(
+        db, user, payload.name, payload.category, payload.ein, payload.admin_email
+    )
+
+
+@router.post("/nonprofits/{nonprofit_id}/invite-admin")
+async def invite_nonprofit_admin(
+    nonprofit_id: int,
+    payload: InviteAdminRequest,
+    user: User = Depends(require_role("platform_admin")),
+    db: AsyncSession = Depends(get_db),
+):
+    return await admin_service.invite_nonprofit_admin(db, user, nonprofit_id, payload.email)
 
 
 @router.get("/nonprofits/{nonprofit_id}")
@@ -83,6 +95,15 @@ async def nonprofit_action(
     db: AsyncSession = Depends(get_db),
 ):
     return await admin_service.nonprofit_action(db, user, nonprofit_id, action)
+
+
+@router.post("/donations/{donation_id}/refund")
+async def refund_donation(
+    donation_id: int,
+    user: User = Depends(require_role("platform_admin")),
+    db: AsyncSession = Depends(get_db),
+):
+    return await donation_service.refund_donation(db, user, donation_id)
 
 
 @router.get("/events")

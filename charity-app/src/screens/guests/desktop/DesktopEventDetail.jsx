@@ -2,17 +2,20 @@ import { Fragment, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Share2, Heart, X, Calendar, MapPin, Plus, Camera, ArrowUp, ChevronLeft,
-  MessageCircle, Users, Info, PartyPopper, Check, UserPlus,
+  MessageCircle, Users, Info, PartyPopper, Check, UserPlus, Ticket,
 } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
+import TicketModal from '../../../components/TicketModal';
 import DesktopJoinGateModal from '../../../components/desktop/DesktopJoinGateModal';
-import { slugify, eventLivePath, eventDisplayTitle, getEventBanner, getEventBannerFocus } from '../../../data/mockData';
+import { slugify, eventDisplayTitle, getEventBanner, getEventBannerFocus } from '../../../utils/eventDisplay';
+import { eventLivePath } from '../../../utils/eventPaths';
 import { EventImageBanner } from '../../../components/event/EventImage';
 import { useAuth } from '../../../auth/AuthContext';
 import { useEventDetail, useEventActions } from '../../../hooks/useEventDetail';
 import { useDonateFlow } from '../../../hooks/useDonateFlow';
-import StaticStripePaymentForm, { STRIPE_TEST_SUCCESS } from '../../../components/StaticStripePaymentForm';
+import PaymentForm from '../../../components/PaymentForm';
+import { STRIPE_TEST_SUCCESS } from '../../../utils/staticStripe.js';
 import { useEventCommunity } from '../../../hooks/useEventCommunity';
 import { useEventChat } from '../../../hooks/useEventChat';
 import { uploadDeviceMedia } from '../../../api/uploadDeviceMedia';
@@ -390,6 +393,7 @@ function SupportTab({ ev, onDonate, donatePending }) {
   const [amount, setAmount] = useState(25);
   const [customAmount, setCustomAmount] = useState('');
   const [cardDigits, setCardDigits] = useState(STRIPE_TEST_SUCCESS);
+  const paymentRef = useRef(null);
   const isOther = amount === 'other';
   const parsedCustom = Number.parseFloat(customAmount);
   const donateAmount = typeof amount === 'number'
@@ -405,7 +409,6 @@ function SupportTab({ ev, onDonate, donatePending }) {
         <span className="support-raised-label">Raised so far</span>
         <span className="support-raised-amount">${Number(ev.raised || 0).toLocaleString()}</span>
       </div>
-      <div className="support-progress-track"><div className="support-progress-fill" style={{ width: '57%' }} /></div>
 
       <p className="support-amount-label">Select amount</p>
       <div className="support-amount-row">
@@ -437,7 +440,8 @@ function SupportTab({ ev, onDonate, donatePending }) {
         </div>
       )}
 
-      <StaticStripePaymentForm
+      <PaymentForm
+        ref={paymentRef}
         amount={canDonate ? donateAmount : 0}
         disabled={donatePending || !canDonate}
         onCardChange={setCardDigits}
@@ -446,7 +450,7 @@ function SupportTab({ ev, onDonate, donatePending }) {
       <button
         type="button"
         className="dsk-support-btn"
-        onClick={() => canDonate && onDonate(donateAmount, cardDigits)}
+        onClick={() => canDonate && onDonate(donateAmount, cardDigits, paymentRef.current)}
         disabled={donatePending || !canDonate}
       >
         {donatePending ? 'Processing…' : canDonate ? `Support with $${donateAmount}` : 'Enter an amount'}
@@ -466,6 +470,7 @@ export default function DesktopEventDetail({ loggedIn = false }) {
   const [showNpModal, setShowNpModal] = useState(false);
   const [following, setFollowing] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [showTicket, setShowTicket] = useState(false);
   const [showJoinGate, setShowJoinGate] = useState(false);
   const [gateIntent, setGateIntent] = useState('default');
   const [toast, setToast] = useState('');
@@ -510,11 +515,12 @@ export default function DesktopEventDetail({ loggedIn = false }) {
     onNeedAuth: (opts) => openGate(opts?.intent || 'donate'),
   });
 
-  const handleDonate = async (amt, cardNumber) => {
+  const handleDonate = async (amt, cardNumber, payment) => {
     await donate({
       ev,
       amount: amt,
       cardNumber,
+      payment,
       returnTo: eventLivePath(ev.key, { loggedIn }),
     });
   };
@@ -651,6 +657,12 @@ export default function DesktopEventDetail({ loggedIn = false }) {
                 {joined ? <Check size={15} strokeWidth={3} /> : <UserPlus size={15} />}
                 {joined ? 'Joined' : 'Join event'}
               </button>
+              {joined && isAuthenticated && (
+                <button className="dsk-sidebar-share-btn" style={{ marginBottom: 10 }} onClick={() => setShowTicket(true)}>
+                  <Ticket size={14} style={{ verticalAlign: -2, marginRight: 6 }} aria-hidden="true" />
+                  My ticket
+                </button>
+              )}
               <button className="dsk-sidebar-share-btn" onClick={() => setShowShare(true)}>Share</button>
               <div className="dsk-sidebar-stats">
                 <span><Users size={13} /> {ev.backed} backing</span>
@@ -695,6 +707,10 @@ export default function DesktopEventDetail({ loggedIn = false }) {
           npBg={ev.npBg}
           intent={gateIntent}
         />
+      )}
+
+      {showTicket && (
+        <TicketModal open variant="desktop" eventId={ev.id} title={eventDisplayTitle(ev.title)} onClose={() => setShowTicket(false)} />
       )}
 
       {showShare && (

@@ -38,7 +38,7 @@ async def my_nonprofit_profile(
     user: User = Depends(require_role("np_admin")),
     db: AsyncSession = Depends(get_db),
 ):
-    return await nonprofit_service.get_my_nonprofit(db, user)
+    return await nonprofit_service.get_my_profile(db, user)
 
 
 @router.patch("/np/profile", response_model=NonprofitRead)

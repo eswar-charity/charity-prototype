@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Check } from 'lucide-react';
 import { DesktopNpLayout } from '../../../components/desktop/DesktopNpLayout';
-import { eventDisplayTitle } from '../../../data/mockData';
+import { eventDisplayTitle } from '../../../utils/eventDisplay';
 import { useNpActivity } from '../../../hooks/useNpDashboard';
 
 function settlementReady(status) {
@@ -37,11 +37,11 @@ export default function DesktopNpActivity() {
       <div className="dsk-np-stats-row">
         <div className="dsk-np-stat-card">
           <p className="dsk-np-stat-num dark" style={{ fontSize: 34 }}>{data.supporters}</p>
-          <p className="dsk-np-stat-lbl">Supporters this month</p>
+          <p className="dsk-np-stat-lbl">Supporters</p>
         </div>
         <div className="dsk-np-stat-card">
           <p className="dsk-np-stat-num dark" style={{ fontSize: 34 }}>{data.eventsWithBacking}</p>
-          <p className="dsk-np-stat-lbl">Events with backing this month</p>
+          <p className="dsk-np-stat-lbl">Events with backing</p>
         </div>
       </div>
 

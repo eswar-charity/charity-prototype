@@ -1,26 +1,20 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Check, Info, ExternalLink } from 'lucide-react';
+import { ChevronLeft, Info, ExternalLink } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
 import MobileAppHeader from '../../components/MobileAppHeader';
-import { eventDisplayTitle } from '../../data/mockData';
+import { eventDisplayTitle } from '../../utils/eventDisplay';
 import { useNpFinancials } from '../../hooks/useNpDashboard';
+import StripeConnectCard from '../../components/StripeConnectCard';
 
 function formatCurrency(value) {
   return `$${(value ?? 0).toLocaleString()}`;
 }
 
-function settlementReady(status) {
-  return (status ?? '').toLowerCase() === 'ready';
-}
-
 export default function NpFinancials() {
   const navigate = useNavigate();
   const { data, loading, error } = useNpFinancials();
-  const [stripeOpen, setStripeOpen] = useState(false);
 
   const revenueByEvent = data?.revenueByEvent ?? [];
-  const stripeReady = settlementReady(data?.settlementStatus);
 
   if (loading) {
     return (
@@ -68,7 +62,7 @@ export default function NpFinancials() {
               <div style={{ flex: 1 }}>
                 <span style={{ fontSize: 28, fontWeight: 800, color: 'var(--blue)', lineHeight: 1 }}>{data.supporters}</span>
                 <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.4, marginTop: 4 }}>
-                  Supporters this month
+                  Supporters
                 </p>
               </div>
             </div>
@@ -76,42 +70,12 @@ export default function NpFinancials() {
               display: 'flex', justifyContent: 'space-between',
               borderTop: '1px solid var(--border)', paddingTop: 12,
             }}>
-              <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Events with backing this month</span>
+              <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Events with backing</span>
               <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--dark)' }}>{data.eventsWithBacking}</span>
             </div>
           </div>
 
-          <div className="card" style={{ marginBottom: 14 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{
-                width: 36, height: 36, borderRadius: '50%', background: 'var(--blue-soft)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-              }}>
-                <Check size={18} color="var(--blue)" strokeWidth={2.5} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>
-                  {stripeReady ? 'Settlement ready' : `Settlement ${data.settlementStatus}`}
-                </p>
-                <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Stripe Connected Account active</p>
-              </div>
-              <button
-                type="button"
-                className="btn-ghost"
-                style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 3 }}
-                onClick={() => setStripeOpen((o) => !o)}
-              >
-                {stripeOpen ? 'Hide' : 'Manage'} <ChevronLeft size={12} style={{ transform: 'rotate(180deg)' }} />
-              </button>
-            </div>
-            {stripeOpen && (
-              <div style={{ borderTop: '1px solid var(--border)', marginTop: 14, paddingTop: 14 }}>
-                <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>Stripe Connected Account · acct_1OceanConserv</p>
-                <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--dark)' }}>$12,480.00 available for payout</p>
-                <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>Last transfer · Oct 18, 2025</p>
-              </div>
-            )}
-          </div>
+          <StripeConnectCard />
 
           <div className="card" style={{ marginBottom: 14 }}>
             <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)', marginBottom: 4 }}>Revenue by event</p>

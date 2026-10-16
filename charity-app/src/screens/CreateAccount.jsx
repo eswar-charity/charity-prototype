@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { accountRoles } from '../data/mockData';
+import { accountRoles } from '../constants/accountRoles';
 import RoleSelect from '../components/RoleSelect';
 import MobileAuthHeader from '../components/MobileAuthHeader';
 import GoogleIcon from '../components/GoogleIcon';

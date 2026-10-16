@@ -60,6 +60,20 @@ async def get_for_admin(db: AsyncSession, user_id: int) -> Nonprofit | None:
     return (await db.execute(stmt)).scalar_one_or_none()
 
 
+async def get_by_stripe_account(db: AsyncSession, account_id: str) -> Nonprofit | None:
+    result = await db.execute(
+        select(Nonprofit).where(Nonprofit.stripe_account_id == account_id)
+    )
+    return result.scalar_one_or_none()
+
+
+async def admin_user_ids(db: AsyncSession, nonprofit_id: int) -> list[int]:
+    rows = await db.execute(
+        select(NonprofitAdmin.user_id).where(NonprofitAdmin.nonprofit_id == nonprofit_id)
+    )
+    return list(rows.scalars().all())
+
+
 async def link_admin(db: AsyncSession, user_id: int, nonprofit_id: int) -> NonprofitAdmin:
     link = NonprofitAdmin(user_id=user_id, nonprofit_id=nonprofit_id)
     db.add(link)

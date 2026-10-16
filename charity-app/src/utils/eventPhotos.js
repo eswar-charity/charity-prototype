@@ -1,37 +1,21 @@
 /**
- * Resolve cover / gallery URLs for events from API + local catalog assets.
+ * Resolve cover / gallery URLs for events. Photos come from the API (Cloudinary
+ * media rows attached to the event); there is no client-side catalog fallback.
  */
-import { EVENT_CATALOG } from '../data/eventData.js';
-import { EVENT_PHOTO_MANIFEST } from '../data/eventPhotoManifest.js';
 
-export const DEFAULT_EVENT_COVER = '/events/neon-night/img1.jpg';
-
-function catalogPhotosForKey(key) {
-  if (!key) return [];
-  const entry = EVENT_CATALOG.find((e) => e.key === key || e.assetKey === key);
-  if (!entry) return [];
-  const assetKey = entry.assetKey || entry.key;
-  const meta = EVENT_PHOTO_MANIFEST[assetKey] || { photoCount: 1, photoExt: {} };
-  const { photoCount, photoExt = {} } = meta;
-  return Array.from({ length: photoCount }, (_, i) => {
-    const n = i + 1;
-    const ext = photoExt[n] || photoExt[String(n)] || 'jpg';
-    return `/events/${assetKey}/img${n}.${ext}`;
-  });
-}
+// Neutral placeholder for events that have no photo yet.
+export const DEFAULT_EVENT_COVER = '/charity-hub-logo.png';
 
 function isUsableUrl(u) {
   return typeof u === 'string' && u.trim().length > 0 && !u.startsWith('blob:');
 }
 
-/** Full photo list for an event (API → catalog). Empty when none uploaded. */
+/** Full photo list for an event. Empty when none have been uploaded. */
 export function resolveEventPhotos(ev) {
-  const fromApi = (ev?.photos || []).filter(isUsableUrl);
-  if (fromApi.length) return fromApi;
-  return catalogPhotosForKey(ev?.key);
+  return (ev?.photos || []).filter(isUsableUrl);
 }
 
-/** Cover image URL — never empty for a known/displayable event. */
+/** Cover image URL — falls back to a neutral placeholder, never a stock photo. */
 export function resolveEventCover(ev) {
   if (!ev) return DEFAULT_EVENT_COVER;
   if (isUsableUrl(ev.cover)) return ev.cover;

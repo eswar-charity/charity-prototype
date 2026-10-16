@@ -6,7 +6,7 @@ from app.models.event import Event
 
 PENDING_STATUSES = ("Submitted", "Changes Requested")
 # Approvals page tabs: pending + decided (Live after approve, Rejected).
-QUEUE_STATUSES = ("Submitted", "Changes Requested", "Live", "Approved", "Rejected")
+QUEUE_STATUSES = ("Submitted", "Changes Requested", "Live", "Rejected")
 
 
 async def list_pending(db: AsyncSession, nonprofit_id: int) -> list[Event]:

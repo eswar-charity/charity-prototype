@@ -5,7 +5,8 @@ import BottomNav from '../components/BottomNav';
 import NotificationBell from '../components/NotificationBell';
 import MobileAppHeader from '../components/MobileAppHeader';
 import FilterPillRow from '../components/FilterPillRow';
-import { ALL_BROWSE_FILTERS, eventDisplayTitle, getEventBannerFocus } from '../data/mockData';
+import { eventDisplayTitle, getEventBannerFocus } from '../utils/eventDisplay';
+import useCategories from '../hooks/useCategories';
 import { getCategoryIcon, DISCOVERY_FILTERS } from '../data/categoryIcons';
 import usePagedFeed from '../hooks/usePagedFeed';
 import { EventImageBanner } from '../components/event/EventImage';
@@ -43,6 +44,7 @@ function enrichFeedEvent(ev) {
 }
 
 export default function FeedScreen() {
+  const { names: ALL_BROWSE_FILTERS } = useCategories();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [activeCategory, setActiveCategory] = useState('All');

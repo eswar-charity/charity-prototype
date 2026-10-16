@@ -1,3 +1,5 @@
+import secrets
+
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -108,9 +110,45 @@ async def add_participation(db: AsyncSession, event_id: int, user_id: int) -> bo
     ).scalar_one_or_none()
     if existing:
         return False
-    db.add(Participation(event_id=event_id, user_id=user_id))
+    db.add(
+        Participation(event_id=event_id, user_id=user_id, ticket_code=new_ticket_code())
+    )
     await db.commit()
     return True
+
+
+def new_ticket_code() -> str:
+    return f"CH-{secrets.token_hex(5).upper()}"
+
+
+async def get_participation(
+    db: AsyncSession, event_id: int, user_id: int
+) -> Participation | None:
+    row = (
+        await db.execute(
+            select(Participation).where(
+                Participation.event_id == event_id, Participation.user_id == user_id
+            )
+        )
+    ).scalar_one_or_none()
+    if row is not None and not row.ticket_code:
+        # Rows created before tickets existed get a code on first access.
+        row.ticket_code = new_ticket_code()
+        await db.commit()
+        await db.refresh(row)
+    return row
+
+
+async def get_participation_by_ticket(
+    db: AsyncSession, event_id: int, code: str
+) -> Participation | None:
+    return (
+        await db.execute(
+            select(Participation).where(
+                Participation.event_id == event_id, Participation.ticket_code == code
+            )
+        )
+    ).scalar_one_or_none()
 
 
 async def has_participation(db: AsyncSession, event_id: int, user_id: int) -> bool:

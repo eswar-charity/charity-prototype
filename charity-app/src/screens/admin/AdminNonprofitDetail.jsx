@@ -3,10 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, ShieldCheck, Ban, RefreshCw, Building2 } from 'lucide-react';
 import AdminLayout, { Badge } from '../../components/admin/AdminLayout';
 import { Toast, useToast } from '../../components/admin/useToast';
+import InvitePanel from '../../components/admin/InvitePanel';
 import {
   getAdminNonprofit, adminNonprofitAction, listAdminEvents, adaptAdminNonprofit, adaptAdminEvent,
 } from '../../api/admin';
-import { statusTone } from '../../data/adminData';
+import { statusTone } from '../../utils/adminStatus';
 
 const money = (n) => '$' + n.toLocaleString('en-US');
 
@@ -26,6 +27,7 @@ export default function AdminNonprofitDetail() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pending, setPending] = useState(false);
+  const [showInvite, setShowInvite] = useState(false);
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -78,6 +80,10 @@ export default function AdminNonprofitDetail() {
       <button className="adm-back" onClick={() => navigate('/admin/nonprofits')}>
         <ChevronLeft size={16} /> Back to nonprofits
       </button>
+
+      {showInvite && np && (
+        <InvitePanel nonprofit={np} onClose={() => setShowInvite(false)} notify={show} />
+      )}
 
       {loading ? (
         <p className="adm-item-meta">Loading nonprofit…</p>
@@ -163,6 +169,9 @@ export default function AdminNonprofitDetail() {
                   <RefreshCw size={15} /> Reinstate
                 </button>
               )}
+              <button className="adm-btn adm-btn-ghost" onClick={() => setShowInvite(true)}>
+                <ShieldCheck size={15} /> Invite nonprofit admin
+              </button>
               <button className="adm-btn adm-btn-ghost" disabled={pending} onClick={() => act('rerun-ein')}>
                 <RefreshCw size={15} /> Re-run EIN check
               </button>

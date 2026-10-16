@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import AdminLayout, { Badge } from '../../components/admin/AdminLayout';
 import { getAdminDashboard, adaptAdminDashboard } from '../../api/admin';
-import { statusTone } from '../../data/adminData';
+import { statusTone } from '../../utils/adminStatus';
 
 const money = (n) => '$' + n.toLocaleString('en-US');
 

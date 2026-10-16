@@ -65,7 +65,8 @@ async def ensure_np_accounts(
         else:
             u.role = "np_admin"
             u.name = alias["display_name"]
-            u.password_hash = hash_password(NP_DEMO_PASSWORD)
+            if not u.password_hash:  # never reset a password someone has changed
+                u.password_hash = hash_password(NP_DEMO_PASSWORD)
             u.initials = derive_initials(alias["display_name"])
             u.color = pick_color(alias["display_name"])
             u.status = "active"

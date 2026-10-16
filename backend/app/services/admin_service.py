@@ -8,6 +8,7 @@ from app.repositories import (
     admin_repository as arepo,
     nonprofit_repository,
 )
+from app.services import invite_service
 
 REVIEW_OPEN = ("New", "In Review", "Escalated")
 NP_PENDING = ("Submitted", "Pending Verification")
@@ -139,14 +140,36 @@ async def nonprofit_action(db: AsyncSession, admin: User, nonprofit_id: int, act
 
 
 async def invite_nonprofit(db: AsyncSession, admin: User, name: str, category: str,
-                           ein: str | None) -> dict:
+                           ein: str | None, admin_email: str | None = None) -> dict:
     slug = "".join(c.lower() if c.isalnum() else "-" for c in name).strip("-") or "nonprofit"
+    if await nonprofit_repository.get_by_slug(db, slug):
+        raise AppError("conflict", "A nonprofit with this name already exists", status_code=409)
     np = await nonprofit_repository.create(
         db, name=name, slug=slug, category=category, ein=ein, verified=False,
         status="Submitted", settlement_status="Not ready",
     )
     await arepo.add_audit(db, admin.name, admin.role, "Invited nonprofit", name, "Governance")
-    return _np_read(np)
+    out = _np_read(np)
+    if admin_email:
+        out["invite"] = await invite_service.create_nonprofit_admin_invite(
+            db, admin, np, admin_email
+        )
+        await arepo.add_audit(
+            db, admin.name, admin.role, "Invited nonprofit admin", name, "Governance"
+        )
+    return out
+
+
+async def invite_nonprofit_admin(db: AsyncSession, admin: User, nonprofit_id: int,
+                                 email: str) -> dict:
+    np = await nonprofit_repository.get_by_id(db, nonprofit_id)
+    if not np:
+        raise AppError("not_found", "Nonprofit not found", status_code=404)
+    invite = await invite_service.create_nonprofit_admin_invite(db, admin, np, email)
+    await arepo.add_audit(
+        db, admin.name, admin.role, "Invited nonprofit admin", np.name, "Governance"
+    )
+    return invite
 
 
 async def list_events(db: AsyncSession) -> list[dict]:

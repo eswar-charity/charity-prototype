@@ -28,6 +28,10 @@ class Donation(Base):
     public_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="Initiated")
     payment_ref: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    # Stripe PaymentIntent id (real payments); null for the dev-only mock provider.
+    payment_intent_id: Mapped[str | None] = mapped_column(
+        String(64), unique=True, nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, nullable=False
     )

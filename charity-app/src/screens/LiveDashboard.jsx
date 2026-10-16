@@ -1,19 +1,20 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, Compass, Plus, Bell, User, Settings, TriangleAlert, Pencil, X, ScanLine, QrCode } from 'lucide-react';
-import { eventDisplayTitle } from '../data/mockData';
+import { Home, Compass, Plus, Bell, User, Settings, Pencil, X, ScanLine, QrCode } from 'lucide-react';
+import { eventDisplayTitle } from '../utils/eventDisplay';
 import { EventImage, EventImageBanner } from '../components/event/EventImage';
 import MobileAppHeader from '../components/MobileAppHeader';
 import MobileShareModal from '../components/MobileShareModal';
 import QRScannerModal from '../components/QRScannerModal';
 import ShareQRModal from '../components/ShareQRModal';
 import { useSeLiveDashboard } from '../hooks/useSeDashboard';
+import { buildAppUrl } from '../utils/qrLink';
+import { eventLivePath } from '../utils/eventPaths';
 
 export default function LiveDashboard() {
   const navigate = useNavigate();
   const { data, loading, error, postPending, submitUpdate } = useSeLiveDashboard();
   const [toast, setToast] = useState('');
-  const [showAlert, setShowAlert] = useState(true);
   const [postSheet, setPostSheet] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
@@ -81,27 +82,6 @@ export default function LiveDashboard() {
             )}
           />
           <div style={{ paddingTop: 4 }}>
-
-          {showAlert && (
-            <div className="alert-banner">
-              <TriangleAlert size={16} color="var(--primary)" style={{ flexShrink: 0, marginTop: 1 }} />
-              <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 13, color: 'var(--dark)', lineHeight: 1.4 }}>
-                  1 comment flagged for review. Tap to moderate.
-                </p>
-                <button
-                  className="btn-ghost"
-                  style={{ marginTop: 4, fontSize: 12 }}
-                  onClick={() => {
-                    setShowAlert(false);
-                    showToast('Comment reviewed');
-                  }}
-                >
-                  Review
-                </button>
-              </div>
-            </div>
-          )}
 
           <div className="event-card-row" style={{ marginBottom: 16 }}>
             <EventImageBanner
@@ -271,7 +251,7 @@ export default function LiveDashboard() {
         <MobileShareModal
           title={eventDisplayTitle(ev.title)}
           subtitle={`${ev.nonprofit} · verified`}
-          url={`https://charityhub.app/e/${ev.key}`}
+          url={buildAppUrl(eventLivePath(ev.key))}
           onClose={() => setShowShare(false)}
         />
       )}
@@ -280,6 +260,7 @@ export default function LiveDashboard() {
         open={showScanner}
         onClose={() => setShowScanner(false)}
         role="se"
+        eventId={ev.id}
         variant="mobile"
         eventTitle={eventDisplayTitle(ev.title)}
         onScanSuccess={(attendee) => {

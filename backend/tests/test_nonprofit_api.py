@@ -1,5 +1,7 @@
 import pytest
 
+from tests.helpers import login_as, media_payload
+
 from app.repositories import nonprofit_repository as repo
 
 
@@ -13,16 +15,7 @@ async def _seed(db, name="Ocean Conservancy", slug="ocean-conservancy",
 
 
 async def _login(client, email, role):
-    await client.post(
-        "/api/v1/auth/register",
-        json={"name": "U", "email": email, "password": "Passw0rd!", "role": role},
-    )
-    tokens = (
-        await client.post(
-            "/api/v1/auth/login", json={"email": email, "password": "Passw0rd!"}
-        )
-    ).json()
-    return {"Authorization": f"Bearer {tokens['access_token']}"}
+    return await login_as(client, email, role)
 
 
 @pytest.mark.asyncio
@@ -115,21 +108,59 @@ async def test_np_profile_requires_np_admin(client):
     assert resp.status_code == 403
 
 
-@pytest.mark.asyncio
-async def test_np_profile_get_and_patch(client, db_session):
-    np = await _seed(db_session, "My Org", "my-org", "Community")
-    headers = await _login(client, "npx@e.com", "np_admin")
+async def _np_admin_with_org(client, db_session, email, slug):
+    np = await _seed(db_session, slug.title(), slug, "Community")
+    headers = await _login(client, email, "np_admin")
     me = (await client.get("/api/v1/auth/me", headers=headers)).json()
     await repo.link_admin(db_session, me["id"], np.id)
+    return headers, np
+
+
+@pytest.mark.asyncio
+async def test_np_profile_get_and_patch(client, db_session):
+    headers, _np = await _np_admin_with_org(client, db_session, "npx@e.com", "my-org")
 
     resp = await client.get("/api/v1/np/profile", headers=headers)
     assert resp.status_code == 200
     assert resp.json()["slug"] == "my-org"
+    assert resp.json()["logo_url"] is None
 
+    logo = (await client.post(
+        "/api/v1/media", headers=headers,
+        json=media_payload("nonprofits/logo1", entity_type="np_logo"),
+    )).json()
     resp = await client.patch(
         "/api/v1/np/profile", headers=headers,
-        json={"mission": "Updated mission", "logo_media_id": 9},
+        json={"mission": "Updated mission", "logo_media_id": logo["id"]},
     )
     assert resp.status_code == 200
-    assert resp.json()["mission"] == "Updated mission"
-    assert resp.json()["logo_media_id"] == 9
+    body = resp.json()
+    assert body["mission"] == "Updated mission"
+    assert body["logo_media_id"] == logo["id"]
+    assert body["logo_url"] == logo["secure_url"]  # resolved server-side, not a static asset
+
+
+@pytest.mark.asyncio
+async def test_np_profile_rejects_unknown_or_foreign_media(client, db_session):
+    headers, _np = await _np_admin_with_org(client, db_session, "npy@e.com", "org-y")
+    other = await _login(client, "uploader@e.com", "se")
+    foreign = (await client.post(
+        "/api/v1/media", headers=other, json=media_payload("nonprofits/not-mine"),
+    )).json()
+
+    ghost = await client.patch("/api/v1/np/profile", headers=headers, json={"cover_media_id": 424242})
+    assert ghost.status_code == 400
+    stolen = await client.patch("/api/v1/np/profile", headers=headers, json={"cover_media_id": foreign["id"]})
+    assert stolen.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_public_profile_and_list_include_logo_urls(client, db_session):
+    headers, np = await _np_admin_with_org(client, db_session, "npz@e.com", "org-z")
+    cover = (await client.post("/api/v1/media", headers=headers, json=media_payload("nonprofits/cover1"))).json()
+    await client.patch("/api/v1/np/profile", headers=headers, json={"cover_media_id": cover["id"]})
+
+    profile = (await client.get("/api/v1/nonprofits/org-z")).json()
+    assert profile["nonprofit"]["cover_url"] == cover["secure_url"]
+    listing = (await client.get("/api/v1/nonprofits")).json()
+    assert any(i["cover_url"] == cover["secure_url"] for i in listing["items"])

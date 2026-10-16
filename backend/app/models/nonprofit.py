@@ -36,6 +36,16 @@ class Nonprofit(Base):
     cover_media_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     color: Mapped[str | None] = mapped_column(String(16), nullable=True)
     initials: Mapped[str | None] = mapped_column(String(8), nullable=True)
+    # Stripe Connect (Express) account used for destination charges.
+    stripe_account_id: Mapped[str | None] = mapped_column(
+        String(64), unique=True, nullable=True
+    )
+    stripe_charges_enabled: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
+    )
+    stripe_payouts_enabled: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, nullable=False
     )

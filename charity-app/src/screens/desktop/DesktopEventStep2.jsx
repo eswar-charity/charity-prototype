@@ -7,9 +7,10 @@ import { useNonprofitList, useSelectedNonprofit } from '../../hooks/useNonprofit
 import { useWizardStepAccess } from '../../hooks/useWizardStepAccess';
 import { backWizardPath, nextWizardPath } from '../../utils/changeRequestAreas';
 import { isStepComplete } from '../../utils/eventDraftValidation';
-import { NP_CATEGORY_FILTERS } from '../../data/mockData';
+import useCategories from '../../hooks/useCategories';
 
 export default function DesktopEventStep2() {
+  const { npFilters: NP_CATEGORY_FILTERS } = useCategories();
   const navigate = useNavigate();
   const draft = useCreateEventDraft();
   const { fixMode, allowedSteps } = useWizardStepAccess(2);

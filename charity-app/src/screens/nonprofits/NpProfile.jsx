@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Pencil, Users, Heart, Calendar, Globe } from 'lucide-react';
+import { ChevronLeft, Pencil, Users, Heart, Calendar } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
 import { useNpProfile } from '../../hooks/useNpProfile';
 
@@ -11,36 +11,29 @@ const TOAST_STYLE = {
   zIndex: 100, boxShadow: '0 6px 24px rgba(0,0,0,0.28)', maxWidth: '80%', textAlign: 'center',
 };
 
-const IMPACT = [
-  { num: '12k+', label: 'Supporters', Icon: Users },
-  { num: '$2.4M', label: 'Raised Total', Icon: Heart },
-  { num: '15', label: 'Active Events', Icon: Calendar },
-  { num: '8', label: 'Countries', Icon: Globe },
-];
+const money = (n) => `$${Number(n || 0).toLocaleString('en-US')}`;
 
 export default function NpProfile() {
   const navigate = useNavigate();
-  const { profile, loading, error, cycleCover, cycleLogo } = useNpProfile();
+  const { profile, loading, error, saving, uploadCover, uploadLogo } = useNpProfile();
+  const coverInput = useRef(null);
+  const logoInput = useRef(null);
   const [toast, setToast] = useState('');
   const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 1800); };
 
-  const handleCycleCover = async () => {
+  const pick = (upload, okMsg, failMsg) => async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
     try {
-      await cycleCover();
-      notify('Cover photo updated');
-    } catch {
-      notify('Could not update cover photo');
+      await upload(file);
+      notify(okMsg);
+    } catch (err) {
+      notify(err?.message || failMsg);
     }
   };
-
-  const handleCycleLogo = async () => {
-    try {
-      await cycleLogo();
-      notify('Organization logo updated');
-    } catch {
-      notify('Could not update logo');
-    }
-  };
+  const handleCover = pick(uploadCover, 'Cover photo updated', 'Could not update cover photo');
+  const handleLogo = pick(uploadLogo, 'Organization logo updated', 'Could not update logo');
 
   if (loading) {
     return (
@@ -66,8 +59,14 @@ export default function NpProfile() {
     <div className="phone-shell">
       <div className="screen screen--split">
         <div className="screen-scroll">
+          <input ref={coverInput} type="file" accept="image/*" hidden onChange={handleCover} />
+          <input ref={logoInput} type="file" accept="image/*" hidden onChange={handleLogo} />
           <div className="np-profile-hero">
-            <img className="np-profile-hero-img" src={profile.coverImage} alt="" />
+            {profile.coverImage ? (
+              <img className="np-profile-hero-img" src={profile.coverImage} alt="" />
+            ) : (
+              <div className="np-profile-hero-img" style={{ background: `linear-gradient(135deg, ${profile.color}, #0A2E52)` }} />
+            )}
             <div className="np-profile-hero-nav">
               <button type="button" className="np-profile-hero-btn" onClick={() => navigate('/np/home')} aria-label="Back">
                 <ChevronLeft size={18} color="white" />
@@ -76,7 +75,8 @@ export default function NpProfile() {
                 type="button"
                 className="np-profile-hero-btn"
                 aria-label="Edit cover"
-                onClick={handleCycleCover}
+                disabled={saving}
+                onClick={() => coverInput.current?.click()}
               >
                 <Pencil size={16} color="white" />
               </button>
@@ -87,12 +87,19 @@ export default function NpProfile() {
             <div className="card np-profile-card">
               <div className="np-profile-avatar-wrap">
                 <div className="np-profile-avatar">
-                  <img src={profile.logoImage} alt={profile.name} />
+                  {profile.logoImage ? (
+                    <img src={profile.logoImage} alt={profile.name} />
+                  ) : (
+                    <span style={{ display: 'grid', placeItems: 'center', width: '100%', height: '100%', background: profile.color, color: '#fff', fontWeight: 800, fontSize: 22 }}>
+                      {profile.initials}
+                    </span>
+                  )}
                   <button
                     type="button"
                     className="np-profile-avatar-edit"
                     aria-label="Edit logo"
-                    onClick={handleCycleLogo}
+                    disabled={saving}
+                    onClick={() => logoInput.current?.click()}
                   >
                     <Pencil size={11} color="white" />
                   </button>
@@ -120,7 +127,11 @@ export default function NpProfile() {
 
             <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--dark)', marginBottom: 12 }}>Our Impact</p>
             <div className="impact-grid" style={{ marginBottom: 8 }}>
-              {IMPACT.map((item) => (
+              {[
+                { num: Number(profile.stats.totalBacked).toLocaleString('en-US'), label: 'Supporters', Icon: Users },
+                { num: money(profile.stats.totalRaised), label: 'Raised Total', Icon: Heart },
+                { num: String(profile.stats.eventsHosted), label: 'Events Hosted', Icon: Calendar },
+              ].map((item) => (
                 <div key={item.label} className="impact-box">
                   <item.Icon size={16} color="var(--text-secondary)" aria-hidden={true} />
                   <div className="impact-num">{item.num}</div>

@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import useIsDesktop from './hooks/useIsDesktop';
-import { events } from './data/mockData';
 import AccessGate from './access/AccessGate';
 import { AuthProvider } from './auth/AuthContext';
 import RequireNpAdmin from './auth/RequireNpAdmin';
+import useSpotlightEvent from './hooks/useSpotlightEvent';
+import AcceptInvite from './screens/AcceptInvite';
 
-const DEFAULT_EVENT_KEY = events[0].key;
 
 // SE (organiser) screens
 import CreateAccount from './screens/CreateAccount';
@@ -90,6 +90,14 @@ import AdminNonprofitDetail from './screens/admin/AdminNonprofitDetail';
 import AdminEvents from './screens/admin/AdminEvents';
 import AdminExceptions from './screens/admin/AdminExceptions';
 import AdminAuditLog from './screens/admin/AdminAuditLog';
+
+// Bare `/event/live` style links go to the current spotlight event from the API
+// (or the feed when nothing is live) instead of a hard-coded demo key.
+function SpotlightRedirect({ base, fallback }) {
+  const { event, loading } = useSpotlightEvent();
+  if (loading) return null;
+  return <Navigate to={event ? `${base}/${event.key}` : fallback} replace />;
+}
 
 // Renders the desktop layout above the desktop breakpoint, the existing
 // mobile screen below it. Mobile components are never touched by this switch.
@@ -213,24 +221,25 @@ export default function App() {
         <Route path="/live-dashboard" element={<LiveDashboardRoute />} />
         <Route path="/post-event" element={<PostEventImpactRoute />} />
         <Route path="/profile" element={<ProfileScreenRoute />} />
-        <Route path="/event/live" element={<Navigate to={`/event/live/${DEFAULT_EVENT_KEY}`} replace />} />
+        <Route path="/event/live" element={<SpotlightRedirect base="/event/live" fallback="/feed" />} />
         <Route path="/event/live/:eventKey" element={<SeEventDetailLiveRoute />} />
-        <Route path="/event/upcoming" element={<Navigate to={`/event/upcoming/${DEFAULT_EVENT_KEY}`} replace />} />
+        <Route path="/event/upcoming" element={<SpotlightRedirect base="/event/upcoming" fallback="/feed" />} />
         <Route path="/event/upcoming/:eventKey" element={<SeEventDetailUpcomingRoute />} />
 
         {/* Guest flow */}
         <Route path="/guest" element={<Navigate to="/guest/feed" replace />} />
         <Route path="/guest/feed" element={<GuestFeedRoute />} />
         <Route path="/guest/empty" element={<EmptyFeed />} />
-        <Route path="/guest/event/live" element={<Navigate to={`/guest/event/live/${DEFAULT_EVENT_KEY}`} replace />} />
+        <Route path="/guest/event/live" element={<SpotlightRedirect base="/guest/event/live" fallback="/guest/feed" />} />
         <Route path="/guest/event/live/:eventKey" element={<EventDetailLiveRoute />} />
-        <Route path="/guest/event/upcoming" element={<Navigate to={`/guest/event/upcoming/${DEFAULT_EVENT_KEY}`} replace />} />
+        <Route path="/guest/event/upcoming" element={<SpotlightRedirect base="/guest/event/upcoming" fallback="/guest/feed" />} />
         <Route path="/guest/event/upcoming/:eventKey" element={<EventDetailUpcomingRoute />} />
         <Route path="/guest/event/expired" element={<ExpiredEvent />} />
         <Route path="/guest/share" element={<ShareSheet />} />
         <Route path="/guest/join" element={<IdentityGateJoinRoute />} />
         <Route path="/guest/donate" element={<IdentityGateDonateRoute />} />
         <Route path="/donate/success" element={<DonationSuccessRoute />} />
+        <Route path="/accept-invite" element={<AcceptInvite />} />
         <Route path="/how-it-works" element={<HowItWorksRoute />} />
         <Route path="/causes" element={<CausesRoute />} />
         <Route path="/guest/organizer/:slug" element={<DesktopOrganizerProfile />} />

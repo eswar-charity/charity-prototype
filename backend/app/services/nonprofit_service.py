@@ -3,10 +3,36 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import AppError
 from app.models.nonprofit import Nonprofit
 from app.models.user import User
-from app.repositories import event_repository, nonprofit_repository as repo
+from app.repositories import (
+    event_repository,
+    media_repository,
+    nonprofit_repository as repo,
+)
+from app.schemas.nonprofit import NonprofitRead
 from app.services import event_service
 
 PUBLIC_NP_EVENT_STATUSES = ("Live", "Completed")
+
+
+async def _read_many(db: AsyncSession, nps: list[Nonprofit]) -> list[dict]:
+    """Nonprofit rows plus resolved logo/cover URLs (from media assets)."""
+    ids = {i for n in nps for i in (n.logo_media_id, n.cover_media_id) if i}
+    urls: dict[int, str] = {}
+    for media_id in ids:
+        asset = await media_repository.get_by_id(db, media_id)
+        if asset is not None:
+            urls[media_id] = asset.secure_url
+    out = []
+    for n in nps:
+        data = NonprofitRead.model_validate(n).model_dump()
+        data["logo_url"] = urls.get(n.logo_media_id)
+        data["cover_url"] = urls.get(n.cover_media_id)
+        out.append(data)
+    return out
+
+
+async def read_one(db: AsyncSession, np: Nonprofit) -> dict:
+    return (await _read_many(db, [np]))[0]
 
 
 async def list_nonprofits(
@@ -21,7 +47,7 @@ async def list_nonprofits(
         db, search=search, category=category, verified_only=verified_only,
         page=page, limit=limit,
     )
-    return {"items": items, "total": total, "has_more": has_more}
+    return {"items": await _read_many(db, items), "total": total, "has_more": has_more}
 
 
 async def get_public_profile(db: AsyncSession, slug: str) -> dict:
@@ -43,7 +69,7 @@ async def get_public_profile(db: AsyncSession, slug: str) -> dict:
         "totalRaised": sum(e.raised or 0 for e in public_events),
         "totalBacked": sum(e.backed or 0 for e in public_events),
     }
-    return {"nonprofit": np, "stats": stats, "events": event_reads}
+    return {"nonprofit": await read_one(db, np), "stats": stats, "events": event_reads}
 
 
 async def get_my_nonprofit(db: AsyncSession, user: User) -> Nonprofit:
@@ -55,6 +81,18 @@ async def get_my_nonprofit(db: AsyncSession, user: User) -> Nonprofit:
     return np
 
 
+async def get_my_profile(db: AsyncSession, user: User) -> dict:
+    return await read_one(db, await get_my_nonprofit(db, user))
+
+
+async def _require_own_image(db: AsyncSession, user: User, media_id: int) -> None:
+    asset = await media_repository.get_by_id(db, media_id)
+    if asset is None or asset.resource_type != "image":
+        raise AppError("invalid_media", "Choose an uploaded image", status_code=400)
+    if asset.owner_id != user.id:
+        raise AppError("forbidden", "You can only use media you uploaded", status_code=403)
+
+
 async def update_profile(
     db: AsyncSession,
     user: User,
@@ -62,8 +100,11 @@ async def update_profile(
     mission: str | None = None,
     logo_media_id: int | None = None,
     cover_media_id: int | None = None,
-) -> Nonprofit:
+) -> dict:
     np = await get_my_nonprofit(db, user)
+    for media_id in (logo_media_id, cover_media_id):
+        if media_id is not None:
+            await _require_own_image(db, user, media_id)
     fields: dict = {}
     if mission is not None:
         fields["mission"] = mission
@@ -73,4 +114,4 @@ async def update_profile(
         fields["cover_media_id"] = cover_media_id
     if fields:
         np = await repo.update(db, np, **fields)
-    return np
+    return await read_one(db, np)

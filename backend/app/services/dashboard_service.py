@@ -4,6 +4,7 @@ from app.core.exceptions import AppError
 from app.models.event import Event
 from app.models.user import User
 from app.repositories import event_repository, feed_repository, nonprofit_repository
+from app.services import qr_service
 
 PENDING = ("Submitted", "Changes Requested")
 
@@ -62,7 +63,7 @@ async def np_activity(db: AsyncSession, user: User) -> dict:
             {"id": e.id, "title": e.title, "count": e.backed, "raised": e.raised}
             for e in events
         ],
-        "settlement": {"status": np.settlement_status, "connected": True},
+        "settlement": {"status": np.settlement_status, "connected": bool(np.stripe_charges_enabled)},
     }
 
 
@@ -83,7 +84,7 @@ async def _owned_event(db: AsyncSession, user: User, key: str) -> Event:
     event = await event_repository.get_by_key(db, key)
     if not event:
         raise AppError("not_found", "Event not found", status_code=404)
-    if event.organizer_id != user.id and user.role not in ("np_admin", "platform_admin"):
+    if not await qr_service.can_staff_event(db, user, event):
         raise AppError("forbidden", "Not your event", status_code=403)
     return event
 

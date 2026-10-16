@@ -70,6 +70,11 @@ export function AuthProvider({ children }) {
       await authApi.identityGate(payload);
       return refreshUser();
     },
+    async acceptInvite(payload) {
+      setError(null);
+      await authApi.acceptInvite(payload);
+      return refreshUser();
+    },
     async googleLogin(payload) {
       setError(null);
       await authApi.googleLogin(payload);

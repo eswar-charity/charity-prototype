@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import AdminLayout, { Badge } from '../../components/admin/AdminLayout';
 import { Toast, useToast } from '../../components/admin/useToast';
 import { listAdminExceptions, adminExceptionAction, adaptExceptionItem } from '../../api/admin';
-import { statusTone } from '../../data/adminData';
+import { statusTone } from '../../utils/adminStatus';
 
 const money = (n) => '$' + n.toLocaleString('en-US');
 

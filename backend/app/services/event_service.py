@@ -9,6 +9,7 @@ from app.repositories import (
     event_repository as repo,
     media_repository,
     nonprofit_repository,
+    notification_repository,
     user_repository,
 )
 from app.utils.change_request_note import decode_change_request_note
@@ -17,29 +18,6 @@ from app.utils.identity import derive_initials
 EDITABLE_STATUSES = ("Draft", "Changes Requested")
 # Direct link access for non-owners: only after NP approval publishes Live (or completed).
 PUBLIC_DETAIL_STATUSES = ("Live", "Completed")
-
-# Static demo assets served by the frontend under /public/events/{key}/
-_CATALOG_PHOTO_COUNTS = {
-    "neon-night": 11,
-    "give-now": 12,
-    "golf-outing": 8,
-    "dog-dad": 9,
-    "breakneck-ridge-run": 10,
-}
-
-
-def _catalog_photo_urls(event_key: str) -> list[str]:
-    count = _CATALOG_PHOTO_COUNTS.get(event_key)
-    if not count:
-        return []
-    urls: list[str] = []
-    for i in range(1, count + 1):
-        ext = "png" if event_key == "dog-dad" and i == 9 else (
-            "png" if event_key == "golf-outing" and i == 8 else "jpg"
-        )
-        urls.append(f"/events/{event_key}/img{i}.{ext}")
-    return urls
-
 
 async def _resolve_photos(db: AsyncSession, event: Event) -> list[str]:
     assets = await media_repository.list_by_entity(db, "event_photo", event.id)
@@ -50,10 +28,7 @@ async def _resolve_photos(db: AsyncSession, event: Event) -> list[str]:
         cover = await media_repository.get_by_id(db, event.cover_media_id)
         if cover and cover.secure_url:
             return [cover.secure_url]
-    catalog = _catalog_photo_urls(event.key)
-    if catalog:
-        return catalog
-    # New / custom events without uploads stay empty — do not invent stock art.
+    # Events without uploads stay empty — do not invent stock art.
     return []
 
 
@@ -114,7 +89,8 @@ async def _to_read(
         "start_time": event.start_time, "end_time": event.end_time,
         "location": event.location, "wizard_step": event.wizard_step,
         "is_live": event.is_live,
-        "cover_media_id": event.cover_media_id, "backed": event.backed,
+        "cover_media_id": event.cover_media_id, "cover_focus": event.cover_focus,
+        "backed": event.backed,
         "joined": event.joined, "updates": event.updates,
         "chat_count": event.chat_count, "raised": event.raised,
         "nonprofit": nonprofit, "organizer": organizer,
@@ -301,23 +277,29 @@ async def submit(db: AsyncSession, user: User, event_id: int) -> dict:
         event = await repo.update(
             db, event, status="Submitted", is_live=False, kind="SE-led"
         )
+        for admin_id in await nonprofit_repository.admin_user_ids(db, event.nonprofit_id):
+            await notification_repository.create(
+                db, admin_id, "approval_requested",
+                f"New event '{event.title}' is waiting for your approval.",
+            )
     return await _to_read(db, event, include_photos=True)
 
 
 async def go_live(db: AsyncSession, user: User, event_id: int) -> dict:
+    """Publish an own-org NP event directly.
+
+    SE-led and partner events have no manual publish step: the nonprofit's
+    approval (approval_service.approve) publishes them in a single step.
+    """
     event = await _load_owned(db, user, event_id)
-    if await _can_auto_publish(db, user, event) and event.status in ("Draft", "Approved"):
+    if event.status == "Draft" and await _can_auto_publish(db, user, event):
         event = await repo.update(db, event, status="Live", is_live=True, kind="NP-led")
         return await _to_read(db, event, include_photos=True)
-    # Partner / SE-led events only go live after nonprofit approval.
-    if event.status != "Approved":
-        raise AppError(
-            "invalid_state",
-            "Nonprofit approval is required before this event can go live",
-            status_code=409,
-        )
-    event = await repo.update(db, event, status="Live", is_live=True)
-    return await _to_read(db, event, include_photos=True)
+    raise AppError(
+        "invalid_state",
+        "Nonprofit approval is required before this event can go live",
+        status_code=409,
+    )
 
 
 async def complete(db: AsyncSession, user: User, event_id: int) -> dict:

@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Download, Plus } from 'lucide-react';
 import AdminLayout, { Badge } from '../../components/admin/AdminLayout';
 import { Toast, useToast } from '../../components/admin/useToast';
-import { listAdminNonprofits, inviteNonprofit, adaptAdminNonprofit } from '../../api/admin';
-import { statusTone } from '../../data/adminData';
+import { listAdminNonprofits, adaptAdminNonprofit } from '../../api/admin';
+import InvitePanel from '../../components/admin/InvitePanel';
+import { statusTone } from '../../utils/adminStatus';
 
 const FILTERS = ['All', 'Active', 'Verified', 'Pending Verification', 'Submitted', 'Rejected', 'Suspended'];
 const money = (n) => '$' + n.toLocaleString('en-US');
@@ -15,7 +16,7 @@ export default function AdminNonprofits() {
   const [filter, setFilter] = useState('All');
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [inviting, setInviting] = useState(false);
+  const [showInvite, setShowInvite] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -32,24 +33,22 @@ export default function AdminNonprofits() {
 
   useEffect(() => { load(); }, [load]);
 
-  const onKey = (fn) => (e) => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
+  const exportCsv = () => {
+    const header = ['Organization', 'EIN', 'Category', 'Status', 'Settlement'];
+    const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const csv = [header, ...rows.map((n) => [n.name, n.ein, n.category, n.status, n.settlement])]
+      .map((r) => r.map(esc).join(',')).join('\n');
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'nonprofits.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    show(`Exported ${rows.length} nonprofits`);
   };
 
-  const handleInvite = async () => {
-    const name = window.prompt('Nonprofit name');
-    if (!name?.trim()) return;
-    const category = window.prompt('Category', 'Community')?.trim() || 'Community';
-    setInviting(true);
-    try {
-      await inviteNonprofit({ name: name.trim(), category });
-      show('Invite sent to nonprofit contact');
-      await load();
-    } catch (err) {
-      show(err?.message || 'Invite failed', { variant: 'error' });
-    } finally {
-      setInviting(false);
-    }
+  const onKey = (fn) => (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
   };
 
   return (
@@ -58,15 +57,19 @@ export default function AdminNonprofits() {
       title="Nonprofits"
       actions={
         <>
-          <button className="adm-btn adm-btn-ghost adm-btn-sm" onClick={() => show('Exporting nonprofit register…')}>
+          <button className="adm-btn adm-btn-ghost adm-btn-sm" onClick={exportCsv}>
             <Download size={14} /> Export
           </button>
-          <button className="adm-btn adm-btn-primary adm-btn-sm" disabled={inviting} onClick={handleInvite}>
+          <button className="adm-btn adm-btn-primary adm-btn-sm" onClick={() => setShowInvite((v) => !v)}>
             <Plus size={14} /> Invite nonprofit
           </button>
         </>
       }
     >
+      {showInvite && (
+        <InvitePanel onClose={() => setShowInvite(false)} onDone={load} notify={show} />
+      )}
+
       <div className="adm-tabs">
         {FILTERS.map((f) => (
           <button key={f} className={`adm-tab ${filter === f ? 'active' : ''}`} onClick={() => setFilter(f)}>{f}</button>

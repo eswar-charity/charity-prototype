@@ -21,6 +21,8 @@ class NonprofitRead(BaseModel):
     raw_cause: str | None = None
     logo_media_id: int | None = None
     cover_media_id: int | None = None
+    logo_url: str | None = None
+    cover_url: str | None = None
     color: str | None = None
     initials: str | None = None
 

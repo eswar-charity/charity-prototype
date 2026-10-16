@@ -1,5 +1,7 @@
 import pytest
 
+from tests.helpers import media_payload
+
 
 async def _register_and_login(client, email="p@e.com"):
     await client.post(
@@ -31,6 +33,7 @@ async def test_get_profile_requires_auth_401(client):
 @pytest.mark.asyncio
 async def test_patch_profile_updates_fields_and_causes(client):
     headers = await _register_and_login(client, email="p2@e.com")
+    avatar = (await client.post("/api/v1/media", headers=headers, json=media_payload("avatars/p2"))).json()
     resp = await client.patch(
         "/api/v1/me/profile",
         headers=headers,
@@ -38,14 +41,14 @@ async def test_patch_profile_updates_fields_and_causes(client):
             "bio": "Building change",
             "city": "Austin",
             "causes": ["Environment", "Education"],
-            "avatar_media_id": 5,
+            "avatar_media_id": avatar["id"],
         },
     )
     assert resp.status_code == 200
     body = resp.json()
     assert body["bio"] == "Building change"
     assert body["city"] == "Austin"
-    assert body["avatar_media_id"] == 5
+    assert body["avatar_media_id"] == avatar["id"]
     assert sorted(body["causes"]) == ["Education", "Environment"]
 
 

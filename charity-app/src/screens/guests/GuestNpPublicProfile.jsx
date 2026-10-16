@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, Users } from 'lucide-react';
 import { EventImageBanner } from '../../components/event/EventImage';
-import { eventDisplayTitle } from '../../data/mockData';
+import { eventDisplayTitle } from '../../utils/eventDisplay';
 import { eventDetailPath } from '../../utils/eventPaths';
 import { useNonprofitProfile } from '../../hooks/useNonprofitProfile';
 import useIsDesktop from '../../hooks/useIsDesktop';

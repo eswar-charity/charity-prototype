@@ -1,4 +1,4 @@
-export { eventDisplayTitle } from '../data/eventData.js';
+export { eventDisplayTitle } from './eventDisplay.js';
 
 export function eventLivePath(eventKey, { loggedIn = false } = {}) {
   const prefix = loggedIn ? '/event' : '/guest/event';

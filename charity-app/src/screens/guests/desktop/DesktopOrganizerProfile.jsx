@@ -5,9 +5,10 @@ import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../../components/desktop/DesktopFooter';
 import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
 import DesktopJoinGateModal from '../../../components/desktop/DesktopJoinGateModal';
-import { slugify, eventDisplayTitle } from '../../../data/mockData';
+import { slugify, eventDisplayTitle } from '../../../utils/eventDisplay';
 import { eventDetailPath } from '../../../utils/eventPaths';
 import { listEvents } from '../../../api/events';
+import { getOrganizer } from '../../../api/users';
 import { adaptEvent } from '../../../api/adapters/event';
 import { EventImageBanner } from '../../../components/event/EventImage';
 import { useAuth } from '../../../auth/AuthContext';
@@ -32,9 +33,8 @@ function initialsFromName(name) {
 }
 
 /**
- * Temporary: no GET /organizers/{slug} API yet.
- * Derive organizer profile by listing events and filtering by organizer name slug
- * until a dedicated organizers endpoint exists.
+ * Derive the organizer from the public event feed (filtered by name slug);
+ * personal details are layered on from GET /organizers/{id}.
  */
 function buildOrganizerProfile(slug, events) {
   const hosted = events.filter(
@@ -51,8 +51,10 @@ function buildOrganizerProfile(slug, events) {
     name,
     initials: brief?.initials || initialsFromName(name),
     role: 'Event Presenter · Charity Hub',
-    location: 'San Francisco, CA',
-    bio: 'Creating events that bring communities together for causes that matter. Dedicated to building community through shared experiences and impactful giving.',
+    organizerId: brief?.id ?? null,
+    // Filled from GET /organizers/{id}; empty until the organizer writes them.
+    location: '',
+    bio: '',
     causes: [...new Set(hosted.map((e) => e.category).filter(Boolean))],
     stats: {
       eventsHosted: hosted.length,
@@ -93,12 +95,24 @@ export default function DesktopOrganizerProfile() {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    // Temporary workaround until GET /organizers/{slug} exists — see buildOrganizerProfile.
+    // Events come from the public feed; bio/city come from GET /organizers/{id}.
     listEvents({ page: 1, limit: 50 })
       .then((res) => {
         if (cancelled) return;
         const adapted = (res.items ?? []).map((raw) => enrichProfileEvent(adaptEvent(raw)));
-        setProfile(buildOrganizerProfile(slug, adapted));
+        const base = buildOrganizerProfile(slug, adapted);
+        if (!base?.organizerId) return base;
+        return getOrganizer(base.organizerId)
+          .then((org) => ({
+            ...base,
+            location: org.city || '',
+            bio: org.bio || '',
+            causes: org.causes?.length ? org.causes : base.causes,
+          }))
+          .catch(() => base);
+      })
+      .then((built) => {
+        if (!cancelled) setProfile(built);
       })
       .catch((err) => {
         if (!cancelled) {
@@ -170,8 +184,8 @@ export default function DesktopOrganizerProfile() {
             <div className="dsk-profile-info">
               <p className="dsk-profile-role">Event Presenter · Charity Hub</p>
               <h1 className="dsk-profile-name">{profile.name}</h1>
-              <p className="dsk-profile-loc"><MapPin size={13} /> {profile.location}</p>
-              <p className="dsk-profile-bio">{profile.bio}</p>
+              {profile.location && <p className="dsk-profile-loc"><MapPin size={13} /> {profile.location}</p>}
+              {profile.bio && <p className="dsk-profile-bio">{profile.bio}</p>}
               <div className="dsk-profile-causes">
                 {profile.causes.map((c) => <span key={c} className="dsk-cause-tag">{c}</span>)}
               </div>

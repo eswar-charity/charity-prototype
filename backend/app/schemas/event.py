@@ -40,6 +40,7 @@ class EventRead(BaseModel):
     wizard_step: int | None = None
     is_live: bool
     cover_media_id: int | None = None
+    cover_focus: str | None = None
     backed: int
     joined: int
     updates: int

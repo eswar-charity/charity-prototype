@@ -1,6 +1,7 @@
 from app.models.admin import AdminReviewItem, AuditLogEntry, Exception_
 from app.models.approval import AutopilotSettings, EventReview, TrustedSE
 from app.models.attendee import Attendee
+from app.models.category import Category
 from app.models.donation import Donation
 from app.models.event import (
     Event,
@@ -13,6 +14,7 @@ from app.models.media import MediaAsset
 from app.models.nonprofit import Nonprofit, NonprofitAdmin
 from app.models.notification import Notification
 from app.models.post import ChatMessage, Post, PostReply
+from app.models.security import AccountInvite, RefreshToken
 from app.models.user import User, UserCause
 
 __all__ = [
@@ -38,4 +40,7 @@ __all__ = [
     "AdminReviewItem",
     "Exception_",
     "AuditLogEntry",
+    "RefreshToken",
+    "AccountInvite",
+    "Category",
 ]

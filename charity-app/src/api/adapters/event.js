@@ -22,6 +22,7 @@ export function adaptEvent(apiEvent) {
     organizerId: apiEvent.organizer?.id,
     tags: apiEvent.tags ?? [],
     photos: apiEvent.photos ?? [],
+    coverFocus: apiEvent.cover_focus ?? null,
     nonprofitBrief: apiEvent.nonprofit,
     organizerBrief: apiEvent.organizer,
     viewerJoined: !!apiEvent.viewer_joined,

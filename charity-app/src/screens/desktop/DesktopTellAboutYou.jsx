@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin } from 'lucide-react';
 import DesktopAuthLayout from '../../components/desktop/DesktopAuthLayout';
-import { causes } from '../../data/mockData';
+import useCategories from '../../hooks/useCategories';
 import { updateProfile } from '../../api/users';
 import { useAuth } from '../../auth/AuthContext';
 import { useAppToast, ToastHost } from '../../components/Toast';
 
 export default function DesktopTellAboutYou() {
+  const { names: causes } = useCategories();
   const navigate = useNavigate();
   const { refreshUser } = useAuth();
   const { toast, show } = useAppToast();

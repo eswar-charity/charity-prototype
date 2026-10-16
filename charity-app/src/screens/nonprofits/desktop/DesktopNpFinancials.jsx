@@ -1,23 +1,16 @@
-import { useState } from 'react';
-import { Check } from 'lucide-react';
 import { DesktopNpLayout } from '../../../components/desktop/DesktopNpLayout';
-import { eventDisplayTitle } from '../../../data/mockData';
+import { eventDisplayTitle } from '../../../utils/eventDisplay';
 import { useNpFinancials } from '../../../hooks/useNpDashboard';
+import StripeConnectCard from '../../../components/StripeConnectCard';
 
 function formatCurrency(value) {
   return `$${(value ?? 0).toLocaleString()}`;
 }
 
-function settlementReady(status) {
-  return (status ?? '').toLowerCase() === 'ready';
-}
-
 export default function DesktopNpFinancials() {
   const { data, loading, error } = useNpFinancials();
-  const [stripeOpen, setStripeOpen] = useState(false);
 
   const revenueByEvent = data?.revenueByEvent ?? [];
-  const stripeReady = settlementReady(data?.settlementStatus);
 
   if (loading) {
     return (
@@ -43,31 +36,12 @@ export default function DesktopNpFinancials() {
           <p className="dsk-np-stat-lbl">Total raised to date</p>
         </div>
         <div className="dsk-np-stat-card">
-          <p className="dsk-np-stat-num dark" style={{ fontSize: 34 }}>$12,480</p>
-          <p className="dsk-np-stat-lbl">Available for payout</p>
+          <p className="dsk-np-stat-num dark" style={{ fontSize: 34 }}>{data.supporters}</p>
+          <p className="dsk-np-stat-lbl">Supporters</p>
         </div>
       </div>
 
-      <div className="dsk-np-panel" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--blue-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <Check size={18} color="var(--blue)" strokeWidth={2.5} />
-        </div>
-        <div style={{ flex: 1 }}>
-          <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>
-            {stripeReady ? 'Settlement ready — Stripe Connected Account active' : `Settlement ${data.settlementStatus}`}
-          </p>
-        </div>
-        <button type="button" className="np-link-btn" onClick={() => setStripeOpen((o) => !o)}>
-          {stripeOpen ? 'Hide' : 'Manage →'}
-        </button>
-      </div>
-      {stripeOpen && (
-        <div className="dsk-np-panel" style={{ marginTop: -8, marginBottom: 16 }}>
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>Stripe Connected Account · acct_1OceanConserv</p>
-          <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--dark)' }}>$12,480.00 available</p>
-          <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>Next payout · Friday, Oct 31</p>
-        </div>
-      )}
+      <StripeConnectCard variant="desktop" />
 
       <div className="dsk-np-panel">
         <div className="dsk-np-panel-head"><span className="dsk-np-panel-title">Revenue by event</span></div>

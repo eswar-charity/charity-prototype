@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Check } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
 import MobileAppHeader from '../../components/MobileAppHeader';
-import { eventDisplayTitle } from '../../data/mockData';
+import { eventDisplayTitle } from '../../utils/eventDisplay';
 import { useNpActivity } from '../../hooks/useNpDashboard';
 
 const INITIAL_VISIBLE = 3;
@@ -67,7 +67,7 @@ export default function NpActivity() {
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 borderTop: '1px solid var(--border)', paddingTop: 14, marginTop: 14,
               }}>
-                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Events with backing this month</span>
+                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Events with backing</span>
                 <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--dark)' }}>{data.eventsWithBacking}</span>
               </div>
             </div>

@@ -6,7 +6,7 @@ import DesktopShareModal from '../../../components/desktop/DesktopShareModal';
 import DesktopJoinGateModal from '../../../components/desktop/DesktopJoinGateModal';
 import { EventBackersModal } from '../../../components/event/EventModals';
 import EventNonprofitLearnMore from '../../../components/event/EventNonprofitLearnMore';
-import { slugify, eventDisplayTitle, getEventBannerFocus, getCommunityPhotos } from '../../../data/mockData';
+import { slugify, eventDisplayTitle, getEventBannerFocus, getCommunityPhotos } from '../../../utils/eventDisplay';
 import { EventImageBanner } from '../../../components/event/EventImage';
 import { useAuth } from '../../../auth/AuthContext';
 import { useEventDetail, useEventBackers, useEventActions } from '../../../hooks/useEventDetail';

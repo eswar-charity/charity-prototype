@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Clock, ShieldCheck, Flag, AlertTriangle, Users } from 'lucide-react';
 import AdminLayout, { Badge } from '../../components/admin/AdminLayout';
 import { listAdminReviews, adaptReviewItem } from '../../api/admin';
-import { statusTone } from '../../data/adminData';
+import { statusTone } from '../../utils/adminStatus';
 
 const FILTERS = ['All', 'New', 'In Review', 'Escalated', 'Approved', 'Rejected'];
 

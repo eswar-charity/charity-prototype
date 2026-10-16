@@ -1,16 +1,16 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, MapPin } from 'lucide-react';
-import { causes } from '../data/mockData';
+import useCategories from '../hooks/useCategories';
 import MobileAuthHeader from '../components/MobileAuthHeader';
 import { updateProfile } from '../api/users';
 import { useAuth } from '../auth/AuthContext';
 import { useAppToast, ToastHost } from '../components/Toast';
 import { consumeGuestReturn } from '../utils/identityGateIntent';
 
-const CAUSES = causes;
 
 export default function TellAboutYou() {
+  const { names: CAUSES } = useCategories();
   const navigate = useNavigate();
   const { refreshUser } = useAuth();
   const { toast, show } = useAppToast();

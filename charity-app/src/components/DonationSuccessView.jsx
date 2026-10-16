@@ -9,8 +9,8 @@ function formatMoney(value) {
 }
 
 export default function DonationSuccessView({
-  donorName = 'Sarah King',
-  publicName = 'Sarah K.',
+  donorName = 'Donor',
+  publicName = 'Donor',
   eventTitle = 'Event',
   nonprofit = 'Nonprofit',
   amount = 25,
@@ -97,12 +97,12 @@ export default function DonationSuccessView({
 
       <div className="donate-success-email">
         <Mail size={16} color="var(--primary)" aria-hidden="true" />
-        <p>A confirmation email with your receipt is already on its way.</p>
+        <p>Keep this receipt for your records — you can download it any time below.</p>
       </div>
 
       <p className="donate-success-pending">
         <Clock size={14} aria-hidden="true" />
-        The event&apos;s raised total updates once funds settle — your gift shows as pending until then.
+        Your gift now counts toward the event&apos;s raised total.
       </p>
 
       <button

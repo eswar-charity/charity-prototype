@@ -27,6 +27,10 @@ class User(Base):
     # avatar_media_id: forward reference to a future media_assets table.
     # Plain nullable integer, NO foreign key yet (media is a later phase).
     avatar_media_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    failed_logins: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    locked_until: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, nullable=False
     )

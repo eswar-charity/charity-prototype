@@ -9,10 +9,10 @@ export function calcDonationReceipt(amount) {
 
 export function buildDonationSuccessUrl({
   amount = 25,
-  eventKey = 'neon-night',
+  eventKey = '',
   returnTo = `/guest/event/live/${eventKey}`,
-  donorName = 'Sarah King',
-  publicName = 'Sarah K.',
+  donorName = 'Donor',
+  publicName = 'Donor',
   donationId,
 } = {}) {
   const params = new URLSearchParams({

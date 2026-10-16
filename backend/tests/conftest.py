@@ -3,6 +3,17 @@ import os
 # Speed up the suite: use minimal bcrypt cost in tests (set before app import
 # so the cached Settings picks it up). Never affects production defaults.
 os.environ.setdefault("BCRYPT_ROUNDS", "4")
+# Hermetic tests: never inherit real credentials/endpoints from backend/.env.
+# (Real env vars take precedence over the dotenv file.)
+os.environ["ENVIRONMENT"] = "test"
+os.environ["CLOUDINARY_CLOUD_NAME"] = "testcloud"
+os.environ["CLOUDINARY_API_KEY"] = ""
+os.environ["CLOUDINARY_API_SECRET"] = "test-secret"
+os.environ["STRIPE_SECRET_KEY"] = ""
+os.environ["STRIPE_PUBLISHABLE_KEY"] = ""
+os.environ["STRIPE_WEBHOOK_SECRET"] = ""
+os.environ["DATABASE_URL"] = ""
+os.environ["PUBLIC_BASE_URL"] = "http://localhost:5173"
 
 import pytest
 import pytest_asyncio

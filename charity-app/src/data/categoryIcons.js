@@ -4,55 +4,46 @@ import {
   MapPin, UserCheck, ThumbsUp, Sparkles,
 } from 'lucide-react';
 
-// Full browse taxonomy — shown as text filter chips (All, You, Live now, …).
-export const BROWSE_CATEGORIES = [
-  'Animals',
-  'Community',
-  'Education',
-  'Health',
-  'Arts',
-  'Religion',
-  'Environment',
-  'Sports',
-  'Human Services',
-  'Culture',
-  'Gifts & Foundations',
-  'Individuals',
-  'Public-Society Benefit',
-  'Humanities',
-  'Food & Hunger',
-];
-
-// One icon + accent color per cause category — the primary navigation for
-// the feed's top section, in place of circular story-style photo avatars.
-const CATEGORY_ICONS = {
-  All: { Icon: Compass, color: '#1A6EB5' },
-  Animals: { Icon: PawPrint, color: '#C2410C' },
-  Community: { Icon: Users, color: '#7C3AED' },
-  Education: { Icon: GraduationCap, color: '#0D7377' },
-  Health: { Icon: HeartPulse, color: '#D32F2F' },
-  Arts: { Icon: Palette, color: '#DB2777' },
-  Religion: { Icon: Landmark, color: '#92400E' },
-  Environment: { Icon: Leaf, color: '#15803D' },
-  Sports: { Icon: Trophy, color: '#EA580C' },
-  'Human Services': { Icon: HandHeart, color: '#0369A1' },
-  Culture: { Icon: Globe, color: '#6D28D9' },
-  'Gifts & Foundations': { Icon: Gift, color: '#B45309' },
-  Individuals: { Icon: UserRound, color: '#4338CA' },
-  'Public-Society Benefit': { Icon: Landmark, color: '#334155' },
-  Humanities: { Icon: BookOpen, color: '#78350F' },
-  'Food & Hunger': { Icon: UtensilsCrossed, color: '#CA8A04' },
+// Icon registry: the API stores an icon *key* per category (categories.icon);
+// the actual glyph is a presentation concern and lives here.
+const ICONS_BY_KEY = {
+  'paw-print': PawPrint,
+  users: Users,
+  'graduation-cap': GraduationCap,
+  'heart-pulse': HeartPulse,
+  palette: Palette,
+  landmark: Landmark,
+  leaf: Leaf,
+  trophy: Trophy,
+  'hand-heart': HandHeart,
+  globe: Globe,
+  gift: Gift,
+  'user-round': UserRound,
+  'book-open': BookOpen,
+  'utensils-crossed': UtensilsCrossed,
+  compass: Compass,
 };
 
+const ALL_ICON = { Icon: Compass, color: '#1A6EB5' };
 const DEFAULT_CATEGORY_ICON = { Icon: Compass, color: '#51617A' };
 
+// Filled by useCategories() once /categories has loaded.
+let registry = {};
+
+export function registerCategories(categories) {
+  registry = Object.fromEntries(
+    (categories || []).map((c) => [c.name, { Icon: ICONS_BY_KEY[c.icon] || Compass, color: c.color || '#51617A' }]),
+  );
+}
+
 export function getCategoryIcon(category) {
-  return CATEGORY_ICONS[category] || DEFAULT_CATEGORY_ICON;
+  if (category === 'All') return ALL_ICON;
+  return registry[category] || DEFAULT_CATEGORY_ICON;
 }
 
 // The feed's second row: HOW to surface events, not WHICH cause — a
-// different axis from the category rail above it, so the two rows stop
-// duplicating the same 15 categories in two visual styles.
+// different axis from the category rail above it. These are view modes,
+// not data, so they stay in code.
 export const DISCOVERY_FILTERS = [
   { key: 'All', label: 'All', Icon: Compass },
   { key: 'Live now', label: 'Live now', dot: true },

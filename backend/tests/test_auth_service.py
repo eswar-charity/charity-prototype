@@ -13,8 +13,10 @@ def test_register_request_rejects_privileged_role():
         RegisterRequest(name="X", email="x@e.com", password="Passw0rd!", role="platform_admin")
     with pytest.raises(ValueError):
         RegisterRequest(name="X", email="x@e.com", password="Passw0rd!", role="guest_lead")
-    ok = RegisterRequest(name="X", email="x@e.com", password="Passw0rd!", role="np_admin")
-    assert ok.role == "np_admin"
+    with pytest.raises(ValueError):
+        RegisterRequest(name="X", email="x@e.com", password="Passw0rd!", role="np_admin")
+    ok = RegisterRequest(name="X", email="x@e.com", password="Passw0rd!", role="se")
+    assert ok.role == "se"
 
 
 def test_identity_gate_request_requires_email_or_phone():

@@ -4,18 +4,21 @@ import {
   ChevronLeft, Info, Share2, Heart,
   Plus, Camera, ArrowUp, MoreHorizontal,
   Images, MessageCircle, HandHeart, PartyPopper, Check, UserPlus,
-  Calendar, MapPin,
+  Calendar, MapPin, Ticket,
 } from 'lucide-react';
-import { eventLivePath, eventDisplayTitle, getEventBanner, getEventBannerFocus } from '../../data/mockData';
+import { eventDisplayTitle, getEventBanner, getEventBannerFocus } from '../../utils/eventDisplay';
+import { eventLivePath } from '../../utils/eventPaths';
 import { EventImageBanner } from '../../components/event/EventImage';
 import MobileShareModal from '../../components/MobileShareModal';
 import MobileJoinModal from '../../components/MobileJoinModal';
+import TicketModal from '../../components/TicketModal';
 import { useAuth } from '../../auth/AuthContext';
 import { useEventDetail, useEventActions } from '../../hooks/useEventDetail';
 import { useDonateFlow } from '../../hooks/useDonateFlow';
 import { useEventCommunity } from '../../hooks/useEventCommunity';
 import { useEventChat } from '../../hooks/useEventChat';
-import StaticStripePaymentForm, { STRIPE_TEST_SUCCESS } from '../../components/StaticStripePaymentForm';
+import PaymentForm from '../../components/PaymentForm';
+import { STRIPE_TEST_SUCCESS } from '../../utils/staticStripe.js';
 import { uploadDeviceMedia } from '../../api/uploadDeviceMedia';
 import EventNonprofitLearnMore from '../../components/event/EventNonprofitLearnMore';
 import EventNpStoryStrip from '../../components/event/EventNpStoryStrip';
@@ -250,6 +253,7 @@ function ChatInputBar({ value, onChange, onSend, onAttach, onFocus, disabled }) 
 /* ── Support Tab ─────────────────────────────────────────── */
 function SupportTab({ ev, selectedAmount, onSelectAmount, onDonate, onViewStructure, donatePending }) {
   const [cardDigits, setCardDigits] = useState(STRIPE_TEST_SUCCESS);
+  const paymentRef = useRef(null);
   const [customAmount, setCustomAmount] = useState('');
   const isOther = selectedAmount === 'other';
   const parsedCustom = Number.parseFloat(customAmount);
@@ -275,16 +279,13 @@ function SupportTab({ ev, selectedAmount, onSelectAmount, onDonate, onViewStruct
       <div className="support-np-row">
         <span className="support-np-icon">∞</span>
         <span className="support-np-name">{ev.nonprofit}</span>
-        <span className="w9-badge"><span>✓</span> W-9</span>
+        {ev.nonprofitBrief?.verified && <span className="w9-badge"><span>✓</span> Verified</span>}
       </div>
 
       {/* Raised */}
       <div className="support-raised-row">
         <span className="support-raised-label">Raised so far</span>
         <span className="support-raised-amount">${Number(ev.raised || 0).toLocaleString()}</span>
-      </div>
-      <div className="support-progress-track">
-        <div className="support-progress-fill" style={{ width: '57%' }} />
       </div>
 
       {/* Amount selector */}
@@ -329,7 +330,8 @@ function SupportTab({ ev, selectedAmount, onSelectAmount, onDonate, onViewStruct
         </div>
       )}
 
-      <StaticStripePaymentForm
+      <PaymentForm
+        ref={paymentRef}
         amount={canDonate ? donateAmount : 0}
         disabled={donatePending || !canDonate}
         onCardChange={setCardDigits}
@@ -337,7 +339,7 @@ function SupportTab({ ev, selectedAmount, onSelectAmount, onDonate, onViewStruct
 
       <button
         className="btn-primary"
-        onClick={() => canDonate && onDonate(donateAmount, cardDigits)}
+        onClick={() => canDonate && onDonate(donateAmount, cardDigits, paymentRef.current)}
         disabled={donatePending || !canDonate}
       >
         {donatePending ? 'Processing…' : canDonate ? `Donate $${donateAmount}` : 'Enter an amount'}
@@ -383,6 +385,7 @@ export default function EventDetailLive({ loggedIn = false }) {
   const [showNpModal, setShowNpModal]     = useState(false);
   const [showShare, setShowShare]         = useState(false);
   const [showJoin, setShowJoin]           = useState(false);
+  const [showTicket, setShowTicket]       = useState(false);
   const [gateIntent, setGateIntent]       = useState('default');
   const [toast, setToast]                 = useState('');
   const chatFileInputRef = useRef(null);
@@ -442,11 +445,12 @@ export default function EventDetailLive({ loggedIn = false }) {
     return true;
   };
 
-  const handleDonate = async (amount, cardNumber) => {
+  const handleDonate = async (amount, cardNumber, payment) => {
     await donate({
       ev,
       amount,
       cardNumber,
+      payment,
       returnTo: eventLivePath(ev.key, { loggedIn }),
     });
   };
@@ -567,6 +571,11 @@ export default function EventDetailLive({ loggedIn = false }) {
                   {joined ? <Check size={15} strokeWidth={3} /> : <UserPlus size={15} />}
                   {joined ? 'Joined' : 'Join event'}
                 </button>
+                {joined && isAuthenticated && (
+                  <button type="button" className="ev-heart-btn" onClick={() => setShowTicket(true)} aria-label="Show my ticket">
+                    <Ticket size={18} color="white" />
+                  </button>
+                )}
                 <button className="ev-heart-btn" onClick={handleLike} aria-label={liked ? 'Unlike event' : 'Like event'}>
                   <Heart
                     size={18}
@@ -739,6 +748,10 @@ export default function EventDetailLive({ loggedIn = false }) {
             url={`https://charity-prototype.vercel.app${eventLivePath(ev.key)}`}
             onClose={() => setShowShare(false)}
           />
+        )}
+
+        {showTicket && (
+          <TicketModal open eventId={ev.id} title={eventDisplayTitle(ev.title)} onClose={() => setShowTicket(false)} />
         )}
 
         {showJoin && (

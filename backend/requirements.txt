@@ -16,3 +16,4 @@ httpx==0.28.1
 aiosqlite==0.20.0
 google-auth==2.37.0
 requests==2.32.3
+stripe==16.0.0

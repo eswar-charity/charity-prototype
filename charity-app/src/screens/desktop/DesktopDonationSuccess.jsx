@@ -1,43 +1,33 @@
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DonationSuccessView from '../../components/DonationSuccessView';
-import { getEvent } from '../../api/events.js';
-import { getReceipt } from '../../api/donations.js';
-import { adaptEvent } from '../../api/adapters/event.js';
-import { adaptReceipt, calcDonationReceipt } from '../../utils/donationReceipt.js';
+import useDonationReceipt from '../../hooks/useDonationReceipt';
+
+function ReceiptProblem({ state, onBack }) {
+  return (
+    <div style={{ padding: 32, textAlign: 'center' }}>
+      <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>
+        {state === 'unsuccessful' ? 'This donation hasn’t completed' : 'We couldn’t find that donation'}
+      </h2>
+      <p style={{ color: 'var(--text-secondary)', marginBottom: 20 }}>
+        {state === 'unsuccessful'
+          ? 'No payment was taken for it. You can try again from the event page.'
+          : 'Receipts are private — sign in with the account you donated from.'}
+      </p>
+      <button type="button" className="btn-primary" onClick={onBack}>Back to events</button>
+    </div>
+  );
+}
 
 export default function DesktopDonationSuccess() {
+  const navigate = useNavigate();
   const [params] = useSearchParams();
-  const amount = Number(params.get('amount')) || 25;
-  const eventKey = params.get('event') || 'neon-night';
+  const eventKey = params.get('event');
   const donationId = params.get('donationId');
   const returnTo = params.get('return') || '/guest/feed';
   const donorName = params.get('donor') || 'Donor';
-  const publicName = params.get('public') || donorName;
   const isSe = returnTo.startsWith('/event');
-
-  const [ev, setEv] = useState(null);
-  const [receipt, setReceipt] = useState(() => calcDonationReceipt(amount));
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const raw = await getEvent(eventKey);
-        if (!cancelled) setEv(adaptEvent(raw));
-      } catch {
-        if (!cancelled) setEv(null);
-      }
-      if (donationId) {
-        try {
-          const r = await getReceipt(donationId);
-          if (!cancelled) setReceipt(adaptReceipt(r));
-        } catch { /* keep calc fallback */ }
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [eventKey, donationId]);
+  const { state, receipt, ev } = useDonationReceipt(donationId, eventKey);
 
   return (
     <div className="dsk-page">
@@ -49,18 +39,24 @@ export default function DesktopDonationSuccess() {
       />
       <main className="dsk-main">
         <div className="dsk-container dsk-donate-success-wrap">
-          <DonationSuccessView
-            amount={receipt?.donation ?? amount}
-            tip={receipt?.tip}
-            total={receipt?.total}
-            donorName={donorName}
-            publicName={receipt?.publicName || publicName}
-            eventTitle={ev?.title || 'Event'}
-            nonprofit={ev?.nonprofit || 'Nonprofit'}
-            donationId={receipt?.id ?? donationId}
-            paymentRef={receipt?.paymentRef}
-            returnTo={returnTo}
-          />
+          {state === 'loading' && <p style={{ padding: 32, textAlign: 'center' }}>Loading your receipt…</p>}
+          {(state === 'missing' || state === 'unsuccessful') && (
+            <ReceiptProblem state={state} onBack={() => navigate(returnTo)} />
+          )}
+          {state === 'ready' && (
+            <DonationSuccessView
+              amount={receipt.donation}
+              tip={receipt.tip}
+              total={receipt.total}
+              donorName={donorName}
+              publicName={receipt.publicName || donorName}
+              eventTitle={ev?.title || 'Event'}
+              nonprofit={ev?.nonprofit || 'Nonprofit'}
+              donationId={receipt.id}
+              paymentRef={receipt.paymentRef}
+              returnTo={returnTo}
+            />
+          )}
         </div>
       </main>
     </div>

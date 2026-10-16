@@ -1,17 +1,10 @@
 import pytest
 
+from tests.helpers import cloud_url, login_as
+
 
 async def _login(client, email, role="se"):
-    await client.post(
-        "/api/v1/auth/register",
-        json={"name": "U", "email": email, "password": "Passw0rd!", "role": role},
-    )
-    tokens = (
-        await client.post(
-            "/api/v1/auth/login", json={"email": email, "password": "Passw0rd!"}
-        )
-    ).json()
-    return {"Authorization": f"Bearer {tokens['access_token']}"}
+    return await login_as(client, email, role)
 
 
 async def _event(client, headers):
@@ -23,13 +16,13 @@ async def _event(client, headers):
     ).json()
 
 
-async def _create_media(client, headers, public_id="charity/feed1"):
+async def _create_media(client, headers, public_id="chat/feed1"):
     resp = await client.post(
         "/api/v1/media",
         headers=headers,
         json={
             "public_id": public_id,
-            "secure_url": "https://example.com/img.jpg",
+            "secure_url": cloud_url(public_id),
             "resource_type": "image",
             "format": "jpg",
             "bytes": 2048,
@@ -55,7 +48,7 @@ async def test_post_and_reply_include_media_url(client):
     assert body["media_id"] == media["id"]
     assert body["media_url"] == media["secure_url"]
 
-    reply_media = await _create_media(client, headers, public_id="charity/feed2")
+    reply_media = await _create_media(client, headers, public_id="chat/feed2")
     reply = await client.post(
         f"/api/v1/posts/{body['id']}/replies",
         headers=headers,
@@ -96,7 +89,7 @@ async def test_post_and_thread_and_reply(client):
     assert thread["items"][0]["replies"][0]["text"] == "So excited"
 
     # posting increments the event's updates counter
-    detail = (await client.get(f"/api/v1/events/{ev['key']}")).json()
+    detail = (await client.get(f"/api/v1/events/{ev['key']}", headers=headers)).json()
     assert detail["updates"] == 1
 
 
@@ -142,7 +135,7 @@ async def test_chat_requires_auth_and_send(client):
     assert msgs.json()["total"] == 1
     assert msgs.json()["items"][0]["text"] == "hello"
 
-    detail = (await client.get(f"/api/v1/events/{ev['key']}")).json()
+    detail = (await client.get(f"/api/v1/events/{ev['key']}", headers=headers)).json()
     assert detail["chat_count"] == 1
 
 
@@ -150,7 +143,7 @@ async def test_chat_requires_auth_and_send(client):
 async def test_chat_message_with_media(client):
     headers = await _login(client, "fchatmedia@e.com", "se")
     ev = await _event(client, headers)
-    media = await _create_media(client, headers, public_id="charity/chat1")
+    media = await _create_media(client, headers, public_id="chat/chat1")
 
     sent = await client.post(
         f"/api/v1/events/{ev['id']}/messages",
@@ -186,7 +179,7 @@ async def test_chat_message_rejects_empty(client):
 async def test_chat_message_text_and_media(client):
     headers = await _login(client, "fchatboth@e.com", "se")
     ev = await _event(client, headers)
-    media = await _create_media(client, headers, public_id="charity/chat2")
+    media = await _create_media(client, headers, public_id="chat/chat2")
     sent = await client.post(
         f"/api/v1/events/{ev['id']}/messages",
         headers=headers,

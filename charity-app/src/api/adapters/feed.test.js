@@ -1,97 +1,54 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import {
-  adaptCommunityPosts,
-  adaptChatMessage,
-  galleryUrlsForEvent,
-  synthesizeGalleryThread,
-} from './feed.js';
-
-const ev = {
-  key: 'neon-night',
-  organizer: 'Mike Rivera',
-  initials: 'MR',
-  photos: ['/events/neon-night/img1.jpg', '/events/neon-night/img2.jpg', '/events/neon-night/img3.jpg'],
-};
-
-describe('galleryUrlsForEvent', () => {
-  it('prefers event photos when present', () => {
-    const urls = galleryUrlsForEvent(ev);
-    assert.ok(urls.length >= 2);
-    assert.equal(urls[0], '/events/neon-night/img1.jpg');
-  });
-
-  it('falls back to catalog photos by key', () => {
-    const urls = galleryUrlsForEvent({ key: 'neon-night', photos: [] });
-    assert.ok(urls.length > 0);
-    assert.match(urls[0], /\/events\/neon-night\//);
-  });
-});
+import { adaptCommunityPosts, adaptChatMessage } from './feed.js';
 
 describe('adaptCommunityPosts', () => {
-  it('synthesizes gallery thread when items empty', () => {
-    const gallery = ['/events/neon-night/img2.jpg', '/events/neon-night/img3.jpg'];
-    const posts = adaptCommunityPosts([], gallery, ev);
-    assert.ok(posts.length >= 4);
-    assert.ok(posts.some((p) => p.text && !p.media), 'includes text-only posts');
-    assert.ok(posts.some((p) => p.media), 'includes photo posts');
-    assert.equal(posts.find((p) => p.media === gallery[0]).text, 'Setting up — the energy is already here.');
+  it('returns an empty thread when the API has no posts (nothing is fabricated)', () => {
+    assert.deepEqual(adaptCommunityPosts([]), []);
+    assert.deepEqual(adaptCommunityPosts(undefined), []);
   });
 
-  it('prefers media_url over gallery pool', () => {
-    const gallery = ['/events/neon-night/img2.jpg', '/events/neon-night/img3.jpg'];
+  it('maps API posts, authors, media and replies as-is', () => {
     const items = [{
       id: 1,
       phase: 'during',
       text: 'Live now!',
-      media_url: 'https://cdn.example.com/live.jpg',
+      highlight: 'Kickoff',
+      media_url: 'https://res.cloudinary.com/demo/image/upload/v1/events/neon-night/img2.jpg',
       author: { name: 'Mike Rivera', initials: 'MR', color: '#C62828' },
       host: true,
       verified: true,
       created_at: '2026-07-24T12:00:00Z',
-      replies: [],
+      replies: [{
+        id: 5, text: 'So excited', created_at: '2026-07-24T12:05:00Z',
+        author: { name: 'Sofia R.', initials: 'SR', color: '#7C3AED' },
+      }],
     }];
-    const posts = adaptCommunityPosts(items, gallery, ev);
-    assert.equal(posts[0].media, 'https://cdn.example.com/live.jpg');
+    const [post] = adaptCommunityPosts(items);
+    assert.equal(post.media, items[0].media_url);
+    assert.equal(post.name, 'Mike Rivera');
+    assert.equal(post.host, true);
+    assert.equal(post.highlight, 'Kickoff');
+    assert.equal(post.replies.length, 1);
+    assert.equal(post.replies[0].name, 'Sofia R.');
+    assert.equal(post.replies[0].media, null);
   });
 
-  it('fills gallery on every other post so some stay text-only', () => {
-    const gallery = ['/events/neon-night/img2.jpg', '/events/neon-night/img3.jpg'];
-    const items = [
-      {
-        id: 1,
-        phase: 'before',
-        text: 'No image post',
-        media_url: null,
-        author: { name: 'Mike Rivera', initials: 'MR', color: '#C62828' },
-        host: true,
-        created_at: '2026-07-24T11:00:00Z',
-        replies: [],
-      },
-      {
-        id: 2,
-        phase: 'during',
-        text: 'Second post stays text-only',
-        media_url: null,
-        author: { name: 'Guest', initials: 'G', color: '#1976D2' },
-        created_at: '2026-07-24T12:00:00Z',
-        replies: [],
-      },
-    ];
-    const posts = adaptCommunityPosts(items, gallery, ev);
-    assert.equal(posts[0].media, '/events/neon-night/img2.jpg');
+  it('does not attach gallery photos to posts that have none', () => {
+    const posts = adaptCommunityPosts([
+      { id: 1, text: 'No image post', media_url: null, author: { name: 'A', initials: 'A' }, replies: [] },
+      { id: 2, text: 'Also text only', media_url: null, author: { name: 'B', initials: 'B' }, replies: [] },
+    ]);
+    assert.equal(posts[0].media, null);
     assert.equal(posts[1].media, null);
-    assert.equal(posts[1].text, 'Second post stays text-only');
+    assert.equal(posts.length, 2);
   });
-});
 
-describe('synthesizeGalleryThread', () => {
-  it('mixes captioned photos with text-only posts', () => {
-    const thread = synthesizeGalleryThread(['/a.jpg', '/b.jpg'], ev);
-    assert.ok(thread.length >= 4);
-    assert.ok(thread.every((p) => p.text), 'every post has text');
-    assert.equal(thread.filter((p) => p.media).length, 2);
-    assert.ok(thread.filter((p) => !p.media).length >= 2);
+  it('falls back to safe labels for missing authors', () => {
+    const [post] = adaptCommunityPosts([{ id: 3, text: 'hi', replies: [] }]);
+    assert.equal(post.name, 'Member');
+    assert.equal(post.initials, '?');
+    assert.equal(post.phase, 'during');
   });
 });
 

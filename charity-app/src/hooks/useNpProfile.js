@@ -1,27 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { getNpProfile, updateNpProfile } from '../api/nonprofits';
+import { getNpProfile, updateNpProfile, getNonprofit } from '../api/nonprofits';
+import { uploadDeviceMedia } from '../api/uploadDeviceMedia';
 
-const COVER_MEDIA_IDS = [1, 2, 3];
-const LOGO_MEDIA_IDS = [1, 2, 3];
-const COVER_IMAGES = [
-  '/events/breakneck-ridge-run/img1.jpg',
-  '/events/give-now/img1.jpg',
-  '/events/neon-night/img1.jpg',
-];
-const LOGO_IMAGES = [
-  '/events/breakneck-ridge-run/img1.jpg',
-  '/events/dog-dad/img1.jpg',
-  '/events/golf-outing/img1.jpg',
-];
-
-function mediaIndex(ids, value) {
-  const idx = ids.indexOf(value);
-  return idx >= 0 ? idx : 0;
-}
-
-function enrichProfile(raw) {
-  const coverIdx = mediaIndex(COVER_MEDIA_IDS, raw.cover_media_id);
-  const logoIdx = mediaIndex(LOGO_MEDIA_IDS, raw.logo_media_id);
+function enrichProfile(raw, stats) {
   const taglineParts = [];
   if (raw.founded_year) taglineParts.push(`Est. ${raw.founded_year}`);
   if (raw.headquarters) taglineParts.push(raw.headquarters);
@@ -30,15 +11,15 @@ function enrichProfile(raw) {
     id: raw.id,
     name: raw.name,
     slug: raw.slug,
+    initials: raw.initials || raw.name?.slice(0, 2).toUpperCase() || 'NP',
+    color: raw.color || '#1A6EB5',
     mission: raw.mission ?? '',
     verified: raw.verified,
     tagline: taglineParts.join(' · ') || raw.category,
-    coverIdx,
-    logoIdx,
-    coverImage: COVER_IMAGES[coverIdx],
-    logoImage: LOGO_IMAGES[logoIdx],
-    coverMediaId: COVER_MEDIA_IDS[coverIdx],
-    logoMediaId: LOGO_MEDIA_IDS[logoIdx],
+    // Real uploads only: null until the nonprofit adds a cover / logo.
+    coverImage: raw.cover_url || null,
+    logoImage: raw.logo_url || null,
+    stats: stats || { eventsHosted: 0, totalRaised: 0, totalBacked: 0 },
   };
 }
 
@@ -53,7 +34,9 @@ export function useNpProfile() {
     setError(null);
     try {
       const raw = await getNpProfile();
-      setProfile(enrichProfile(raw));
+      // Impact numbers are computed server-side from this nonprofit's real events.
+      const pub = await getNonprofit(raw.slug).catch(() => null);
+      setProfile(enrichProfile(raw, pub?.stats));
     } catch (err) {
       setProfile(null);
       setError(err);
@@ -66,35 +49,35 @@ export function useNpProfile() {
     load();
   }, [load]);
 
-  const cycleCover = useCallback(async () => {
-    if (!profile || saving) return null;
-    const nextIdx = (profile.coverIdx + 1) % COVER_MEDIA_IDS.length;
-    const cover_media_id = COVER_MEDIA_IDS[nextIdx];
-    setSaving(true);
-    try {
-      const raw = await updateNpProfile({ cover_media_id });
-      const next = enrichProfile(raw);
-      setProfile(next);
-      return next;
-    } finally {
-      setSaving(false);
-    }
-  }, [profile, saving]);
+  const replaceMedia = useCallback(
+    async (file, { entityType, field }) => {
+      if (!profile || saving) return null;
+      setSaving(true);
+      try {
+        const asset = await uploadDeviceMedia(file, {
+          folder: 'nonprofits',
+          eventId: profile.id,
+          entityType,
+        });
+        const raw = await updateNpProfile({ [field]: asset.id });
+        const next = enrichProfile(raw, profile.stats);
+        setProfile(next);
+        return next;
+      } finally {
+        setSaving(false);
+      }
+    },
+    [profile, saving],
+  );
 
-  const cycleLogo = useCallback(async () => {
-    if (!profile || saving) return null;
-    const nextIdx = (profile.logoIdx + 1) % LOGO_MEDIA_IDS.length;
-    const logo_media_id = LOGO_MEDIA_IDS[nextIdx];
-    setSaving(true);
-    try {
-      const raw = await updateNpProfile({ logo_media_id });
-      const next = enrichProfile(raw);
-      setProfile(next);
-      return next;
-    } finally {
-      setSaving(false);
-    }
-  }, [profile, saving]);
+  const uploadCover = useCallback(
+    (file) => replaceMedia(file, { entityType: 'np_cover', field: 'cover_media_id' }),
+    [replaceMedia],
+  );
+  const uploadLogo = useCallback(
+    (file) => replaceMedia(file, { entityType: 'np_logo', field: 'logo_media_id' }),
+    [replaceMedia],
+  );
 
-  return { profile, loading, error, saving, reload: load, cycleCover, cycleLogo };
+  return { profile, loading, error, saving, reload: load, uploadCover, uploadLogo };
 }

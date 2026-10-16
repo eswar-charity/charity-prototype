@@ -22,8 +22,9 @@ class RegisterRequest(BaseModel):
     @field_validator("role")
     @classmethod
     def _validate_role(cls, v: str) -> str:
-        if v not in ("se", "np_admin"):
-            raise ValueError("role must be 'se' or 'np_admin'")
+        # Nonprofit admins are invite-only (see /auth/accept-invite).
+        if v != "se":
+            raise ValueError("role must be 'se'; nonprofit accounts are invite-only")
         return v
 
 
@@ -39,6 +40,16 @@ class LoginRequest(BaseModel):
 
 class RefreshRequest(BaseModel):
     refresh_token: str
+
+
+class LogoutRequest(BaseModel):
+    refresh_token: str | None = None
+
+
+class AcceptInviteRequest(BaseModel):
+    token: str = Field(min_length=10)
+    name: str = Field(min_length=1)
+    password: str = Field(min_length=8)
 
 
 class IdentityGateRequest(BaseModel):

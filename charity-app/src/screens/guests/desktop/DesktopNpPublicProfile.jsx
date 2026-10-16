@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Users } from 'lucide-react';
 import DesktopHeader from '../../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../../components/desktop/DesktopFooter';
-import { eventDisplayTitle } from '../../../data/mockData';
+import { eventDisplayTitle } from '../../../utils/eventDisplay';
 import { eventDetailPath } from '../../../utils/eventPaths';
 import { EventImageBanner } from '../../../components/event/EventImage';
 import { useNonprofitProfile } from '../../../hooks/useNonprofitProfile';

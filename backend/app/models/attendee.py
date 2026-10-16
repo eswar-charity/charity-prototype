@@ -25,6 +25,7 @@ class Attendee(Base):
     color: Mapped[str | None] = mapped_column(String(16), nullable=True)
     ticket_type: Mapped[str | None] = mapped_column(String(120), nullable=True)
     backed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    ticket_code: Mapped[str | None] = mapped_column(String(32), nullable=True)
     checked_in_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), default=_utcnow, nullable=True
     )

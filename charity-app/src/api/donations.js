@@ -8,6 +8,12 @@ export function quoteDonation(amount) {
   });
 }
 
+/**
+ * Start a donation. With Stripe the response carries a `client_secret` and
+ * status "Initiated" — the charge only completes after the browser confirms
+ * the payment (and Stripe's webhook / confirmDonation record it).
+ * `cardNumber` is used by the dev-only mock provider and ignored by Stripe.
+ */
 export function createDonation({ eventId, amount, publicName, cardNumber }) {
   return apiRequest('/donations', {
     method: 'POST',
@@ -20,10 +26,16 @@ export function createDonation({ eventId, amount, publicName, cardNumber }) {
   });
 }
 
+/** Reconcile with Stripe after the browser confirms payment. */
+export function confirmDonation(donationId) {
+  return apiRequest(`/donations/${donationId}/confirm`, { method: 'POST' });
+}
+
+// Receipts are private to the donor (and the event's staff / platform admins).
 export function getDonation(donationId) {
-  return apiRequest(`/donations/${donationId}`, { auth: false });
+  return apiRequest(`/donations/${donationId}`);
 }
 
 export function getReceipt(donationId) {
-  return apiRequest(`/donations/${donationId}/receipt`, { auth: false });
+  return apiRequest(`/donations/${donationId}/receipt`);
 }

@@ -35,6 +35,8 @@ class Event(Base):
     wizard_step: Mapped[int | None] = mapped_column(Integer, nullable=True)
     is_live: Mapped[bool] = mapped_column(default=False, nullable=False)
     cover_media_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # CSS object-position for the wide hero crop, e.g. "center 25%".
+    cover_focus: Mapped[str | None] = mapped_column(String(40), nullable=True)
     # Denormalized counters (aggregates maintained as later phases add rows).
     backed: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     joined: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
@@ -71,6 +73,10 @@ class Participation(Base):
     )
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    # Opaque code embedded in the attendee's ticket QR; scanned at the door.
+    ticket_code: Mapped[str | None] = mapped_column(
+        String(32), unique=True, nullable=True
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, nullable=False

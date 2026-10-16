@@ -17,6 +17,13 @@ async def get_by_id(db: AsyncSession, media_id: int) -> MediaAsset | None:
     return result.scalar_one_or_none()
 
 
+async def get_by_public_id(db: AsyncSession, public_id: str) -> MediaAsset | None:
+    result = await db.execute(
+        select(MediaAsset).where(MediaAsset.public_id == public_id)
+    )
+    return result.scalar_one_or_none()
+
+
 async def delete(db: AsyncSession, media: MediaAsset) -> None:
     await db.delete(media)
     await db.commit()

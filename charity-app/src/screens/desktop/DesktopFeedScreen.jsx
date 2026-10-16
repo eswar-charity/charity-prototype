@@ -4,7 +4,8 @@ import { Users, MessageCircle, Camera } from 'lucide-react';
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import DesktopFooter from '../../components/desktop/DesktopFooter';
 import FilterPillRow from '../../components/FilterPillRow';
-import { ALL_BROWSE_FILTERS, eventDisplayTitle, getEventBannerFocus } from '../../data/mockData';
+import { eventDisplayTitle, getEventBannerFocus } from '../../utils/eventDisplay';
+import useCategories from '../../hooks/useCategories';
 import { getCategoryIcon, DISCOVERY_FILTERS } from '../../data/categoryIcons';
 import usePagedFeed from '../../hooks/usePagedFeed';
 import { EventImageBanner } from '../../components/event/EventImage';
@@ -73,6 +74,7 @@ function SceneEventCard({ ev }) {
 }
 
 export default function DesktopFeedScreen() {
+  const { names: ALL_BROWSE_FILTERS } = useCategories();
   const [category, setCategory] = useState('All');
   const [discovery, setDiscovery] = useState('All');
   const isFollowing = discovery === 'Following';

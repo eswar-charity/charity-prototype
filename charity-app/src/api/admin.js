@@ -29,6 +29,11 @@ export function inviteNonprofit(body) {
   return apiRequest('/admin/nonprofits/invite', { method: 'POST', body });
 }
 
+/** Issue a single-use account invite for a nonprofit's admin. Returns { invite_url, ... }. */
+export function inviteNonprofitAdmin(nonprofitId, email) {
+  return apiRequest(`/admin/nonprofits/${nonprofitId}/invite-admin`, { method: 'POST', body: { email } });
+}
+
 export function getAdminNonprofit(id) {
   return apiRequest(`/admin/nonprofits/${id}`);
 }

@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
@@ -53,12 +54,13 @@ def create_access_token(subject: str, extra: dict | None = None) -> str:
     )
 
 
-def create_refresh_token(subject: str) -> str:
+def create_refresh_token(subject: str, jti: str | None = None) -> str:
     settings = get_settings()
     return _create_token(
         subject,
         "refresh",
         timedelta(minutes=settings.refresh_token_expire_minutes),
+        {"jti": jti or uuid.uuid4().hex},
     )
 
 
