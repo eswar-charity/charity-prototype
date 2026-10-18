@@ -4,7 +4,7 @@ import { ChevronLeft, MapPin, Calendar } from 'lucide-react';
 import NpBottomNav from '../../components/NpBottomNav';
 import MobileAppHeader from '../../components/MobileAppHeader';
 import { useNpApprovalsQueue } from '../../hooks/useNpApprovals';
-import { npReviewPath } from '../../utils/npApprovalAdapter';
+import { npReviewPath, NO_PHOTO_GRADIENT } from '../../utils/npApprovalAdapter';
 
 const TOAST_STYLE = {
   position: 'fixed', bottom: 96, left: '50%', transform: 'translateX(-50%)',
@@ -111,7 +111,9 @@ export default function NpApprovals() {
               >
                 {ev.hasHero && (
                   <div className="ap-hero">
-                    <img src={ev.heroImg} alt={ev.title} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                    {ev.heroImg
+                      ? <img src={ev.heroImg} alt={ev.title} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                      : <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: NO_PHOTO_GRADIENT }} />}
                     <div style={{ position: 'absolute', top: 12, left: 12 }}>
                       <span className="badge-new-req">NEW REQUEST</span>
                     </div>

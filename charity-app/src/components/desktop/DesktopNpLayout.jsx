@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, Calendar, ClipboardList, BarChart3, Wallet, Settings, Search } from 'lucide-react';
 import Logo from '../Logo';
@@ -6,6 +6,7 @@ import NotificationBell from '../NotificationBell';
 import { useAuth } from '../../auth/AuthContext';
 import { getNpLaunchpad } from '../../api/dashboards';
 import { resetDraft } from '../../hooks/useCreateEventDraft';
+import useAutoRefresh from '../../hooks/useAutoRefresh';
 
 const NAV = [
   { id: 'home', label: 'Home', icon: Home, path: '/np/home' },
@@ -21,22 +22,31 @@ export default function DesktopNpSidebar({ active }) {
   const [pendingApprovals, setPendingApprovals] = useState(null);
   const [org, setOrg] = useState(null);
 
-  useEffect(() => {
-    let cancelled = false;
+  const cancelledRef = useRef(false);
+  const refreshBadge = useCallback(({ silent = false } = {}) => {
     getNpLaunchpad()
       .then((data) => {
-        if (cancelled) return;
+        if (cancelledRef.current) return;
         setOrg(data?.org ?? null);
         setPendingApprovals(Number(data?.stats?.pending_approvals) || 0);
       })
       .catch(() => {
-        if (!cancelled) {
+        // Keep showing the last known count if a background refresh fails.
+        if (!cancelledRef.current && !silent) {
           setOrg(null);
           setPendingApprovals(0);
         }
       });
-    return () => { cancelled = true; };
-  }, [active]);
+  }, []);
+
+  useEffect(() => {
+    cancelledRef.current = false;
+    refreshBadge();
+    return () => { cancelledRef.current = true; };
+  }, [active, refreshBadge]);
+
+  // The "Approvals" badge must track new requests, not the count at page load.
+  useAutoRefresh(() => refreshBadge({ silent: true }), { intervalMs: 20000 });
 
   const orgName = org?.name || 'Your organization';
   const orgInitials = org?.initials || (orgName.slice(0, 2).toUpperCase());

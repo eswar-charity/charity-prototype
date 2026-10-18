@@ -87,6 +87,23 @@ async def _prefetch(db: AsyncSession, events: list[Event]) -> _ReadContext:
     return _ReadContext(nps, users, photos, covers)
 
 
+async def cover_map(db: AsyncSession, events: list[Event]) -> dict[int, str | None]:
+    """{event_id: cover url} for many events in two queries.
+
+    Used by the lightweight briefs (approval queue, dashboards) so every screen
+    shows the event's real photo instead of guessing a static demo path.
+    """
+    ctx = await _prefetch(db, events)
+    out: dict[int, str | None] = {}
+    for e in events:
+        urls = ctx.photos.get(e.id)
+        if urls:
+            out[e.id] = urls[0]
+        else:
+            out[e.id] = ctx.covers.get(e.cover_media_id) if e.cover_media_id else None
+    return out
+
+
 async def _to_read_many(
     db: AsyncSession, events: list[Event], include_photos: bool = True
 ) -> list[dict]:
@@ -191,7 +208,11 @@ async def get_detail(
                 allowed = True
             elif event.organizer_id == viewer.id:
                 allowed = True
-            elif viewer.role == "np_admin" and event.nonprofit_id:
+            elif (
+                viewer.role == "np_admin"
+                and event.nonprofit_id
+                and event.status != "Draft"  # drafts are the author's private work in progress
+            ):
                 np = await nonprofit_repository.get_for_admin(db, viewer.id)
                 if np and np.id == event.nonprofit_id:
                     allowed = True

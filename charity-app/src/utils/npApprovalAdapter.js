@@ -1,4 +1,4 @@
-const DEFAULT_THUMB = '/events/give-now/img1.jpg';
+export const NO_PHOTO_GRADIENT = 'linear-gradient(135deg,#0A2E52,#1A6EB5)';
 
 /** Map GET /np/approvals queue item → mobile card props. */
 export function mapMobileApprovalRow(raw) {
@@ -14,9 +14,9 @@ export function mapMobileApprovalRow(raw) {
     desc: raw.story,
     submitted: null,
     status: isChanges ? 'changes' : 'new',
-    hasHero: !!raw.key,
+    hasHero: true,
     hasAvatar: !!raw.organizer,
-    heroImg: raw.key ? `/events/${raw.key}/img1.jpg` : DEFAULT_THUMB,
+    heroImg: raw.cover || null, // null -> the screen draws a branded gradient
     apiStatus: status,
   };
 }
@@ -43,9 +43,11 @@ export function mapDesktopApprovalRow(raw) {
     date: raw.date ?? '—',
     location: raw.location ?? '—',
     desc: raw.story ?? '',
-    submitted: raw.date ? `Submitted ${raw.date}` : null,
+    submitted: raw.created_at
+      ? `Submitted ${new Date(raw.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+      : null,
     status: uiStatus,
-    heroImg: raw.key ? `/events/${raw.key}/img1.jpg` : DEFAULT_THUMB,
+    heroImg: raw.cover || null,
     apiStatus: status,
   };
 }

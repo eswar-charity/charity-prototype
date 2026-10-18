@@ -10,19 +10,23 @@ import {
   updateAutopilot,
 } from '../api/approvals';
 import { adaptEvent } from '../api/adapters/event';
+import { resolveEventCover } from '../utils/eventPhotos';
+import useAutoRefresh from './useAutoRefresh';
 import {
   mapDesktopApprovalRow,
   mapMobileApprovalRow,
 } from '../utils/npApprovalAdapter';
 
 const DEFAULT_REJECT_REASON = 'Rejected by nonprofit admin';
+// The mobile "Requests" list is an inbox: only events still waiting on a decision.
+const ACTIONABLE = ['Submitted', 'Changes Requested'];
 
 function enrichReviewEvent(raw) {
   const ev = adaptEvent(raw);
   return {
     ...ev,
     apiStatus: raw.status,
-    cover: ev.photos?.[0] || (ev.key ? `/events/${ev.key}/img1.jpg` : undefined),
+    cover: resolveEventCover(ev),
   };
 }
 
@@ -35,24 +39,36 @@ export function useNpApprovalsQueue(variant = 'mobile') {
 
   const mapRow = variant === 'desktop' ? mapDesktopApprovalRow : mapMobileApprovalRow;
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const load = useCallback(async ({ silent = false } = {}) => {
+    if (!silent) {
+      setLoading(true);
+      setError(null);
+    }
     try {
       const [queue, ap] = await Promise.all([listApprovals(), getAutopilot()]);
-      setEvents((queue ?? []).map(mapRow));
+      const rows = variant === 'mobile'
+        ? (queue ?? []).filter((e) => ACTIONABLE.includes(e.status))
+        : (queue ?? []);
+      setEvents(rows.map(mapRow));
       setAutopilot(!!ap?.enabled);
+      setError(null);
     } catch (err) {
-      setEvents([]);
-      setError(err);
+      // A failed background refresh must not wipe what the admin is looking at.
+      if (!silent) {
+        setEvents([]);
+        setError(err);
+      }
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
-  }, [mapRow]);
+  }, [mapRow, variant]);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  // New requests appear without a manual reload.
+  useAutoRefresh(() => load({ silent: true }), { intervalMs: 20000 });
 
   const approve = useCallback(async (ev) => {
     if (actionPending) return null;

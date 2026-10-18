@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Calendar, MapPin } from 'lucide-react';
 import { DesktopNpLayout } from '../../../components/desktop/DesktopNpLayout';
 import { useNpApprovalsQueue } from '../../../hooks/useNpApprovals';
-import { npReviewPath } from '../../../utils/npApprovalAdapter';
+import { npReviewPath, NO_PHOTO_GRADIENT } from '../../../utils/npApprovalAdapter';
 
 const TABS = ['All', 'Pending', 'Changes requested', 'Approved'];
 
@@ -117,7 +117,7 @@ export default function DesktopNpApprovals() {
 
       {visible.map((ev) => (
         <div key={ev.id} className="dsk-np-approval-card" role="button" tabIndex={0} aria-label={`Review ${ev.title}`} onClick={() => navigate(npReviewPath(ev.id))} onKeyDown={onKey(() => navigate(npReviewPath(ev.id)))}>
-          <div className="dsk-np-approval-hero" style={{ backgroundImage: `url(${ev.heroImg})` }}>
+          <div className="dsk-np-approval-hero" style={{ backgroundImage: ev.heroImg ? `url(${ev.heroImg})` : NO_PHOTO_GRADIENT }}>
             {ev.status === 'Approved'
               ? <span className="badge" style={{ background: 'var(--green)', color: 'white' }}>✓ Approved</span>
               : ev.status === 'Rejected'

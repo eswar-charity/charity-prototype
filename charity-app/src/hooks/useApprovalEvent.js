@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { completeEvent, getEvent, goLive, listEvents } from '../api/events';
+import { completeEvent, getEvent, goLive, listMyEvents } from '../api/events';
 import { adaptEvent } from '../api/adapters/event';
 import { useAuth } from '../auth/AuthContext';
 import { mapEventStatusToUi } from '../utils/eventApprovalStatus';
 import { resolveEventCover } from '../utils/eventPhotos';
+
+const OWN_EVENT_STATUSES = [
+  'Draft', 'Submitted', 'Changes Requested', 'Live', 'Completed', 'Rejected',
+];
 
 function enrichApprovalEvent(raw) {
   const ev = adaptEvent(raw);
@@ -37,12 +41,14 @@ export function useApprovalEvent() {
       if (keyParam) {
         raw = await getEvent(keyParam);
       } else if (user?.id) {
-        const res = await listEvents({ limit: 50 });
-        const owned = (res.items ?? []).filter((e) => e.organizer?.id === user.id);
+        // The public feed never contains Draft / Submitted / Changes Requested events,
+        // so ask for the user's own events explicitly.
+        const res = await listMyEvents({ statuses: OWN_EVENT_STATUSES });
+        const owned = res.items ?? [];
         const pick =
-          owned.find((e) =>
-            ['Submitted', 'Approved', 'Live', 'Changes Requested'].includes(e.status),
-          ) ?? owned[0];
+          owned.find((e) => ['Submitted', 'Changes Requested'].includes(e.status)) ??
+          owned.find((e) => ['Live', 'Rejected'].includes(e.status)) ??
+          owned[0];
         if (!pick) throw new Error('No events found for your account');
         raw = pick;
       } else {

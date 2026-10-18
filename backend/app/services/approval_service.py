@@ -26,33 +26,37 @@ async def _my_nonprofit(db: AsyncSession, user: User) -> Nonprofit:
     return np
 
 
-async def _event_brief(db: AsyncSession, event: Event) -> dict:
-    organizer = None
-    if event.organizer_id:
-        u = await user_repository.get_by_id(db, event.organizer_id)
-        organizer = u.name if u else None
+def _event_brief(event: Event, organizers: dict, covers: dict) -> dict:
     return {
         "id": event.id,
         "key": event.key,
         "title": event.title,
-        "organizer": organizer,
+        "organizer": organizers.get(event.organizer_id),
         "date": event.date,
         "location": event.location,
         "story": event.story,
         "status": event.status,
+        "cover": covers.get(event.id),
+        "created_at": event.created_at.isoformat() if event.created_at else None,
     }
 
 
 async def list_queue(db: AsyncSession, user: User) -> list[dict]:
     np = await _my_nonprofit(db, user)
     events = await arepo.list_queue(db, np.id)
-    return [await _event_brief(db, e) for e in events]
+    users = await user_repository.get_many(
+        db, list({e.organizer_id for e in events if e.organizer_id})
+    )
+    organizers = {u.id: u.name for u in users}
+    covers = await event_service.cover_map(db, events)
+    return [_event_brief(e, organizers, covers) for e in events]
 
 
 async def _load_for_review(db: AsyncSession, user: User, event_id: int) -> Event:
     np = await _my_nonprofit(db, user)
     event = await event_repository.get_by_id(db, event_id)
-    if not event or event.nonprofit_id != np.id:
+    # A Draft hasn't been submitted to the nonprofit yet; it is not theirs to see or decide.
+    if not event or event.nonprofit_id != np.id or event.status == "Draft":
         raise AppError("not_found", "Event not found for your nonprofit", status_code=404)
     return event
 

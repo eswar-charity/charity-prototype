@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { listEvents } from '../api/events';
+import { listMyEvents } from '../api/events';
 import { getProfile } from '../api/users';
 import { adaptEvent } from '../api/adapters/event';
 import { useAuth } from '../auth/AuthContext';
@@ -13,7 +13,7 @@ function enrichProfileEvent(raw) {
   };
 }
 
-/** Live SE profile + owned events from GET /me/profile and listEvents. */
+/** Live SE profile + owned events from GET /me/profile and GET /events/mine. */
 export function useSeProfile() {
   const { user } = useAuth();
   const [profile, setProfile] = useState(null);
@@ -27,11 +27,11 @@ export function useSeProfile() {
     try {
       const [prof, eventsRes] = await Promise.all([
         getProfile(),
-        listEvents({ limit: 50 }),
+        // Hosted = the organizer's own public events, regardless of how many other
+        // events exist on the platform.
+        listMyEvents({ statuses: ['Live', 'Completed'] }),
       ]);
-      const owned = (eventsRes.items ?? [])
-        .filter((e) => e.organizer?.id === prof.id)
-        .map(enrichProfileEvent);
+      const owned = (eventsRes.items ?? []).map(enrichProfileEvent);
       setProfile(prof);
       setHostedEvents(owned);
     } catch (err) {

@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { getEvent, listEvents, postEventUpdate } from '../api/events';
+import { getEvent, listMyEvents, postEventUpdate } from '../api/events';
 import { getSeLiveDashboard, getSePostEvent } from '../api/dashboards';
 import { adaptEvent } from '../api/adapters/event';
 import { useAuth } from '../auth/AuthContext';
 import { resolveEventCover } from '../utils/eventPhotos';
+
+const OWN_EVENT_STATUSES = [
+  'Draft', 'Submitted', 'Changes Requested', 'Live', 'Completed', 'Rejected',
+];
 
 function initialsFrom(name) {
   if (!name) return '?';
@@ -70,8 +74,10 @@ export function useSeDashboardKey({ preferLive = false, preferCompleted = false 
     setLoading(true);
     setError(null);
     try {
-      const res = await listEvents({ limit: 50 });
-      const owned = (res.items ?? []).filter((e) => e.organizer?.id === user.id);
+      // The organizer's own events (any status) — not the public feed, which hides
+      // Submitted / Changes Requested events and caps at the newest 50 of everyone.
+      const res = await listMyEvents({ statuses: OWN_EVENT_STATUSES });
+      const owned = res.items ?? [];
       let pick;
       if (preferCompleted) {
         pick =
@@ -81,7 +87,7 @@ export function useSeDashboardKey({ preferLive = false, preferCompleted = false 
       } else if (preferLive) {
         pick =
           owned.find((e) => e.status === 'Live' || e.is_live) ??
-          owned.find((e) => ['Approved', 'Submitted'].includes(e.status)) ??
+          owned.find((e) => ['Submitted', 'Changes Requested'].includes(e.status)) ??
           owned[0];
       } else {
         pick = owned[0];

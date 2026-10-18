@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getNpLaunchpad, getNpActivity, getNpFinancials } from '../api/dashboards';
+import { DEFAULT_EVENT_COVER } from '../utils/eventPhotos';
+import useAutoRefresh from './useAutoRefresh';
 
-const DEFAULT_EVENT_THUMB = '/events/give-now/img1.jpg';
+const DEFAULT_EVENT_THUMB = DEFAULT_EVENT_COVER;
 
 function enrichLaunchpadEvent(raw) {
   return {
@@ -13,7 +15,7 @@ function enrichLaunchpadEvent(raw) {
     backed: raw.backed ?? 0,
     raised: raw.raised ?? 0,
     category: raw.category,
-    cover: raw.key ? `/events/${raw.key}/img1.jpg` : DEFAULT_EVENT_THUMB,
+    cover: raw.cover || DEFAULT_EVENT_THUMB,
   };
 }
 
@@ -23,7 +25,7 @@ function enrichBackingRow(raw) {
     title: raw.title,
     count: raw.count ?? 0,
     raised: raw.raised ?? 0,
-    thumb: raw.key ? `/events/${raw.key}/img1.jpg` : DEFAULT_EVENT_THUMB,
+    thumb: raw.cover || DEFAULT_EVENT_THUMB,
   };
 }
 
@@ -32,7 +34,7 @@ function enrichRevenueRow(raw) {
     id: raw.id,
     title: raw.title,
     raised: raw.raised ?? 0,
-    thumb: raw.key ? `/events/${raw.key}/img1.jpg` : DEFAULT_EVENT_THUMB,
+    thumb: raw.cover || DEFAULT_EVENT_THUMB,
   };
 }
 
@@ -41,22 +43,29 @@ function useNpFetch(fetcher) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const load = useCallback(async ({ silent = false } = {}) => {
+    if (!silent) {
+      setLoading(true);
+      setError(null);
+    }
     try {
       setData(await fetcher());
+      setError(null);
     } catch (err) {
-      setData(null);
-      setError(err);
+      if (!silent) {
+        setData(null);
+        setError(err);
+      }
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [fetcher]);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  useAutoRefresh(() => load({ silent: true }), { intervalMs: 30000 });
 
   return { data, loading, error, reload: load };
 }

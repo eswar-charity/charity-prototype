@@ -44,6 +44,28 @@ export function AuthProvider({ children }) {
     return () => { cancelled = true; };
   }, []);
 
+  // Tokens live in localStorage, which every tab of this browser shares. If another
+  // tab signs in as someone else (e.g. testing SE and nonprofit side by side), this
+  // tab must follow instead of silently making requests as a different user.
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (e.key !== 'ch_access_token' && e.key !== null) return;
+      (async () => {
+        try {
+          if (!getAccessToken()) {
+            setUser(null);
+            return;
+          }
+          setUser(await authApi.me());
+        } catch {
+          setUser(null);
+        }
+      })();
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
   const value = {
     user,
     loading,

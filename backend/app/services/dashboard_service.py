@@ -4,9 +4,12 @@ from app.core.exceptions import AppError
 from app.models.event import Event
 from app.models.user import User
 from app.repositories import event_repository, feed_repository, nonprofit_repository
-from app.services import qr_service
+from app.services import event_service, qr_service
 
 PENDING = ("Submitted", "Changes Requested")
+# Events that have actually run in public. Activity/financial roll-ups only count these,
+# so other people's drafts and pending requests never show up as $0 "revenue" rows.
+RUNNING = ("Live", "Completed")
 
 
 async def _my_nonprofit(db: AsyncSession, user: User):
@@ -16,11 +19,12 @@ async def _my_nonprofit(db: AsyncSession, user: User):
     return np
 
 
-def _event_brief(e: Event) -> dict:
+def _event_brief(e: Event, covers: dict | None = None) -> dict:
     return {
         "id": e.id, "key": e.key, "title": e.title, "status": e.status,
         "is_live": e.is_live, "joined": e.joined, "backed": e.backed,
         "raised": e.raised, "updates": e.updates,
+        "cover": (covers or {}).get(e.id),
     }
 
 
@@ -38,6 +42,7 @@ async def np_launchpad(db: AsyncSession, user: User) -> dict:
     live = [e for e in events if e.status == "Live"]
     pending = [e for e in events if e.status in PENDING]
     backers = sum(e.backed for e in events)
+    covers = await event_service.cover_map(db, live)
     return {
         "org": _nonprofit_brief(np),
         "stats": {
@@ -45,9 +50,9 @@ async def np_launchpad(db: AsyncSession, user: User) -> dict:
             "pending_approvals": len(pending),
             "backers": backers,
         },
-        "live_events": [_event_brief(e) for e in live],
+        "live_events": [_event_brief(e, covers) for e in live],
         "action_required": [
-            {"id": e.id, "title": e.title, "status": e.status,
+            {"id": e.id, "key": e.key, "title": e.title, "status": e.status,
              "kind": "approval"} for e in pending
         ],
     }
@@ -55,12 +60,16 @@ async def np_launchpad(db: AsyncSession, user: User) -> dict:
 
 async def np_activity(db: AsyncSession, user: User) -> dict:
     np = await _my_nonprofit(db, user)
-    events = await event_repository.list_by_nonprofit(db, np.id)
+    events = [
+        e for e in await event_repository.list_by_nonprofit(db, np.id) if e.status in RUNNING
+    ]
+    covers = await event_service.cover_map(db, events)
     return {
         "supporters": sum(e.backed for e in events),
         "total_raised": sum(e.raised for e in events),
         "backing_by_event": [
-            {"id": e.id, "title": e.title, "count": e.backed, "raised": e.raised}
+            {"id": e.id, "key": e.key, "title": e.title, "count": e.backed,
+             "raised": e.raised, "cover": covers.get(e.id)}
             for e in events
         ],
         "settlement": {"status": np.settlement_status, "connected": bool(np.stripe_charges_enabled)},
@@ -69,13 +78,18 @@ async def np_activity(db: AsyncSession, user: User) -> dict:
 
 async def np_financials(db: AsyncSession, user: User) -> dict:
     np = await _my_nonprofit(db, user)
-    events = await event_repository.list_by_nonprofit(db, np.id)
+    events = [
+        e for e in await event_repository.list_by_nonprofit(db, np.id) if e.status in RUNNING
+    ]
+    covers = await event_service.cover_map(db, events)
     return {
         "total_raised": sum(e.raised for e in events),
         "supporters": sum(e.backed for e in events),
         "settlement_status": np.settlement_status,
         "revenue_by_event": [
-            {"id": e.id, "title": e.title, "raised": e.raised} for e in events
+            {"id": e.id, "key": e.key, "title": e.title, "raised": e.raised,
+             "cover": covers.get(e.id)}
+            for e in events
         ],
     }
 

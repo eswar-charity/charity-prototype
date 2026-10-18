@@ -99,17 +99,10 @@ export default function EventStep2() {
             ))}
           </div>
 
-          <div style={{ marginTop: 16, textAlign: 'center' }}>
-            <button
-              type="button"
-              className="btn-ghost"
-              style={{ fontSize: 14, color: draft.inviteSent ? 'var(--green)' : undefined }}
-              onClick={() => updateDraft({ inviteSent: true })}
-              disabled={draft.inviteSent}
-            >
-              {draft.inviteSent ? 'Invite sent — we’ll let you know when they join ✓' : "Don't see your nonprofit? Invite them →"}
-            </button>
-          </div>
+          <p style={{ marginTop: 16, textAlign: 'center', fontSize: 13, color: 'var(--text-secondary)' }}>
+            Don’t see your nonprofit? Organizations join Charity Hub by invitation —
+            ask your Charity Hub contact to add it.
+          </p>
 
           <div style={{ marginTop: 24 }}>
             <button
