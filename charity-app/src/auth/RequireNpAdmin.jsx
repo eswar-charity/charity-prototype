@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { stashGuestReturn } from '../utils/identityGateIntent';
+import { roleDeniedNotice, roleHome } from '../utils/roleHome';
 
 /**
  * Blocks guests / non-NP roles from Launchpad routes.
@@ -27,7 +28,7 @@ export default function RequireNpAdmin({ children }) {
   }
 
   if (user?.role !== 'np_admin') {
-    return <Navigate to="/feed" replace />;
+    return <Navigate to={roleHome(user?.role)} replace state={{ notice: roleDeniedNotice(user?.role) }} />;
   }
 
   return children;

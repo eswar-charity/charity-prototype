@@ -4,6 +4,7 @@ import DesktopAuthLayout from '../../components/desktop/DesktopAuthLayout';
 import { accountRoles } from '../../constants/accountRoles';
 import RoleSelect from '../../components/RoleSelect';
 import GoogleIcon from '../../components/GoogleIcon';
+import { roleHome, roleMismatchNotice } from '../../utils/roleHome';
 import { useAuth } from '../../auth/AuthContext';
 import { useAppToast, ToastHost } from '../../components/Toast';
 import { requestGoogleIdToken } from '../../utils/googleIdentity';
@@ -44,8 +45,8 @@ export default function DesktopCreateAccount() {
       return;
     }
     return run(async () => {
-      await login({ email: trimmed, password });
-      navigate('/feed');
+      const me = await login({ email: trimmed, password });
+      navigate(roleHome(me?.role), { state: { notice: roleMismatchNotice('se', me?.role) } });
     });
   };
 
@@ -60,8 +61,9 @@ export default function DesktopCreateAccount() {
       return;
     }
     return run(async () => {
-      await login({ email: trimmed, password });
-      navigate(role.route);
+      const me = await login({ email: trimmed, password });
+      // Follow the account's real role, not the card that was picked.
+      navigate(roleHome(me?.role), { state: { notice: roleMismatchNotice(roleId, me?.role) } });
     });
   };
 

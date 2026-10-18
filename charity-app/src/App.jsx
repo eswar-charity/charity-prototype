@@ -3,9 +3,16 @@ import useIsDesktop from './hooks/useIsDesktop';
 import AccessGate from './access/AccessGate';
 import { AuthProvider } from './auth/AuthContext';
 import RequireNpAdmin from './auth/RequireNpAdmin';
+import RequireRole from './auth/RequireRole';
+import FlashNotice from './components/FlashNotice';
 import useSpotlightEvent from './hooks/useSpotlightEvent';
 import AcceptInvite from './screens/AcceptInvite';
 
+
+// Who may open what: the admin portal is for platform admins only; creating and running
+// events is for SEs and nonprofit admins (the backend enforces the same rules).
+const ADMIN_ONLY = ['platform_admin'];
+const EVENT_CREATORS = ['se', 'np_admin'];
 
 // SE (organiser) screens
 import CreateAccount from './screens/CreateAccount';
@@ -206,21 +213,22 @@ export default function App() {
     <BrowserRouter>
       <AccessGate>
       <AuthProvider>
+      <FlashNotice />
       <Routes>
         {/* Organiser flow */}
         <Route path="/" element={<CreateAccountRoute />} />
         <Route path="/about-you" element={<AboutYouRoute />} />
         <Route path="/feed" element={<FeedScreenRoute />} />
         <Route path="/create-event" element={<FeedScreenRoute />} />
-        <Route path="/event/step-1" element={<EventStep1Route />} />
-        <Route path="/event/step-2" element={<EventStep2Route />} />
-        <Route path="/event/step-3" element={<EventStep3Route />} />
-        <Route path="/event/step-4" element={<EventStep4Route />} />
-        <Route path="/event/drafts" element={<EventDraftsRoute />} />
-        <Route path="/approval" element={<ApprovalStatusRoute />} />
-        <Route path="/live-dashboard" element={<LiveDashboardRoute />} />
-        <Route path="/post-event" element={<PostEventImpactRoute />} />
-        <Route path="/profile" element={<ProfileScreenRoute />} />
+        <Route path="/event/step-1" element={<RequireRole roles={EVENT_CREATORS}><EventStep1Route /></RequireRole>} />
+        <Route path="/event/step-2" element={<RequireRole roles={EVENT_CREATORS}><EventStep2Route /></RequireRole>} />
+        <Route path="/event/step-3" element={<RequireRole roles={EVENT_CREATORS}><EventStep3Route /></RequireRole>} />
+        <Route path="/event/step-4" element={<RequireRole roles={EVENT_CREATORS}><EventStep4Route /></RequireRole>} />
+        <Route path="/event/drafts" element={<RequireRole roles={EVENT_CREATORS}><EventDraftsRoute /></RequireRole>} />
+        <Route path="/approval" element={<RequireRole roles={EVENT_CREATORS}><ApprovalStatusRoute /></RequireRole>} />
+        <Route path="/live-dashboard" element={<RequireRole roles={EVENT_CREATORS}><LiveDashboardRoute /></RequireRole>} />
+        <Route path="/post-event" element={<RequireRole roles={EVENT_CREATORS}><PostEventImpactRoute /></RequireRole>} />
+        <Route path="/profile" element={<RequireRole roles={EVENT_CREATORS}><ProfileScreenRoute /></RequireRole>} />
         <Route path="/event/live" element={<SpotlightRedirect base="/event/live" fallback="/feed" />} />
         <Route path="/event/live/:eventKey" element={<SeEventDetailLiveRoute />} />
         <Route path="/event/upcoming" element={<SpotlightRedirect base="/event/upcoming" fallback="/feed" />} />
@@ -258,14 +266,14 @@ export default function App() {
 
         {/* Charity Hub Platform Admin flow */}
         <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/review" element={<AdminReviewQueue />} />
-        <Route path="/admin/review/:id" element={<AdminReviewDetail />} />
-        <Route path="/admin/nonprofits" element={<AdminNonprofits />} />
-        <Route path="/admin/nonprofits/:id" element={<AdminNonprofitDetail />} />
-        <Route path="/admin/events" element={<AdminEvents />} />
-        <Route path="/admin/exceptions" element={<AdminExceptions />} />
-        <Route path="/admin/audit" element={<AdminAuditLog />} />
+        <Route path="/admin/dashboard" element={<RequireRole roles={ADMIN_ONLY}><AdminDashboard /></RequireRole>} />
+        <Route path="/admin/review" element={<RequireRole roles={ADMIN_ONLY}><AdminReviewQueue /></RequireRole>} />
+        <Route path="/admin/review/:id" element={<RequireRole roles={ADMIN_ONLY}><AdminReviewDetail /></RequireRole>} />
+        <Route path="/admin/nonprofits" element={<RequireRole roles={ADMIN_ONLY}><AdminNonprofits /></RequireRole>} />
+        <Route path="/admin/nonprofits/:id" element={<RequireRole roles={ADMIN_ONLY}><AdminNonprofitDetail /></RequireRole>} />
+        <Route path="/admin/events" element={<RequireRole roles={ADMIN_ONLY}><AdminEvents /></RequireRole>} />
+        <Route path="/admin/exceptions" element={<RequireRole roles={ADMIN_ONLY}><AdminExceptions /></RequireRole>} />
+        <Route path="/admin/audit" element={<RequireRole roles={ADMIN_ONLY}><AdminAuditLog /></RequireRole>} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
