@@ -25,6 +25,13 @@ async def list_nonprofits(
     return await paginate(db, stmt, page, limit)
 
 
+async def get_many(db: AsyncSession, ids: list[int]) -> list[Nonprofit]:
+    if not ids:
+        return []
+    result = await db.execute(select(Nonprofit).where(Nonprofit.id.in_(ids)))
+    return list(result.scalars().all())
+
+
 async def get_by_slug(db: AsyncSession, slug: str) -> Nonprofit | None:
     result = await db.execute(select(Nonprofit).where(Nonprofit.slug == slug))
     return result.scalar_one_or_none()

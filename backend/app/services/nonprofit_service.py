@@ -17,11 +17,9 @@ PUBLIC_NP_EVENT_STATUSES = ("Live", "Completed")
 async def _read_many(db: AsyncSession, nps: list[Nonprofit]) -> list[dict]:
     """Nonprofit rows plus resolved logo/cover URLs (from media assets)."""
     ids = {i for n in nps for i in (n.logo_media_id, n.cover_media_id) if i}
-    urls: dict[int, str] = {}
-    for media_id in ids:
-        asset = await media_repository.get_by_id(db, media_id)
-        if asset is not None:
-            urls[media_id] = asset.secure_url
+    urls = {
+        a.id: a.secure_url for a in await media_repository.get_many(db, list(ids))
+    }
     out = []
     for n in nps:
         data = NonprofitRead.model_validate(n).model_dump()
@@ -61,9 +59,7 @@ async def get_public_profile(db: AsyncSession, slug: str) -> dict:
         for e in owned
         if e.status in PUBLIC_NP_EVENT_STATUSES and e.visibility == "public"
     ]
-    event_reads = [
-        await event_service._to_read(db, e, include_photos=True) for e in public_events
-    ]
+    event_reads = await event_service._to_read_many(db, public_events)
     stats = {
         "eventsHosted": len(public_events),
         "totalRaised": sum(e.raised or 0 for e in public_events),

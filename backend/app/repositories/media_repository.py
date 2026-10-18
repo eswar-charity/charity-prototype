@@ -33,9 +33,32 @@ async def list_by_entity(
     db: AsyncSession, entity_type: str, entity_id: int
 ) -> list[MediaAsset]:
     result = await db.execute(
-        select(MediaAsset).where(
+        select(MediaAsset)
+        .where(
             MediaAsset.entity_type == entity_type,
             MediaAsset.entity_id == entity_id,
         )
+        .order_by(MediaAsset.id)
     )
+    return list(result.scalars().all())
+
+
+async def list_by_entities(
+    db: AsyncSession, entity_type: str, entity_ids: list[int]
+) -> list[MediaAsset]:
+    """Assets for many entities in one query (ordered by id, like list_by_entity)."""
+    if not entity_ids:
+        return []
+    result = await db.execute(
+        select(MediaAsset)
+        .where(MediaAsset.entity_type == entity_type, MediaAsset.entity_id.in_(entity_ids))
+        .order_by(MediaAsset.id)
+    )
+    return list(result.scalars().all())
+
+
+async def get_many(db: AsyncSession, media_ids: list[int]) -> list[MediaAsset]:
+    if not media_ids:
+        return []
+    result = await db.execute(select(MediaAsset).where(MediaAsset.id.in_(media_ids)))
     return list(result.scalars().all())

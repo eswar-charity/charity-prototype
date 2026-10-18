@@ -55,16 +55,60 @@ async def _unique_key(db: AsyncSession, base: str) -> str:
     return key
 
 
+class _ReadContext:
+    """Rows needed to render many events, fetched in a handful of queries.
+
+    Without this every event costs ~3 extra round trips (nonprofit, organizer,
+    photos) - fine on localhost, seconds over a real network.
+    """
+
+    def __init__(self, nonprofits, users, photos, covers):
+        self.nonprofits = nonprofits  # {id: Nonprofit}
+        self.users = users            # {id: User}
+        self.photos = photos          # {event_id: [secure_url]}
+        self.covers = covers          # {media_id: secure_url}
+
+
+async def _prefetch(db: AsyncSession, events: list[Event]) -> _ReadContext:
+    np_ids = list({e.nonprofit_id for e in events if e.nonprofit_id})
+    user_ids = list({e.organizer_id for e in events if e.organizer_id})
+    nps = {n.id: n for n in await nonprofit_repository.get_many(db, np_ids)}
+    users = {u.id: u for u in await user_repository.get_many(db, user_ids)}
+    photos: dict[int, list[str]] = {}
+    for a in await media_repository.list_by_entities(db, "event_photo", [e.id for e in events]):
+        if a.secure_url:
+            photos.setdefault(a.entity_id, []).append(a.secure_url)
+    cover_ids = [
+        e.cover_media_id for e in events if e.cover_media_id and e.id not in photos
+    ]
+    covers = {
+        m.id: m.secure_url for m in await media_repository.get_many(db, cover_ids) if m.secure_url
+    }
+    return _ReadContext(nps, users, photos, covers)
+
+
+async def _to_read_many(
+    db: AsyncSession, events: list[Event], include_photos: bool = True
+) -> list[dict]:
+    ctx = await _prefetch(db, events)
+    return [await _to_read(db, e, include_photos=include_photos, ctx=ctx) for e in events]
+
+
 async def _to_read(
     db: AsyncSession,
     event: Event,
     include_photos: bool = False,
     viewer: User | None = None,
+    ctx: _ReadContext | None = None,
 ) -> dict:
     nonprofit = None
     np = None
     if event.nonprofit_id:
-        np = await nonprofit_repository.get_by_id(db, event.nonprofit_id)
+        np = (
+            ctx.nonprofits.get(event.nonprofit_id)
+            if ctx is not None
+            else await nonprofit_repository.get_by_id(db, event.nonprofit_id)
+        )
         if np:
             nonprofit = {
                 "id": np.id, "name": np.name, "slug": np.slug,
@@ -73,14 +117,25 @@ async def _to_read(
             }
     organizer = None
     if event.organizer_id:
-        u = await user_repository.get_by_id(db, event.organizer_id)
+        u = (
+            ctx.users.get(event.organizer_id)
+            if ctx is not None
+            else await user_repository.get_by_id(db, event.organizer_id)
+        )
         if u:
             organizer = {
                 "id": u.id, "name": u.name, "initials": u.initials, "color": u.color,
             }
     photos: list[str] = []
     if include_photos:
-        photos = await _resolve_photos(db, event)
+        if ctx is not None:
+            photos = ctx.photos.get(event.id) or (
+                [ctx.covers[event.cover_media_id]]
+                if event.cover_media_id in ctx.covers
+                else []
+            )
+        else:
+            photos = await _resolve_photos(db, event)
     category = event.category or (np.category if np else None)
     data = {
         "id": event.id, "key": event.key, "title": event.title, "story": event.story,
@@ -116,7 +171,7 @@ async def feed(db, category, discovery, page, limit) -> dict:
         db, category=category, discovery=discovery, page=page, limit=limit
     )
     return {
-        "items": [await _to_read(db, e, include_photos=True) for e in items],
+        "items": await _to_read_many(db, items),
         "total": total,
         "has_more": has_more,
     }
@@ -187,7 +242,7 @@ async def list_mine(
     effective = statuses or ["Draft", "Changes Requested"]
     items = await repo.list_by_organizer(db, user.id, statuses=effective)
     return {
-        "items": [await _to_read(db, e, include_photos=True) for e in items],
+        "items": await _to_read_many(db, items),
         "total": len(items),
         "has_more": False,
     }
