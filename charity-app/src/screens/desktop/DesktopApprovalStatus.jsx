@@ -4,6 +4,7 @@ import { Check, Clock, MessageSquare, Rocket, PartyPopper, Radio } from 'lucide-
 import DesktopHeader from '../../components/desktop/DesktopHeader';
 import { getEvent } from '../../api/events';
 import { useApprovalEvent } from '../../hooks/useApprovalEvent';
+import { approvalCopy, decisionNode, heroBackground, liveNodeSub, reviewAction } from '../../utils/approvalCopy';
 import { beginEventFix } from '../../utils/beginEventFix';
 
 const NODES = [
@@ -22,20 +23,11 @@ function statusesFor(state) {
   }
 }
 
-function copyFor(state, nonprofitName) {
-  const np = nonprofitName || 'the nonprofit';
-  return {
-    review:    { title: 'Submitted!', sub: `${np} is reviewing your event. You'll hear back within 48 hours.` },
-    approved:  { title: "You're approved", sub: `${np} approved your event — publish it whenever you're ready.` },
-    live:      { title: "You're live!", sub: 'Your event is published and open for people to join and back.' },
-    completed: { title: 'Event complete', sub: 'Great work. Your impact recap is ready to review and share.' },
-  }[state];
-}
 
 function timelineSub(nodeKey, st, statuses, event) {
   if (nodeKey === 'submitted') return 'Sent for nonprofit review';
-  if (nodeKey === 'approved') return statuses[1] === 'done' ? event.nonprofit : 'Awaiting nonprofit approval';
-  if (nodeKey === 'live') return st === 'livenow' ? 'Open for joins & backing' : 'Publish once approved';
+  if (nodeKey === 'approved') return decisionNode(event.apiStatus, event.nonprofit, statuses[1] === 'done').sub;
+  if (nodeKey === 'live') return st === 'livenow' ? 'Open for joins & backing' : liveNodeSub(event.apiStatus);
   if (nodeKey === 'completed') return 'Impact recap ready';
   return '';
 }
@@ -43,13 +35,13 @@ function timelineSub(nodeKey, st, statuses, event) {
 export default function DesktopApprovalStatus() {
   const navigate = useNavigate();
   const { event, loading, error, uiState, actionPending, handleGoLive, handleComplete } = useApprovalEvent();
-  const [notify, setNotify] = useState(false);
   const [toast, setToast] = useState('');
 
   const showToast = (m) => { setToast(m); setTimeout(() => setToast(''), 2200); };
 
   const statuses = statusesFor(uiState);
-  const copy = copyFor(uiState, event?.nonprofit);
+  const copy = approvalCopy(uiState, event?.apiStatus, event?.nonprofit);
+  const secondary = uiState === 'review' ? reviewAction(event?.apiStatus) : null;
   const key = event?.key;
 
   const runAction = async (fn, successMsg, failMsg) => {
@@ -133,7 +125,7 @@ export default function DesktopApprovalStatus() {
                         {st === 'active' && <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)' }} />}
                         {st === 'livenow' && <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'white' }} />}
                       </div>
-                      <p className="dsk-approval-step-title" style={{ color: st === 'pending' ? 'var(--text-secondary)' : st === 'livenow' ? 'var(--primary)' : undefined }}>{node.label}</p>
+                      <p className="dsk-approval-step-title" style={{ color: st === 'pending' ? 'var(--text-secondary)' : st === 'livenow' ? 'var(--primary)' : undefined }}>{node.key === 'approved' ? decisionNode(event.apiStatus, event.nonprofit, statuses[1] === 'done').label : node.label}</p>
                       <p className="dsk-approval-step-sub">{timelineSub(node.key, st, statuses, event)}</p>
                     </div>
                     {i < NODES.length - 1 && <div className="dsk-approval-connector" />}
@@ -147,7 +139,7 @@ export default function DesktopApprovalStatus() {
             <div
               className="dsk-approval-hero"
               style={{
-                backgroundImage: `linear-gradient(to top, rgba(13,42,74,0.78), rgba(13,42,74,0.15)), url(${event.cover})`,
+                backgroundImage: heroBackground(event.cover, { scrim: true }),
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
               }}
@@ -164,11 +156,11 @@ export default function DesktopApprovalStatus() {
                     {primary.label}
                   </button>
                 )}
-                {uiState === 'review' && event.apiStatus !== 'Changes Requested' && (
-                  <button type="button" className="dsk-approval-btn-secondary" onClick={() => navigate('/event/step-4')}>Edit event</button>
+                {secondary === 'drafts' && (
+                  <button type="button" className="dsk-approval-btn-secondary" onClick={() => navigate('/event/drafts')}>Continue in Your drafts</button>
                 )}
-                {uiState === 'approved' && (
-                  <button type="button" className="dsk-approval-btn-secondary" onClick={() => navigate('/event/step-4')}>Edit before publishing</button>
+                {secondary === 'new' && (
+                  <button type="button" className="dsk-approval-btn-secondary" onClick={() => navigate('/event/step-1')}>Create a new event</button>
                 )}
                 {uiState === 'live' && (
                   <button type="button" className="dsk-approval-btn-secondary" onClick={() => navigate(key ? `/live-dashboard?key=${encodeURIComponent(key)}` : '/live-dashboard')}>Open live dashboard</button>
@@ -180,13 +172,11 @@ export default function DesktopApprovalStatus() {
 
               {uiState === 'review' && (
                 <>
-                  <button
-                    type="button"
-                    className={`dsk-approval-notify-btn${notify ? ' on' : ''}`}
-                    onClick={() => { setNotify(!notify); showToast(notify ? 'Notifications off' : "We'll notify you when it's approved"); }}
-                  >
-                    {notify ? 'Notifications on ✓' : 'Notify me when approved'}
-                  </button>
+                  {event.apiStatus === 'Submitted' && (
+                    <p className="approval-actions-hint" style={{ margin: '4px 0 12px' }}>
+                      Waiting for the nonprofit’s decision. You’ll get a notification in the bell when they respond.
+                    </p>
+                  )}
                   {event.apiStatus === 'Changes Requested' && (
                     <div className="dsk-approval-comment">
                       <div className="dsk-approval-comment-icon"><MessageSquare size={16} color="var(--blue)" /></div>

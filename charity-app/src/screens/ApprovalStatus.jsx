@@ -4,6 +4,7 @@ import { ChevronLeft, Check, Clock, Rocket, PartyPopper, Radio } from 'lucide-re
 import MobileAppHeader from '../components/MobileAppHeader';
 import { getEvent } from '../api/events';
 import { useApprovalEvent } from '../hooks/useApprovalEvent';
+import { approvalCopy, decisionNode, heroBackground, liveNodeSub, reviewAction, statusBadge } from '../utils/approvalCopy';
 import { beginEventFix } from '../utils/beginEventFix';
 
 const NODES = [
@@ -22,20 +23,10 @@ function nodeStatuses(state) {
   }
 }
 
-function copyFor(state, nonprofitName) {
-  const np = nonprofitName || 'the nonprofit';
-  return {
-    review:    { title: 'Submitted!', sub: `${np} is reviewing your event. You'll hear back within 48 hours.` },
-    approved:  { title: "You're approved", sub: `${np} approved your event. Publish it whenever you're ready.` },
-    live:      { title: "You're live!", sub: 'Your event is published and open for people to join and back.' },
-    completed: { title: 'Event complete', sub: 'Thanks for running a great event. Your impact recap is ready to share.' },
-  }[state];
-}
 
 export default function ApprovalStatus() {
   const navigate = useNavigate();
   const { event, loading, error, uiState, actionPending, handleGoLive, handleComplete } = useApprovalEvent();
-  const [notified, setNotified] = useState(false);
   const [toast, setToast] = useState('');
 
   const showToast = (msg) => {
@@ -44,7 +35,8 @@ export default function ApprovalStatus() {
   };
 
   const statuses = nodeStatuses(uiState);
-  const copy = copyFor(uiState, event?.nonprofit);
+  const copy = approvalCopy(uiState, event?.apiStatus, event?.nonprofit);
+  const secondary = uiState === 'review' ? reviewAction(event?.apiStatus) : null;
   const key = event?.key;
 
   const runAction = async (fn, successMsg, failMsg) => {
@@ -114,7 +106,7 @@ export default function ApprovalStatus() {
               borderRadius: 'var(--radius-md)',
               overflow: 'hidden',
               height: 168,
-              backgroundImage: `url(${event.cover})`,
+              backgroundImage: heroBackground(event.cover),
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               position: 'relative',
@@ -129,7 +121,7 @@ export default function ApprovalStatus() {
                 <span className="live-badge"><span className="live-dot" /> LIVE NOW</span>
               ) : (
                 <span className="badge" style={{ background: 'rgba(255,255,255,0.9)', color: 'var(--primary)' }}>
-                  {uiState === 'completed' ? 'COMPLETED' : uiState === 'approved' ? 'APPROVED' : 'IN REVIEW'}
+                  {statusBadge(uiState, event.apiStatus)}
                 </span>
               )}
             </div>
@@ -158,6 +150,7 @@ export default function ApprovalStatus() {
             {NODES.map((node, i) => {
               const st = statuses[i];
               const isLast = i === NODES.length - 1;
+              const decision = node.key === 'approved' ? decisionNode(event.apiStatus, event.nonprofit, statuses[1] === 'done') : null;
               return (
                 <div key={node.key}>
                   <div className="timeline-step">
@@ -169,12 +162,12 @@ export default function ApprovalStatus() {
                     </div>
                     <div>
                       <p style={{ fontSize: 14, fontWeight: st === 'pending' ? 600 : 700, color: st === 'pending' ? 'var(--text-secondary)' : (st === 'livenow' ? 'var(--primary)' : 'var(--dark)') }}>
-                        {node.label}
+                        {decision ? decision.label : node.label}
                       </p>
                       <p style={{ fontSize: 12, color: 'var(--text-light)', marginTop: 2 }}>
                         {node.key === 'submitted' && 'Sent for nonprofit review'}
-                        {node.key === 'approved' && (statuses[1] === 'done' ? `Approved by ${event.nonprofit}` : 'Awaiting nonprofit approval')}
-                        {node.key === 'live' && (st === 'livenow' ? 'Open for joins & backing' : 'Publish once approved')}
+                        {decision && decision.sub}
+                        {node.key === 'live' && (st === 'livenow' ? 'Open for joins & backing' : liveNodeSub(event.apiStatus))}
                         {node.key === 'completed' && 'Wrap up & share impact'}
                       </p>
                     </div>
@@ -194,14 +187,14 @@ export default function ApprovalStatus() {
                 </button>
               )}
 
-              {uiState === 'review' && event.apiStatus === 'Changes Requested' && (
+              {secondary === 'update' && (
                 <button type="button" className="btn-outline" onClick={openUpdateEvent}>Update event</button>
               )}
-              {uiState === 'review' && event.apiStatus !== 'Changes Requested' && (
-                <button type="button" className="btn-outline" onClick={() => navigate('/event/step-4')}>Edit event</button>
+              {secondary === 'drafts' && (
+                <button type="button" className="btn-outline" onClick={() => navigate('/event/drafts')}>Continue in Your drafts</button>
               )}
-              {uiState === 'approved' && (
-                <button type="button" className="btn-outline" onClick={() => navigate('/event/step-4')}>Edit before publishing</button>
+              {secondary === 'new' && (
+                <button type="button" className="btn-outline" onClick={() => navigate('/event/step-1')}>Create a new event</button>
               )}
               {uiState === 'live' && (
                 <button type="button" className="btn-outline" onClick={() => navigate(key ? `/live-dashboard?key=${encodeURIComponent(key)}` : '/live-dashboard')}>Open live dashboard</button>
@@ -211,17 +204,10 @@ export default function ApprovalStatus() {
               )}
             </div>
 
-            {uiState === 'review' && (
-              <>
-                <p className="approval-actions-hint">Waiting for nonprofit approval.</p>
-                <button
-                  type="button"
-                  className="btn-ghost approval-notify-btn"
-                  onClick={() => { setNotified(true); showToast("We'll notify you the moment it's approved"); }}
-                >
-                  {notified ? 'Notifications on ✓' : 'Notify me when approved'}
-                </button>
-              </>
+            {uiState === 'review' && event.apiStatus === 'Submitted' && (
+              <p className="approval-actions-hint">
+                Waiting for the nonprofit’s decision. You’ll get a notification in the bell when they respond.
+              </p>
             )}
           </div>
           </div>
