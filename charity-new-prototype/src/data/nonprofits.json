@@ -1,0 +1,222 @@
+[
+ {
+  "name": "American Red Cross",
+  "slug": "american-red-cross",
+  "legalName": "American National Red Cross",
+  "ein": "53-0196605",
+  "category": "Human Services",
+  "cause": "Disaster Relief & Humanitarian Services",
+  "mission": "Disaster response, blood services, emergency preparedness and support for military families.",
+  "headquarters": "Washington, D.C.",
+  "founded": 1881
+ },
+ {
+  "name": "Feeding America",
+  "slug": "feeding-america",
+  "legalName": "Feeding America",
+  "ein": "36-3673599",
+  "category": "Food & Hunger",
+  "cause": "Hunger Relief",
+  "mission": "Coordinates a nationwide network of food banks and hunger-relief programs.",
+  "headquarters": "Chicago, Illinois",
+  "founded": 1979
+ },
+ {
+  "name": "St. Jude Children's Research Hospital",
+  "slug": "st-jude-children-s-research-hospital",
+  "legalName": "St. Jude Children's Research Hospital, Inc.",
+  "ein": "62-0646012",
+  "category": "Health",
+  "cause": "Pediatric Healthcare & Research",
+  "mission": "Provides pediatric treatment and conducts research focused on catastrophic childhood diseases.",
+  "headquarters": "Memphis, Tennessee",
+  "founded": 1962
+ },
+ {
+  "name": "Habitat for Humanity",
+  "slug": "habitat-for-humanity",
+  "legalName": "Habitat for Humanity International, Inc.",
+  "ein": "91-1914868",
+  "category": "Human Services",
+  "cause": "Affordable Housing",
+  "mission": "Works with communities and volunteers to build and improve affordable housing.",
+  "headquarters": "Atlanta, Georgia",
+  "founded": 1976
+ },
+ {
+  "name": "United Way",
+  "slug": "united-way",
+  "legalName": "United Way Worldwide",
+  "ein": "13-1635294",
+  "category": "Community",
+  "cause": "Community Development",
+  "mission": "Supports local initiatives in education, financial stability, health and community resilience.",
+  "headquarters": "Alexandria, Virginia",
+  "founded": 1887
+ },
+ {
+  "name": "Goodwill",
+  "slug": "goodwill",
+  "legalName": "Goodwill Industries International, Inc.",
+  "ein": "53-0196517",
+  "category": "Human Services",
+  "cause": "Employment & Workforce Development",
+  "mission": "Supports job training, employment placement and community-based workforce services.",
+  "headquarters": "Rockville, Maryland",
+  "founded": 1902
+ },
+ {
+  "name": "Boys & Girls Clubs of America",
+  "slug": "boys-girls-clubs-of-america",
+  "legalName": "Boys & Girls Clubs of America",
+  "ein": "13-5562976",
+  "category": "Human Services",
+  "cause": "Youth Development",
+  "mission": "Provides after-school programs, mentoring, education and leadership development for young people.",
+  "headquarters": "Atlanta, Georgia",
+  "founded": 1906
+ },
+ {
+  "name": "YMCA of the USA",
+  "slug": "ymca-of-the-usa",
+  "legalName": "National Council of Young Men's Christian Associations of the United States of America",
+  "ein": "36-3258696",
+  "category": "Community",
+  "cause": "Youth & Community Wellness",
+  "mission": "Supports youth development, healthy living and community-focused programs through local YMCAs.",
+  "headquarters": "Chicago, Illinois",
+  "founded": 1851
+ },
+ {
+  "name": "Big Brothers Big Sisters",
+  "slug": "big-brothers-big-sisters",
+  "legalName": "Big Brothers Big Sisters of America",
+  "ein": "23-1365190",
+  "category": "Human Services",
+  "cause": "Youth Mentorship",
+  "mission": "Coordinates one-to-one mentoring relationships for children and young people.",
+  "headquarters": "Tampa, Florida",
+  "founded": 1904
+ },
+ {
+  "name": "Make-A-Wish America",
+  "slug": "make-a-wish-america",
+  "legalName": "Make-A-Wish Foundation of America",
+  "ein": "86-0481941",
+  "category": "Health",
+  "cause": "Children & Critical Illness",
+  "mission": "Grants wishes to eligible children diagnosed with critical illnesses.",
+  "headquarters": "Phoenix, Arizona",
+  "founded": 1980
+ },
+ {
+  "name": "Ronald McDonald House Charities",
+  "slug": "ronald-mcdonald-house-charities",
+  "legalName": "Ronald McDonald House Charities, Inc.",
+  "ein": "36-2934689",
+  "category": "Health",
+  "cause": "Family Healthcare Support",
+  "mission": "Supports accommodation and related services for families of hospitalized children.",
+  "headquarters": "Chicago, Illinois",
+  "founded": 1974
+ },
+ {
+  "name": "Susan G. Komen",
+  "slug": "susan-g-komen",
+  "legalName": "Susan G. Komen Breast Cancer Foundation, Inc.",
+  "ein": "75-1835298",
+  "category": "Health",
+  "cause": "Breast Cancer",
+  "mission": "Funds breast-cancer research and provides education, advocacy and patient-support programs.",
+  "headquarters": "Dallas, Texas",
+  "founded": 1982
+ },
+ {
+  "name": "American Cancer Society",
+  "slug": "american-cancer-society",
+  "legalName": "American Cancer Society, Inc.",
+  "ein": "13-1788491",
+  "category": "Health",
+  "cause": "Cancer Research & Patient Support",
+  "mission": "Supports cancer research, prevention, advocacy and patient services.",
+  "headquarters": "Atlanta, Georgia",
+  "founded": 1913
+ },
+ {
+  "name": "Alzheimer's Association",
+  "slug": "alzheimer-s-association",
+  "legalName": "Alzheimer's Disease and Related Disorders Association, Inc.",
+  "ein": "13-3039601",
+  "category": "Health",
+  "cause": "Alzheimer's Research & Caregiver Support",
+  "mission": "Supports research, education, advocacy and services for people affected by Alzheimer's disease.",
+  "headquarters": "Chicago, Illinois",
+  "founded": 1980
+ },
+ {
+  "name": "The Nature Conservancy",
+  "slug": "the-nature-conservancy",
+  "legalName": "The Nature Conservancy",
+  "ein": "53-0242652",
+  "category": "Environment",
+  "cause": "Environment & Conservation",
+  "mission": "Protects lands and waters and supports biodiversity and climate-resilience programs.",
+  "headquarters": "Arlington, Virginia",
+  "founded": 1951
+ },
+ {
+  "name": "Sierra Club Foundation",
+  "slug": "sierra-club-foundation",
+  "legalName": "Sierra Club Foundation",
+  "ein": "94-6069890",
+  "category": "Environment",
+  "cause": "Environmental Protection",
+  "mission": "Funds environmental conservation, climate action and public-education initiatives.",
+  "headquarters": "Oakland, California",
+  "founded": 1960
+ },
+ {
+  "name": "charity: water",
+  "slug": "charity-water",
+  "legalName": "charity: water",
+  "ein": "22-3936753",
+  "category": "Environment",
+  "cause": "Clean Water",
+  "mission": "Funds projects that provide access to safe and reliable drinking water.",
+  "headquarters": "New York, New York",
+  "founded": 2006
+ },
+ {
+  "name": "World Wildlife Fund (WWF-US)",
+  "slug": "world-wildlife-fund-wwf-us",
+  "legalName": "World Wildlife Fund, Inc.",
+  "ein": "52-1693387",
+  "category": "Environment",
+  "cause": "Wildlife & Environmental Conservation",
+  "mission": "Works to conserve wildlife, ecosystems and natural resources.",
+  "headquarters": "Washington, D.C.",
+  "founded": 1961
+ },
+ {
+  "name": "ASPCA",
+  "slug": "aspca",
+  "legalName": "American Society for the Prevention of Cruelty to Animals",
+  "ein": "13-1623829",
+  "category": "Animals",
+  "cause": "Animal Welfare",
+  "mission": "Provides animal rescue, adoption, veterinary support and animal-welfare advocacy.",
+  "headquarters": "New York, New York",
+  "founded": 1866
+ },
+ {
+  "name": "Doctors Without Borders USA",
+  "slug": "doctors-without-borders-usa",
+  "legalName": "Médecins Sans Frontières USA, Inc.",
+  "ein": "13-3433452",
+  "category": "Health",
+  "cause": "Humanitarian Medical Aid",
+  "mission": "Supports independent emergency medical humanitarian assistance in crisis-affected regions.",
+  "headquarters": "New York, New York",
+  "founded": 1990
+ }
+]

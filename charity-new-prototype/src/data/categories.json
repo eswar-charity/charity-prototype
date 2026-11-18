@@ -1,0 +1,92 @@
+[
+ {
+  "name": "Animals",
+  "icon": "paw-print",
+  "color": "#C2410C",
+  "description": "Pet-friendly 5Ks and shelter benefits that keep rescue animals fed, safe, and adopted into loving homes."
+ },
+ {
+  "name": "Community",
+  "icon": "users",
+  "color": "#7C3AED",
+  "description": "Events and gatherings supporting community causes."
+ },
+ {
+  "name": "Education",
+  "icon": "graduation-cap",
+  "color": "#0D7377",
+  "description": "Book drives, apré-ski fundraisers, and school partnerships that put learning resources in every community."
+ },
+ {
+  "name": "Health",
+  "icon": "heart-pulse",
+  "color": "#D32F2F",
+  "description": "Runs, walks, and wellness gatherings that fund youth fitness, mental health, and community care programs."
+ },
+ {
+  "name": "Arts",
+  "icon": "palette",
+  "color": "#DB2777",
+  "description": "Events and gatherings supporting arts causes."
+ },
+ {
+  "name": "Religion",
+  "icon": "landmark",
+  "color": "#92400E",
+  "description": "Events and gatherings supporting religion causes."
+ },
+ {
+  "name": "Environment",
+  "icon": "leaf",
+  "color": "#15803D",
+  "description": "Trail runs, clean-ups, and outdoor events raising awareness and dollars for conservation and climate action."
+ },
+ {
+  "name": "Sports",
+  "icon": "trophy",
+  "color": "#EA580C",
+  "description": "Events and gatherings supporting sports causes."
+ },
+ {
+  "name": "Human Services",
+  "icon": "hand-heart",
+  "color": "#0369A1",
+  "description": "Events and gatherings supporting human services causes."
+ },
+ {
+  "name": "Culture",
+  "icon": "globe",
+  "color": "#6D28D9",
+  "description": "Events and gatherings supporting culture causes."
+ },
+ {
+  "name": "Gifts & Foundations",
+  "icon": "gift",
+  "color": "#B45309",
+  "description": "Events and gatherings supporting gifts & foundations causes."
+ },
+ {
+  "name": "Individuals",
+  "icon": "user-round",
+  "color": "#4338CA",
+  "description": "Events and gatherings supporting individuals causes."
+ },
+ {
+  "name": "Public-Society Benefit",
+  "icon": "landmark",
+  "color": "#334155",
+  "description": "Events and gatherings supporting public-society benefit causes."
+ },
+ {
+  "name": "Humanities",
+  "icon": "book-open",
+  "color": "#78350F",
+  "description": "Events and gatherings supporting humanities causes."
+ },
+ {
+  "name": "Food & Hunger",
+  "icon": "utensils-crossed",
+  "color": "#CA8A04",
+  "description": "Golf outings, meal packing, and food-bank drives that put meals on tables across your city."
+ }
+]
