@@ -5,7 +5,8 @@ import {
   HandHeart, Globe, Gift, UserRound, BookOpen, UtensilsCrossed, Heart,
 } from 'lucide-react'
 import { initialsOf, percent } from '../lib/format.js'
-import { timelines } from '../data/index.js'
+import { useDomain } from '../domain/store.jsx'
+import { postsFor } from '../domain/selectors.js'
 
 /** Official logo artwork. Full-colour on light, the provisional white version on stage navy / photography. */
 export function Logo({ onStage = false, className = '' }) {
@@ -34,27 +35,33 @@ export function CategoryIcon({ name, size = 20, ...rest }) {
 
 const toneOf = (name) => 1 + ([...name].reduce((s, c) => s + c.charCodeAt(0), 0) % 4)
 
-export function Avatar({ name, size }) {
+export function Avatar({ name = '?', size }) {
   return (
     <span className={`ch-avatar ${size ? `ch-avatar--${size}` : ''}`} data-tone={toneOf(name)} aria-hidden="true">
-      {initialsOf(name)}
+      {initialsOf(name) || '?'}
     </span>
   )
 }
 
-/** Names of real community voices from the event's timeline (demo content), for the avatar stack. */
-export function voicesFor(key) {
-  const names = [...new Set((timelines[key] ?? []).map((p) => p.author?.name).filter(Boolean))]
-  return names.length ? names : ['Priya M.', 'James L.', 'Emma T.']
+/** Names of real voices in this event: people who posted in the room or joined. Read from the domain. */
+export function useVoices(eventKey) {
+  const s = useDomain()
+  const ev = s.events[eventKey]
+  const names = new Set()
+  postsFor(s, eventKey).forEach((p) => { if (!p.host && p.authorName) names.add(p.authorName) })
+  ev?.joinedIds.forEach((id) => { const n = s.users[id]?.name; if (n) names.add(n) })
+  return [...names]
 }
 
 export function Attendance({ eventKey, count, label = 'going' }) {
-  const names = voicesFor(eventKey).slice(0, 3)
+  const names = useVoices(eventKey).slice(0, 3)
   return (
     <span className="ch-attend">
-      <span className="ch-attend__stack">
-        {names.map((n) => <Avatar key={n} name={n} />)}
-      </span>
+      {names.length > 0 && (
+        <span className="ch-attend__stack">
+          {names.map((n) => <Avatar key={n} name={n} />)}
+        </span>
+      )}
       <span className="ch-attend__count"><strong>{count}</strong> {label}</span>
     </span>
   )

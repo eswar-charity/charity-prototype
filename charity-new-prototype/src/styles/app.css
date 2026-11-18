@@ -49,6 +49,9 @@
 .page-head .h-display-2, .page-head .h-display-3 { margin-top: 0; max-width: 18ch; }
 .page-head .h-display-2 { max-width: 20ch; }
 .page-head--center { text-align: center; }
+/* a not-found / paused page on a route whose nav floats over navy */
+.page-head--stage { background: var(--surface-stage); padding-top: calc(var(--nav-height) + var(--space-8)); padding-bottom: var(--space-9); }
+.page-head--stage .lede { color: var(--ink-on-dark-muted); }
 .page-head--center .lede, .page-head--center .h-display-3 { margin-inline: auto; }
 .page-head__cta { margin-top: var(--space-5); }
 
@@ -230,7 +233,7 @@
 .lightbox__x { position: absolute; top: var(--space-4); right: var(--space-4); display: grid; place-items: center; width: var(--target-min); height: var(--target-min); border-radius: 50%; border: 1px solid var(--border-glass); background: var(--surface-glass); color: #fff; cursor: pointer; }
 .lightbox :focus-visible { outline: 2px solid var(--brand-sky); }
 
-.ev-side { display: grid; gap: var(--space-4); position: sticky; top: calc(var(--nav-height) + var(--space-4)); }
+.ev-side { display: grid; gap: var(--space-4); min-width: 0; }
 .side-card { position: relative; display: grid; gap: var(--space-4); padding: var(--space-5) var(--space-5) var(--space-5) calc(var(--space-5) + var(--space-1)); border-radius: var(--radius-lg); background: var(--surface-raised); box-shadow: var(--shadow-md); }
 .side-card__label { font: 700 17px/22px var(--font-sans); }
 .side-total { font: 800 40px/44px var(--font-sans); letter-spacing: -0.025em; }
@@ -322,8 +325,7 @@
   .lb__intro { position: static; }
   .invite__grid { grid-template-columns: 1fr; gap: var(--space-7); }
   .ev-layout { grid-template-columns: 1fr; gap: var(--space-6); }
-  .ev-side { position: static; }
-  .np-cols { grid-template-columns: 1fr; gap: var(--space-7); }
+    .np-cols { grid-template-columns: 1fr; gap: var(--space-7); }
   .facts { position: static; }
   .proof { grid-template-columns: 1fr; }
 }
@@ -336,7 +338,12 @@
   .wrap, .hero__inner { padding-inline: var(--gutter-mobile); }
   .section { padding-block: var(--space-7); }
   .page-head { padding: var(--space-7) 0 var(--space-6); }
+  .page-head--stage { padding-top: calc(64px + var(--space-7)); padding-bottom: var(--space-8); }
   .app-nav--over { margin-bottom: -64px; }
+  /* Sign in and Host an event move into the menu so the bar never overflows at 390px */
+  .app-nav .app-nav__signin, .app-nav .app-nav__cta { display: none; }
+  .app-nav .app-nav__cta-mobile { display: list-item; }
+  .app-nav .app-nav__auth { margin-left: auto; }
   .h-display-2 { font-size: 34px; line-height: 38px; letter-spacing: -0.025em; }
   .h-display-3 { font-size: 28px; line-height: 32px; letter-spacing: -0.02em; }
   .h-heading { font-size: 22px; line-height: 28px; }

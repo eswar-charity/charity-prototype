@@ -2,17 +2,18 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
-import { StoreProvider } from './lib/store.jsx'
+import AppProviders from './AppProviders.jsx'
 import './styles/tokens.css'
 import './styles/ch.css'
 import './styles/app.css'
+import './styles/shell.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <StoreProvider>
+      <AppProviders>
         <App />
-      </StoreProvider>
+      </AppProviders>
     </BrowserRouter>
   </StrictMode>,
 )

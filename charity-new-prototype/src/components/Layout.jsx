@@ -3,10 +3,15 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import { Logo } from './Brand.jsx'
 import PrototypeSwitcher from './PrototypeSwitcher.jsx'
+import { AccountMenu } from '../ui/RoleShell.jsx'
+import { NotificationBell } from '../ui/Notifications.jsx'
+import { NoticeBar } from '../ui/Guards.jsx'
+import { useSession } from '../domain/store.jsx'
+import { hostTarget } from '../roles/guest/lib.js'
 
 const NAV = [
   { to: '/#discover', label: 'Find events', match: '/' },
-  { to: '/#how-it-works', label: 'How it works' },
+  { to: '/how-it-works', label: 'How it works' },
   { to: '/nonprofits', label: 'Nonprofits' },
   { to: '/causes', label: 'Causes' },
 ]
@@ -16,6 +21,8 @@ const isStageRoute = (p) => p === '/' || /^\/events\/[^/]+$/.test(p) || /^\/nonp
 
 export default function Layout() {
   const { pathname, hash } = useLocation()
+  const { user } = useSession()
+  const host = hostTarget(user)
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const stage = isStageRoute(pathname)
@@ -31,7 +38,7 @@ export default function Layout() {
     setOpen(false)
     if (hash) {
       // let the page mount, then bring the anchor into view (the nav is sticky, so offset it)
-      const t = setTimeout(() => document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: 'smooth' }), 60)
+      const t = setTimeout(() => document.getElementById(hash.slice(1))?.scrollIntoView?.({ behavior: 'smooth' }), 60)
       return () => clearTimeout(t)
     }
     window.scrollTo(0, 0)
@@ -59,11 +66,16 @@ export default function Layout() {
                 )}
               </li>
             ))}
-            <li className="app-nav__cta-mobile">
-              <Link to="/create">Host an event</Link>
-            </li>
+            {user && <li><NavLink to="/saved">Saved</NavLink></li>}
+            {!user && <li className="app-nav__cta-mobile"><Link to="/signin">Sign in</Link></li>}
+            {host && <li className="app-nav__cta-mobile"><Link to={host}>Host an event</Link></li>}
           </ul>
-          <Link to="/create" className="ch-btn ch-btn--primary ch-btn--sm ch-nav__cta app-nav__cta">Host an event</Link>
+          <div className="app-nav__auth">
+            {user ? (<><NotificationBell /><AccountMenu onStage={stage && !scrolled} /></>) : (
+              <Link to="/signin" className="ch-btn ch-btn--text ch-btn--sm app-nav__signin">Sign in</Link>
+            )}
+            {host && <Link to={host} className="ch-btn ch-btn--primary ch-btn--sm app-nav__cta">Host an event</Link>}
+          </div>
           <button className="ch-nav__menu" aria-expanded={open} aria-controls="primary-nav"
             aria-label={open ? 'Close menu' : 'Open menu'} onClick={() => setOpen((v) => !v)}>
             {open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
@@ -71,17 +83,18 @@ export default function Layout() {
         </div>
       </header>
 
+      <NoticeBar />
       <main id="main" tabIndex={-1} className={stage ? 'app-main--stage' : ''}>
         <Outlet />
       </main>
 
-      <Footer />
+      <Footer host={host} />
       <PrototypeSwitcher />
     </div>
   )
 }
 
-function Footer() {
+function Footer({ host }) {
   return (
     <footer className="ch-footer">
       <div className="ch-footer__inner">
@@ -93,14 +106,15 @@ function Footer() {
           <h4>Events</h4>
           <ul>
             <li><Link to="/#discover">Find events</Link></li>
-            <li><Link to="/#how-it-works">How it works</Link></li>
+            <li><Link to="/how-it-works">How it works</Link></li>
             <li><Link to="/#leaderboard">Leaderboard</Link></li>
+            <li><Link to="/saved">Saved and tickets</Link></li>
           </ul>
         </nav>
         <nav aria-label="Hosts">
           <h4>Hosts</h4>
           <ul>
-            <li><Link to="/create">Host an event</Link></li>
+            <li><Link to={host ?? '/signup'}>Host an event</Link></li>
             <li><Link to="/#invite">Email us your idea</Link></li>
           </ul>
         </nav>

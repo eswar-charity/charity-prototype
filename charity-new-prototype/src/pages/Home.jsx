@@ -1,55 +1,62 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowRight, Crown, Pause, Play, ShieldCheck, BadgeCheck, HandHeart, MapPin } from 'lucide-react'
-import { events, nonprofits, categoryByName, eventsForNonprofit, timelines } from '../data/index.js'
-import { EventCard, NonprofitCard, JoinButton } from '../components/Cards.jsx'
+import { Link, useSearchParams } from 'react-router-dom'
+import { ArrowRight, Crown, Pause, Play, ShieldCheck, BadgeCheck, HandHeart, MapPin, Search } from 'lucide-react'
+import { EventCard, NonprofitCard, JoinButton, SaveButton } from '../components/Cards.jsx'
 import { Attendance, Avatar, CategoryIcon, CauseBadge, LivePill, Reveal } from '../components/Brand.jsx'
-import DonateDialog from '../components/DonateDialog.jsx'
+import { useDonate } from '../components/DonateDialog.jsx'
 import { useVariant } from '../components/PrototypeSwitcher.jsx'
-import { eventState, whenLabel, relativeHours } from '../lib/format.js'
-import { useStore } from '../lib/store.jsx'
+import { useDomain, useSession } from '../domain/store.jsx'
+import { eventTotals } from '../domain/engine.js'
+import { feed, leaderboard, postsFor, coverOf } from '../domain/selectors.js'
+import { Empty } from '../ui/kit.jsx'
+import { donateBlock, hostTarget, phaseOf, whenFor } from '../roles/guest/lib.js'
 
 export default function Home() {
-  const [donateFor, setDonateFor] = useState(null)
+  const { start, dialog } = useDonate()
   return (
     <>
       <Hero />
-      <Discover onDonate={setDonateFor} />
+      <Discover onDonate={start} />
       <Journey />
       <Leaderboard />
       <CauseLayer />
       <Invite />
-      {donateFor && <DonateDialog event={donateFor} onClose={() => setDonateFor(null)} />}
+      {dialog}
     </>
   )
 }
 
+const iconOf = (s, name) => s.categories.find((c) => c.name === name)?.icon
+
 /* ================= Hero: stage navy, full-bleed photography, the hashtag as type ================= */
 function Hero() {
+  const s = useDomain()
+  const { user } = useSession()
+  const featured = useMemo(() => feed(s).slice(0, 5), [s])
   const [i, setI] = useState(0)
   const [paused, setPaused] = useState(false)
   const reduced = typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-  const { stats } = useStore()
+  const host = hostTarget(user)
 
   useEffect(() => {
-    if (paused || reduced) return
-    const t = setInterval(() => setI((n) => (n + 1) % events.length), 7000)
+    if (paused || reduced || featured.length < 2) return
+    const t = setInterval(() => setI((n) => (n + 1) % featured.length), 7000)
     return () => clearInterval(t)
-  }, [paused, reduced])
+  }, [paused, reduced, featured.length])
 
-  const ev = events[i]
-  const live = eventState(ev.date, ev.start, ev.end) === 'live'
+  const ev = featured[i % Math.max(featured.length, 1)]
+  const np = ev && s.nonprofits[ev.nonprofitId]
 
   return (
     <section className="hero ch-stage" aria-label="Welcome">
       <div className="hero__media" aria-hidden="true">
-        {events.map((e, n) => (
-          <img key={e.key} src={e.cover} alt="" className={n === i ? 'is-on' : ''}
+        {featured.map((e, n) => (
+          <img key={e.key} src={coverOf(e)} alt="" className={n === i % featured.length ? 'is-on' : ''}
             loading={n === 0 ? 'eager' : 'lazy'} style={{ objectPosition: e.focus }} />
         ))}
         <span className="hero__overlay" />
       </div>
-      <p className="hero__giant" aria-hidden="true" key={ev.key} style={{ '--len': ev.title.length }}>{ev.title}</p>
+      {ev && <p className="hero__giant" aria-hidden="true" key={ev.key} style={{ '--len': ev.title.length }}>{ev.title}</p>}
 
       <div className="hero__inner">
         <div className="hero__copy">
@@ -59,47 +66,57 @@ function Hero() {
             Hosts dream up the idea. People show up, join the room and come back. Every event supports a verified cause.
           </p>
           <div className="hero__cta">
-            <Link to="/create" className="ch-btn ch-btn--primary">Host an event</Link>
+            {host && <Link to={host} className="ch-btn ch-btn--primary">Host an event</Link>}
             <a href="#discover" className="ch-btn ch-btn--secondary">Find events</a>
           </div>
         </div>
 
-        <aside className="hero__feature ch-glass" aria-label="Featured event">
-          <div className="hero__feature-top">
-            {live ? <LivePill glass /> : <span className="ch-pill ch-pill--presence">{whenLabel(ev.date, ev.start, ev.end)}</span>}
-          </div>
-          <h2 className="hero__feature-title">
-            <Link to={`/events/${ev.key}`} className="plain-link">{ev.title}</Link>
-          </h2>
-          <p className="hero__feature-where"><MapPin size={16} aria-hidden="true" /> {ev.location}</p>
-          <Attendance eventKey={ev.key} count={stats(ev.key).joined} />
-          <CauseBadge name={ev.nonprofitName} glass />
-          <div className="hero__pager">
-            <div role="group" aria-label="Choose featured event" className="dots">
-              {events.map((e, n) => (
-                <button key={e.key} className={`dot ${n === i ? 'is-on' : ''}`} aria-label={`Show ${e.title}`}
-                  aria-current={n === i} onClick={() => setI(n)} />
-              ))}
+        {ev && (
+          <aside className="hero__feature ch-glass" aria-label="Featured event">
+            <div className="hero__feature-top">
+              {phaseOf(s, ev) === 'live' ? <LivePill glass /> : <span className="ch-pill ch-pill--presence">{whenFor(s, ev)}</span>}
             </div>
-            {!reduced && (
-              <button className="hero__pause" onClick={() => setPaused((p) => !p)}
-                aria-label={paused ? 'Resume featured event rotation' : 'Pause featured event rotation'}>
-                {paused ? <Play size={16} aria-hidden="true" /> : <Pause size={16} aria-hidden="true" />}
-              </button>
+            <h2 className="hero__feature-title">
+              <Link to={`/events/${ev.key}`} className="plain-link">{ev.title}</Link>
+            </h2>
+            <p className="hero__feature-where"><MapPin size={16} aria-hidden="true" /> {ev.location}</p>
+            <Attendance eventKey={ev.key} count={eventTotals(s, ev.key).joined} />
+            {np && <CauseBadge name={np.name} glass />}
+            {featured.length > 1 && (
+              <div className="hero__pager">
+                <div role="group" aria-label="Choose featured event" className="dots">
+                  {featured.map((e, n) => (
+                    <button key={e.key} className={`dot ${n === i % featured.length ? 'is-on' : ''}`} aria-label={`Show ${e.title}`}
+                      aria-current={n === i % featured.length} onClick={() => setI(n)} />
+                  ))}
+                </div>
+                {!reduced && (
+                  <button className="hero__pause" onClick={() => setPaused((p) => !p)}
+                    aria-label={paused ? 'Resume featured event rotation' : 'Pause featured event rotation'}>
+                    {paused ? <Play size={16} aria-hidden="true" /> : <Pause size={16} aria-hidden="true" />}
+                  </button>
+                )}
+              </div>
             )}
-          </div>
-        </aside>
+          </aside>
+        )}
       </div>
     </section>
   )
 }
 
-/* ================= Discover: three structurally different forms ================= */
+/* ================= Discover: search, cause filter, three structurally different forms ================= */
 function Discover({ onDonate }) {
+  const s = useDomain()
   const variant = useVariant()
-  const [cat, setCat] = useState('All')
-  const cats = useMemo(() => ['All', ...new Set(events.map((e) => e.category))], [])
-  const list = cat === 'All' ? events : events.filter((e) => e.category === cat)
+  const [params] = useSearchParams()
+  const everything = feed(s)
+  const cats = useMemo(() => ['All', ...new Set(everything.map((e) => e.category).filter(Boolean))], [everything])
+  const fromUrl = params.get('cause')
+  const [cat, setCat] = useState(fromUrl && cats.includes(fromUrl) ? fromUrl : 'All')
+  const [q, setQ] = useState('')
+  const list = feed(s, { category: cat, query: q })
+  const filtered = cat !== 'All' || q.trim() !== ''
 
   return (
     <section id="discover" className="section" aria-labelledby="discover-h">
@@ -109,17 +126,31 @@ function Discover({ onDonate }) {
             <p className="ch-eyebrow">Find events</p>
             <h2 id="discover-h" className="h-display-2">Find something good to do.</h2>
           </div>
+        </Reveal>
+
+        <div className="filters">
+          <div className="ch-field search">
+            <label className="ch-field__label" htmlFor="ev-q">Search events</label>
+            <div className="search__box">
+              <Search size={18} aria-hidden="true" />
+              <input id="ev-q" type="search" className="ch-field__input" placeholder="Event, place or nonprofit" value={q} onChange={(e) => setQ(e.target.value)} />
+            </div>
+          </div>
           <div className="filter-row" role="group" aria-label="Filter by cause">
             {cats.map((c) => (
               <button key={c} className={`filter ${c === cat ? 'is-on' : ''}`} aria-pressed={c === cat} onClick={() => setCat(c)}>
-                {c !== 'All' && <CategoryIcon name={categoryByName[c]?.icon} size={16} />} {c}
+                {c !== 'All' && <CategoryIcon name={iconOf(s, c)} size={16} />} {c}
               </button>
             ))}
           </div>
-        </Reveal>
+        </div>
+        <p className="result-count" role="status" aria-live="polite">{list.length} {list.length === 1 ? 'event' : 'events'}{filtered ? ' match' : ''}</p>
 
         {list.length === 0 ? (
-          <p className="empty">No events for this cause yet. <Link to="/create">Host the first one.</Link></p>
+          <Empty title={everything.length === 0 ? 'No events are live yet' : 'No events match that search'}
+            action={filtered ? <button className="ch-btn ch-btn--secondary" onClick={() => { setQ(''); setCat('All') }}>Clear search and filters</button> : <Link to="/signup" className="ch-btn ch-btn--secondary">Host the first one</Link>}>
+            {everything.length === 0 ? 'Check back soon, or host one yourself.' : 'Try a different word or pick another cause.'}
+          </Empty>
         ) : (
           <>
             {variant === 'A' && <VariantA list={list} onDonate={onDonate} />}
@@ -144,23 +175,27 @@ function VariantA({ list, onDonate }) {
 
 /* B: one event on stage, the rest as a tight list beside it */
 function VariantB({ list, onDonate }) {
-  const { stats } = useStore()
-  const ranked = [...list].sort((a, b) => stats(b.key).joined - stats(a.key).joined)
+  const s = useDomain()
+  const { user } = useSession()
+  const host = hostTarget(user)
+  const ranked = [...list].sort((a, b) => eventTotals(s, b.key).joined - eventTotals(s, a.key).joined)
   const [top, ...rest] = ranked
+  const canGive = !donateBlock(s, top)
   return (
     <div className="spot">
       <article className="spot__main ch-stage">
-        <img src={top.cover} alt="" style={{ objectPosition: top.focus }} />
+        <img src={coverOf(top)} alt="" style={{ objectPosition: top.focus }} />
         <span className="spot__shade" aria-hidden="true" />
         <div className="spot__body">
           <span className="ch-crown"><Crown aria-hidden="true" /> Most people going</span>
           <h3 className="spot__title"><Link to={`/events/${top.key}`} className="plain-link">{top.title}</Link></h3>
           <p className="spot__text">{top.mission}</p>
-          <p className="spot__meta">{whenLabel(top.date, top.start, top.end)} · {top.location}</p>
-          <Attendance eventKey={top.key} count={stats(top.key).joined} />
+          <p className="spot__meta">{whenFor(s, top)} · {top.location}</p>
+          <Attendance eventKey={top.key} count={eventTotals(s, top.key).joined} />
           <div className="spot__actions">
             <JoinButton event={top} size="md" />
-            <button className="ch-btn ch-btn--secondary" onClick={() => onDonate(top)} aria-label={`Donate to ${top.title}`}>Donate</button>
+            {canGive && <button className="ch-btn ch-btn--secondary" onClick={() => onDonate(top)} aria-label={`Donate to ${top.title}`}>Donate</button>}
+            <SaveButton event={top} label />
           </div>
         </div>
       </article>
@@ -168,20 +203,22 @@ function VariantB({ list, onDonate }) {
       <aside className="spot__list" aria-label="More events">
         {rest.map((e) => (
           <Link key={e.key} to={`/events/${e.key}`} className="mini">
-            <img src={e.cover} alt="" loading="lazy" style={{ objectPosition: e.focus }} />
+            <img src={coverOf(e)} alt="" loading="lazy" style={{ objectPosition: e.focus }} />
             <span className="mini__text">
               <strong>{e.title}</strong>
-              <span>{whenLabel(e.date, e.start, e.end)}</span>
-              <span className="ch-muted">{stats(e.key).joined} going</span>
+              <span>{whenFor(s, e)}</span>
+              <span className="ch-muted">{eventTotals(s, e.key).joined} going</span>
             </span>
           </Link>
         ))}
-        <Link to="/create" className="ch-tile ch-tile--cta spot__cta">
-          <span className="ch-tile__text">
-            <p className="ch-tile__tag">Your idea <ArrowRight size={22} aria-hidden="true" /></p>
-            <p className="ch-tile__desc">Any idea can be an event.</p>
-          </span>
-        </Link>
+        {host && (
+          <Link to={host} className="ch-tile ch-tile--cta spot__cta">
+            <span className="ch-tile__text">
+              <p className="ch-tile__tag">Your idea <ArrowRight size={22} aria-hidden="true" /></p>
+              <p className="ch-tile__desc">Any idea can be an event.</p>
+            </span>
+          </Link>
+        )}
       </aside>
     </div>
   )
@@ -189,28 +226,32 @@ function VariantB({ list, onDonate }) {
 
 /* C: a drifting mosaic that pauses on hover, focus and via a visible control */
 function VariantC({ list }) {
+  const s = useDomain()
+  const { user } = useSession()
+  const host = hostTarget(user)
   const [paused, setPaused] = useState(false)
-  const { stats } = useStore()
   const sizes = ['ch-tile--tall', '', 'ch-tile--wide', 'ch-tile--sm', 'ch-tile--tall']
   const set = (hidden) => [
     ...list.map((e, n) => (
       <Link key={`${hidden ? 'd' : 'o'}-${e.key}`} to={`/events/${e.key}`} className={`ch-tile ${sizes[n % sizes.length]}`}
         tabIndex={hidden ? -1 : undefined} aria-hidden={hidden || undefined}>
-        <span className="tile__img"><img src={e.cover} alt="" loading="lazy" style={{ objectPosition: e.focus }} /></span>
+        <span className="tile__img"><img src={coverOf(e)} alt="" loading="lazy" style={{ objectPosition: e.focus }} /></span>
         <span className="ch-photo__overlay" aria-hidden="true" />
         <span className="ch-tile__text">
           <p className="ch-tile__tag">{e.title}</p>
-          <p className="ch-tile__desc">{whenLabel(e.date, e.start, e.end)} · {stats(e.key).joined} going</p>
+          <p className="ch-tile__desc">{whenFor(s, e)} · {eventTotals(s, e.key).joined} going</p>
         </span>
       </Link>
     )),
-    <Link key={`${hidden ? 'd' : 'o'}-cta`} to="/create" className="ch-tile ch-tile--cta ch-tile--sm"
-      tabIndex={hidden ? -1 : undefined} aria-hidden={hidden || undefined}>
-      <span className="ch-tile__text">
-        <p className="ch-tile__tag">Your idea <ArrowRight size={20} aria-hidden="true" /></p>
-        <p className="ch-tile__desc">Host an event</p>
-      </span>
-    </Link>,
+    host && (
+      <Link key={`${hidden ? 'd' : 'o'}-cta`} to={host} className="ch-tile ch-tile--cta ch-tile--sm"
+        tabIndex={hidden ? -1 : undefined} aria-hidden={hidden || undefined}>
+        <span className="ch-tile__text">
+          <p className="ch-tile__tag">Your idea <ArrowRight size={20} aria-hidden="true" /></p>
+          <p className="ch-tile__desc">Host an event</p>
+        </span>
+      </Link>
+    ),
   ]
   return (
     <div className="mosaic">
@@ -229,14 +270,20 @@ function VariantC({ list }) {
   )
 }
 
-/* ================= Journey: a real sequence — before, during, after ================= */
+/* ================= Journey: a real sequence: before, during, after ================= */
 const STAGES = [
   { phase: 'before', title: 'Before: build the buzz', text: 'Publish your page and the room opens. Announce it, share the plan and let people join.' },
   { phase: 'during', title: 'During: run the room', text: 'Post, share photos and answer replies while it happens. The crowd talks back in real time.' },
   { phase: 'after', title: 'After: keep the story going', text: 'The room stays open for photos and thank-yous, so the event keeps working for the next one.' },
 ]
 function Journey() {
-  const sample = timelines['neon-night'] ?? []
+  const s = useDomain()
+  // sample the event whose room has the most messages, so every stage has something real to show
+  const sample = useMemo(() => {
+    const best = Object.values(s.events).filter((e) => ['Live', 'Completed'].includes(e.status))
+      .map((e) => ({ e, posts: postsFor(s, e.key) })).sort((a, b) => b.posts.length - a.posts.length)[0]
+    return best ?? null
+  }, [s])
   return (
     <section id="how-it-works" className="section section--alt" aria-labelledby="how-h">
       <div className="wrap">
@@ -246,22 +293,22 @@ function Journey() {
           <p className="lede">Every event gets its own room. Hosts post, people reply and the whole story stays in one place.</p>
         </Reveal>
         <Reveal as="ol" className="journey">
-          {STAGES.map((s, n) => {
-            const post = sample.find((p) => p.phase === s.phase)
-            const author = post?.author?.name
+          {STAGES.map((st, n) => {
+            const post = sample?.posts.find((p) => p.phase === st.phase)
+            const np = sample && s.nonprofits[sample.e.nonprofitId]
+            const author = post ? (post.host ? post.authorName ?? np?.name ?? 'Host' : post.authorName) : null
             return (
-              <li key={s.phase} className="stage">
+              <li key={st.phase} className="stage">
                 <span className="stage__n" aria-hidden="true">{n + 1}</span>
-                <h3 className="h-heading">{s.title}</h3>
-                <p className="stage__text">{s.text}</p>
+                <h3 className="h-heading">{st.title}</h3>
+                <p className="stage__text">{st.text}</p>
                 {post && (
-                  <div className={`ch-msg ${author ? '' : 'ch-msg--host'}`}>
-                    <Avatar name={author ?? 'Charity Hub'} />
+                  <div className={`ch-msg ${post.host ? 'ch-msg--host' : ''}`}>
+                    <Avatar name={author} />
                     <div className="ch-msg__body">
                       <div className="ch-msg__meta">
-                        <strong>{author ?? 'Host'}</strong>
-                        {!author && <span className="ch-badge-host" role="img" aria-label="Verified host"><BadgeCheck aria-hidden="true" /></span>}
-                        <span>{relativeHours(post.h)}</span>
+                        <strong>{author}</strong>
+                        {post.host && <span className="ch-badge-host"><BadgeCheck aria-hidden="true" /> Host</span>}
                       </div>
                       <p className="ch-msg__bubble clamp-3">{post.text}</p>
                     </div>
@@ -271,7 +318,7 @@ function Journey() {
             )
           })}
         </Reveal>
-        <p className="demo-note">Sample messages from #NeonNight (demo content).</p>
+        <p className="demo-note">{sample ? `Sample messages from ${sample.e.title} (demo content). ` : ''}<Link to="/how-it-works">Read the full guide</Link>.</p>
       </div>
     </section>
   )
@@ -279,9 +326,9 @@ function Journey() {
 
 /* ================= Leaderboard: ranked by people going, never money ================= */
 function Leaderboard() {
-  const { stats } = useStore()
-  const ranked = [...events].sort((a, b) => stats(b.key).joined - stats(a.key).joined)
-  const max = stats(ranked[0].key).joined
+  const s = useDomain()
+  const ranked = leaderboard(s)
+  const max = Math.max(1, ranked[0]?.going ?? 1)
   return (
     <section id="leaderboard" className="section" aria-labelledby="lb-h">
       <div className="wrap lb">
@@ -290,10 +337,11 @@ function Leaderboard() {
           <h2 id="lb-h" className="h-display-2">Who’s drawing the biggest crowd?</h2>
           <p className="lede">Hosts compete to throw events people show up for. Rankings count people going, nothing else.</p>
         </Reveal>
-        <Reveal as="ol" className="ch-board lb__board" aria-label="Events ranked by people going">
-          {ranked.map((e, n) => {
-            const count = stats(e.key).joined
-            return (
+        {ranked.length === 0 ? (
+          <Empty title="The board opens with the first live event">Check back once hosts publish their events.</Empty>
+        ) : (
+          <Reveal as="ol" className="ch-board lb__board" aria-label="Events ranked by people going">
+            {ranked.map(({ event: e, going }, n) => (
               <li key={e.key} className={`ch-row ${n === 0 ? 'ch-row--leader' : ''}`}>
                 <span className="ch-row__rank" aria-label={`Rank ${n + 1}`}>{n + 1}</span>
                 <Avatar name={e.title.replace('#', '')} size="lg" />
@@ -301,15 +349,15 @@ function Leaderboard() {
                   <div className="ch-row__head">
                     <Link to={`/events/${e.key}`} className="ch-row__tag plain-link">{e.title}</Link>
                     {n === 0 && <span className="ch-crown"><Crown aria-hidden="true" /> Leading</span>}
-                    <span className="ch-row__host">Powering {e.nonprofitName}</span>
+                    <span className="ch-row__host">Powering {s.nonprofits[e.nonprofitId]?.name}</span>
                   </div>
-                  <div className="ch-row__track"><div className="ch-row__bar" style={{ '--w': `${Math.round((count / max) * 100)}%`, '--d': `${n * 120}ms` }} /></div>
+                  <div className="ch-row__track"><div className="ch-row__bar" style={{ '--w': `${Math.round((going / max) * 100)}%`, '--d': `${n * 120}ms` }} /></div>
                 </div>
-                <span className="ch-row__count">{count}<small>going</small></span>
+                <span className="ch-row__count">{going}<small>going</small></span>
               </li>
-            )
-          })}
-        </Reveal>
+            ))}
+          </Reveal>
+        )}
       </div>
     </section>
   )
@@ -322,7 +370,11 @@ const PROOF = [
   { icon: HandHeart, text: 'Support goes straight to the cause via Stripe.' },
 ]
 function CauseLayer() {
-  const withEvents = nonprofits.filter((n) => eventsForNonprofit(n.slug).length > 0)
+  const s = useDomain()
+  const active = Object.values(s.nonprofits).filter((n) => n.status === 'Active')
+  const withEvents = active
+    .map((n) => ({ n, count: feed(s).filter((e) => e.nonprofitId === n.id).length }))
+    .filter((x) => x.count > 0)
   return (
     <section className="section section--alt" aria-labelledby="cause-h">
       <div className="wrap">
@@ -338,10 +390,12 @@ function CauseLayer() {
             </li>
           ))}
         </Reveal>
-        <div className="feed-grid feed-grid--np">
-          {withEvents.map((n) => <NonprofitCard key={n.slug} np={n} eventCount={eventsForNonprofit(n.slug).length} />)}
-        </div>
-        <p className="section__more"><Link to="/nonprofits" className="ch-btn ch-btn--secondary">All {nonprofits.length} verified partners</Link></p>
+        {withEvents.length > 0 && (
+          <div className="feed-grid feed-grid--np">
+            {withEvents.map(({ n, count }) => <NonprofitCard key={n.slug} np={n} eventCount={count} />)}
+          </div>
+        )}
+        <p className="section__more"><Link to="/nonprofits" className="ch-btn ch-btn--secondary">All {active.length} verified partners</Link></p>
       </div>
     </section>
   )
@@ -349,6 +403,8 @@ function CauseLayer() {
 
 /* ================= Final invitation on stage navy ================= */
 function Invite() {
+  const { user } = useSession()
+  const host = hostTarget(user)
   const [f, setF] = useState({ name: '', email: '', idea: '' })
   const [errors, setErrors] = useState({})
   const [sent, setSent] = useState(false)
@@ -363,12 +419,11 @@ function Invite() {
     setErrors(v)
     if (!Object.keys(v).length) setSent(true)
   }
-  const field = (id, label, extra, node) => (
+  const field = (id, label, node) => (
     <div className={`ch-field ${errors[id] ? 'ch-field--invalid' : ''}`}>
       <label className="ch-field__label" htmlFor={`i-${id}`}>{label}</label>
       {node}
       {errors[id] && <span className="ch-field__hint" id={`i-${id}-e`}>{errors[id]}</span>}
-      {extra}
     </div>
   )
 
@@ -379,19 +434,19 @@ function Invite() {
           <p className="ch-eyebrow">Host an event</p>
           <h2 id="invite-h" className="h-display-2">Got an idea? Make it an event.</h2>
           <p className="lede">Tell us what you want to throw. We’ll help you find a verified nonprofit to host it for.</p>
-          <p className="invite__cta"><Link to="/create" className="ch-btn ch-btn--primary">Start your event</Link></p>
+          {host && <p className="invite__cta"><Link to={host} className="ch-btn ch-btn--primary">Start your event</Link></p>}
         </Reveal>
         {sent ? (
-          <p className="invite__sent ch-glass" role="status">Thanks, {f.name.split(' ')[0]}. We got your idea. (Prototype: nothing was sent.)</p>
+          <p className="invite__sent ch-glass" role="status">Thanks, {f.name.trim().split(' ')[0]}. We got your idea. (Prototype: nothing was sent.)</p>
         ) : (
-          <form className="invite__form ch-glass" onSubmit={submit} noValidate>
-            {field('name', 'Your name', null,
+          <form className="invite__form ch-glass" onSubmit={submit} noValidate aria-label="Send us your idea">
+            {field('name', 'Your name',
               <input id="i-name" className="ch-field__input" autoComplete="name" value={f.name} onChange={set('name')}
                 aria-invalid={!!errors.name} aria-describedby={errors.name ? 'i-name-e' : undefined} />)}
-            {field('email', 'Email', null,
+            {field('email', 'Email',
               <input id="i-email" type="email" className="ch-field__input" autoComplete="email" value={f.email} onChange={set('email')}
                 aria-invalid={!!errors.email} aria-describedby={errors.email ? 'i-email-e' : undefined} />)}
-            {field('idea', 'Your idea', null,
+            {field('idea', 'Your idea',
               <textarea id="i-idea" className="ch-field__input idea" rows={4} value={f.idea} onChange={set('idea')}
                 aria-invalid={!!errors.idea} aria-describedby={errors.idea ? 'i-idea-e' : undefined} />)}
             <button className="ch-btn ch-btn--primary">Email us your idea</button>
