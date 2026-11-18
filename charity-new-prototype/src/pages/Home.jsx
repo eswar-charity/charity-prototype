@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, CalendarDays, MapPin, Trophy, ShieldCheck, Megaphone, HandCoins } from 'lucide-react'
-import { events, nonprofits, totals, categoryByName, eventsForNonprofit } from '../data/index.js'
-import { EventCard, NonprofitCard } from '../components/Cards.jsx'
-import { CategoryIcon, Progress } from '../components/Brand.jsx'
+import { ArrowRight, Crown, Pause, Play, ShieldCheck, BadgeCheck, HandHeart, MapPin } from 'lucide-react'
+import { events, nonprofits, categoryByName, eventsForNonprofit, timelines } from '../data/index.js'
+import { EventCard, NonprofitCard, JoinButton } from '../components/Cards.jsx'
+import { Attendance, Avatar, CategoryIcon, CauseBadge, LivePill, Reveal } from '../components/Brand.jsx'
 import DonateDialog from '../components/DonateDialog.jsx'
 import { useVariant } from '../components/PrototypeSwitcher.jsx'
-import { money, compact } from '../lib/format.js'
+import { eventState, whenLabel, relativeHours } from '../lib/format.js'
 import { useStore } from '../lib/store.jsx'
 
 export default function Home() {
@@ -14,85 +14,87 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <FeatureBand />
       <Discover onDonate={setDonateFor} />
-      <HowItWorks />
-      <Mission />
-      <FeaturedNonprofits />
-      <Contact />
+      <Journey />
+      <Leaderboard />
+      <CauseLayer />
+      <Invite />
       {donateFor && <DonateDialog event={donateFor} onClose={() => setDonateFor(null)} />}
     </>
   )
 }
 
-/* ---------------- Hero ---------------- */
+/* ================= Hero: stage navy, full-bleed photography, the hashtag as type ================= */
 function Hero() {
   const [i, setI] = useState(0)
   const [paused, setPaused] = useState(false)
-  const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  const reduced = typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  const { stats } = useStore()
 
   useEffect(() => {
     if (paused || reduced) return
-    const t = setInterval(() => setI((n) => (n + 1) % events.length), 6000)
+    const t = setInterval(() => setI((n) => (n + 1) % events.length), 7000)
     return () => clearInterval(t)
   }, [paused, reduced])
 
   const ev = events[i]
+  const live = eventState(ev.date, ev.start, ev.end) === 'live'
+
   return (
-    <section className="hero" aria-label="Welcome">
-      <div className="container hero-inner">
-        <div className="hero-copy">
-          <p className="eyebrow eyebrow-light">Competition For Good®</p>
-          <h1 className="display">Give. Compete. Change your community.</h1>
-          <p className="hero-lede">
-            Back the events you love, cheer on your neighbors and watch every dollar reach a verified nonprofit.
-          </p>
-          <div className="hero-cta">
-            <a href="#discover" className="btn btn-primary">Explore events <ArrowRight size={16} aria-hidden="true" /></a>
-            <Link to="/create" className="btn btn-white">Create an event</Link>
-          </div>
-        </div>
-
-        <div className="hero-media" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}
-          onFocus={() => setPaused(true)} onBlur={() => setPaused(false)}>
-          <Link to={`/events/${ev.key}`} className="hero-slide" aria-label={`${ev.title}, ${ev.date}: view event`}>
-            <img key={ev.key} src={ev.cover} alt={`Photos from ${ev.title}`} style={{ objectPosition: ev.focus }} />
-            <div className="hero-slide-cap">
-              <strong>{ev.title}</strong>
-              <span>{ev.date} · {ev.location}</span>
-            </div>
-          </Link>
-          <div className="dots" role="group" aria-label="Choose featured event">
-            {events.map((e, n) => (
-              <button key={e.key} className={`dot ${n === i ? 'is-on' : ''}`} aria-label={`Show ${e.title}`}
-                aria-current={n === i} onClick={() => setI(n)} />
-            ))}
-          </div>
-        </div>
+    <section className="hero ch-stage" aria-label="Welcome">
+      <div className="hero__media" aria-hidden="true">
+        {events.map((e, n) => (
+          <img key={e.key} src={e.cover} alt="" className={n === i ? 'is-on' : ''}
+            loading={n === 0 ? 'eager' : 'lazy'} style={{ objectPosition: e.focus }} />
+        ))}
+        <span className="hero__overlay" />
       </div>
+      <p className="hero__giant" aria-hidden="true" key={ev.key} style={{ '--len': ev.title.length }}>{ev.title}</p>
 
-      <dl className="container hero-stats">
-        <div><dt>Raised so far</dt><dd>{money(totals.raised)}</dd></div>
-        <div><dt>Backers</dt><dd>{compact(totals.backed)}</dd></div>
-        <div><dt>Live events</dt><dd>{totals.events}</dd></div>
-        <div><dt>Verified nonprofits</dt><dd>{totals.nonprofits}</dd></div>
-      </dl>
+      <div className="hero__inner">
+        <div className="hero__copy">
+          <p className="ch-eyebrow">Competition for Good<sup>®</sup></p>
+          <h1 className="hero__h1">Throw an event<br />people remember.</h1>
+          <p className="hero__lede">
+            Hosts dream up the idea. People show up, join the room and come back. Every event supports a verified cause.
+          </p>
+          <div className="hero__cta">
+            <Link to="/create" className="ch-btn ch-btn--primary">Host an event</Link>
+            <a href="#discover" className="ch-btn ch-btn--secondary">Find events</a>
+          </div>
+        </div>
+
+        <aside className="hero__feature ch-glass" aria-label="Featured event">
+          <div className="hero__feature-top">
+            {live ? <LivePill glass /> : <span className="ch-pill ch-pill--presence">{whenLabel(ev.date, ev.start, ev.end)}</span>}
+          </div>
+          <h2 className="hero__feature-title">
+            <Link to={`/events/${ev.key}`} className="plain-link">{ev.title}</Link>
+          </h2>
+          <p className="hero__feature-where"><MapPin size={16} aria-hidden="true" /> {ev.location}</p>
+          <Attendance eventKey={ev.key} count={stats(ev.key).joined} />
+          <CauseBadge name={ev.nonprofitName} glass />
+          <div className="hero__pager">
+            <div role="group" aria-label="Choose featured event" className="dots">
+              {events.map((e, n) => (
+                <button key={e.key} className={`dot ${n === i ? 'is-on' : ''}`} aria-label={`Show ${e.title}`}
+                  aria-current={n === i} onClick={() => setI(n)} />
+              ))}
+            </div>
+            {!reduced && (
+              <button className="hero__pause" onClick={() => setPaused((p) => !p)}
+                aria-label={paused ? 'Resume featured event rotation' : 'Pause featured event rotation'}>
+                {paused ? <Play size={16} aria-hidden="true" /> : <Pause size={16} aria-hidden="true" />}
+              </button>
+            )}
+          </div>
+        </aside>
+      </div>
     </section>
   )
 }
 
-function FeatureBand() {
-  return (
-    <div className="feature-band">
-      <div className="container feature-band-inner">
-        <p><Trophy size={20} aria-hidden="true" /> <strong>Competition For Good:</strong> every event is a friendly race to raise more for the cause.</p>
-        <Link to="/causes" className="btn btn-secondary btn-sm">Browse causes</Link>
-      </div>
-    </div>
-  )
-}
-
-/* ---------------- Discover + 3 variants ---------------- */
+/* ================= Discover: three structurally different forms ================= */
 function Discover({ onDonate }) {
   const variant = useVariant()
   const [cat, setCat] = useState('All')
@@ -101,224 +103,298 @@ function Discover({ onDonate }) {
 
   return (
     <section id="discover" className="section" aria-labelledby="discover-h">
-      <div className="container">
-        <div className="section-head">
+      <div className="wrap">
+        <Reveal className="section__head">
           <div>
-            <p className="eyebrow">Discover</p>
-            <h2 id="discover-h" className="h1">Events making a difference</h2>
+            <p className="ch-eyebrow">Find events</p>
+            <h2 id="discover-h" className="h-display-2">Find something good to do.</h2>
           </div>
-          <div className="chips" role="group" aria-label="Filter by cause">
+          <div className="filter-row" role="group" aria-label="Filter by cause">
             {cats.map((c) => (
-              <button key={c} className={`chip chip-btn ${c === cat ? 'is-on' : ''}`} aria-pressed={c === cat}
-                onClick={() => setCat(c)}>
-                {c !== 'All' && <CategoryIcon name={categoryByName[c]?.icon} size={14} />} {c}
+              <button key={c} className={`filter ${c === cat ? 'is-on' : ''}`} aria-pressed={c === cat} onClick={() => setCat(c)}>
+                {c !== 'All' && <CategoryIcon name={categoryByName[c]?.icon} size={16} />} {c}
               </button>
             ))}
           </div>
-        </div>
+        </Reveal>
 
         {list.length === 0 ? (
-          <p className="empty">No events for this cause yet.</p>
+          <p className="empty">No events for this cause yet. <Link to="/create">Host the first one.</Link></p>
         ) : (
           <>
             {variant === 'A' && <VariantA list={list} onDonate={onDonate} />}
             {variant === 'B' && <VariantB list={list} onDonate={onDonate} />}
-            {variant === 'C' && <VariantC list={list} onDonate={onDonate} />}
+            {variant === 'C' && <VariantC list={list} />}
           </>
         )}
+        <p className="demo-note">Counts, names and the events themselves are demo content.</p>
       </div>
     </section>
   )
 }
 
-/* A — familiar card grid, brand-spec cards */
+/* A: a feed of the brand's event cards */
 function VariantA({ list, onDonate }) {
   return (
-    <div className="grid-3">
+    <div className="feed-grid">
       {list.map((e) => <EventCard key={e.key} event={e} onDonate={onDonate} />)}
     </div>
   )
 }
 
-/* B — one spotlight + a ranked "Competition For Good" leaderboard */
+/* B: one event on stage, the rest as a tight list beside it */
 function VariantB({ list, onDonate }) {
   const { stats } = useStore()
-  const ranked = [...list].sort((a, b) => stats(b.key).raised - stats(a.key).raised)
-  const top = ranked[0]
-  const s = stats(top.key)
+  const ranked = [...list].sort((a, b) => stats(b.key).joined - stats(a.key).joined)
+  const [top, ...rest] = ranked
   return (
     <div className="spot">
-      <article className="spot-main card">
+      <article className="spot__main ch-stage">
         <img src={top.cover} alt="" style={{ objectPosition: top.focus }} />
-        <div className="spot-shade" />
-        <div className="spot-body">
-          <span className="badge"><Trophy size={12} aria-hidden="true" /> Leading the race</span>
-          <h3 className="display spot-title"><Link to={`/events/${top.key}`}>{top.title}</Link></h3>
-          <p className="spot-text">{top.mission}</p>
-          <p className="spot-meta"><CalendarDays size={14} aria-hidden="true" /> {top.date} <MapPin size={14} aria-hidden="true" /> {top.location}</p>
-          <div className="spot-prog">
-            <Progress raised={s.raised} goal={top.goal} label={`${top.title} progress`} />
-            <p><strong>{money(s.raised)}</strong> of {money(top.goal)}</p>
-          </div>
-          <div className="spot-actions">
-            <button className="btn btn-primary" onClick={() => onDonate(top)}>Donate</button>
-            <Link to={`/events/${top.key}`} className="btn btn-white">View event</Link>
+        <span className="spot__shade" aria-hidden="true" />
+        <div className="spot__body">
+          <span className="ch-crown"><Crown aria-hidden="true" /> Most people going</span>
+          <h3 className="spot__title"><Link to={`/events/${top.key}`} className="plain-link">{top.title}</Link></h3>
+          <p className="spot__text">{top.mission}</p>
+          <p className="spot__meta">{whenLabel(top.date, top.start, top.end)} · {top.location}</p>
+          <Attendance eventKey={top.key} count={stats(top.key).joined} />
+          <div className="spot__actions">
+            <JoinButton event={top} size="md" />
+            <button className="ch-btn ch-btn--secondary" onClick={() => onDonate(top)} aria-label={`Donate to ${top.title}`}>Donate</button>
           </div>
         </div>
       </article>
 
-      <aside className="board card" aria-label="Leaderboard">
-        <h3 className="h2" style={{ padding: 'var(--s-md) var(--s-md) 0' }}>Leaderboard</h3>
-        <ol>
-          {ranked.map((e, n) => {
-            const st = stats(e.key)
-            return (
-              <li key={e.key}>
-                <span className="rank" aria-hidden="true">{n + 1}</span>
-                <div className="board-row">
-                  <Link to={`/events/${e.key}`} className="h3">{e.title}</Link>
-                  <Progress raised={st.raised} goal={e.goal} label={`${e.title} progress`} />
-                  <span className="caption">{money(st.raised)} · {compact(st.backed)} backers</span>
-                </div>
-                <button className="btn btn-donate btn-sm" onClick={() => onDonate(e)} aria-label={`Donate to ${e.title}`}>Donate</button>
-              </li>
-            )
-          })}
-        </ol>
+      <aside className="spot__list" aria-label="More events">
+        {rest.map((e) => (
+          <Link key={e.key} to={`/events/${e.key}`} className="mini">
+            <img src={e.cover} alt="" loading="lazy" style={{ objectPosition: e.focus }} />
+            <span className="mini__text">
+              <strong>{e.title}</strong>
+              <span>{whenLabel(e.date, e.start, e.end)}</span>
+              <span className="ch-muted">{stats(e.key).joined} going</span>
+            </span>
+          </Link>
+        ))}
+        <Link to="/create" className="ch-tile ch-tile--cta spot__cta">
+          <span className="ch-tile__text">
+            <p className="ch-tile__tag">Your idea <ArrowRight size={22} aria-hidden="true" /></p>
+            <p className="ch-tile__desc">Any idea can be an event.</p>
+          </span>
+        </Link>
       </aside>
     </div>
   )
 }
 
-/* C — photo-first mosaic; the first tile is double-size */
-function VariantC({ list, onDonate }) {
+/* C: a drifting mosaic that pauses on hover, focus and via a visible control */
+function VariantC({ list }) {
+  const [paused, setPaused] = useState(false)
   const { stats } = useStore()
+  const sizes = ['ch-tile--tall', '', 'ch-tile--wide', 'ch-tile--sm', 'ch-tile--tall']
+  const set = (hidden) => [
+    ...list.map((e, n) => (
+      <Link key={`${hidden ? 'd' : 'o'}-${e.key}`} to={`/events/${e.key}`} className={`ch-tile ${sizes[n % sizes.length]}`}
+        tabIndex={hidden ? -1 : undefined} aria-hidden={hidden || undefined}>
+        <span className="tile__img"><img src={e.cover} alt="" loading="lazy" style={{ objectPosition: e.focus }} /></span>
+        <span className="ch-photo__overlay" aria-hidden="true" />
+        <span className="ch-tile__text">
+          <p className="ch-tile__tag">{e.title}</p>
+          <p className="ch-tile__desc">{whenLabel(e.date, e.start, e.end)} · {stats(e.key).joined} going</p>
+        </span>
+      </Link>
+    )),
+    <Link key={`${hidden ? 'd' : 'o'}-cta`} to="/create" className="ch-tile ch-tile--cta ch-tile--sm"
+      tabIndex={hidden ? -1 : undefined} aria-hidden={hidden || undefined}>
+      <span className="ch-tile__text">
+        <p className="ch-tile__tag">Your idea <ArrowRight size={20} aria-hidden="true" /></p>
+        <p className="ch-tile__desc">Host an event</p>
+      </span>
+    </Link>,
+  ]
   return (
     <div className="mosaic">
-      {list.map((e, n) => (
-        <article key={e.key} className={`tile ${n === 0 ? 'tile-big' : ''}`}>
-          <img src={e.cover} alt="" loading="lazy" style={{ objectPosition: e.focus }} />
-          <div className="tile-shade" />
-          <div className="tile-body">
-            <span className="chip chip-on-image"><CategoryIcon name={categoryByName[e.category]?.icon} size={14} /> {e.category}</span>
-            <h3 className="tile-title"><Link to={`/events/${e.key}`}>{e.title}</Link></h3>
-            <p className="tile-meta">{e.date} · {money(stats(e.key).raised)} raised</p>
-            <button className="btn btn-donate btn-sm" onClick={() => onDonate(e)}>Donate</button>
-          </div>
-        </article>
-      ))}
+      <div className="mosaic__bar">
+        <button className="ch-btn ch-btn--secondary ch-btn--sm" onClick={() => setPaused((p) => !p)} aria-pressed={paused}>
+          {paused ? <Play size={16} aria-hidden="true" /> : <Pause size={16} aria-hidden="true" />} {paused ? 'Play' : 'Pause'} motion
+        </button>
+      </div>
+      <div className={`mosaic__viewport ${paused ? 'is-paused' : ''}`}>
+        <div className="mosaic__track">
+          {set(false)}
+          {set(true)}
+        </div>
+      </div>
     </div>
   )
 }
 
-/* ---------------- Supporting sections ---------------- */
-function HowItWorks() {
-  const steps = [
-    { icon: Megaphone, t: 'Discover', d: 'Find events run by community organizers, each tied to a verified nonprofit.' },
-    { icon: HandCoins, t: 'Back & compete', d: 'Donate, join and cheer. Events climb the leaderboard as supporters give.' },
-    { icon: ShieldCheck, t: 'Funds reach the cause', d: 'Every nonprofit is verified by EIN before an event can go live.' },
-  ]
+/* ================= Journey: a real sequence — before, during, after ================= */
+const STAGES = [
+  { phase: 'before', title: 'Before: build the buzz', text: 'Publish your page and the room opens. Announce it, share the plan and let people join.' },
+  { phase: 'during', title: 'During: run the room', text: 'Post, share photos and answer replies while it happens. The crowd talks back in real time.' },
+  { phase: 'after', title: 'After: keep the story going', text: 'The room stays open for photos and thank-yous, so the event keeps working for the next one.' },
+]
+function Journey() {
+  const sample = timelines['neon-night'] ?? []
   return (
-    <section id="how-it-works" className="section section-white" aria-labelledby="how-h">
-      <div className="container">
-        <p className="eyebrow">How it works</p>
-        <h2 id="how-h" className="h1" style={{ marginBottom: 'var(--s-xl)' }}>Three steps to good</h2>
-        <ol className="steps">
-          {steps.map((s, n) => (
-            <li key={s.t} className="card step">
-              <span className="step-n" aria-hidden="true">{n + 1}</span>
-              <s.icon size={28} color="var(--blue)" aria-hidden="true" />
-              <h3 className="h3">{s.t}</h3>
-              <p>{s.d}</p>
-            </li>
-          ))}
-        </ol>
+    <section id="how-it-works" className="section section--alt" aria-labelledby="how-h">
+      <div className="wrap">
+        <Reveal className="section__head section__head--stack">
+          <p className="ch-eyebrow">How it works</p>
+          <h2 id="how-h" className="h-display-2">Conversations, not comments.</h2>
+          <p className="lede">Every event gets its own room. Hosts post, people reply and the whole story stays in one place.</p>
+        </Reveal>
+        <Reveal as="ol" className="journey">
+          {STAGES.map((s, n) => {
+            const post = sample.find((p) => p.phase === s.phase)
+            const author = post?.author?.name
+            return (
+              <li key={s.phase} className="stage">
+                <span className="stage__n" aria-hidden="true">{n + 1}</span>
+                <h3 className="h-heading">{s.title}</h3>
+                <p className="stage__text">{s.text}</p>
+                {post && (
+                  <div className={`ch-msg ${author ? '' : 'ch-msg--host'}`}>
+                    <Avatar name={author ?? 'Charity Hub'} />
+                    <div className="ch-msg__body">
+                      <div className="ch-msg__meta">
+                        <strong>{author ?? 'Host'}</strong>
+                        {!author && <span className="ch-badge-host" role="img" aria-label="Verified host"><BadgeCheck aria-hidden="true" /></span>}
+                        <span>{relativeHours(post.h)}</span>
+                      </div>
+                      <p className="ch-msg__bubble clamp-3">{post.text}</p>
+                    </div>
+                  </div>
+                )}
+              </li>
+            )
+          })}
+        </Reveal>
+        <p className="demo-note">Sample messages from #NeonNight (demo content).</p>
       </div>
     </section>
   )
 }
 
-function Mission() {
+/* ================= Leaderboard: ranked by people going, never money ================= */
+function Leaderboard() {
+  const { stats } = useStore()
+  const ranked = [...events].sort((a, b) => stats(b.key).joined - stats(a.key).joined)
+  const max = stats(ranked[0].key).joined
   return (
-    <section className="section mission" aria-label="Our mission">
-      <blockquote>
-        “Improve Competition For Good among mission-driven organizations through events, storytelling, relationships
-        and engagement, driving awareness, participation and monetary acts of solidarity.”
-      </blockquote>
+    <section id="leaderboard" className="section" aria-labelledby="lb-h">
+      <div className="wrap lb">
+        <Reveal className="lb__intro">
+          <p className="ch-eyebrow">Competition for Good<sup>®</sup></p>
+          <h2 id="lb-h" className="h-display-2">Who’s drawing the biggest crowd?</h2>
+          <p className="lede">Hosts compete to throw events people show up for. Rankings count people going, nothing else.</p>
+        </Reveal>
+        <Reveal as="ol" className="ch-board lb__board" aria-label="Events ranked by people going">
+          {ranked.map((e, n) => {
+            const count = stats(e.key).joined
+            return (
+              <li key={e.key} className={`ch-row ${n === 0 ? 'ch-row--leader' : ''}`}>
+                <span className="ch-row__rank" aria-label={`Rank ${n + 1}`}>{n + 1}</span>
+                <Avatar name={e.title.replace('#', '')} size="lg" />
+                <div className="ch-row__main">
+                  <div className="ch-row__head">
+                    <Link to={`/events/${e.key}`} className="ch-row__tag plain-link">{e.title}</Link>
+                    {n === 0 && <span className="ch-crown"><Crown aria-hidden="true" /> Leading</span>}
+                    <span className="ch-row__host">Powering {e.nonprofitName}</span>
+                  </div>
+                  <div className="ch-row__track"><div className="ch-row__bar" style={{ '--w': `${Math.round((count / max) * 100)}%`, '--d': `${n * 120}ms` }} /></div>
+                </div>
+                <span className="ch-row__count">{count}<small>going</small></span>
+              </li>
+            )
+          })}
+        </Reveal>
+      </div>
     </section>
   )
 }
 
-function FeaturedNonprofits() {
+/* ================= Cause layer: small, plain, three proof statements ================= */
+const PROOF = [
+  { icon: BadgeCheck, text: 'Every event is hosted for a verified 501(c)(3) partner.' },
+  { icon: ShieldCheck, text: 'Nonprofits approve every event in their name.' },
+  { icon: HandHeart, text: 'Support goes straight to the cause via Stripe.' },
+]
+function CauseLayer() {
   const withEvents = nonprofits.filter((n) => eventsForNonprofit(n.slug).length > 0)
   return (
-    <section className="section" aria-labelledby="np-h">
-      <div className="container">
-        <div className="section-head">
-          <div>
-            <p className="eyebrow">Nonprofits</p>
-            <h2 id="np-h" className="h1">Causes with events right now</h2>
-          </div>
-          <Link to="/nonprofits" className="btn btn-ghost">All {nonprofits.length} nonprofits</Link>
-        </div>
-        <div className="grid-3">
+    <section className="section section--alt" aria-labelledby="cause-h">
+      <div className="wrap">
+        <Reveal className="section__head section__head--stack">
+          <h2 id="cause-h" className="h-display-3">And yes, it does good.</h2>
+          <p className="lede">Every event is hosted for a verified nonprofit, so the fun funds something real.</p>
+        </Reveal>
+        <Reveal as="ul" className="proof">
+          {PROOF.map((p) => (
+            <li key={p.text} className="proof__item ch-accent">
+              <p.icon size={22} aria-hidden="true" />
+              <span>{p.text}</span>
+            </li>
+          ))}
+        </Reveal>
+        <div className="feed-grid feed-grid--np">
           {withEvents.map((n) => <NonprofitCard key={n.slug} np={n} eventCount={eventsForNonprofit(n.slug).length} />)}
         </div>
+        <p className="section__more"><Link to="/nonprofits" className="ch-btn ch-btn--secondary">All {nonprofits.length} verified partners</Link></p>
       </div>
     </section>
   )
 }
 
-function Contact() {
-  const [email, setEmail] = useState('')
-  const [msg, setMsg] = useState('')
-  const [name, setName] = useState('')
+/* ================= Final invitation on stage navy ================= */
+function Invite() {
+  const [f, setF] = useState({ name: '', email: '', idea: '' })
   const [errors, setErrors] = useState({})
   const [sent, setSent] = useState(false)
+  const set = (k) => (e) => setF((p) => ({ ...p, [k]: e.target.value }))
 
   const submit = (e) => {
     e.preventDefault()
     const v = {}
-    if (!name.trim()) v.name = 'Please enter your name.'
-    if (!/^\S+@\S+\.\S+$/.test(email)) v.email = 'Enter a valid email address.'
-    if (!msg.trim()) v.msg = 'Tell us a little about what you need.'
+    if (!f.name.trim()) v.name = 'Enter your name.'
+    if (!/^\S+@\S+\.\S+$/.test(f.email)) v.email = 'Enter a valid email address.'
+    if (!f.idea.trim()) v.idea = 'Tell us your idea in a sentence or two.'
     setErrors(v)
     if (!Object.keys(v).length) setSent(true)
   }
+  const field = (id, label, extra, node) => (
+    <div className={`ch-field ${errors[id] ? 'ch-field--invalid' : ''}`}>
+      <label className="ch-field__label" htmlFor={`i-${id}`}>{label}</label>
+      {node}
+      {errors[id] && <span className="ch-field__hint" id={`i-${id}-e`}>{errors[id]}</span>}
+      {extra}
+    </div>
+  )
 
   return (
-    <section className="contact" aria-labelledby="contact-h">
-      <div className="container contact-grid">
-        <div>
-          <h2 id="contact-h" className="display" style={{ fontSize: 'clamp(32px,5vw,48px)' }}>Ready to host an event?</h2>
-          <p className="contact-lede">Tell us about your idea and we’ll help you pair it with a verified nonprofit.</p>
-        </div>
+    <section id="invite" className="section invite ch-stage" aria-labelledby="invite-h">
+      <div className="wrap invite__grid">
+        <Reveal>
+          <p className="ch-eyebrow">Host an event</p>
+          <h2 id="invite-h" className="h-display-2">Got an idea? Make it an event.</h2>
+          <p className="lede">Tell us what you want to throw. We’ll help you find a verified nonprofit to host it for.</p>
+          <p className="invite__cta"><Link to="/create" className="ch-btn ch-btn--primary">Start your event</Link></p>
+        </Reveal>
         {sent ? (
-          <p className="contact-sent" role="status">Thanks {name.split(' ')[0]}! (Prototype: nothing was sent.)</p>
+          <p className="invite__sent ch-glass" role="status">Thanks, {f.name.split(' ')[0]}. We got your idea. (Prototype: nothing was sent.)</p>
         ) : (
-          <form onSubmit={submit} noValidate className="contact-form">
-            <div className="field">
-              <label htmlFor="c-name" className="on-dark">Your name</label>
-              <input id="c-name" className="input" placeholder="Your name" value={name} autoComplete="name"
-                aria-invalid={!!errors.name} aria-describedby={errors.name ? 'c-name-e' : undefined}
-                onChange={(e) => setName(e.target.value)} />
-              {errors.name && <span id="c-name-e" className="error-text on-dark-err">{errors.name}</span>}
-            </div>
-            <div className="field">
-              <label htmlFor="c-email" className="on-dark">Your email address</label>
-              <input id="c-email" type="email" className="input" placeholder="Your email address" value={email} autoComplete="email"
-                aria-invalid={!!errors.email} aria-describedby={errors.email ? 'c-email-e' : undefined}
-                onChange={(e) => setEmail(e.target.value)} />
-              {errors.email && <span id="c-email-e" className="error-text on-dark-err">{errors.email}</span>}
-            </div>
-            <div className="field">
-              <label htmlFor="c-msg" className="on-dark">Message</label>
-              <textarea id="c-msg" className="input" placeholder="Message" value={msg}
-                aria-invalid={!!errors.msg} aria-describedby={errors.msg ? 'c-msg-e' : undefined}
-                onChange={(e) => setMsg(e.target.value)} />
-              {errors.msg && <span id="c-msg-e" className="error-text on-dark-err">{errors.msg}</span>}
-            </div>
-            <button className="btn btn-primary" style={{ alignSelf: 'flex-end' }}>Send message</button>
+          <form className="invite__form ch-glass" onSubmit={submit} noValidate>
+            {field('name', 'Your name', null,
+              <input id="i-name" className="ch-field__input" autoComplete="name" value={f.name} onChange={set('name')}
+                aria-invalid={!!errors.name} aria-describedby={errors.name ? 'i-name-e' : undefined} />)}
+            {field('email', 'Email', null,
+              <input id="i-email" type="email" className="ch-field__input" autoComplete="email" value={f.email} onChange={set('email')}
+                aria-invalid={!!errors.email} aria-describedby={errors.email ? 'i-email-e' : undefined} />)}
+            {field('idea', 'Your idea', null,
+              <textarea id="i-idea" className="ch-field__input idea" rows={4} value={f.idea} onChange={set('idea')}
+                aria-invalid={!!errors.idea} aria-describedby={errors.idea ? 'i-idea-e' : undefined} />)}
+            <button className="ch-btn ch-btn--primary">Email us your idea</button>
           </form>
         )}
       </div>

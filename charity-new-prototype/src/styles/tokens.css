@@ -1,0 +1,101 @@
+/* Charity Hub Design System tokens — transcribed from project/tokens.json (v1).
+   Light is the default theme; `.ch-stage` flips the themed tokens to stage navy. */
+:root {
+  --brand-primary: #007db5;
+  --brand-deep: #00569d;
+  --brand-sky: #5cb8e6;
+  --brand-soft: #e6f2f8;
+  --brand-gradient-start: #007db5;
+  --brand-gradient-end: #00569d;
+
+  --ink: #0e2b47;
+  --ink-muted: #52677a;
+  --ink-on-brand: #ffffff;
+  --ink-on-gold: #0e2b47;
+  --ink-on-dark: #ffffff;
+  --ink-on-dark-muted: #a9bccb;
+  --ink-on-dark-accent: var(--brand-sky);
+
+  --surface: #ffffff;
+  --surface-alt: #eef4f8;
+  --surface-stage: #071726;
+  --surface-glass: rgba(255, 255, 255, 0.12);
+  --surface-raised: #ffffff;
+
+  --border: #d5e1ea;
+  --border-glass: rgba(255, 255, 255, 0.22);
+
+  --accent-gold: #f5a623;
+  --signal-live: #1e9e57;
+
+  --overlay-stage: rgba(7, 23, 38, 0.72);
+  --overlay-stage-soft: rgba(7, 23, 38, 0.4);
+  --focus-ring: #00569d;
+
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(14, 43, 71, 0.06), 0 2px 6px rgba(14, 43, 71, 0.06);
+  --shadow-md: 0 2px 4px rgba(14, 43, 71, 0.06), 0 8px 20px rgba(14, 43, 71, 0.1);
+  --shadow-lg: 0 4px 8px rgba(14, 43, 71, 0.08), 0 20px 48px rgba(14, 43, 71, 0.16);
+
+  --container-max: 1200px;
+  --gutter-desktop: 32px;
+  --gutter-mobile: 16px;
+  --nav-height: 72px;
+  --target-min: 44px;
+  --accent-bar: 5px;
+  --logo-min-desktop: 120px;
+  --logo-min-mobile: 104px;
+  --avatar: 32px;
+
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+  --duration-slow: 450ms;
+  --duration-pulse: 1800ms;
+  --duration-drift: 48s;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* Stage theme: same components, navy ground. Brand, gold, live and glass values do not change. */
+.ch-stage {
+  --surface: #071726;
+  --surface-alt: #0e2b47;
+  --surface-raised: #0e2b47;
+  --ink: #ffffff;
+  --ink-muted: #a9bccb;
+  --border: #1f3a55;
+  --brand-soft: #0e2b47;
+  --focus-ring: #5cb8e6;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.3), 0 8px 20px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.35), 0 24px 56px rgba(0, 0, 0, 0.5);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  background: var(--surface);
+}
+h1, h2, h3, h4, p, figure, blockquote { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }

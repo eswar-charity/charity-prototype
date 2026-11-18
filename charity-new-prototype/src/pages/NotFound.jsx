@@ -2,12 +2,12 @@ import { Link } from 'react-router-dom'
 
 export default function NotFound({ what = 'page' }) {
   return (
-    <section className="section">
-      <div className="container narrow" style={{ textAlign: 'center' }}>
-        <p className="eyebrow">404</p>
-        <h1 className="h1">We couldn’t find that {what}</h1>
-        <p style={{ margin: 'var(--s-md) 0 var(--s-lg)' }}>It may have moved, or the link might be wrong.</p>
-        <Link to="/" className="btn btn-primary">Back to discover</Link>
+    <section className="page-head page-head--center">
+      <div className="wrap">
+        <p className="ch-eyebrow">404</p>
+        <h1 className="h-display-3">We couldn’t find that {what}</h1>
+        <p className="lede">It may have moved, or the link might be wrong. Head back and keep looking.</p>
+        <p className="page-head__cta"><Link to="/#discover" className="ch-btn ch-btn--primary">Find events</Link></p>
       </div>
     </section>
   )

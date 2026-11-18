@@ -36,12 +36,12 @@ export default function Create() {
 
   if (saved) {
     return (
-      <section className="section">
-        <div className="container narrow card wizard-done" role="status">
-          <Check size={48} color="var(--success)" aria-hidden="true" />
-          <h1 className="h1">Draft saved</h1>
-          <p>“{f.title}” is ready for review. (Prototype: nothing was stored.)</p>
-          <Link to="/" className="btn btn-primary">Back to discover</Link>
+      <section className="page-head page-head--center">
+        <div className="wrap wrap--narrow wizard-done" role="status">
+          <span className="wizard-done__icon"><Check size={32} aria-hidden="true" /></span>
+          <h1 className="h-display-3">Draft saved</h1>
+          <p className="lede">“{f.title}” is ready for review. (Prototype: nothing was stored.)</p>
+          <p className="page-head__cta"><Link to="/#discover" className="ch-btn ch-btn--primary">Find events</Link></p>
         </div>
       </section>
     )
@@ -49,10 +49,11 @@ export default function Create() {
 
   const np = nonprofits.find((n) => n.slug === f.nonprofit)
   return (
-    <section className="section">
-      <div className="container narrow">
-        <p className="eyebrow">Create an event</p>
-        <h1 className="h1">Launch your event</h1>
+    <section className="page-head">
+      <div className="wrap wrap--narrow">
+        <p className="ch-eyebrow">Host an event</p>
+        <h1 className="h-display-3">Any idea can be an event.</h1>
+        <p className="lede">Three quick steps. Pick a verified nonprofit and your event is ready for review.</p>
 
         <ol className="stepper" aria-label="Progress">
           {STEPS.map((s, i) => (
@@ -62,41 +63,41 @@ export default function Create() {
           ))}
         </ol>
 
-        <form className="card wizard" noValidate onSubmit={(e) => { e.preventDefault(); step < 2 ? next() : setSaved(true) }}>
+        <form className="wizard" noValidate onSubmit={(e) => { e.preventDefault(); step < 2 ? next() : setSaved(true) }}>
           {step === 0 && (
             <>
               <Field id="title" label="Event title" error={errors.title}>
-                <input id="title" className="input" placeholder="#MyCharityRun" value={f.title} onChange={set('title')} {...a11y('title', errors)} />
+                <input id="title" className="ch-field__input" placeholder="#MyCharityRun" value={f.title} onChange={set('title')} {...a11y('title', errors)} />
               </Field>
-              <div className="two">
+              <div className="wizard__two">
                 <Field id="date" label="Date" error={errors.date}>
-                  <input id="date" type="date" className="input" value={f.date} onChange={set('date')} {...a11y('date', errors)} />
+                  <input id="date" type="date" className="ch-field__input" value={f.date} onChange={set('date')} {...a11y('date', errors)} />
                 </Field>
                 <Field id="location" label="Location" error={errors.location}>
-                  <input id="location" className="input" placeholder="City, State" value={f.location} onChange={set('location')} {...a11y('location', errors)} />
+                  <input id="location" className="ch-field__input" placeholder="City, State" value={f.location} onChange={set('location')} {...a11y('location', errors)} />
                 </Field>
               </div>
               <Field id="story" label="Your story (optional)">
-                <textarea id="story" className="input" placeholder="Why does this event matter?" value={f.story} onChange={set('story')} />
+                <textarea id="story" className="ch-field__input idea" placeholder="Why does this event matter?" value={f.story} onChange={set('story')} />
               </Field>
             </>
           )}
           {step === 1 && (
             <>
               <Field id="category" label="Cause" error={errors.category}>
-                <select id="category" className="input" value={f.category} onChange={(e) => setF((p) => ({ ...p, category: e.target.value, nonprofit: '' }))} {...a11y('category', errors)}>
+                <select id="category" className="ch-field__input" value={f.category} onChange={(e) => setF((p) => ({ ...p, category: e.target.value, nonprofit: '' }))} {...a11y('category', errors)}>
                   <option value="">Select a cause</option>
                   {categories.map((c) => <option key={c.name}>{c.name}</option>)}
                 </select>
               </Field>
               <Field id="nonprofit" label="Verified nonprofit" error={errors.nonprofit}>
-                <select id="nonprofit" className="input" value={f.nonprofit} onChange={set('nonprofit')} {...a11y('nonprofit', errors)}>
+                <select id="nonprofit" className="ch-field__input" value={f.nonprofit} onChange={set('nonprofit')} {...a11y('nonprofit', errors)}>
                   <option value="">{options.length ? 'Select a nonprofit' : 'No nonprofits for this cause yet'}</option>
                   {options.map((n) => <option key={n.slug} value={n.slug}>{n.name}</option>)}
                 </select>
               </Field>
               <Field id="goal" label="Fundraising goal in $ (optional)" error={errors.goal}>
-                <input id="goal" className="input" inputMode="numeric" placeholder="5000" value={f.goal}
+                <input id="goal" className="ch-field__input" inputMode="numeric" placeholder="5000" value={f.goal}
                   onChange={(e) => setF((p) => ({ ...p, goal: e.target.value.replace(/\D/g, '') }))} {...a11y('goal', errors)} />
               </Field>
             </>
@@ -113,8 +114,8 @@ export default function Create() {
           )}
 
           <div className="wizard-actions">
-            {step > 0 && <button type="button" className="btn btn-ghost" onClick={() => setStep((s) => s - 1)}>Back</button>}
-            <button type="submit" className="btn btn-primary" style={{ marginLeft: 'auto' }}>
+            {step > 0 && <button type="button" className="ch-btn ch-btn--secondary" onClick={() => setStep((s) => s - 1)}>Back</button>}
+            <button type="submit" className="ch-btn ch-btn--primary" style={{ marginLeft: 'auto' }}>
               {step < 2 ? 'Continue' : 'Save draft'}
             </button>
           </div>
@@ -128,10 +129,10 @@ const a11y = (k, errors) => ({ 'aria-invalid': !!errors[k], 'aria-describedby': 
 
 function Field({ id, label, error, children }) {
   return (
-    <div className="field">
-      <label htmlFor={id}>{label}</label>
+    <div className={`ch-field ${error ? 'ch-field--invalid' : ''}`}>
+      <label className="ch-field__label" htmlFor={id}>{label}</label>
       {children}
-      {error && <span id={`${id}-err`} className="error-text">{error}</span>}
+      {error && <span id={`${id}-err`} className="ch-field__hint">{error}</span>}
     </div>
   )
 }

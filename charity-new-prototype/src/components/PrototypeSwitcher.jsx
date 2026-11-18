@@ -4,8 +4,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 export const VARIANTS = [
   { key: 'A', name: 'Card grid' },
-  { key: 'B', name: 'Spotlight + leaderboard' },
-  { key: 'C', name: 'Photo mosaic' },
+  { key: 'B', name: 'Spotlight' },
+  { key: 'C', name: 'Mosaic' },
 ]
 
 export function useVariant() {
@@ -23,8 +23,8 @@ export function cycle(current, dir) {
 const typing = (el) =>
   el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable)
 
-/** Floating bottom bar (from the /prototype UI workflow). Only mounts on the
- *  Discover route, where the variants live. Set VITE_HIDE_SWITCHER=1 to remove it. */
+/** Floating bottom bar (from the /prototype UI workflow). Only mounts on the Discover route,
+ *  where the variants live. Set VITE_HIDE_SWITCHER=1 to remove it. */
 export default function PrototypeSwitcher() {
   const [params, setParams] = useSearchParams()
   const current = useVariant()
@@ -34,7 +34,7 @@ export default function PrototypeSwitcher() {
   const go = (dir) => {
     const next = new URLSearchParams(params)
     next.set('variant', cycle(current, dir))
-    setParams(next, { replace: true })
+    setParams(next, { replace: true, preventScrollReset: true })
   }
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export default function PrototypeSwitcher() {
   const name = VARIANTS.find((v) => v.key === current).name
 
   return (
-    <div className="switcher" role="group" aria-label="Prototype variant switcher">
+    <div className="switcher ch-glass" role="group" aria-label="Prototype variant switcher">
       <button onClick={() => go(-1)} aria-label="Previous variant"><ChevronLeft size={18} aria-hidden="true" /></button>
       <span aria-live="polite"><strong>{current}</strong> · {name}</span>
       <button onClick={() => go(1)} aria-label="Next variant"><ChevronRight size={18} aria-hidden="true" /></button>

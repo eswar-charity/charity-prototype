@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { X, CheckCircle2 } from 'lucide-react'
+import { X, Check } from 'lucide-react'
 import { money } from '../lib/format.js'
 import { useStore } from '../lib/store.jsx'
 
@@ -43,7 +43,7 @@ export default function DonateDialog({ event, onClose }) {
   }
 
   return (
-    <dialog ref={ref} className="dialog" aria-labelledby="donate-title" onClose={onClose}
+    <dialog ref={ref} className="dialog ch" aria-labelledby="donate-title" onClose={onClose}
       onClick={(e) => e.target === ref.current && ref.current.close()}>
       <div className="dialog-inner">
         <button className="dialog-x" onClick={() => ref.current.close()} aria-label="Close donation dialog">
@@ -52,24 +52,22 @@ export default function DonateDialog({ event, onClose }) {
 
         {done ? (
           <div className="dialog-done" role="status">
-            <CheckCircle2 size={48} color="var(--success)" aria-hidden="true" />
-            <h2 id="donate-title" className="h1">Thank you!</h2>
+            <span className="wizard-done__icon"><Check size={32} aria-hidden="true" /></span>
+            <h2 id="donate-title" className="h-heading">Thank you</h2>
             <p>
               Your {money(done)} donation to <strong>{event.title}</strong> will appear in the totals right away.
             </p>
-            <p className="caption">Prototype only. No payment was processed.</p>
-            <button className="btn btn-primary" onClick={() => ref.current.close()}>Done</button>
+            <p className="ch-muted">Prototype only. No payment was processed.</p>
+            <button className="ch-btn ch-btn--primary" onClick={() => ref.current.close()}>Done</button>
           </div>
         ) : (
           <form onSubmit={submit} noValidate>
-            <p className="eyebrow">Donate to</p>
-            <h2 id="donate-title" className="h1" style={{ marginBottom: 'var(--s-md)' }}>{event.title}</h2>
-            <p className="caption" style={{ marginBottom: 'var(--s-md)' }}>
-              Supports {event.nonprofitName}. Prototype: nothing is charged.
-            </p>
+            <p className="ch-eyebrow">Donate</p>
+            <h2 id="donate-title" className="h-heading">{event.title}</h2>
+            <p className="ch-muted">Your gift goes to {event.nonprofitName} through this event. Prototype: nothing is charged.</p>
 
             <fieldset className="amounts">
-              <legend className="label">Choose an amount</legend>
+              <legend className="ch-field__label">Choose an amount</legend>
               <div className="amount-row">
                 {PRESETS.map((p) => (
                   <button
@@ -83,35 +81,35 @@ export default function DonateDialog({ event, onClose }) {
                   </button>
                 ))}
               </div>
-              <div className="field">
-                <label htmlFor="amt">Or enter your own ($)</label>
-                <input id="amt" className="input" inputMode="numeric" placeholder="e.g. 75" value={custom}
+              <div className={`ch-field ${errors.amount ? 'ch-field--invalid' : ''}`}>
+                <label className="ch-field__label" htmlFor="amt">Or enter your own ($)</label>
+                <input id="amt" className="ch-field__input" inputMode="numeric" placeholder="e.g. 75" value={custom}
                   aria-invalid={!!errors.amount} aria-describedby={errors.amount ? 'amt-err' : undefined}
                   onChange={(e) => setCustom(e.target.value.replace(/[^\d]/g, ''))} />
-                {errors.amount && <span id="amt-err" className="error-text">{errors.amount}</span>}
+                {errors.amount && <span id="amt-err" className="ch-field__hint">{errors.amount}</span>}
               </div>
             </fieldset>
 
-            <div className="field">
-              <label htmlFor="dn">Your name</label>
-              <input id="dn" className="input" autoComplete="name" placeholder="Jane Doe" value={name}
+            <div className={`ch-field ${errors.name ? 'ch-field--invalid' : ''}`}>
+              <label className="ch-field__label" htmlFor="dn">Your name</label>
+              <input id="dn" className="ch-field__input" autoComplete="name" placeholder="Jane Doe" value={name}
                 disabled={anonymous} aria-invalid={!!errors.name} aria-describedby={errors.name ? 'dn-err' : undefined}
                 onChange={(e) => setName(e.target.value)} />
-              {errors.name && <span id="dn-err" className="error-text">{errors.name}</span>}
+              {errors.name && <span id="dn-err" className="ch-field__hint">{errors.name}</span>}
             </div>
-            <div className="field">
-              <label htmlFor="de">Email for your receipt</label>
-              <input id="de" type="email" className="input" autoComplete="email" placeholder="you@example.com" value={email}
+            <div className={`ch-field ${errors.email ? 'ch-field--invalid' : ''}`}>
+              <label className="ch-field__label" htmlFor="de">Email for your receipt</label>
+              <input id="de" type="email" className="ch-field__input" autoComplete="email" placeholder="you@example.com" value={email}
                 aria-invalid={!!errors.email} aria-describedby={errors.email ? 'de-err' : undefined}
                 onChange={(e) => setEmail(e.target.value)} />
-              {errors.email && <span id="de-err" className="error-text">{errors.email}</span>}
+              {errors.email && <span id="de-err" className="ch-field__hint">{errors.email}</span>}
             </div>
             <label className="check">
               <input type="checkbox" checked={anonymous} onChange={(e) => setAnonymous(e.target.checked)} />
               Give anonymously
             </label>
 
-            <button type="submit" className="btn btn-primary btn-block">
+            <button type="submit" className="ch-btn ch-btn--primary ch-btn--block">
               Donate {Number.isFinite(effective) && effective > 0 ? money(effective) : ''}
             </button>
           </form>

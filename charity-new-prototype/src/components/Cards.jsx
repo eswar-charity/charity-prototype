@@ -1,71 +1,80 @@
 import { Link } from 'react-router-dom'
-import { CalendarDays, MapPin, BadgeCheck, Users } from 'lucide-react'
-import { Progress, CategoryIcon, Initials } from './Brand.jsx'
-import { categoryByName } from '../data/index.js'
-import { money, compact } from '../lib/format.js'
+import { MapPin, BadgeCheck, Check, Plus } from 'lucide-react'
+import { Attendance, CauseBadge, LivePill, Avatar } from './Brand.jsx'
+import { eventState, whenLabel } from '../lib/format.js'
 import { useStore } from '../lib/store.jsx'
+
+/** Join / joined toggle, shared by cards, spotlight and the event page. */
+export function JoinButton({ event, size = 'sm', className = '' }) {
+  const { isJoined, toggleJoin } = useStore()
+  const on = isJoined(event.key)
+  return (
+    <button
+      type="button"
+      className={`ch-btn ${on ? 'ch-btn--secondary' : 'ch-btn--primary'} ${size === 'sm' ? 'ch-btn--sm' : ''} ${className}`}
+      aria-pressed={on}
+      aria-label={on ? `You're going to ${event.title}. Leave event` : `Join ${event.title}`}
+      onClick={() => toggleJoin(event.key)}
+    >
+      {on ? <><Check size={16} aria-hidden="true" /> Going</> : <><Plus size={16} aria-hidden="true" /> Join</>}
+    </button>
+  )
+}
 
 export function EventCard({ event, onDonate }) {
   const { stats } = useStore()
   const s = stats(event.key)
-  const cat = categoryByName[event.category]
+  const live = eventState(event.date, event.start, event.end) === 'live'
   return (
-    <article className="card card-hover event-card">
-      <Link to={`/events/${event.key}`} className="event-card-media" aria-label={`${event.title}: view event`}>
+    <article className="ch-card event-card">
+      <Link to={`/events/${event.key}`} className="event-card__media" aria-label={`${event.title}: open event`} tabIndex={-1}>
         <img src={event.cover} alt="" loading="lazy" style={{ objectPosition: event.focus }} />
-        <span className="chip chip-on-image">
-          <CategoryIcon name={cat?.icon} size={14} /> {event.category}
-        </span>
+        <span className="event-card__shade" aria-hidden="true" />
+        {live && <LivePill glass />}
       </Link>
-      <div className="event-card-body">
-        <h3 className="h3 event-card-title">
-          <Link to={`/events/${event.key}`}>{event.title}</Link>
+      <div className="ch-card__body ch-accent">
+        <h3 className="ch-card__title">
+          <Link to={`/events/${event.key}`} className="plain-link">{event.title}</Link>
         </h3>
-        <p className="caption">
-          For <Link to={`/nonprofits/${event.nonprofit}`}>{event.nonprofitName}</Link>
-        </p>
-        <p className="event-card-text">{event.mission}</p>
-        <ul className="meta-list">
-          <li><CalendarDays size={14} aria-hidden="true" /> {event.date} · {event.start}</li>
-          <li><MapPin size={14} aria-hidden="true" /> {event.location}</li>
-        </ul>
-        <div>
-          <Progress raised={s.raised} goal={event.goal} label={`${event.title} progress`} />
-          <p className="caption progress-caption">
-            <strong>{money(s.raised)}</strong> raised of {money(event.goal)} · {compact(s.backed)} backers
-          </p>
+        <p className="event-card__where"><MapPin size={16} aria-hidden="true" /> {event.location}</p>
+        <p className="ch-card__when">{whenLabel(event.date, event.start, event.end)}</p>
+        <div className="event-card__row">
+          <Attendance eventKey={event.key} count={s.joined} />
         </div>
-        <div className="event-card-actions">
-          <Link to={`/events/${event.key}`} className="btn btn-ghost btn-sm">View event</Link>
-          <button className="btn btn-donate btn-sm" onClick={() => onDonate(event)}>Donate</button>
+        <div className="ch-card__foot">
+          <JoinButton event={event} />
+          <button type="button" className="ch-btn ch-btn--secondary ch-btn--sm" onClick={() => onDonate(event)}
+            aria-label={`Donate to ${event.title}`}>Donate</button>
         </div>
+        <CauseBadge name={event.nonprofitName} />
       </div>
     </article>
   )
 }
 
 export function NonprofitCard({ np, eventCount }) {
-  const cat = categoryByName[np.category]
   return (
-    <article className="card card-hover np-card">
-      <div className="np-card-head">
-        <Initials name={np.name} color={cat?.color ?? 'var(--blue)'} size={44} />
+    <article className="ch-card np-card">
+      <div className="np-card__head">
+        <Avatar name={np.name} size="lg" />
         <div>
-          <h3 className="h3" style={{ color: 'var(--blue-deep)' }}>
-            <Link to={`/nonprofits/${np.slug}`}>{np.name}</Link>
+          <h3 className="ch-card__title">
+            <Link to={`/nonprofits/${np.slug}`} className="plain-link">{np.name}</Link>
           </h3>
-          <p className="caption">{np.cause}</p>
+          <p className="ch-muted np-card__cause">{np.cause}</p>
         </div>
       </div>
-      <p className="event-card-text">{np.mission}</p>
-      <ul className="meta-list">
-        <li><MapPin size={14} aria-hidden="true" /> {np.headquarters}</li>
-        <li><BadgeCheck size={14} aria-hidden="true" /> Verified · EIN {np.ein}</li>
-        {eventCount > 0 && (
-          <li><Users size={14} aria-hidden="true" /> {eventCount} active {eventCount === 1 ? 'event' : 'events'}</li>
-        )}
+      <p className="np-card__mission">{np.mission}</p>
+      <ul className="np-card__meta">
+        <li><MapPin size={16} aria-hidden="true" /> {np.headquarters}</li>
+        <li><BadgeCheck size={16} aria-hidden="true" /> Verified · EIN {np.ein}</li>
       </ul>
-      <Link to={`/nonprofits/${np.slug}`} className="btn btn-ghost btn-sm">View profile</Link>
+      <div className="np-card__foot">
+        <Link to={`/nonprofits/${np.slug}`} className="ch-btn ch-btn--secondary ch-btn--sm">View profile</Link>
+        {eventCount > 0 && (
+          <span className="ch-pill ch-pill--presence">{eventCount} {eventCount === 1 ? 'event' : 'events'}</span>
+        )}
+      </div>
     </article>
   )
 }
