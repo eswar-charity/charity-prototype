@@ -14,14 +14,14 @@ export { categories, timelines }
 export const categoryByName = Object.fromEntries(categories.map((c) => [c.name, c]))
 
 export const photoUrls = (key, count = PHOTO_COUNT) =>
-  Array.from({ length: count }, (_, i) => `/events/${key}/img${i + 1}.jpg`)
+  Array.from({ length: count }, (_, i) => `/photos/${key}/img${i + 1}.jpg`)
 
 export const events = rawEvents
   .map((e) => ({
     ...e,
     goal: goalFor(e.raised),
     nonprofitName: nonprofitBySlug[e.nonprofit]?.name ?? e.nonprofit,
-    cover: `/events/${e.key}/img1.jpg`,
+    cover: `/photos/${e.key}/img1.jpg`,
     photos: photoUrls(e.key),
     startsAt: eventStart(e.date, e.start),
   }))
