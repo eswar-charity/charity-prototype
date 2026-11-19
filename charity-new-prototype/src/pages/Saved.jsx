@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CalendarDays, MapPin, Receipt, Ticket as TicketIcon } from 'lucide-react'
 import { EventCard } from '../components/Cards.jsx'
-import { useDonate } from '../components/DonateDialog.jsx'
 import { Empty, PageHeader, Section, centsToDollars, fmtDate } from '../ui/kit.jsx'
 import { useDomain, useSession } from '../domain/store.jsx'
 import { visibility } from '../domain/selectors.js'
@@ -13,7 +12,6 @@ import { whenFor } from '../roles/guest/lib.js'
 export default function SavedPage() {
   const s = useDomain()
   const { user } = useSession()
-  const { start, dialog } = useDonate()
   const [ticketFor, setTicketFor] = useState(null)
 
   if (!user) {
@@ -61,7 +59,7 @@ export default function SavedPage() {
         {saved.length === 0 ? (
           <Empty title="No saved events" action={<Link to="/#discover" className="ch-btn ch-btn--secondary">Browse events</Link>}>Tap the bookmark on any event to keep it here.</Empty>
         ) : (
-          <div className="feed-grid">{saved.map((e) => <EventCard key={e.key} event={e} onDonate={start} />)}</div>
+          <div className="feed-grid">{saved.map((e) => <EventCard key={e.key} event={e} />)}</div>
         )}
       </Section>
 
@@ -86,7 +84,6 @@ export default function SavedPage() {
       )}
 
       {ticketFor && <TicketModal event={ticketFor} onClose={() => setTicketFor(null)} />}
-      {dialog}
     </div>
   )
 }

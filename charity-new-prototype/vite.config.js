@@ -9,5 +9,6 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/test-setup.js'],
     css: false,
+    testTimeout: 30000, // UI journey tests drive whole flows through jsdom
   },
 })

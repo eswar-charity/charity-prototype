@@ -40,13 +40,13 @@ export function eventState(date, start, end, now = new Date()) {
 
 export const slugToTitle = (s) => s.replace(/-/g, ' ')
 
-/** Honest date framing: "Ended Nov 14", "Sat, Dec 12 · 4:00 PM", "Coming 2027". */
+/** Honest date framing: "Closed Nov 14", "Sat, Dec 12 · 4:00 PM", "Coming 2027". */
 export function whenLabel(date, start, end, now = new Date()) {
   const s = eventStart(date, start)
   const state = eventState(date, start, end, now)
   if (state === 'live') return 'Happening now'
   const short = s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  if (state === 'past') return `Ended ${short}`
+  if (state === 'past') return `Closed ${short}`
   if (s.getFullYear() > now.getFullYear()) return `Coming ${s.getFullYear()}`
   const day = s.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
   return `${day} · ${start}`

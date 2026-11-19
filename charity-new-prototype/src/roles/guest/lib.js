@@ -18,14 +18,14 @@ export function publicName(name = '') {
 
 export const eventStatusIsPublic = (ev) => ['Live', 'Completed', 'Archived'].includes(ev.status)
 
-/** Honest date framing against the domain clock: "Happening now", "Ended Nov 14", "Sat, Dec 12 · 4:00 PM". */
+/** Honest date framing against the domain clock: "Happening now", "Closed Nov 14", "Sat, Dec 12 · 4:00 PM". */
 export function whenFor(s, ev) {
   const now = new Date(s.now)
   const st = startsAt(ev)
   if (!st) return 'Date to be announced'
   if (!ev.endDate) return whenLabel(ev.date, ev.start, ev.end, now)
   const en = endsAt(ev)
-  if (en && now > en) return `Ended ${en.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+  if (en && now > en) return `Closed ${en.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
   if (now >= st) return 'Happening now'
   return `${st.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · ${ev.start}`
 }

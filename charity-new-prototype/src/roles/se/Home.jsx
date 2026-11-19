@@ -6,12 +6,12 @@ import { coverOf, notificationsFor, seEvents, timing } from '../../domain/select
 import { Empty, PageHeader, Section, Stat, StatRow, StatusBadge, dollars, plural, timeAgo } from '../../ui/kit.jsx'
 import { manageLink, npNameOf, whenText } from './common.jsx'
 
-/** Running events first, then the soonest upcoming, then ones past their end time. */
-function nextEvent(s, events) {
-  const rank = { live: 0, upcoming: 1, ended: 2 }
+/** Live events that are running now or still to come: running first, then the soonest. Ended ones drop off. */
+function upcomingEvents(s, events) {
+  const rank = { live: 0, upcoming: 1 }
   return events
-    .filter((e) => e.status === 'Live')
-    .sort((a, b) => rank[timing(s, a)] - rank[timing(s, b)] || (startsAt(a) ?? 0) - (startsAt(b) ?? 0))[0] ?? null
+    .filter((e) => e.status === 'Live' && timing(s, e) !== 'ended')
+    .sort((a, b) => rank[timing(s, a)] - rank[timing(s, b)] || (startsAt(a) ?? 0) - (startsAt(b) ?? 0))
 }
 
 export default function SeHome() {
@@ -19,15 +19,13 @@ export default function SeHome() {
   const act = useAct()
   const { user, now } = useSession()
   const mine = seEvents(s, user.id)
-  const next = nextEvent(s, mine)
+  const upcoming = upcomingEvents(s, mine).slice(0, 5)
   const attention = mine.filter((e) => ['Changes Requested', 'Rejected'].includes(e.status))
   const public_ = mine.filter((e) => ['Live', 'Completed', 'Archived'].includes(e.status))
   const raised = public_.reduce((t, e) => t + eventTotals(s, e.key).raised, 0)
   const going = public_.reduce((t, e) => t + eventTotals(s, e.key).joined, 0)
   const notes = notificationsFor(s, user.id).slice(0, 4)
   const groups = EVENT_STATUSES.map((status) => ({ status, items: mine.filter((e) => e.status === status) })).filter((g) => g.items.length)
-  const nextTotals = next ? eventTotals(s, next.key) : null
-  const when = next ? { live: 'Happening now', upcoming: 'Coming up', ended: 'Past its end time' }[timing(s, next)] : ''
 
   return (
     <>
@@ -45,23 +43,31 @@ export default function SeHome() {
         <Stat label="Need your attention" value={attention.length} />
       </StatRow>
 
-      <Section title="Your next event" id="se-next">
-        {next ? (
-          <article className="se-next">
-            {coverOf(next) ? <img className="se-next__img" src={coverOf(next)} alt="" /> : <div className="se-next__img" />}
-            <div className="stack">
-              <div className="row"><StatusBadge status={next.status} /><span className="ch-muted">{when}</span></div>
-              <h3 className="h-heading">{next.title}</h3>
-              <p className="ch-muted">{whenText(next)} · {next.location}</p>
-              <p><strong>{dollars(nextTotals.raised)}</strong> raised from {plural(nextTotals.backed, 'backer')} · {nextTotals.joined} going</p>
-              <div className="row">
-                <Link className="ch-btn ch-btn--primary" to={`/se/live/${next.key}`}>Open live dashboard</Link>
-                <Link className="ch-btn ch-btn--secondary" to={`/events/${next.key}`}>Public page</Link>
-              </div>
-            </div>
-          </article>
+      <Section title="Upcoming events" id="se-next" aside={upcoming.length > 0 && <span className="ch-muted">Showing {upcoming.length} of your running and upcoming events</span>}>
+        {upcoming.length > 0 ? (
+          <ul className="se-up">
+            {upcoming.map((e) => {
+              const t = eventTotals(s, e.key)
+              const phase = timing(s, e)
+              return (
+                <li key={e.key} className="se-up__item">
+                  {coverOf(e) ? <img className="se-up__img" src={coverOf(e)} alt="" /> : <div className="se-up__img" />}
+                  <div className="se-up__main">
+                    <div className="row"><StatusBadge status={e.status} /><span className="ch-muted">{phase === 'live' ? 'Happening now' : 'Coming up'}</span></div>
+                    <h3 className="h-heading-sm">{e.title}</h3>
+                    <p className="ch-muted">{whenText(e)} · {e.location}</p>
+                    <p className="ch-muted"><strong>{dollars(t.raised)}</strong> raised · {t.joined} going</p>
+                  </div>
+                  <div className="se-up__actions">
+                    <Link className="ch-btn ch-btn--primary ch-btn--sm" to={`/se/live/${e.key}`}>Live dashboard</Link>
+                    <Link className="ch-btn ch-btn--secondary ch-btn--sm" to={`/events/${e.key}`}>Public page</Link>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
         ) : (
-          <Empty title="No event is live right now." action={<Link className="ch-btn ch-btn--primary" to="/se/create">Create an event</Link>}>
+          <Empty title="No event is running or coming up." action={<Link className="ch-btn ch-btn--primary" to="/se/create">Create an event</Link>}>
             When an event goes live, its numbers and check-in tools show up here.
           </Empty>
         )}

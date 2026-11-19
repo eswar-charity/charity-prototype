@@ -66,7 +66,7 @@ export default function HowItWorks() {
           </div>
           <ul className="proof proof--stack">
             <li className="proof__item ch-accent"><BadgeCheck size={22} aria-hidden="true" /><span>Invite-only: no nonprofit appears without Charity Hub verifying it.</span></li>
-            <li className="proof__item ch-accent"><Trophy size={22} aria-hidden="true" /><span>Events compete on turnout, not on dollars.</span></li>
+            <li className="proof__item ch-accent"><Trophy size={22} aria-hidden="true" /><span>Competition for Good<sup>®</sup>: events compete to bring the biggest crowd.</span></li>
           </ul>
         </div>
       </section>

@@ -84,7 +84,7 @@ function EventView({ ev }) {
           <div className="ev-hero__tags">
             {ev.status === 'Live' && phase === 'live' && <LivePill glass />}
             {ev.status === 'Live' && phase === 'upcoming' && <span className="ch-pill ch-pill--presence">Upcoming</span>}
-            {ended && <span className="ch-pill ch-pill--presence">Ended</span>}
+            {ended && <span className="ch-pill ch-pill--presence">Closed</span>}
             {ev.status === 'Archived' && <span className="ch-pill ch-pill--presence">Archived</span>}
             {(preview || ev.status === 'Blocked') && <StatusBadge status={ev.status} />}
             {np && <CauseBadge name={np.name} glass />}
@@ -110,7 +110,7 @@ function EventView({ ev }) {
           <p className="banner banner--info" role="status"><Eye size={20} aria-hidden="true" /> <span><strong>Preview.</strong> This event is {ev.status.toLowerCase()}, so only the people working on it can see this page.</span></p>
         )}
         {ended && (
-          <p className="banner banner--info" role="status"><CalendarDays size={20} aria-hidden="true" /> <span><strong>This event has ended.</strong> {give ? 'The room stays open for photos and thank-yous.' : 'The room stays open for photos and thank-yous, and gifts are closed.'}</span></p>
+          <p className="banner banner--info" role="status"><CalendarDays size={20} aria-hidden="true" /> <span><strong>This event is closed.</strong> {give ? 'The room stays open for photos and thank-yous.' : 'The room stays open for photos and thank-yous, and gifts are closed.'}</span></p>
         )}
         <Affordances ev={ev} user={user} />
       </div>

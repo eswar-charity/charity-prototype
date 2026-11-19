@@ -54,12 +54,15 @@ async function runWizardToStep4({ nonprofit = /^ASPCA/ } = {}) {
 }
 
 describe('SE home', () => {
-  it('shows the next running event, stats and the create button', async () => {
+  it('shows the upcoming events (up to five), stats and the create button', async () => {
     renderApp('/se', { as: EMAILS.mike })
     expect(await screen.findByRole('heading', { name: 'Hi Mike' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Create an event/ })).toHaveAttribute('href', '/se/create')
-    const next_ = screen.getByRole('region', { name: 'Your next event' })
-    expect(within(next_).getByRole('link', { name: 'Open live dashboard' })).toHaveAttribute('href', expect.stringMatching(/^\/se\/live\//))
+    const upcoming = screen.getByRole('region', { name: 'Upcoming events' })
+    // at the fixed clock Mike has two events still to come; the ended ones drop off
+    const dash = within(upcoming).getAllByRole('link', { name: 'Live dashboard' })
+    expect(dash).toHaveLength(2)
+    dash.forEach((a) => expect(a).toHaveAttribute('href', expect.stringMatching(/^\/se\/live\//)))
     expect(screen.getByRole('heading', { name: /^Draft \(1\)/ })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /^Live \(5\)/ })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Needs your attention' })).not.toBeInTheDocument()
@@ -77,9 +80,19 @@ describe('SE home', () => {
     expect(await screen.findByRole('link', { name: 'See why' })).toHaveAttribute('href', '/se/approval/karaoke-for-kids')
   })
 
-  it('shows an empty state when nothing is live', async () => {
+  it('shows an empty state when nothing is running or coming up', async () => {
     renderApp('/se', { as: EMAILS.jordan })
-    expect(await screen.findByText('No event is live right now.')).toBeInTheDocument()
+    expect(await screen.findByText('No event is running or coming up.')).toBeInTheDocument()
+  })
+
+  it('caps the upcoming list at five, running events first', async () => {
+    const engine = makeEngine()
+    const st = engine.getState()
+    for (let i = 1; i <= 7; i++) st.events[`more-${i}`] = { ...st.events['dog-dad'], key: `more-${i}`, title: `#More${i}`, joinedIds: [], tickets: {}, checkins: [] }
+    engine.reset(st)
+    renderApp('/se', { as: EMAILS.mike, engine })
+    const upcoming = await screen.findByRole('region', { name: 'Upcoming events' })
+    expect(within(upcoming).getAllByRole('link', { name: 'Live dashboard' })).toHaveLength(5)
   })
 })
 

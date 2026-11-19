@@ -3,25 +3,22 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { ArrowRight, Crown, Pause, Play, ShieldCheck, BadgeCheck, HandHeart, MapPin, Search } from 'lucide-react'
 import { EventCard, NonprofitCard, JoinButton, SaveButton } from '../components/Cards.jsx'
 import { Attendance, Avatar, CategoryIcon, CauseBadge, LivePill, Reveal } from '../components/Brand.jsx'
-import { useDonate } from '../components/DonateDialog.jsx'
 import { useVariant } from '../components/PrototypeSwitcher.jsx'
 import { useDomain, useSession } from '../domain/store.jsx'
 import { eventTotals } from '../domain/engine.js'
 import { feed, leaderboard, postsFor, coverOf } from '../domain/selectors.js'
 import { Empty } from '../ui/kit.jsx'
-import { donateBlock, hostTarget, phaseOf, whenFor } from '../roles/guest/lib.js'
+import { hostTarget, phaseOf, whenFor } from '../roles/guest/lib.js'
 
 export default function Home() {
-  const { start, dialog } = useDonate()
   return (
     <>
       <Hero />
-      <Discover onDonate={start} />
+      <Discover />
       <Journey />
       <Leaderboard />
       <CauseLayer />
       <Invite />
-      {dialog}
     </>
   )
 }
@@ -106,12 +103,12 @@ function Hero() {
 }
 
 /* ================= Discover: search, cause filter, three structurally different forms ================= */
-function Discover({ onDonate }) {
+function Discover() {
   const s = useDomain()
   const variant = useVariant()
   const [params] = useSearchParams()
   const everything = feed(s)
-  const cats = useMemo(() => ['All', ...new Set(everything.map((e) => e.category).filter(Boolean))], [everything])
+  const cats = useMemo(() => ['All', ...s.categories.map((c) => c.name)], [s.categories]) // every cause, not just the ones with events today
   const fromUrl = params.get('cause')
   const [cat, setCat] = useState(fromUrl && cats.includes(fromUrl) ? fromUrl : 'All')
   const [q, setQ] = useState('')
@@ -153,8 +150,8 @@ function Discover({ onDonate }) {
           </Empty>
         ) : (
           <>
-            {variant === 'A' && <VariantA list={list} onDonate={onDonate} />}
-            {variant === 'B' && <VariantB list={list} onDonate={onDonate} />}
+            {variant === 'A' && <VariantA list={list} />}
+            {variant === 'B' && <VariantB list={list} />}
             {variant === 'C' && <VariantC list={list} />}
           </>
         )}
@@ -165,22 +162,21 @@ function Discover({ onDonate }) {
 }
 
 /* A: a feed of the brand's event cards */
-function VariantA({ list, onDonate }) {
+function VariantA({ list }) {
   return (
     <div className="feed-grid">
-      {list.map((e) => <EventCard key={e.key} event={e} onDonate={onDonate} />)}
+      {list.map((e) => <EventCard key={e.key} event={e} />)}
     </div>
   )
 }
 
 /* B: one event on stage, the rest as a tight list beside it */
-function VariantB({ list, onDonate }) {
+function VariantB({ list }) {
   const s = useDomain()
   const { user } = useSession()
   const host = hostTarget(user)
   const ranked = [...list].sort((a, b) => eventTotals(s, b.key).joined - eventTotals(s, a.key).joined)
   const [top, ...rest] = ranked
-  const canGive = !donateBlock(s, top)
   return (
     <div className="spot">
       <article className="spot__main ch-stage">
@@ -194,7 +190,6 @@ function VariantB({ list, onDonate }) {
           <Attendance eventKey={top.key} count={eventTotals(s, top.key).joined} />
           <div className="spot__actions">
             <JoinButton event={top} size="md" />
-            {canGive && <button className="ch-btn ch-btn--secondary" onClick={() => onDonate(top)} aria-label={`Donate to ${top.title}`}>Donate</button>}
             <SaveButton event={top} label />
           </div>
         </div>

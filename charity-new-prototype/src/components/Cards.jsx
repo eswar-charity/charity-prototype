@@ -2,9 +2,8 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { MapPin, BadgeCheck, Check, Plus, Bookmark } from 'lucide-react'
 import { Attendance, CauseBadge, LivePill, Avatar } from './Brand.jsx'
-import { useDonate } from './DonateDialog.jsx'
 import TicketModal from '../roles/guest/Ticket.jsx'
-import { joinBlock, donateBlock, phaseOf, whenFor } from '../roles/guest/lib.js'
+import { joinBlock, phaseOf, whenFor } from '../roles/guest/lib.js'
 import { useGate } from '../ui/Gate.jsx'
 import { useRun, useToast } from '../ui/kit.jsx'
 import { useDomain, useSession } from '../domain/store.jsx'
@@ -30,7 +29,7 @@ export function JoinButton({ event, size = 'sm', className = '' }) {
   }
 
   if (block) {
-    return <button type="button" className={`ch-btn ch-btn--secondary ${sizeCls} ${className}`} disabled title={block}>{ev.status === 'Live' || ev.status === 'Completed' ? 'Ended' : 'Closed'}</button>
+    return <button type="button" className={`ch-btn ch-btn--secondary ${sizeCls} ${className}`} disabled title={block}>{'Closed'}</button>
   }
   return (
     <>
@@ -66,16 +65,13 @@ export function SaveButton({ event, label = false, className = '' }) {
   )
 }
 
-export function EventCard({ event, onDonate }) {
+export function EventCard({ event }) {
   const s = useDomain()
-  const own = useDonate()
   const ev = s.events[event.key] ?? event
   const t = eventTotals(s, ev.key)
   const np = s.nonprofits[ev.nonprofitId]
   const phase = phaseOf(s, ev)
   const cover = coverOf(ev)
-  const canGive = !donateBlock(s, ev)
-  const give = () => (onDonate ? onDonate(ev) : own.start(ev))
 
   return (
     <article className="ch-card event-card">
@@ -96,11 +92,9 @@ export function EventCard({ event, onDonate }) {
         <div className="event-card__row"><Attendance eventKey={ev.key} count={t.joined} /></div>
         <div className="ch-card__foot">
           <JoinButton event={ev} />
-          {canGive && <button type="button" className="ch-btn ch-btn--secondary ch-btn--sm" onClick={give} aria-label={`Donate to ${ev.title}`}>Donate</button>}
         </div>
         {np && <CauseBadge name={np.name} />}
       </div>
-      {own.dialog}
     </article>
   )
 }

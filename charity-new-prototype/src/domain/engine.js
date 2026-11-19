@@ -484,7 +484,7 @@ const handlers = {
         const en = endsAt(ev)
         if (en && ctx.now > en) {
           ev.status = 'Completed'; ev.completedAt = ctx.now.toISOString(); out.completed++
-          notify(s, ctx, [ev.organizerId, ...npAdminsOf(s, ev.nonprofitId).map((u) => u.id)], 'event_completed', 'Event completed', `${ev.title} has ended. See the impact summary.`, ev.kind === 'NP-led' ? '/np/activity' : `/se/impact/${ev.key}`)
+          notify(s, ctx, [ev.organizerId, ...npAdminsOf(s, ev.nonprofitId).map((u) => u.id)], 'event_completed', 'Event completed', `${ev.title} is now closed. See the impact summary.`, ev.kind === 'NP-led' ? '/np/activity' : `/se/impact/${ev.key}`)
         }
       } else if (ev.status === 'Completed') {
         const c = ev.completedAt ? new Date(ev.completedAt) : endsAt(ev)

@@ -3,7 +3,6 @@ import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { Search, MapPin, BadgeCheck, ExternalLink, CalendarDays, Check, Plus, Settings } from 'lucide-react'
 import { NonprofitCard, EventCard } from '../components/Cards.jsx'
 import { CategoryIcon, Avatar, Reveal } from '../components/Brand.jsx'
-import { useDonate } from '../components/DonateDialog.jsx'
 import { Empty, StatusBadge, dollars, plural, useRun, useToast } from '../ui/kit.jsx'
 import { useGate } from '../ui/Gate.jsx'
 import { useDomain, useSession } from '../domain/store.jsx'
@@ -105,7 +104,6 @@ export function NonprofitPage() {
   const { slug } = useParams()
   const s = useDomain()
   const { user } = useSession()
-  const { start, dialog } = useDonate()
   const np = s.nonprofits[slug]
   const own = !!np && user?.role === ROLES.NP && user.nonprofitId === np.id
   const admin = user?.role === ROLES.ADMIN
@@ -162,7 +160,7 @@ export function NonprofitPage() {
                 Events hosted for {np.name} appear here once they are live.
               </Empty>
             ) : (
-              <div className="feed-grid feed-grid--two">{evs.map((e) => <EventCard key={e.key} event={e} onDonate={start} />)}</div>
+              <div className="feed-grid feed-grid--two">{evs.map((e) => <EventCard key={e.key} event={e} />)}</div>
             )}
           </div>
           <aside className="facts" aria-label="Organization details">
@@ -181,7 +179,6 @@ export function NonprofitPage() {
           </aside>
         </div>
       </div>
-      {dialog}
     </>
   )
 }

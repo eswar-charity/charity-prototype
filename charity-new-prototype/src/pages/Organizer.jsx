@@ -2,7 +2,6 @@ import { Link, useParams } from 'react-router-dom'
 import { MapPin, UserRound } from 'lucide-react'
 import { EventCard } from '../components/Cards.jsx'
 import { Avatar } from '../components/Brand.jsx'
-import { useDonate } from '../components/DonateDialog.jsx'
 import { Empty, StatRow, Stat } from '../ui/kit.jsx'
 import { useDomain, useSession } from '../domain/store.jsx'
 import { ROLES, eventTotals } from '../domain/engine.js'
@@ -14,7 +13,6 @@ export default function OrganizerPage() {
   const { id } = useParams()
   const s = useDomain()
   const { user } = useSession()
-  const { start, dialog } = useDonate()
   const org = s.users[id]
   if (!org || org.role !== ROLES.SE || org.status !== 'active') return <NotFound what="organizer" />
 
@@ -48,12 +46,11 @@ export default function OrganizerPage() {
               Events appear here once the nonprofit approves them.
             </Empty>
           ) : (
-            <div className="feed-grid">{events.map((e) => <EventCard key={e.key} event={e} onDonate={start} />)}</div>
+            <div className="feed-grid">{events.map((e) => <EventCard key={e.key} event={e} />)}</div>
           )}
           <p className="demo-note">Names, bios and counts are demo content.</p>
         </div>
       </section>
-      {dialog}
     </>
   )
 }

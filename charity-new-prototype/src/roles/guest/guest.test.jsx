@@ -115,8 +115,8 @@ describe('anonymous browse', () => {
 
   it('frames events by the domain clock: upcoming, ended', () => {
     renderApp('/events/neon-night') // Nov 14, clock is Nov 18
-    expect(screen.getByText('This event has ended.', { exact: false })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Ended' })).toBeDisabled()
+    expect(screen.getByText('This event is closed.', { exact: false })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Closed' })).toBeDisabled()
     cleanup()
     renderApp('/events/give-now')
     expect(screen.getByText('Upcoming')).toBeInTheDocument()
@@ -418,10 +418,10 @@ describe('event states', () => {
     asAdmin(engine, (e) => e.dispatch('runLifecycle'))
     expect(S(engine).events['golf-outing'].status).toBe('Completed')
     renderApp('/events/golf-outing', { engine })
-    expect(screen.getByText('This event has ended.', { exact: false })).toBeInTheDocument()
+    expect(screen.getByText('This event is closed.', { exact: false })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /^Donate to/ })).not.toBeInTheDocument()
     expect(screen.getByText('Giving closed when this event completed.')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Ended' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Closed' })).toBeDisabled()
   })
 
   it('shows an archived event read-only', async () => {
