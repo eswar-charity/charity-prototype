@@ -129,3 +129,7 @@ The SE home is an event-management console built to stay usable at 1,000+ events
 - **Actions:** Create, Continue/Edit/Fix and resubmit, Preview, Submit for approval (when a draft is complete), Duplicate, Archive, Restore from archive, Delete (drafts and rejected only). Bulk Duplicate, Archive and Delete on a selection, with the count of events it applies to and why the rest are skipped.
 - **Demo data:** *Demo tools → Add 1,000 sample events*, or open `/se?as=u_mike&samples=1000`. Sample events show only in their organizer's own console, never in public feeds, leaderboards, nonprofit queues or admin lists, and send no notifications.
 - **Engine additions:** `archiveEvent`, `unarchiveEvent`, `bulkEvents`, `demoGenerateEvents`, `demoRemoveGenerated` (manage.test.js); logic in `src/roles/se/events/model.js` (model.test.js); UI at 1,000+ events in `events.test.jsx`.
+
+## Event wizard stepper (`/se/create`, `/np/events/new`)
+
+A connected stepper replaces the row of step cards: round nodes on a track that fills as steps are finished, with one status per step (Current step, Done, Not done, Locked in fix mode, Needs attention). Finished steps are clickable to go back; the panel slides forward or backward with the direction of travel (off under reduced motion). Step 4 is a checklist of every step with a summary and an Edit or Fix link. On narrow screens it shrinks to nodes and track with the current step named underneath. Tests: `src/roles/se/wizard/stepper.test.jsx`; styles: `src/styles/wizard.css`.

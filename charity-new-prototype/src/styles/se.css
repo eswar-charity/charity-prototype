@@ -28,17 +28,6 @@
 .se-banner:focus { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
 
 /* ---------- wizard ---------- */
-.se-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-2); counter-reset: none; }
-.se-step { min-width: 0; }
-.se-step__btn { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: var(--space-3); align-items: center; width: 100%; min-height: var(--target-min); padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-raised); color: var(--ink); text-align: left; font: inherit; }
-button.se-step__btn { cursor: pointer; }
-button.se-step__btn:hover { border-color: var(--brand-deep); }
-.se-step.is-current .se-step__btn { border-color: var(--brand-deep); box-shadow: inset 0 -4px 0 var(--brand-primary); }
-.se-step.is-locked .se-step__btn { background: var(--surface-alt); color: var(--ink-muted); }
-.se-step__n { grid-row: 1 / 3; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--brand-soft); color: var(--brand-deep); font: 700 14px/1 var(--font-sans); }
-.se-step.is-current .se-step__n { background: var(--brand-primary); color: #fff; }
-.se-step__label { font: 700 15px/20px var(--font-sans); }
-.se-step__state { font: 500 12px/16px var(--font-sans); color: var(--ink-muted); }
 .se-panel { gap: var(--space-5); }
 .se-panel h2:focus { outline: none; }
 .se-foot { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding-top: var(--space-4); border-top: 1px solid var(--border); }
@@ -165,12 +154,6 @@ button.se-step__btn:hover { border-color: var(--brand-deep); }
 }
 @media (max-width: 639px) {
   .se-grid2, .se-nps { grid-template-columns: 1fr; }
-  .se-steps { gap: var(--space-1); }
-  .se-step__btn { grid-template-columns: 1fr; justify-items: center; padding: var(--space-2); text-align: center; }
-  .se-step__n { grid-row: auto; }
-  .se-step__label, .se-step__state { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .se-step { position: relative; }
-  .se-step.is-current .se-step__label { position: static; width: auto; height: auto; clip-path: none; font-size: 12px; line-height: 16px; white-space: normal; }
   .se-card { grid-template-columns: 1fr; }
   .se-card__img { min-height: 140px; max-height: 180px; }
   .se-card__body { padding: var(--space-4); }
@@ -179,7 +162,7 @@ button.se-step__btn:hover { border-color: var(--brand-deep); }
   .se-foot__spacer { display: none; }
   .se-facts div { grid-template-columns: 1fr; gap: 0; }
 }
-@media (prefers-reduced-motion: reduce) { .se-tl, .se-step__btn { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .se-tl { transition: none; } }
 
 /* Upcoming events list on the SE home */
 .se-up { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }

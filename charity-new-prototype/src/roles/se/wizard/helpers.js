@@ -1,5 +1,6 @@
 // Pure logic for the event wizard: form shape, validation, patches, fix-mode (locked steps).
 import { CHANGE_AREAS } from '../../../domain/engine.js'
+import { photoList } from '../../../domain/selectors.js'
 import { fromInputDate, fromInputTime, toInputDate, toInputTime } from '../common.jsx'
 
 export const MAX_PHOTOS = 8
@@ -34,7 +35,7 @@ export function npBlocker(np) {
 export const blankForm = (nonprofitId = '') => ({ photos: [], title: '', story: '', category: '', nonprofitId, date: '', start: '', end: '', endDate: '', location: '' })
 
 export const formFromEvent = (ev) => ({
-  photos: [...(ev.photos ?? [])],
+  photos: photoList(ev), // an uploaded list, or the seeded photo set the event was created with
   title: (ev.title ?? '').replace(/^#/, ''),
   story: ev.story ?? '',
   category: ev.category ?? '',

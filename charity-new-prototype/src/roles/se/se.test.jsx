@@ -334,6 +334,10 @@ describe('fix mode (changes requested)', () => {
     // nonprofit and date steps are locked
     const steps = within(screen.getByRole('navigation', { name: 'Wizard steps' }))
     expect(steps.getAllByText('Locked')).toHaveLength(2)
+    // the form starts with the event's own eight photos; swap two of them for a clearer one
+    expect(screen.getAllByRole('button', { name: /^Remove photo/ })).toHaveLength(8)
+    await user.click(screen.getByRole('button', { name: 'Remove photo 1' }))
+    await user.click(screen.getByRole('button', { name: 'Remove photo 1' }))
     await user.click(screen.getAllByRole('button', { name: /^Sample photo 3 from/ })[0])
     const story = screen.getByLabelText('Story')
     await user.clear(story)
@@ -341,7 +345,7 @@ describe('fix mode (changes requested)', () => {
     await next()
     // skips the locked steps straight to the preview
     await heading('Preview and submit')
-    expect(ev(engine, 'book-drive-bash').photos).toHaveLength(1)
+    expect(ev(engine, 'book-drive-bash').photos).toHaveLength(7) // 8 - 2 removed + 1 added
     await user.click(screen.getByRole('button', { name: 'Resubmit for approval' }))
     expect(await screen.findByText(/Waiting for United Way to decide/)).toBeInTheDocument()
     expect(ev(engine, 'book-drive-bash').status).toBe('Submitted')

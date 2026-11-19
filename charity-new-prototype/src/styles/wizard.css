@@ -1,0 +1,68 @@
+/* The event wizard's stepper: a connected rail whose track fills as steps are finished, and a panel that
+   slides in the direction you are travelling. Every selector is prefixed .wz so nothing else can override it. */
+
+.wz { margin-block: var(--space-2) var(--space-1); }
+.wz .wz__rail { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.wz .wz__step { position: relative; display: grid; justify-items: center; min-width: 0; text-align: center; }
+
+/* the track between two nodes: grey underneath, blue on top once the step before it is done */
+.wz .wz__step:not(:last-child)::before,
+.wz .wz__step:not(:last-child)::after { content: ''; position: absolute; top: 20px; left: 50%; width: 100%; height: 4px; border-radius: 2px; }
+.wz .wz__step:not(:last-child)::before { background: var(--border); }
+.wz .wz__step:not(:last-child)::after { background: var(--brand-primary); transform: scaleX(0); transform-origin: left; }
+.wz .wz__step.is-done:not(:last-child)::after { transform: scaleX(1); transition: transform 450ms var(--ease-out); }
+
+.wz .wz__node { position: relative; z-index: 1; display: grid; justify-items: center; gap: 6px; width: 100%; padding: 0 var(--space-1); border: 0; background: none; color: var(--ink); font: inherit; cursor: default; }
+.wz button.wz__node { cursor: pointer; }
+.wz .wz__dot { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 3px solid var(--border); background: var(--surface); color: var(--ink-muted); font: 800 16px/1 var(--font-sans); transition: background var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out); }
+.wz .wz__label { font: 700 15px/20px var(--font-sans); }
+.wz .wz__state { font: 500 13px/18px var(--font-sans); color: var(--ink-muted); }
+
+.wz .is-done .wz__dot { background: var(--brand-deep); border-color: var(--brand-deep); color: #fff; }
+.wz .is-current .wz__dot { border-color: var(--brand-primary); color: var(--brand-deep); background: #fff; box-shadow: 0 0 0 6px var(--brand-soft); }
+.wz .is-current .wz__state { color: var(--brand-deep); font-weight: 700; }
+.wz .is-todo .wz__label, .wz .is-locked .wz__label { color: var(--ink-muted); font-weight: 600; }
+.wz .is-locked .wz__dot { border-style: dashed; background: var(--surface-alt); }
+.wz .is-attention .wz__dot { border-color: #b42318; color: #b42318; background: #fff; box-shadow: 0 0 0 6px #fde6e3; }
+.wz .is-attention .wz__state { color: #b42318; font-weight: 700; }
+.wz button.wz__node:hover .wz__dot { border-color: var(--brand-deep); }
+.wz button.wz__node:hover .wz__label { text-decoration: underline; text-underline-offset: 3px; }
+
+/* panel heading and the direction-aware entrance */
+.wz-head { display: grid; gap: 4px; }
+.wz-desc { font: 400 15px/22px var(--font-sans); color: var(--ink-muted); }
+.wz-body { display: grid; gap: var(--space-5); }
+.wz-body.wz-body--fwd { animation: wz-in-fwd 320ms var(--ease-out) both; }
+.wz-body.wz-body--back { animation: wz-in-back 320ms var(--ease-out) both; }
+@keyframes wz-in-fwd { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@keyframes wz-in-back { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
+
+/* step 4: the checklist doubles as the review */
+.wz-review { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.wz-review li { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--surface-alt); }
+.wz-review .wz-review__icon { display: grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--brand-deep); color: #fff; }
+.wz-review li.is-bad { background: #fde6e3; }
+.wz-review li.is-bad .wz-review__icon { background: #b42318; }
+.wz-review .wz-review__text { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.wz-review .wz-review__text span { font: 500 14px/20px var(--font-sans); color: var(--ink-muted); overflow-wrap: anywhere; }
+.wz-review li.is-bad .wz-review__text span { color: #6e140c; }
+.wz-review .link-btn { flex: none; }
+
+/* narrow screens: nodes and track only, with the current step named underneath */
+@media (max-width: 639px) {
+  .wz .wz__dot { width: 36px; height: 36px; font-size: 14px; }
+  .wz .wz__step:not(:last-child)::before, .wz .wz__step:not(:last-child)::after { top: 16px; }
+  .wz .wz__label, .wz .wz__state { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .wz .wz__step.is-current .wz__label, .wz .wz__step.is-attention .wz__label { position: static; width: auto; height: auto; clip-path: none; font-size: 13px; line-height: 18px; white-space: normal; }
+  .wz .wz__rail { padding-bottom: var(--space-1); }
+  .wz-review li { align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wz .wz__step.is-done:not(:last-child)::after { transition: none; }
+  .wz .wz__dot { transition: none; }
+  .wz-body.wz-body--fwd, .wz-body.wz-body--back { animation: none; }
+}
+
+/* Inputs with a leading icon or "#": more specific than the shared field rule so the text never sits under the icon. */
+.se-hash .se-hash__input { padding-left: 40px; }

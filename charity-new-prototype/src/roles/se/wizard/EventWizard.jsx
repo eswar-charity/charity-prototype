@@ -4,12 +4,13 @@
 // Spread `wizardRoutes(base)` into the role's route list. Every step change saves the draft first.
 import { useEffect, useRef, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
-import { Check, Lock } from 'lucide-react'
+import { AlertCircle, Check, Lock } from 'lucide-react'
 import { useDomain, useSession } from '../../../domain/store.jsx'
 import { CauseBadge } from '../../../components/Brand.jsx'
 import { coverOf, photoList } from '../../../domain/selectors.js'
-import { Empty, Field, fieldProps, PageHeader, StatusBadge, useRun, useToast } from '../../../ui/kit.jsx'
+import { Empty, Field, fieldProps, PageHeader, StatusBadge, plural, useRun, useToast } from '../../../ui/kit.jsx'
 import { LockedNote, NotYours, todayInput, wizardPath, whenText } from '../common.jsx'
+import '../../../styles/wizard.css'
 import PhotoPicker from './PhotoPicker.jsx'
 import NonprofitPicker from './NonprofitPicker.jsx'
 import {
@@ -28,6 +29,12 @@ export function wizardRoutes(base = '/se') {
 export { wizardPath }
 
 const EDITABLE = ['Draft', 'Changes Requested', 'Rejected']
+const STEP_DESC = [
+  'Add photos and tell people what the event is about.',
+  'Pick the nonprofit this event supports.',
+  'Say when and where it happens.',
+  'Check everything, then submit.',
+]
 
 export function EventWizard({ base = '/se' }) {
   const { key, step } = useParams()
@@ -79,7 +86,10 @@ function WizardForm({ base, ev, stepNum }) {
   const [submitError, setSubmitError] = useState(null)
   const headRef = useRef(null)
   const first = useRef(true)
+  const prevStep = useRef(stepNum)
+  const direction = stepNum < prevStep.current ? 'back' : 'fwd' // read during render, before the effect below records this step
   useEffect(() => {
+    prevStep.current = stepNum
     if (first.current) { first.current = false; return }
     headRef.current?.focus()
   }, [stepNum])
@@ -154,6 +164,15 @@ function WizardForm({ base, ev, stepNum }) {
   const title = fixMode ? 'Make the requested changes' : ev?.status === 'Rejected' || ev?.review?.decision === 'rejected' ? 'Edit and resubmit' : npLed ? 'Create an event for your nonprofit' : ev ? 'Edit your event' : 'Create an event'
   const reachedMax = fixMode ? 4 : Math.max(ev?.wizardStep ?? 1, stepNum)
   const canJump = (n) => !!ev && n !== stepNum && n <= reachedMax && stepIsOpen(open, n)
+  // One status per step: current, done, todo, locked (fix mode) or needs attention (a problem found on this step)
+  const problemSteps = new Set(problems.map((p) => p.n))
+  const hereHasErrors = Object.values(errors).some(Boolean)
+  const stepStatus = (n) => {
+    if (n === stepNum) return hereHasErrors ? 'attention' : 'current'
+    if (!stepIsOpen(open, n)) return 'locked'
+    if (stepNum === 4 && problemSteps.has(n)) return 'attention'
+    return n < (fixMode ? stepNum : reachedMax) ? 'done' : 'todo'
+  }
 
   return (
     <>
@@ -180,21 +199,22 @@ function WizardForm({ base, ev, stepNum }) {
         </section>
       )}
 
-      <nav aria-label="Wizard steps">
-        <ol className="se-steps">
+      <nav aria-label="Wizard steps" className="wz">
+        <ol className="wz__rail">
           {STEPS.map((st) => {
-            const isLocked = !stepIsOpen(open, st.n)
-            const state = st.n === stepNum ? 'Current step' : isLocked ? 'Locked' : st.n < (fixMode ? stepNum : reachedMax) ? 'Done' : 'Not done'
+            const status = stepStatus(st.n)
+            const label = { current: 'Current step', done: 'Done', todo: 'Not done', locked: 'Locked', attention: 'Needs attention' }[status]
+            const icon = status === 'done' ? <Check size={20} strokeWidth={3} /> : status === 'locked' ? <Lock size={16} /> : status === 'attention' ? <AlertCircle size={20} /> : st.n
             const inner = (
               <>
-                <span className="se-step__n" aria-hidden="true">{state === 'Done' ? <Check size={16} /> : isLocked ? <Lock size={14} /> : st.n}</span>
-                <span className="se-step__label">{st.label}</span>
-                <span className="se-step__state">{state}</span>
+                <span className="wz__dot" aria-hidden="true">{icon}</span>
+                <span className="wz__label">{st.label}</span>
+                <span className="wz__state">{label}</span>
               </>
             )
             return (
-              <li key={st.n} className={`se-step ${st.n === stepNum ? 'is-current' : ''} ${isLocked ? 'is-locked' : ''}`} aria-current={st.n === stepNum ? 'step' : undefined}>
-                {canJump(st.n) ? <button type="button" className="se-step__btn" onClick={() => jump(st.n)}>{inner}</button> : <span className="se-step__btn">{inner}</span>}
+              <li key={st.n} className={`wz__step is-${status}`} aria-current={st.n === stepNum ? 'step' : undefined}>
+                {canJump(st.n) ? <button type="button" className="wz__node" onClick={() => jump(st.n)}>{inner}</button> : <span className="wz__node">{inner}</span>}
               </li>
             )
           })}
@@ -202,8 +222,12 @@ function WizardForm({ base, ev, stepNum }) {
       </nav>
 
       <form className="panel-section se-panel" noValidate aria-labelledby="se-step-h" onSubmit={(e) => { e.preventDefault(); if (stepNum === 4) submit(); else next() }}>
-        <h2 className="h-heading-sm" id="se-step-h" tabIndex={-1} ref={headRef}>{STEPS[stepNum - 1].label}</h2>
+        <header className="wz-head">
+          <h2 className="h-heading-sm" id="se-step-h" tabIndex={-1} ref={headRef}>{STEPS[stepNum - 1].label}</h2>
+          <p className="wz-desc">{STEP_DESC[stepNum - 1]}</p>
+        </header>
 
+        <div className={`wz-body wz-body--${direction}`} key={stepNum}>
         {stepNum === 1 && (
           <>
             <PhotoPicker photos={form.photos} onChange={set('photos')} disabled={locked('photos')} error={errors.photos} />
@@ -277,7 +301,24 @@ function WizardForm({ base, ev, stepNum }) {
                 <p className="se-preview__story">{ev.story || 'No story yet.'}</p>
               </div>
             </article>
-            <p className="ch-field__hint">This is how your event will look. Anything wrong? Use the step links above, or go back.</p>
+            <p className="ch-field__hint">This is how your event will look. Anything wrong? Use the checklist below, or go back.</p>
+
+            <ul className="wz-review" aria-label="Checklist">
+              {STEPS.filter((st) => st.n < 4 && !(npLed && st.n === 2)).map((st) => {
+                const bad = problems.filter((p) => p.n === st.n)
+                const summary = st.n === 1 ? `${plural(photoList(ev).length, 'photo')} · ${ev.title}` : st.n === 2 ? (myNp?.name ?? 'No nonprofit chosen') : `${whenText(ev)}${ev.location ? ` · ${ev.location}` : ''}`
+                return (
+                  <li key={st.n} className={bad.length ? 'is-bad' : 'is-ok'}>
+                    <span className="wz-review__icon" aria-hidden="true">{bad.length ? <AlertCircle size={18} /> : <Check size={18} strokeWidth={3} />}</span>
+                    <span className="wz-review__text">
+                      <strong>{st.label}</strong>
+                      <span>{bad.length ? bad[0].message : summary}</span>
+                    </span>
+                    {stepIsOpen(open, st.n) && <button type="button" className="link-btn" onClick={() => go(st.n)}>{bad.length ? 'Fix' : 'Edit'}<span className="sr-only"> {st.label}</span></button>}
+                  </li>
+                )
+              })}
+            </ul>
 
             {problems.length > 0 && (
               <div className="se-banner se-banner--warn" role="alert" id="se-problems" tabIndex={-1}>
@@ -307,6 +348,8 @@ function WizardForm({ base, ev, stepNum }) {
             </p>
           </>
         )}
+
+        </div>
 
         <div className="se-foot">
           {prevStepFrom(open, stepNum) !== null && <button type="button" className="ch-btn ch-btn--secondary" onClick={back}>Back</button>}
