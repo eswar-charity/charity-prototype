@@ -34,7 +34,7 @@ export function EventWizard({ base = '/se' }) {
   const s = useDomain()
   const { user } = useSession()
   const npLed = base !== '/se'
-  const exit = npLed ? base : '/se/drafts'
+  const exit = npLed ? base : '/se?tab=drafts'
   if (!user) return null
   if (!key) return <WizardForm key="new" base={base} ev={null} stepNum={1} />
 
@@ -85,7 +85,7 @@ function WizardForm({ base, ev, stepNum }) {
   }, [stepNum])
 
   const today = todayInput(now)
-  const exitTo = npLed ? base : '/se/drafts'
+  const exitTo = npLed ? base : '/se?tab=drafts'
   const myNp = s.nonprofits[form.nonprofitId]
   const set = (k) => (v) => { setForm((f) => ({ ...f, [k]: v })); setErrors((e) => (e[k] ? { ...e, [k]: undefined } : e)) }
   const bind = (k) => ({ value: form[k], onChange: (e) => set(k)(e.target.value) })

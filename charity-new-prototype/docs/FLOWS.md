@@ -117,3 +117,15 @@ Routes added beyond the contract: `/np/stripe/hosted` (the clearly labelled simu
 - **Not built:** minor-SE parental consent (F16) and competitions/challenges (F17). The real app does not have them either, and the specs list them as missing and undecided.
 - **Photos** a user uploads are temporary browser links and do not survive a reload; the sample library does.
 - **Seed events** are demo content (several are status Live though their dates passed): run the lifecycle job from the admin dashboard to complete them.
+
+## SE events console (`/se`)
+
+The SE home is an event-management console built to stay usable at 1,000+ events. All view state lives in the URL, so any view can be bookmarked or shared (`/se?tab=upcoming&cat=Health&sort=going-desc&page=2&view=table`).
+
+- **Pipeline bar:** one bar of Drafts, Needs changes, Waiting for approval, Live now, Upcoming, Closed and Archived, sized by count and clickable as a filter.
+- **Overview:** Needs your attention, then Live now, Upcoming, Drafts and Waiting for approval, six events each with "See all N".
+- **Workspace:** tabs (Overview, Drafts, Live now, Upcoming, Closed, Archived, All events), search (name, place, nonprofit, cause, status), filters (status, cause, nonprofit, date range or custom dates), sort (date, newest, title, most going, most raised), Cards or Table, pagination (12/24/48/96, windowed page numbers).
+- **Cards show what matters for the stage:** drafts show step and what is still missing, waiting shows who and for how long, changes requested show the feedback and flagged areas, rejected shows the reason, live and closed events show raised, going and backers.
+- **Actions:** Create, Continue/Edit/Fix and resubmit, Preview, Submit for approval (when a draft is complete), Duplicate, Archive, Restore from archive, Delete (drafts and rejected only). Bulk Duplicate, Archive and Delete on a selection, with the count of events it applies to and why the rest are skipped.
+- **Demo data:** *Demo tools → Add 1,000 sample events*, or open `/se?as=u_mike&samples=1000`. Sample events show only in their organizer's own console, never in public feeds, leaderboards, nonprofit queues or admin lists, and send no notifications.
+- **Engine additions:** `archiveEvent`, `unarchiveEvent`, `bulkEvents`, `demoGenerateEvents`, `demoRemoveGenerated` (manage.test.js); logic in `src/roles/se/events/model.js` (model.test.js); UI at 1,000+ events in `events.test.jsx`.

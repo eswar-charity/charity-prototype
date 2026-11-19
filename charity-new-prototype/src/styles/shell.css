@@ -108,7 +108,7 @@
 .table th { text-align: left; padding: var(--space-3) var(--space-4); background: var(--surface-alt); color: var(--ink-muted); font: 700 13px/18px var(--font-sans); white-space: nowrap; }
 .table td { padding: var(--space-3) var(--space-4); border-top: 1px solid var(--border); vertical-align: middle; }
 .table tr:hover td { background: color-mix(in srgb, var(--brand-soft) 50%, transparent); }
-.table a { color: var(--brand-deep); font-weight: 600; }
+.table a:not(.ch-btn) { color: var(--brand-deep); font-weight: 600; }
 .table .num { text-align: right; font-variant-numeric: tabular-nums; }
 .table-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 
@@ -149,3 +149,6 @@
   .shell__bar-in { gap: var(--space-1); }
   .acct__btn { padding: 0 var(--space-1); }
 }
+
+/* Visually hidden, still read by screen readers. */
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }

@@ -352,7 +352,7 @@ const handlers = {
     const ev = getEvent(s, key)
     if (!isOrganizer(a, ev)) fail('forbidden', 'You can only submit your own events.', 403)
     if (!['Draft', 'Changes Requested'].includes(ev.status)) fail('event_locked', 'This event is already submitted.', 409)
-    if (!ev.photos?.length) fail('photos_required', 'Add at least one photo before submitting.', 422)
+    if (!ev.photos?.length && !ev.photoKey) fail('photos_required', 'Add at least one photo before submitting.', 422)
     if (!ev.guidelinesAccepted) fail('guidelines_required', 'Accept the community guidelines to submit.', 422)
     if (!ev.title || !ev.story?.trim()) fail('story_required', 'Tell people what the event is about.', 422)
     if (!ev.date || !ev.start || !ev.end || !ev.location?.trim()) fail('details_required', 'Add the date, times and location.', 422)
@@ -373,7 +373,7 @@ const handlers = {
       notify(s, ctx, npAdminsOf(s, np.id).map((u) => u.id), 'autopilot_approved', 'Autopilot approved an event', `${ev.title} by ${a.name} passed your checks and went live.`, '/np/approvals')
       return { event: ev, outcome: 'auto_approved' }
     }
-    notify(s, ctx, npAdminsOf(s, np.id).map((u) => u.id), 'approval_requested', 'New event waiting for approval', `${ev.title} by ${a.name} is waiting for your approval.`, '/np/approvals')
+    if (!ev.sample) notify(s, ctx, npAdminsOf(s, np.id).map((u) => u.id), 'approval_requested', 'New event waiting for approval', `${ev.title} by ${a.name} is waiting for your approval.`, '/np/approvals')
     return { event: ev, outcome: 'submitted' }
   },
 
@@ -438,6 +438,116 @@ const handlers = {
     const copy = handlers.createDraft(s, { title: src.title, story: src.story, category: src.category, nonprofitId: src.nonprofitId, location: src.location, photos }, ctx)
     copy.mission = src.mission
     return copy
+  },
+  /** Owner archives a closed event: it leaves active lists and the public page becomes read-only. */
+  archiveEvent(s, { key }, ctx) {
+    const a = requireAuth(ctx)
+    const ev = getEvent(s, key)
+    if (!isOrganizer(a, ev)) fail('forbidden', 'You can only archive your own events.', 403)
+    const en = endsAt(ev)
+    const closed = ev.status === 'Completed' || (ev.status === 'Live' && en && ctx.now > en)
+    if (!closed) fail('invalid_state', 'Only closed events can be archived.', 409)
+    if (ev.status === 'Live') ev.completedAt = en.toISOString()
+    ev.status = 'Archived'; ev.archivedAt = ctx.now.toISOString()
+    return ev
+  },
+  /** Bring an archived event back to Closed (Completed). The 30-day archive clock starts again. */
+  unarchiveEvent(s, { key }, ctx) {
+    const a = requireAuth(ctx)
+    const ev = getEvent(s, key)
+    if (!isOrganizer(a, ev)) fail('forbidden', 'You can only restore your own events.', 403)
+    if (ev.status !== 'Archived') fail('invalid_state', 'Only archived events can be restored.', 409)
+    ev.status = 'Completed'; ev.archivedAt = null; ev.completedAt = ctx.now.toISOString()
+    return ev
+  },
+  /** One commit for a whole selection. Each event is checked on its own; refusals come back with the reason. */
+  bulkEvents(s, { keys = [], action }, ctx) {
+    requireAuth(ctx)
+    const run = { archive: handlers.archiveEvent, unarchive: handlers.unarchiveEvent, delete: handlers.deleteEvent, duplicate: handlers.cloneEvent }[action]
+    if (!run) fail('invalid_action', 'Unknown bulk action.', 400)
+    const done = [], skipped = []
+    for (const key of keys) {
+      try { run(s, { key }, ctx); done.push(key) } catch (e) {
+        if (!(e instanceof DomainError)) throw e
+        skipped.push({ key, title: s.events[key]?.title ?? key, reason: e.message })
+      }
+    }
+    return { done: done.length, skipped }
+  },
+  /** Prototype-only: fills the signed-in organizer's list with believable events across every status, so the
+   *  events console can be tried at 1,000+ events. Sample events never appear in public feeds or other roles' queues. */
+  demoGenerateEvents(s, { count = 1000 }, ctx) {
+    const a = requireRole(ctx, ROLES.SE, ROLES.NP)
+    const n = Math.max(1, Math.min(5000, Math.floor(count)))
+    const have = Object.values(s.events).filter((e) => e.sample).length
+    let seed = ((have + 1) * 2654435761) >>> 0
+    const rnd = () => { seed = (seed + 0x6d2b79f5) >>> 0; let t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296 }
+    const pick = (arr) => arr[Math.floor(rnd() * arr.length)]
+    const int = (lo, hi) => lo + Math.floor(rnd() * (hi - lo + 1))
+    const A = ['Sunrise', 'Harbor', 'Midnight', 'Neon', 'Maple', 'River', 'Lantern', 'Summit', 'Velvet', 'Copper', 'Coastal', 'Golden', 'Paper', 'Thunder', 'Wildflower', 'Brick', 'Silver', 'Cedar', 'Orbit', 'Pixel']
+    const B = ['Hustle', 'Run', 'Night', 'Jam', 'Cleanup', 'Social', 'BakeOff', 'Games', 'Walk', 'Showcase', 'Fest', 'Dash', 'Gala', 'Swap', 'Slam', 'CookOff', 'Ride', 'Quiz', 'Market', 'Mixer']
+    const PLACES = ['Hoboken, NJ', 'Brooklyn, NY', 'Jersey City, NJ', 'Newark, NJ', 'Central Park, NY', 'Prospect Park, Brooklyn NY', 'Piermont, NY', 'Westchester, NY', 'Liberty State Park, NJ', 'Queens, NY']
+    const TIMES = [['9:00 AM', '12:00 PM'], ['10:00 AM', '2:00 PM'], ['12:00 PM', '4:00 PM'], ['4:00 PM', '8:00 PM'], ['6:30 PM', '9:30 PM'], ['7:00 PM', '10:00 PM']]
+    const PHOTO_SETS = ['neon-night', 'give-now', 'golf-outing', 'dog-dad', 'breakneck-ridge-run']
+    const cats = (s.categories ?? []).map((c) => c.name)
+    const ready = Object.values(s.nonprofits).filter((np) => np.status === 'Active' && np.settlement === 'Ready')
+    const nowMs = ctx.now.getTime()
+    const fmtDay = (ms) => new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    const MIX = [['draft', 12], ['waiting', 6], ['changes', 4], ['rejected', 4], ['running', 3], ['upcoming', 30], ['closed', 8], ['completed', 20], ['archived', 13]]
+    const total = MIX.reduce((t, [, w]) => t + w, 0)
+    const stageFor = () => { let r = rnd() * total; for (const [k, w] of MIX) { if ((r -= w) < 0) return k } return 'upcoming' }
+    const future = ['upcoming', 'waiting', 'changes', 'rejected', 'draft']
+
+    for (let i = 0; i < n; i++) {
+      const stage = stageFor()
+      const title = `#${pick(A)}${pick(B)}`
+      let key = `gen-${String(have + i + 1).padStart(4, '0')}`
+      while (s.events[key]) key += 'x'
+      const np = pick(ready)
+      const category = pick(cats) || 'Community'
+      const photoKey = pick(PHOTO_SETS)
+      const [start, end] = pick(TIMES)
+      const day = stage === 'running' ? 0 : future.includes(stage) ? int(1, 260) : stage === 'closed' ? -int(1, 120) : stage === 'completed' ? -int(2, 300) : -int(40, 400)
+      const eventMs = nowMs + day * DAY
+      const joined = int(4, 220), backed = int(0, joined), raised = int(0, 90) * 100
+      const counted = ['running', 'upcoming', 'closed', 'completed', 'archived'].includes(stage)
+      const ev = {
+        key, title, story: `${title.slice(1)}: a community event for ${np?.name ?? 'a good cause'}. Bring friends and make some noise.`, mission: `${title.slice(1)} for a good cause.`, subtitle: '', category,
+        nonprofitId: np?.id ?? '', organizerId: a.id, kind: a.role === ROLES.NP ? 'NP-led' : 'SE-led', status: 'Draft', visibility: 'public',
+        date: fmtDay(eventMs), start, end: stage === 'running' ? '11:59 PM' : end, endDate: '', location: pick(PLACES), photoKey, photos: [], focus: 'center 30%',
+        baseRaised: counted ? raised : 0, baseBacked: counted ? backed : 0, baseJoined: counted ? joined : 0, baseChat: 0, goal: 5000,
+        joinedIds: [], likedIds: [], savedIds: [], tickets: {}, checkins: [], wizardStep: 4, guidelinesAccepted: true, review: null, blocked: null,
+        createdAt: new Date(nowMs - int(2, 420) * DAY).toISOString(), submittedAt: null, liveAt: null, completedAt: null, archivedAt: null, deletedAt: null, sample: true,
+      }
+      if (stage === 'running') ev.start = '8:00 AM'
+      if (stage === 'draft') {
+        ev.wizardStep = int(1, 3); ev.guidelinesAccepted = rnd() > 0.7
+        if (rnd() > 0.45) ev.photoKey = ''
+        if (rnd() > 0.6) { ev.date = ''; ev.start = ''; ev.end = '' }
+        if (rnd() > 0.5) ev.nonprofitId = ''
+        if (rnd() > 0.7) ev.location = ''
+        if (rnd() > 0.8) ev.story = ''
+      } else {
+        ev.submittedAt = new Date(nowMs - int(1, 30) * DAY).toISOString()
+        if (counted) {
+          ev.status = stage === 'completed' ? 'Completed' : stage === 'archived' ? 'Archived' : 'Live'
+          ev.liveAt = new Date(nowMs - int(10, 60) * DAY).toISOString()
+          if (ev.status === 'Completed') ev.completedAt = new Date(eventMs).toISOString()
+          if (ev.status === 'Archived') { ev.completedAt = new Date(eventMs).toISOString(); ev.archivedAt = new Date(eventMs + 31 * DAY).toISOString() }
+        } else if (stage === 'waiting') ev.status = 'Submitted'
+        else if (stage === 'changes') { ev.status = 'Changes Requested'; ev.review = { decision: 'changes_requested', areas: [pick(['Photos', 'Story', 'Date & place'])], feedback: 'Please tighten this up so we can approve it.', reason: '', at: new Date(nowMs - int(1, 6) * DAY).toISOString(), by: 'sample' } }
+        else if (stage === 'rejected') { ev.status = 'Rejected'; ev.review = { decision: 'rejected', areas: [], feedback: '', reason: 'We cannot staff that date.', at: new Date(nowMs - int(1, 9) * DAY).toISOString(), by: 'sample' } }
+      }
+      s.events[key] = ev
+      s.chat[key] = []
+    }
+    return { added: n }
+  },
+  demoRemoveGenerated(s, _p, ctx) {
+    requireAuth(ctx)
+    let removed = 0
+    for (const [k, e] of Object.entries(s.events)) if (e.sample) { delete s.events[k]; delete s.chat[k]; removed++ }
+    return { removed }
   },
   postUpdate(s, { eventKey, text, mediaUrl = '' }, ctx) {
     const ev = getEvent(s, eventKey)
@@ -842,7 +952,7 @@ const handlers = {
 export const AUTOPILOT_CHECKS = ['Has cover photo', 'Story is at least 40 characters', 'Event date is in the future']
 function autopilotPasses(ev, now, checks = AUTOPILOT_CHECKS) {
   const tests = {
-    'Has cover photo': () => ev.photos?.length > 0,
+    'Has cover photo': () => ev.photos?.length > 0 || !!ev.photoKey,
     'Story is at least 40 characters': () => (ev.story ?? '').trim().length >= 40,
     'Event date is in the future': () => (startsAt(ev) ?? 0) > now,
   }

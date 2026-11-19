@@ -2,7 +2,8 @@
 import { ROLES, endsAt, startsAt, eventTotals, isOrganizer, isNpStaffFor, npAdminsOf } from './engine.js'
 
 export const currentUser = (s) => (s.session.userId ? s.users[s.session.userId] ?? null : null)
-export const liveEvents = (s) => Object.values(s.events).filter((e) => !e.deletedAt)
+/** Sample events (made by the demo tools) only ever show in their organizer's own console: never in feeds, queues or admin lists. */
+export const liveEvents = (s, { sample = false } = {}) => Object.values(s.events).filter((e) => !e.deletedAt && (sample || !e.sample))
 
 /** 'full' | 'unavailable' (blocked, public) | 'hidden' (404, existence not revealed). Mirrors F02 edge cases. */
 export function visibility(s, ev, viewer) {
@@ -53,7 +54,7 @@ export function leaderboard(s) {
 }
 
 /* ------------------------------------------------------------ SE */
-export const seEvents = (s, userId) => liveEvents(s).filter((e) => e.organizerId === userId)
+export const seEvents = (s, userId) => liveEvents(s, { sample: true }).filter((e) => e.organizerId === userId)
 export const seDrafts = (s, userId, statuses = ['Draft', 'Changes Requested', 'Rejected']) => seEvents(s, userId).filter((e) => statuses.includes(e.status))
 export function seDashboardEvent(s, userId) {
   const mine = seEvents(s, userId).filter((e) => e.status === 'Live')

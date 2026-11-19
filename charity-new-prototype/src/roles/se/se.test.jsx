@@ -53,46 +53,57 @@ async function runWizardToStep4({ nonprofit = /^ASPCA/ } = {}) {
   await heading('Preview and submit')
 }
 
-describe('SE home', () => {
-  it('shows the upcoming events (up to five), stats and the create button', async () => {
+describe('SE home: the events console', () => {
+  it('shows the pipeline, the Live now / Upcoming / Drafts sections and the create button', async () => {
     renderApp('/se', { as: EMAILS.mike })
-    expect(await screen.findByRole('heading', { name: 'Hi Mike' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Create an event/ })).toHaveAttribute('href', '/se/create')
-    const upcoming = screen.getByRole('region', { name: 'Upcoming events' })
-    // at the fixed clock Mike has two events still to come; the ended ones drop off
-    const dash = within(upcoming).getAllByRole('link', { name: 'Live dashboard' })
-    expect(dash).toHaveLength(2)
-    dash.forEach((a) => expect(a).toHaveAttribute('href', expect.stringMatching(/^\/se\/live\//)))
-    expect(screen.getByRole('heading', { name: /^Draft \(1\)/ })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: /^Live \(5\)/ })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'Needs your attention' })).not.toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Your events' })).toBeInTheDocument()
+    expect(within(screen.getByRole('main')).getAllByRole('link', { name: /Create event/ }).every((a) => a.getAttribute('href') === '/se/create')).toBe(true)
+    // at the fixed clock (Nov 18) Mike has 1 draft, 2 upcoming, 3 closed
+    const pipe = screen.getByRole('navigation', { name: 'Your events by stage' })
+    expect(within(pipe).getByRole('button', { name: 'Drafts: 1' })).toBeInTheDocument()
+    expect(within(pipe).getByRole('button', { name: 'Upcoming: 2' })).toBeInTheDocument()
+    expect(within(pipe).getByRole('button', { name: 'Closed: 3' })).toBeInTheDocument()
+    expect(within(pipe).getByRole('button', { name: 'Live now: 0' })).toBeInTheDocument()
+    const upcoming = screen.getByRole('region', { name: 'Upcoming' })
+    expect(within(upcoming).getAllByRole('link', { name: 'Live dashboard' })).toHaveLength(2)
+    expect(within(screen.getByRole('region', { name: 'Drafts' })).getByText('#SpringSprint')).toBeInTheDocument()
+    expect(within(screen.getByRole('region', { name: 'Live now' })).getByText('Nothing is running right now.')).toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: 'Needs your attention' })).not.toBeInTheDocument()
   })
 
-  it('lists changes requested and rejected events as needing attention, plus notifications', async () => {
+  it('puts changes requested and rejected events under Needs your attention', async () => {
     const sam = renderApp('/se', { as: EMAILS.sam })
     const attention = await screen.findByRole('region', { name: 'Needs your attention' })
     expect(within(attention).getByText('#BookDriveBash')).toBeInTheDocument()
     expect(within(attention).getByText(/two clearer photos/)).toBeInTheDocument()
-    expect(within(attention).getByRole('link', { name: 'See what to change' })).toHaveAttribute('href', '/se/approval/book-drive-bash')
-    expect(within(screen.getByRole('region', { name: 'Recent notifications' })).getByText('Changes requested')).toBeInTheDocument()
+    expect(within(attention).getByRole('link', { name: 'Fix and resubmit' })).toHaveAttribute('href', '/se/create/book-drive-bash/1')
     sam.unmount()
     renderApp('/se', { as: EMAILS.priya })
-    expect(await screen.findByRole('link', { name: 'See why' })).toHaveAttribute('href', '/se/approval/karaoke-for-kids')
+    expect(await screen.findByRole('link', { name: 'Edit and resubmit' })).toHaveAttribute('href', '/se/create/karaoke-for-kids/1')
   })
 
-  it('shows an empty state when nothing is running or coming up', async () => {
-    renderApp('/se', { as: EMAILS.jordan })
-    expect(await screen.findByText('No event is running or coming up.')).toBeInTheDocument()
+  it('shows helpful empty states: nothing running, a waiting event, and a brand-new organizer', async () => {
+    const jordan = renderApp('/se', { as: EMAILS.jordan })
+    expect(await screen.findByText('Nothing is running right now.')).toBeInTheDocument()
+    expect(screen.getByText('No upcoming events.')).toBeInTheDocument()
+    expect(within(screen.getByRole('region', { name: 'Waiting for approval' })).getByText('#PawsInThePark')).toBeInTheDocument()
+    jordan.unmount()
+    const engine = makeEngine()
+    expect(engine.dispatch('signUpSE', { name: 'Riley Quinn', email: 'riley@example.com', password: 'longenough1' }).ok).toBe(true)
+    renderApp('/se', { engine })
+    expect(await screen.findByText('You have not created an event yet.')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Create your first event' })).toHaveAttribute('href', '/se/create')
   })
 
-  it('caps the upcoming list at five, running events first', async () => {
+  it('shows a few events per section and links to the full list', async () => {
     const engine = makeEngine()
     const st = engine.getState()
     for (let i = 1; i <= 7; i++) st.events[`more-${i}`] = { ...st.events['dog-dad'], key: `more-${i}`, title: `#More${i}`, joinedIds: [], tickets: {}, checkins: [] }
     engine.reset(st)
     renderApp('/se', { as: EMAILS.mike, engine })
-    const upcoming = await screen.findByRole('region', { name: 'Upcoming events' })
-    expect(within(upcoming).getAllByRole('link', { name: 'Live dashboard' })).toHaveLength(5)
+    const upcoming = await screen.findByRole('region', { name: 'Upcoming' })
+    expect(within(upcoming).getAllByRole('article')).toHaveLength(6)
+    expect(within(upcoming).getByRole('link', { name: 'See all 9' })).toHaveAttribute('href', '/se?tab=upcoming')
   })
 })
 
@@ -250,7 +261,7 @@ describe('wizard: create, submit, approve, run live', () => {
     await heading('Photos and story')
     await user.type(screen.getByLabelText('Title'), 'Half Done')
     await user.click(screen.getByRole('button', { name: 'Save and exit' }))
-    expect(await screen.findByRole('heading', { name: 'Drafts and events to fix' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Your events' })).toBeInTheDocument()
     expect(ev(engine, 'halfdone')).toMatchObject({ status: 'Draft', title: '#HalfDone' })
     expect(screen.getByText('#HalfDone')).toBeInTheDocument()
   })
@@ -359,43 +370,49 @@ describe('rejected edit', () => {
   })
 })
 
-describe('drafts', () => {
-  it('lists drafts by default and every event with the toggle', async () => {
+describe('drafts (inside the events console)', () => {
+  it('sends the old /se/drafts address to the Drafts tab', async () => {
     renderApp('/se/drafts', { as: EMAILS.mike })
-    expect(await screen.findByText('#SpringSprint')).toBeInTheDocument()
-    expect(screen.queryByText('#NeonNight')).not.toBeInTheDocument()
-    await user.click(screen.getByRole('checkbox', { name: /Show all my events/ }))
-    expect(await screen.findByText('#NeonNight')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'All my events' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Your events' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: /^Drafts/ })).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByText('#SpringSprint')).toBeInTheDocument()
   })
 
-  it('shows Resume, View status, Clone and Delete for a draft, and deletes after confirming', async () => {
-    const { engine } = renderApp('/se/drafts', { as: EMAILS.mike })
-    expect(await screen.findByRole('link', { name: 'Resume' })).toHaveAttribute('href', '/se/create/spring-sprint/2')
-    expect(screen.getByRole('link', { name: 'View status' })).toHaveAttribute('href', '/se/approval/spring-sprint')
-    await user.click(screen.getByRole('button', { name: 'Delete #SpringSprint' }))
-    const dialog = screen.getByRole('dialog')
-    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }))
+  it('shows what a draft still needs, then Continue, Preview and the menu; deletes only after confirming', async () => {
+    const { engine } = renderApp('/se?tab=drafts', { as: EMAILS.mike })
+    const card = within(await screen.findByRole('article', { name: '#SpringSprint' }))
+    expect(card.getByText('Step 2 of 4')).toBeInTheDocument()
+    expect(card.getByText('Choose a nonprofit')).toBeInTheDocument()
+    expect(card.getByRole('link', { name: 'Continue editing' })).toHaveAttribute('href', '/se/create/spring-sprint/2')
+    expect(card.getByRole('link', { name: 'Preview' })).toHaveAttribute('href', '/events/spring-sprint')
+    expect(card.queryByRole('button', { name: /Submit for approval/ })).not.toBeInTheDocument() // not complete yet
+    await user.click(card.getByRole('button', { name: 'More actions for #SpringSprint' }))
+    await user.click(screen.getByRole('menuitem', { name: /Delete draft/ }))
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Cancel' }))
     expect(ev(engine, 'spring-sprint').deletedAt).toBeNull()
-    await user.click(screen.getByRole('button', { name: 'Delete #SpringSprint' }))
-    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }))
+    await user.click(screen.getByRole('button', { name: 'More actions for #SpringSprint' }))
+    await user.click(screen.getByRole('menuitem', { name: /Delete draft/ }))
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete draft' }))
     await waitFor(() => expect(ev(engine, 'spring-sprint').deletedAt).toBeTruthy())
-    expect(await screen.findByText('No drafts right now.')).toBeInTheDocument()
+    expect(await screen.findByText('Nothing here yet.')).toBeInTheDocument()
   })
 
-  it('clones a draft and opens the copy in the wizard', async () => {
-    const { engine } = renderApp('/se/drafts', { as: EMAILS.mike })
-    await user.click(await screen.findByRole('button', { name: 'Clone #SpringSprint' }))
+  it('duplicates a draft and opens the copy in the wizard', async () => {
+    const { engine } = renderApp('/se?tab=drafts', { as: EMAILS.mike })
+    await user.click(await screen.findByRole('button', { name: 'More actions for #SpringSprint' }))
+    await user.click(screen.getByRole('menuitem', { name: 'Duplicate' }))
     expect(await heading('Photos and story')).toBeInTheDocument()
     expect(ev(engine, 'springsprint')).toMatchObject({ status: 'Draft', title: '#SpringSprint', organizerId: 'u_mike' })
   })
 
-  it('does not offer Delete for events the nonprofit is reviewing or has asked to change, and the engine refuses it', async () => {
-    const { engine } = renderApp('/se/drafts', { as: EMAILS.sam })
-    expect(await screen.findByText('#BookDriveBash')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Fix and resubmit' })).toHaveAttribute('href', '/se/create/book-drive-bash/1')
-    expect(screen.queryByRole('button', { name: /^Delete/ })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Clone #BookDriveBash' })).toBeInTheDocument()
+  it('does not offer Delete for events the nonprofit asked to change, and the engine refuses it', async () => {
+    const { engine } = renderApp('/se?tab=drafts', { as: EMAILS.sam })
+    const card = within(await screen.findByRole('article', { name: '#BookDriveBash' }))
+    expect(card.getByRole('link', { name: 'Fix and resubmit' })).toHaveAttribute('href', '/se/create/book-drive-bash/1')
+    expect(card.getByText(/asked for changes/i)).toBeInTheDocument()
+    await user.click(card.getByRole('button', { name: 'More actions for #BookDriveBash' }))
+    expect(screen.queryByRole('menuitem', { name: /Delete/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('menuitem', { name: 'Duplicate' })).toBeInTheDocument()
     expect(engine.dispatch('deleteEvent', { key: 'book-drive-bash' })).toMatchObject({ ok: false, error: { code: 'event_locked' } })
     // someone else's draft
     asId(engine, 'u_mike')
@@ -405,10 +422,9 @@ describe('drafts', () => {
     expect(engine.dispatch('deleteEvent', { key: 'neon-night' })).toMatchObject({ ok: false, error: { code: 'event_locked' } })
   })
 
-  it('shows an empty state with nothing to resume', async () => {
-    renderApp('/se/drafts', { as: EMAILS.jordan })
-    expect(await screen.findByText('No drafts right now.')).toBeInTheDocument()
-    expect(screen.getByText(/0 events shown/)).toBeInTheDocument()
+  it('shows an empty state for a tab with nothing in it', async () => {
+    renderApp('/se?tab=live', { as: EMAILS.jordan })
+    expect(await screen.findByText('Nothing here yet.')).toBeInTheDocument()
   })
 })
 
@@ -490,7 +506,7 @@ describe('approval status page', () => {
     const { engine } = renderApp('/se/approval/karaoke-for-kids', { as: EMAILS.priya })
     await user.click(await screen.findByRole('button', { name: /Delete/ }))
     await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }))
-    expect(await screen.findByRole('heading', { name: 'Drafts and events to fix' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Your events' })).toBeInTheDocument()
     expect(ev(engine, 'karaoke-for-kids').deletedAt).toBeTruthy()
   })
   it('links to the public page for a live event', async () => {

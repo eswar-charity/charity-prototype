@@ -1,10 +1,11 @@
 // Prototype-only chrome: switch between demo people, move the clock, run the lifecycle job, reset the data.
 // It exists so every role's journey can be walked end to end. Set VITE_HIDE_DEMO=1 to remove it.
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { FlaskConical, X } from 'lucide-react'
 import { useDomain, useEngineHandle, useSession, resetDemo } from '../domain/store.jsx'
 import { homeFor, ROLE_LABEL } from '../domain/engine.js'
+import { applyDemoLink, boot } from '../domain/demoLink.js'
 import { useToast } from './kit.jsx'
 
 const QUICK_NP = ['u_np_aspca', 'u_np_unitedway', 'u_np_sierraclub', 'u_np_stjude']
@@ -17,19 +18,19 @@ export default function DemoPanel() {
   const toast = useToast()
   const loc = useLocation()
   const [open, setOpen] = useState(false)
+  const handled = useRef('')
   const hidden = import.meta.env.VITE_HIDE_DEMO === '1'
 
-  // Shareable demo links: /se?as=u_mike signs in as that demo person, then drops the parameter.
+  // Shareable demo links. The one on first load was applied at start-up (domain/demoLink.js); here we only tidy
+  // the address bar for it, and apply any link followed later inside the app.
   useEffect(() => {
     if (hidden) return
-    const params = new URLSearchParams(loc.search)
-    const as = params.get('as')
-    if (!as) return
-    params.delete('as')
-    const rest = params.toString()
-    if (as === 'guest') engine.dispatch('signOut')
-    else engine.dispatch('demoSignIn', { userId: as })
-    nav(`${loc.pathname}${rest ? `?${rest}` : ''}${loc.hash}`, { replace: true })
+    if (handled.current === loc.search) return
+    handled.current = loc.search
+    const fromBoot = boot.search !== null && boot.search === loc.search
+    const cleaned = fromBoot ? (() => { const p = new URLSearchParams(loc.search); p.delete('as'); p.delete('samples'); const r = p.toString(); return r ? `?${r}` : '' })() : applyDemoLink(engine, loc.search)
+    if (cleaned === null) return
+    nav(`${loc.pathname}${cleaned}${loc.hash}`, { replace: true })
   }, [loc.search]) // eslint-disable-line react-hooks/exhaustive-deps
   if (hidden) return null
 
@@ -88,6 +89,17 @@ export default function DemoPanel() {
               <button onClick={lifecycle}>Run lifecycle job</button>
             </div>
           </fieldset>
+
+          {user && (user.role === 'se' || user.role === 'np_admin') && (
+            <fieldset>
+              <legend>Sample events</legend>
+              <div className="demo__row">
+                <button onClick={() => { const r = engine.dispatch('demoGenerateEvents', { count: 1000 }); toast(r.ok ? `Added ${r.data.added.toLocaleString()} sample events to your list` : r.error.message, r.ok ? 'ok' : 'error') }}>Add 1,000 sample events</button>
+                <button onClick={() => { const r = engine.dispatch('demoRemoveGenerated'); toast(r.ok ? `Removed ${r.data.removed.toLocaleString()} sample events` : r.error.message, r.ok ? 'ok' : 'error') }}>Remove sample events</button>
+              </div>
+              <p className="demo__hint">Sample events fill your own list so you can try search, filters and pagination. They never show in public feeds or on other roles' screens.</p>
+            </fieldset>
+          )}
 
           <div className="demo__row">
             <button className="demo__reset" onClick={() => { resetDemo(engine); nav('/'); toast('Demo data reset') }}>Reset all demo data</button>

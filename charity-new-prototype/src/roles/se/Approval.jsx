@@ -40,7 +40,7 @@ export default function Approval() {
   const edit = ['Draft', 'Changes Requested', 'Rejected'].includes(ev.status) ? editLink(ev) : null
   const remove = async () => {
     if (await confirm({ title: `Delete ${ev.title}?`, body: 'This removes the event for good.', confirm: 'Delete', danger: true })) {
-      run('deleteEvent', { key: ev.key }, { success: `${ev.title} deleted.`, onOk: () => nav('/se/drafts') })
+      run('deleteEvent', { key: ev.key }, { success: `${ev.title} deleted.`, onOk: () => nav('/se?tab=drafts') })
     }
   }
   const clone = () => run('cloneEvent', { key: ev.key }, { success: 'Copied as a new draft.', onOk: (copy) => nav(`/se/create/${copy.key}/1`) })
@@ -48,7 +48,7 @@ export default function Approval() {
   return (
     <>
       <PageHeader
-        back={{ to: '/se/drafts', label: 'My drafts' }}
+        back={{ to: '/se?tab=drafts', label: 'My drafts' }}
         eyebrow="Approval status"
         title={ev.title}
         lede={`${whenText(ev)}${ev.location ? ` · ${ev.location}` : ''} · for ${np}`}

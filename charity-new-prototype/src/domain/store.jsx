@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useMemo, useRef, useSyncExterna
 import { createEngine } from './engine.js'
 import { buildSeed, SCHEMA_VERSION } from './seed.js'
 import { currentUser } from './selectors.js'
+import { applyDemoLink, boot } from './demoLink.js'
 
 const KEY = 'charityhub.prototype.v3'
 const Ctx = createContext(null)
@@ -21,7 +22,11 @@ function load() {
 
 export function DomainProvider({ children, engine: injected }) {
   const ref = useRef(null)
-  if (!ref.current) ref.current = injected ?? createEngine(load(), { storageKey: KEY })
+  if (!ref.current) {
+    ref.current = injected ?? createEngine(load(), { storageKey: KEY })
+    // A demo link on first load (?as=…&samples=…) is applied now, before any route guard renders.
+    if (!injected && typeof window !== 'undefined' && boot.search !== window.location.search && applyDemoLink(ref.current, window.location.search) !== null) boot.search = window.location.search // once per link, even if React renders twice
+  }
   const engine = ref.current
   return <Ctx.Provider value={engine}>{children}</Ctx.Provider>
 }
