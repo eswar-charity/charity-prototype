@@ -12,13 +12,19 @@ const HOST_STEPS = [
 const GUEST_STEPS = [
   { icon: Ticket, title: 'Join with an email', text: 'No password and no account. Add your email, get a ticket with a QR code and keep it under Saved.' },
   { icon: MessageSquare, title: 'Join the conversation', text: 'Post, reply, like and chat in the event room. Hosts carry a Host badge so you know who is speaking for the event.' },
-  { icon: HandHeart, title: 'Give if you want to', text: 'Gifts go to the nonprofit through Stripe, and you get a receipt. Giving is optional and never needed to join.' },
+  { icon: HandHeart, title: 'Help it win', text: 'Back the nonprofit if you like. Gifts go through Stripe and you get a receipt. Your turnout is what moves the event up the board.' },
 ]
 const FAQ = [
-  ['Who approves an event?', 'The beneficiary nonprofit does. Charity Hub can also pause an event that breaks the guidelines, and the page then reads “Temporarily unavailable”.'],
-  ['What does it cost to join?', 'Joining is free. If you choose to give, a card processing fee is shown before you pay.'],
-  ['How is the leaderboard decided?', 'By the number of people going, never by money raised. It is called Competition for Good for a reason.'],
-  ['What do other people see of me?', 'Your first name and last initial. Your email is used for your ticket and receipt and is never shown.'],
+  ['Do I have to give to take part?', 'No. Showing up counts most. The leaderboard counts people going, never dollars.'],
+  ['What does “Competition for Good” mean?', 'Hosts compete to throw events people actually show up for. A bigger crowd moves your event up, and every event backs a verified nonprofit.'],
+  ['How does an event get to the top?', 'By the number of people going. Invite friends, keep the room lively and thank people.'],
+  ['Where does the money go?', 'Straight to the nonprofit through Stripe. Charity Hub does not hold it, and a card processing fee is shown before you pay.'],
+  ['Can a nonprofit say no to my event?', 'Yes. It approves every event in its name, or asks for changes with a reason. Nothing goes public without that.'],
+  ['Who sees my name and email?', 'Others see your first name and last initial. Your email is only used for your ticket and receipt.'],
+  ['I’m new to hosting. Where do I start?', 'Pick a nonprofit, add a photo and tell your story. Your draft saves as you go.'],
+  ['Is my event ever paused?', 'Charity Hub can pause an event that breaks the guidelines. The page then reads “Temporarily unavailable”.'],
+  ['Do I need an account to join?', 'No. An email is enough, and you get a ticket with a QR code.'],
+  ['What happens after the event?', 'It closes, the room stays open for photos and thank-yous, and the host gets an impact summary.'],
 ]
 
 export default function HowItWorks() {

@@ -901,6 +901,19 @@ describe('nonprofits, causes, organizers, how it works', () => {
     renderApp('/how-it-works')
     expect(screen.getByRole('heading', { level: 1, name: /From a good idea to a full room/ })).toBeInTheDocument()
     expect(screen.getByText('Common questions')).toBeInTheDocument()
+    expect(screen.getByText('Show up, speak up, keep it going.')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Help it win/ })).toBeInTheDocument()
+    expect(screen.queryByText(/Give if you want to/)).not.toBeInTheDocument()
+  })
+
+  it('answers ten common questions, led by what matters: showing up, not giving', () => {
+    renderApp('/how-it-works')
+    const terms = screen.getAllByRole('term').map((t) => t.textContent)
+    expect(terms).toHaveLength(10)
+    expect(terms[0]).toBe('Do I have to give to take part?')
+    expect(terms).toContain('What does “Competition for Good” mean?')
+    expect(terms).toContain('What happens after the event?')
+    expect(screen.getAllByRole('definition')).toHaveLength(10)
   })
 
   it('shows an organizer profile with their events, and not found for anyone else', () => {
